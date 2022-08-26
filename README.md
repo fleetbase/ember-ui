@@ -1,4 +1,4 @@
-# @fleetbase/ember-core
+# @fleetbase/ember-ui
 
 [Short description of the addon.]
 
@@ -13,7 +13,7 @@
 ## Installation
 
 ```
-ember install @fleetbase/ember-core
+ember install @fleetbase/ember-ui
 ```
 
 
