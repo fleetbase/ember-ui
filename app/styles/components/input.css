@@ -1,0 +1,293 @@
+.ember-power-select-trigger.form-input.form-input-sm,
+.ember-power-select-trigger.form-input-sm,
+select.form-input-sm,
+input.form-input.form-input-sm {
+    @apply px-2.5 py-1.5 text-xs leading-4;
+}
+
+select.form-select.form-input-sm,
+select.form-input-sm {
+    @apply pr-8;
+}
+
+select.form-input-md,
+input.form-input.form-input-md {
+    @apply px-3 py-2 text-sm leading-4;
+}
+
+body[data-theme='light'] select.form-select.has--placeholder,
+body[data-theme='dark'] select.form-select.has--placeholder,
+select.form-select.has--placeholder {
+    color: #9fa6b2;
+}
+
+body.fleetbase-console {
+    & .form-input {
+        @apply text-sm;
+    }
+}
+
+.fleetbase-input:not(.fleetbase-date-input),
+.fleetbase-input:not(.fleetbase-date-input) .form-input {
+    @apply text-xs leading-4;
+}
+
+
+/** model select **/
+
+.fleetbase-power-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
+.fleetbase-model-select .ember-power-select-trigger.form-select .ember-power-select-status-icon {
+    @apply hidden;
+}
+
+
+/** icons within input **/
+
+.fleetbase-input.with-left-icon .form-input {
+    padding-left: 2rem;
+}
+
+.fleetbase-input.with-right-icon .form-input {
+    padding-right: 1.6rem;
+}
+
+.fleetbase-input .input-icon {
+    position: absolute;
+    top: 0;
+    padding-top: 0.7rem;
+}
+
+.fleetbase-input .form-input-sm .input-icon {
+    padding-top: 0.5rem;
+}
+
+.fleetbase-input .input-icon.input-icon-left {
+    left: 0;
+    padding-left: 0.75rem;
+}
+
+.fleetbase-input .input-icon.input-icon-right {
+    right: 0;
+    padding-right: 0.75rem;
+}
+
+select.form-select {
+    @apply text-sm;
+}
+
+body[data-theme='dark'] .form-input.ember-power-select-trigger,
+body[data-theme='dark'] .form-input,
+body[data-theme='dark'] .form-select {
+    @apply text-sm text-white bg-gray-700 border border-gray-900 shadow;
+}
+
+.input-group {
+    @apply mb-5;
+    & label {
+        @apply block mb-1 text-sm font-medium leading-5 text-gray-700;
+    }
+}
+
+body[data-theme='dark'] .input-group {
+    & label {
+        @apply text-gray-100;
+    }
+}
+
+.form-input:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.form-datalist {
+    &::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+}
+
+body[data-theme='dark'] .form-select:hover,
+body[data-theme='dark'] .form-datalist:hover {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%23f3f4f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+}
+
+body[data-theme='light'] .form-select:hover,
+body[data-theme='light'] .form-datalist:hover {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+}
+
+.fleetbase-power-select,
+#ember-basic-dropdown-wormhole,
+.ember-model-select {
+    & .ember-power-select-trigger {
+        & .ember-power-select-placeholder {
+            @apply w-full ml-0 truncate;
+            color: #9fa6b2;
+        }
+        & .ember-power-select-selected-item {
+            @apply w-full ml-0 truncate;
+        }
+    }
+    & .ember-model-select__dropdown {
+        @apply bg-white border border-gray-300 shadow;
+    }
+    & .ember-power-select-option {
+        @apply w-full px-3 py-2 text-sm leading-4 truncate;
+    }
+    & .ember-power-select-search {
+        &>input {
+            @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
+        }
+    }
+}
+
+body[data-theme='light'] .fleetbase-power-select,
+body[data-theme='light'] #ember-basic-dropdown-wormhole,
+body[data-theme='light'] .ember-model-select {
+    &[aria-current='true'] {
+        @apply bg-gray-100;
+    }
+    &[aria-selected='true'] {
+        @apply bg-gray-300;
+    }
+}
+
+body[data-theme='dark'] .fleetbase-power-select,
+body[data-theme='dark'] #ember-basic-dropdown-wormhole,
+body[data-theme='dark'] .ember-model-select {
+    & .ember-power-select-trigger {
+        & .ember-power-select-placeholder {
+            color: #9fa6b2;
+        }
+    }
+    & .ember-model-select__loading {
+        @apply bg-gray-700;
+    }
+    & .ember-model-select__dropdown {
+        @apply bg-gray-700 border border-gray-900 shadow;
+    }
+    & .ember-power-select-option {
+        @apply text-gray-100;
+        &[aria-current='true'] {
+            @apply bg-gray-800;
+        }
+        &[aria-selected='true'] {
+            @apply bg-gray-900;
+        }
+    }
+    & .ember-power-select-search {
+        &>input {
+            @apply text-white bg-gray-700 border border-gray-900 shadow;
+        }
+    }
+}
+
+label.required:after {
+    color: #e3342f;
+    content: '*';
+    left: 3px;
+    top: 0px;
+    font-size: 16px;
+    position: relative;
+    font-family: arial;
+}
+
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger,
+.money-input-currency-selector {
+    & .ember-power-select-trigger {
+        @apply border-0 rounded-none bg-transparent m-0 p-0;
+    }
+    & + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+    & .ember-basic-dropdown-content {
+        min-width: 20rem;
+    }
+    & .ember-power-select-search-input {
+        @apply text-sm rounded shadow-sm;
+    }
+    &.ember-basic-dropdown-trigger,
+    & .ember-basic-dropdown-trigger {
+        @apply flex items-center justify-center text-center m-0 p-0;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+body[data-theme='dark'] {
+    & .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger,
+    & .money-input-currency-selector {
+        & + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+        & .ember-basic-dropdown-content {
+            @apply bg-gray-800 rounded-md shadow text-gray-100 border border-gray-900;
+            & .ember-power-select-option {
+                &[aria-selected='true'] {
+                    @apply bg-night-805;
+                }
+            }
+            & .ember-power-select-search-input {
+                @apply border border-blue-900 bg-gray-900 py-1;
+            }
+        }
+    }
+}
+
+
+/** removes annoying autocomplete styling **/
+
+
+/* body[data-theme="dark"] {
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+    }
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+} */
+
+
+/** tag input **/
+
+.emberTagInput {
+    height: 39px;
+    display: flex;
+    flex-direction: row;
+    & li.emberTagInput-new {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+    }
+    & li input.emberTagInput-input {
+        @apply text-sm;
+        background-color: transparent;
+        margin: 0;
+        padding: 0;
+    }
+    & .emberTagInput-tag {
+        margin-bottom: 0;
+        @apply rounded-md bg-sky-500 flex items-center;
+    }
+    & .emberTagInput-remove:before {
+        color: #fff;
+        margin-left: 0.5rem;
+    }
+}
+
+body[data-theme='dark'] .emberTagInput input.emberTagInput-input {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .emberTagInput-tag {
+    @apply bg-gray-900 shadow-sm;
+}
+
+body[data-theme='dark'] .iti__country-list {
+    @apply bg-gray-900 rounded-md shadow-sm border-gray-700 mt-1;
+}
+
+/** .ui-money-input */
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger {
+    border: 0px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}

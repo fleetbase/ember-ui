@@ -1,0 +1,11 @@
+/** cell qr/code **/
+.cell-qr-code {
+    width: 2rem;
+}
+
+/** dropdown menu cell**/
+.dropdown-menu-cell {
+    &.align-right {
+        padding-right: 2.5rem;
+    }
+}

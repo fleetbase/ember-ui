@@ -1,0 +1,260 @@
+.table-wrapper {
+    @apply sm:rounded-lg inline-block min-w-full overflow-hidden align-middle border-b border-gray-200;
+
+    &.table-native {
+        & table {
+            & thead {
+                & tr th {
+                    @apply py-1;
+                }
+            }
+            & tbody {
+                & tr td {
+                    @apply py-1;
+                }
+            }
+        }
+    }
+
+    &.table-fluid {
+        @apply border-none;
+
+        & table {
+            @apply border-none;
+
+            & tbody {
+                @apply bg-transparent border-none;
+            }
+
+            & thead {
+                & tr th {
+                    @apply bg-transparent border-none;
+                }
+            }
+        }
+
+        & .ember-light-table {
+            @apply w-full;
+        }
+    }
+
+    & table {
+        @apply min-w-full border-gray-200;
+        border-top-width: 1px;
+
+        & tbody {
+            @apply bg-white border-gray-200;
+            border-top-width: 1px;
+
+            & tr td {
+                @apply px-4 py-2 text-sm truncate whitespace-nowrap border-b border-gray-200 select-none;
+
+                &.overflow-visible {
+                    overflow: visible !important;
+                }
+            }
+
+            & tr:last-child td {
+                @apply border-b-0;
+            }
+
+            & tr.is-selected {
+                @apply shadow select-none;
+                & td {
+                    @apply bg-blue-300 select-none;
+                }
+            }
+        }
+
+        & thead {
+            & tr th {
+                @apply px-4 py-2 text-xs font-medium leading-4 tracking-wider text-gray-500 uppercase border-r border-gray-200 border-dashed bg-gray-50;
+                
+                &:last-child {
+                    @apply border-r-0;
+                }
+
+                &.is-resizing,
+                &:hover {
+                    @apply border-gray-300;
+                }
+            }
+        }
+    }
+}
+
+[data-theme='light'] .table-wrapper {
+    @apply shadow-pop-least;
+
+    &.table-fluid {
+        @apply shadow-none;
+
+        & table tbody tr:nth-child(even) td {
+            /* background-color: #f1f2f4; */
+            @apply bg-gray-100;
+        }
+
+        & table tbody tr:last-child td {
+            @apply border-none;
+        }
+
+        & table tbody tr:hover:not(.is-selected) {
+            @apply shadow;
+            & td {
+                @apply bg-white;
+            }
+        }
+    }
+
+    & .lt-foot-wrap {
+        @apply bg-gray-100;
+    }
+}
+
+[data-theme='dark'] .table-wrapper {
+    @apply bg-transparent shadow;
+
+    &.table-boxed {
+        @apply bg-transparent border-none rounded-md;
+
+        & table {
+            @apply bg-transparent border border-gray-900 rounded-md shadow-md;
+        }
+
+        & tbody {
+            @apply border-none;
+            & tr td {
+                @apply text-gray-400 bg-gray-800 border-gray-900;
+            }
+        }
+
+        & thead {
+            @apply border-none;
+            & tr th {
+                @apply text-gray-100 bg-gray-900 border-gray-900;
+                &:last-child {
+                    @apply border-none;
+                }
+            }
+        }
+    }
+
+    &.table-native {
+        & table {
+            @apply border-gray-800;
+            & thead {
+                & tr th {
+                    &:hover {
+                        @apply border-gray-900;
+                    }
+                }
+
+                & tr th:not([class*="bg-"]) {
+                    @apply bg-gray-800;
+                }
+            }
+            & tbody {
+                @apply border-gray-900;
+
+                & tr td {
+                    @apply text-gray-400 border-gray-900;
+                }
+
+                & tr:nth-child(even):not(.is-selected) td {
+                    @apply bg-moregray-750;
+                }
+            }
+        }
+    }
+
+    &.table-fluid {
+        @apply shadow-none;
+        & table {
+            @apply border-gray-900;
+            & tbody {
+                @apply border-gray-900;
+
+                & tr td {
+                    @apply text-gray-400 border-gray-900;
+                }
+
+                & tr.is-selected {
+                    @apply shadow-lg select-none;
+                    & td {
+                        @apply text-blue-900 bg-blue-500 border-blue-600;
+                        & a {
+                            @apply text-blue-900;
+                        }
+                    }
+                }
+            }
+        }
+
+        & table thead tr th:hover {
+            @apply text-white;
+        }
+
+        & table tbody tr:nth-child(even):not(.is-selected) td {
+            @apply bg-moregray-750;
+        }
+
+        & table tbody tr:hover:nth-child(even):not(.is-selected),
+        & table tbody tr:hover:not(.is-selected) {
+            @apply shadow-lg;
+            & td {
+                @apply bg-moregray-850;
+            }
+        }
+
+        & table thead tr th {
+            @apply border-gray-700;
+        }
+
+        & .lt-foot-wrap {
+            @apply text-gray-400 bg-gray-800 border-gray-900;
+        }
+    }
+}
+
+/** for tables within tables **/
+table.sub-table {
+    & tbody {
+        & tr {
+            border-bottom: 0px;
+            border: 0px;
+            & td {
+                border-bottom: 0px;
+            }
+            &:hover {
+                box-shadow: none !important;
+            }
+        }
+    }
+}
+
+.table-spaced-y-1 {
+    border-collapse: separate;
+    border-spacing: 0 0.25rem;
+}
+
+.table-spaced-y-2 {
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.table-spaced-y-3 {
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+}
+
+.table-spaced-y-4 {
+    border-collapse: separate;
+    border-spacing: 0 1rem;
+}
+
+.table-cells-valign-top {
+    & td,
+    & th {
+        vertical-align: top;
+    }
+}

@@ -1,0 +1,119 @@
+.ui-tabs {
+    @apply border-b border-gray-200;
+
+    & > ul.nav-tabs {
+        @apply border-b border-gray-200;
+
+        & li {
+            @apply -mb-px;
+        }
+    }
+
+    & > ul,
+    & > nav {
+        @apply -mb-px px-4 flex;
+
+        & .nav-item,
+        & .ui-tab {
+            @apply bg-white border border-gray-200 text-gray-500 px-3 py-2 truncate inline-block w-32 text-center rounded-t-lg;
+
+            font-weight: 500;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            white-space: nowrap;
+            z-index: 50;
+
+            &:first-child {
+                z-index: 90;
+            }
+
+            &:nth-child(2) {
+                transform: translateX(-1rem);
+                z-index: 80;
+            }
+
+            &:nth-child(3) {
+                transform: translateX(-2rem);
+                z-index: 70;
+            }
+
+            &:nth-child(4) {
+                transform: translateX(-3rem);
+                z-index: 60;
+            }
+
+            &:nth-child(5) {
+                transform: translateX(-4rem);
+                z-index: 50;
+            }
+
+            &:nth-child(6) {
+                transform: translateX(-5rem);
+                z-index: 40;
+            }
+
+            &:nth-child(7) {
+                transform: translateX(-6rem);
+                z-index: 30;
+            }
+
+            &:nth-child(8) {
+                transform: translateX(-7rem);
+                z-index: 20;
+            }
+
+            &:nth-child(9) {
+                transform: translateX(-8rem);
+                z-index: 10;
+            }
+
+            &:hover {
+                @apply text-gray-700 border-gray-200;
+            }
+            
+            &.active {
+                @apply text-gray-700 border-gray-200 border-b-0 -mb-px;
+                opacity: 1;
+                z-index: 99;
+            }
+        }
+    }
+}
+
+body[data-theme='dark'] .ui-tabs {
+    @apply border-gray-700;
+
+    & > ul.nav-tabs {
+        @apply border-gray-700;
+    }
+
+    & > ul,
+    & > nav {
+        & .nav-item,
+        & .ui-tab {
+            @apply text-gray-400 bg-gray-900 border-gray-700;
+
+            &:hover {
+                @apply text-gray-100;
+            }
+
+            &.active {
+                @apply text-gray-300;
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .ui-tabs .ui-tab.active {
+        min-width: 6rem;
+    }
+}
+
+.tab-pane {
+    @apply hidden;
+
+    &.active {
+        @apply block;
+    }
+}

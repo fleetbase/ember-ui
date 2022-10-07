@@ -1,0 +1,11 @@
+<div class="flex {{@wrapperClass}}">
+    <label class="{{if @required "required"}}" ...attributes>{{@labelText}}</label>
+    {{#if @helpText}}
+        <div class="ml-2">
+            <FaIcon @icon={{or @icon "info-circle"}} class="dark:text-gray-100 {{@iconClass}}" />
+            {{!-- <AttachTooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
+                <Ui::InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+            </AttachTooltip> --}}
+        </div>
+    {{/if}}
+</div>

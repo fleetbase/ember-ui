@@ -1,0 +1,14 @@
+<div class="next-user-button" ...attributes>
+    <BasicDropdown @defaultClass={{@wrapperClass}} @onOpen={{@onOpen}} @onClose={{@onClose}} @verticalPosition={{@verticalPosition}} @horizontalPosition={{@horizontalPosition}} @renderInPlace={{or @renderInPlace true}} @initiallyOpened={{@initiallyOpened}} as |dd|>
+        <dd.Trigger class={{@triggerClass}}>
+            {{yield dd}}
+        </dd.Trigger>
+        <dd.Content class={{@contentClass}}>
+            <div class="next-dd-menu {{@dropdownMenuClass}} {{if dd.isOpen 'is-open'}}">
+                {{#each @items as |item|}}
+                    <Layout::Header::Dropdown::Item @item={{item}} @onAction={{fn this.onAction dd}} />
+                {{/each}}
+            </div>
+        </dd.Content>
+    </BasicDropdown>
+</div>

@@ -1,0 +1,13 @@
+<div class="ui-input-info bg-opacity-{{or @opacity 100}} dark:text-blue-100" ...attributes>
+    <FaIcon @icon={{or @icon "info-circle"}} class="mr-1 {{@iconClass}}" />
+    <span class="text-left {{@spanClass}}">
+        {{#if (has-block)}}
+            {{yield}}
+        {{else}}
+            {{@text}}
+            {{#if @exampleText}}
+                <pre class="break-text subpixel-antialiased">{{@exampleText}}</pre>
+            {{/if}}
+        {{/if}}
+    </span>
+</div>

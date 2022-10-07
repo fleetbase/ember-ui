@@ -1,0 +1,26 @@
+.file-icon {
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.file-icon.file-icon-xlsb,
+.file-icon.file-icon-xlsm,
+.file-icon.file-icon-xlsx,
+.file-icon.file-icon-xls {
+    color: #3b8530;
+}
+
+.file-icon.file-icon-doc,
+.file-icon.file-icon-docx,
+.file-icon.file-icon-docm {
+    color: #2e5ea7;
+}
+
+.file-icon.file-icon-pdf {
+    color: #ad311a;
+}
+
+.file-icon .file-extension {
+    @apply mx-1 capitalize font-semibold;
+}

@@ -1,0 +1,57 @@
+.content-panel {
+    @apply mb-4 overflow-hidden border border-gray-200 rounded-lg;
+
+    & > .content-panel-header {
+        @apply flex justify-between w-full py-3 px-5 border-b border-gray-200;
+    }
+
+    & > .content-panel-body {
+        @apply p-5;
+        &.table-fluid {
+            @apply p-0 shadow-none;
+        }
+        &.no-padding {
+            @apply p-0;
+        }
+        &.no-y-padding {
+            @apply py-0 px-5;
+        }
+        &.no-x-padding {
+            @apply px-0 py-5;
+        }
+    }
+
+    & > .content-panel-footer {
+        @apply border-t border-gray-300;
+    }
+}
+
+[data-theme='light'] {
+    & .content-panel {
+        @apply bg-white;
+    }
+}
+
+[data-theme='dark'] {
+    & .content-panel {
+        @apply border-gray-700;
+
+        &.neon {
+            @apply border-blue-800;
+        }
+
+        & > .content-panel-header {
+            @apply bg-gray-900 border-gray-700 text-gray-200;
+        }
+
+        & > .content-panel-footer {
+            @apply border-gray-900;
+        }
+    }
+}
+
+#serviceContainer.developers-console-service {
+    & .content-panel > .content-panel-header:not(.min-h-0) {
+        min-height: 75px;
+    }
+}

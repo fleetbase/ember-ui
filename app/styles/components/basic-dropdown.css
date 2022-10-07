@@ -1,0 +1,51 @@
+.ember-basic-dropdown {
+    & .ember-power-select-clear-btn {
+        top: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-right: .5rem;
+    }
+}
+
+body[data-theme="dark"] {
+    & .ember-basic-dropdown {
+        & .ember-power-select-clear-btn {
+            @apply text-gray-100 text-sm font-bold;
+        }
+    }
+}
+
+.ember-power-select-trigger.ember-model-select-multiple-trigger.form-select {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    padding-left: 0.5rem;
+}
+
+.ember-power-select-multiple-option {
+    margin: 0 0 0 3px;
+    line-height: 1.45;
+    padding: 2px 9px;
+}
+
+body[data-theme="dark"] {
+    & .ember-power-select-multiple-option {
+        @apply bg-gray-900 text-gray-100 border border-gray-700 shadow-sm;
+    }
+}
+
+.ember-basic-dropdown.listbox-base .ember-power-select-options[role="listbox"] {
+    max-height: 20rem;
+}
+
+.ember-basic-dropdown.listbox-lg .ember-power-select-options[role="listbox"] {
+    max-height: 30rem;
+}
+
+.ember-basic-dropdown.listbox-xl .ember-power-select-options[role="listbox"] {
+    max-height: 34rem;
+}
+
+.ember-basic-dropdown.listbox-2xl .ember-power-select-options[role="listbox"] {
+    max-height: 40rem;
+}

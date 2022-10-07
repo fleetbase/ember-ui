@@ -1,0 +1,18 @@
+<CpPanels class="next-sidebar-panel-container" ...attributes as |panels|>
+    <panels.panel class="next-sidebar-panel" @open={{@open}} as |panel|>
+        <panel.toggle class="next-sidebar-panel-toggle">
+            <div class="left">
+                <span class="icon-container">
+                    <FaIcon @icon={{if panel.isOpen "caret-down" "caret-right"}} @prefix="fas" />
+                </span>
+                <span class="panel-title">
+                    {{@title}}
+                </span>
+            </div>
+            <div class="right"></div>
+        </panel.toggle>
+        <panel.body>
+            {{yield panel}}
+        </panel.body>
+    </panels.panel>
+</CpPanels>

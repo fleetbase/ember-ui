@@ -1,0 +1,177 @@
+.content-overlay {
+    @apply absolute inset-0 w-full h-full;
+    z-index: 800;
+    background-color: rgba(244, 245, 247, 0.5);
+    transition: opacity 300ms ease-in-out;
+    opacity: 0;
+
+    & .content-overlay-content {
+        @apply absolute bg-white;
+        z-index: 850;
+        opacity: 0;
+        pointer-events: auto;
+
+        & .overlay-inner-content {
+            @apply flex-1;
+        }
+
+        .gutter {
+            @apply bg-gray-200;
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+    }
+
+    &.no-resize .gutter {
+        display: none;
+    }
+
+    /* &.resizable.overlay-x-right .overlay-inner-content {
+        margin-left: 10px;
+        padding-right: 10px;
+        width: 100%;
+        height: 100%;
+    }
+
+    &.resizable.overlay-x-left  .overlay-inner-content {
+        margin-right: 10px;
+        padding-left: 10px;
+        width: 100%;
+        height: 100%;
+    } */
+
+    &.no-transition {
+        transition: unset;
+        opacity: 1;
+
+        &.overlay-x-left,
+        &.overlay-x-right {
+            transform: translateX(0);
+        }
+
+        &.overlay-y-top,
+        &.overlay-y-bottom {
+            transform: translateY(0);
+            min-height: 200px;
+        }
+
+        & .content-overlay-content {
+            transform: translate(0);
+            opacity: 1;
+        }
+    }
+
+    &.no-backdrop {
+        background-color: transparent;
+        pointer-events: none;
+
+        & > * {
+            pointer-events: auto;
+        }
+    }
+
+    &.is-open {
+        opacity: 1;
+
+        &.overlay-x-left,
+        &.overlay-x-right {
+            & .content-overlay-content {
+                transform: translateX(0);
+                opacity: 1;
+
+                & .gutter {
+                    width: 10px;
+                    height: 100%;
+                    cursor: col-resize;
+                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+                }
+            }
+        }
+
+        &.overlay-x-right {
+            & .gutter {
+                float: left;
+            }
+        }
+
+        &.overlay-x-left {
+            & .gutter {
+                float: right;
+            }
+        }
+
+        &.overlay-y-top,
+        &.overlay-y-bottom {
+            & .content-overlay-content {
+                min-height: 200px;
+                transform: translateY(0);
+                opacity: 1;
+
+                & .gutter {
+                    height: 10px;
+                    width: 100%;
+                    cursor: row-resize;
+                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+                }
+            }
+        }
+    }
+
+    &.overlay-y-bottom {
+        & .content-overlay-content {
+            @apply left-0 right-0 bottom-0 border-t w-full;
+            transition: height 50ms ease-in-out;
+            transform: translateY(100%);
+        }
+    }
+
+    &.overlay-y-top {
+        & .content-overlay-content {
+            @apply left-0 right-0 top-0 border-b w-full;
+            transition: height 50ms ease-in-out;
+            transform: translateY(100%);
+        }
+    }
+
+    &.overlay-x-left {
+        & .content-overlay-content {
+            @apply left-0 border-r h-full;
+            transition: width 50ms ease-in-out;
+            transform: translateX(100%);
+        }
+    }
+
+    &.overlay-x-right {
+        & .content-overlay-content {
+            @apply right-0 border-l h-full;
+            transition: width 50ms ease-in-out;
+            transform: translateX(100%);
+        }
+    }
+}
+
+[data-theme='dark'] { 
+    & .content-overlay {
+        background-color: rgba(38, 47, 63, 0.7);
+
+        &.no-backdrop {
+            background-color: transparent;
+        }
+
+        /* &.overlay-x-right,
+        &.overlay-y-bottom,
+        &.overlay-y-top {
+            & .content-overlay-content {
+                @apply shadow-dark-overlay-gray;
+            }
+        } */
+
+        & .content-overlay-content {
+            @apply bg-gray-800 border-gray-900;
+
+            & .gutter { 
+                @apply bg-gray-900;
+            }
+        }
+    }
+}

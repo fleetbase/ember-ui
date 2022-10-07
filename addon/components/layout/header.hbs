@@ -1,0 +1,34 @@
+<header class="next-view-header" ...attributes>
+    <div class="next-view-header-left">
+        <LinkToExternal @route="console" class="logo navbar-logo mr-4">
+            <img src="/images/icon.png" width="20" height="20" class="w-8 h-8 shadow-sm" alt="Fleetbase" />
+        </LinkToExternal>
+        <ExtensionsList @extensions={{@extensions}} @onAction={{@onAction}} @itemClass="next-view-header-item" class="mr-4" />
+        <span id="view-header-left-content-a"></span>
+        {{yield}}
+        <span id="view-header-left-content-b"></span>
+    </div>
+    <div class="next-view-header-right">
+        <Layout::Header::LoadingIndicator />
+        <span id="view-header-actions"></span>
+        <div class="flex items-center justify-between">
+            <div class="flex-1 flex items-center pr-1">
+                <Layout::Header::Dropdown @items={{this.orgNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" @dropdownMenuClass="py-3" as |dd|>
+                    <div role="button" class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
+                        <div class="org-badge">
+                            {{first-char @user.company_name}}
+                        </div>
+                        <div class="text-sm w-10/12 truncate flex-shrink-0 text-gray-800 dark:text-white">{{@user.company_name}}</div>
+                    </div>
+                </Layout::Header::Dropdown>
+            </div>
+            <div class="flex-1 flex items-center justify-end">
+                <Layout::Header::Dropdown @items={{this.userNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" @dropdownMenuClass="py-3" as |dd|>
+                    <div role="button" class="next-user-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
+                        <img class="rounded-full h-5 w-5 shadow-sm flex-shrink-0" height="20" width="20" src={{@user.avatar_url}} alt={{@user.name}} />
+                    </div>
+                </Layout::Header::Dropdown>
+            </div>
+        </div>
+    </div>
+</header>

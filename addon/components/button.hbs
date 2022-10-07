@@ -1,5 +1,5 @@
 <span class="btn-wrapper {{@wrapperClass}} inline-flex rounded-md {{if this.isNotSecondary 'shadow-sm'}} {{if @isLoading 'is-loading'}}" {{did-insert this.setupComponent}}>
-    <button class="{{@class}} {{if @isLoading 'btn-is-loading'}} {{if @outline 'btn-outline'}} btn-{{or @buttonType 'default'}} btn-{{or @size 'sm'}}" disabled={{this.isDisabled}} ...attributes type="button" {{on "click" this.onClick}}>
+    <button class="btn {{if @isLoading 'btn-is-loading'}} {{if @outline 'btn-outline'}} btn-{{or @type 'default'}} btn-{{or @size 'sm'}}" disabled={{this.isDisabled}} ...attributes type={{or @buttonType "button"}} {{on "click" this.onClick}}>
         {{#if @isLoading}}
             <span class="btn-icon-wrapper btn-loading-icon-wrapper" data-icon-prefix={{@iconPrefix}}>
                 <FaIcon @prefix={{@iconPrefix}} @icon="spinner-third" @size={{@iconSize}} @spin={{true}} class={{if @text "mr-2"}} />

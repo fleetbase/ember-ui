@@ -1,0 +1,24 @@
+<div class="flex items-center {{@wrapperClass}}">
+    <span role="checkbox" tabindex="0" aria-checked="false" class="relative inline-flex items-center justify-center flex-shrink-0 w-10 h-5 cursor-pointer group focus:outline-none {{if @disabled 'opacity-50'}}" ...attributes {{on "click" (fn this.toggle this.isToggled)}}>
+        <span aria-hidden="true" class="{{if this.isToggled this.activeColorClass " bg-gray-200"}} absolute h-4 w-9 mx-auto
+            rounded-full transition-colors ease-in-out duration-200"></span>
+        <span aria-hidden="true" class="{{
+            if @isToggled " translate-x-5" "translate-x-0" }} absolute left-0 inline-block h-5 w-5 border
+            border-gray-200 rounded-full bg-white shadow transform group-focus:shadow-outline
+            group-focus:border-blue-300 transition-transform ease-in-out duration-200"></span>
+    </span>
+    <div class="flex items-center">
+        {{yield}}
+        {{#if @label}}
+            <span class="ml-2 text-sm dark:text-gray-100 {{@labelClass}}">{{@label}}</span>
+        {{/if}}
+        {{#if @helpText}}
+            <div class={{if @label "ml-2"}}>
+                <FaIcon @icon={{or @icon "info-circle" }} class="dark:text-gray-100 {{@iconClass}}" />
+                <AttachTooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right" }}>
+                    <Ui::InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+                </AttachTooltip>
+            </div>
+        {{/if}}
+    </div>
+</div>

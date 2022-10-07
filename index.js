@@ -1,34 +1,10 @@
 'use strict';
-const CssImport = require('postcss-import');
-const PresetEnv = require('postcss-preset-env');
+const name = require('./package').name;
 
 module.exports = {
-  name: require('./package').name,
-  included: function (app) {
-    this._super.included.apply(this, arguments);
-    app.options = app.options || {};
+  name,
 
-    if (Array.isArray(app.options.postcssOptions?.compile?.plugins)) {
-      app.options.postcssOptions.compile.plugins.push(
-        { module: CssImport },
-        {
-          module: PresetEnv,
-          options: { stage: 1 },
-        }
-      );
-    } else {
-      app.options.postcssOptions = {
-        compile: {
-          enabled: true,
-          plugins: [
-            { module: CssImport },
-            {
-              module: PresetEnv,
-              options: { stage: 1 },
-            },
-          ],
-        },
-      };
-    }
+  isDevelopingAddon: function () {
+    return true;
   },
 };

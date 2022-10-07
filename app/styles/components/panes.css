@@ -1,0 +1,32 @@
+.operations-panes-container {
+
+}
+
+body[data-theme="dark"] {
+    & .operations-panes-container {
+        & .lm_content {
+            @apply bg-gray-800;
+        }
+    }
+}
+
+/** modal collapsable panes **/
+.collapsible-panes {
+    & .cp-Panel {
+        @apply border border-gray-800 shadow-sm rounded mb-2;
+        & > .cp-Panel-toggle {
+            @apply px-4 py-2 border-b border-gray-800 bg-gray-800 block;
+        }
+
+        &.cp-is-open {
+            & > .cp-Panel-body {
+                @apply p-4;
+            }
+            & .cp-Panel-toggle {
+                & svg {
+                    transform: rotate(90deg);
+                }
+            }
+        }
+    }
+}

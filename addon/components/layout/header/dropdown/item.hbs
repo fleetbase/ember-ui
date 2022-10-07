@@ -1,0 +1,25 @@
+{{#if this.isTextOnly}}
+    <div class="px-1 {{@item.wrapperClass}}">
+        <div class="{{@item.class}}">{{@item.text}}</div>
+    </div>
+{{/if}}
+
+{{#if this.isLink}}
+    <div class="px-1 {{@item.wrapperClass}}">
+        <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-dd-item {{@item.class}}">{{@item.text}}</LinkTo>
+    </div>
+{{/if}}
+
+{{#if this.isAnchor}}
+    <div class="px-1 {{@item.wrapperClass}}">
+        <a href={{@item.href}} class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}" target={{@item.target}} disabled={{@item.disabled}} {{on "click" (fn @onAction @item.action @item.params)}}>{{@item.text}}</a>
+    </div>
+{{/if}}
+
+{{#if this.isSeperator}}
+    <div class="next-dd-menu-seperator"></div>
+{{/if}}
+
+{{#if this.isComponent}}
+    {{component @item.component @item}}
+{{/if}}

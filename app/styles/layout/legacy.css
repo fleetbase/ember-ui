@@ -1,0 +1,827 @@
+html,
+body {
+    font-family: "Inter UI", Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+    text-size-adjust: none;
+    cursor: default;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    @apply h-screen overflow-hidden antialiased text-gray-900;
+}
+
+.font-default, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+    font-family: "Inter UI", Arial, Helvetica, sans-serif;
+    letter-spacing: .02rem;
+}
+
+a.navbar-logo {
+    width: 32px;
+    height: 32px;
+}
+
+.leaflet-container a {
+    color: unset;
+}
+
+* {
+    box-sizing: border-box;
+    touch-action: pan-x pan-y;
+}
+
+:focus {
+    outline: none;
+}
+
+h1 {
+    @apply text-2xl;
+}
+
+h2 {
+    @apply text-xl;
+}
+
+h3 {
+    @apply text-lg;
+}
+
+a {
+    cursor: default;
+    user-select: none;
+    @apply text-gray-200 no-underline;
+}
+
+a,
+div[role="button"],
+button {
+    cursor: default;
+    user-select: none;
+}
+
+address {
+    @apply not-italic;
+}
+
+/** main content view **/
+
+/* .primary-content-view {
+    max-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+} */
+
+/** webhook icon **/
+
+.webhook-icon {
+    fill: #f4f5f7;
+    width: 1.25em;
+    height: 1.25em;
+    margin-left: -3px;
+}
+
+/** icon rotate 45 **/
+
+.rotate-icon-45 {
+    transform: rotate(45deg);
+}
+
+/** section header **/
+
+.section-header {
+    @apply flex justify-between;
+    & .section-header-actions {
+        @apply flex items-center;
+    }
+}
+
+.section-content {
+    @apply w-full h-screen;
+}
+
+/** filter options picker **/
+
+.filter-row {
+    @apply block bg-white w-full border-b border-gray-200;
+    &.filter-is-active {
+        & .filter-row-body {
+            @apply h-auto;
+            max-height: 800px;
+        }
+    }
+    & .filter-row-header {
+        @apply flex items-center px-3 py-2 text-sm;
+    }
+    & .filter-row-body {
+        @apply h-0 overflow-hidden bg-gray-50;
+        max-height: 0;
+        transition: max-height 0.15s ease-out;
+    }
+
+    &:last-child {
+        @apply border-b-0 rounded-b;
+    }
+}
+
+body[data-theme="dark"] {
+    & .filter-row {
+        @apply bg-gray-900 border-gray-700;
+
+        & .filter-row-body {
+            @apply bg-gray-900 bg-opacity-50;
+        }
+    }
+}
+
+/** box divider **/
+
+.box-divider {
+    padding-left: 8px;
+    margin-left: 8px;
+    box-shadow: inset 1px 0 #e3e8ee;
+    box-sizing: border-box;
+}
+
+/** basic dropdown wormhole fix **/
+
+#ember-basic-dropdown-wormhole .ember-basic-dropdown-content {
+    z-index: 99999;
+}
+
+/** editable data row **/
+
+.datum-row {
+    @apply flex items-center justify-between w-full px-3 py-2 mb-2 text-gray-800 bg-gray-300 rounded;
+    & .datum-key {
+        @apply flex-1 w-1/2 font-semibold truncate;
+    }
+    & .datum-value {
+        @apply w-1/2 font-light text-right truncate;
+    }
+}
+
+body[data-theme='dark'] {
+    & .datum-row {
+        @apply text-gray-100 bg-gray-900;
+    }
+}
+
+/** panel section title **/
+
+.overlay-panel-section-title {
+    @apply mb-3 font-bold;
+}
+
+body[data-theme='dark'] {
+    & .overlay-panel-section-title {
+        @apply text-gray-100;
+    }
+}
+
+/** click to reveal **/
+
+.click-to-reveal {
+    @apply relative;
+    &--hidden-value {
+        @apply block w-full max-w-full truncate;
+        filter: blur(2px);
+    }
+    &.is-visible > &--hidden-value {
+        filter: blur(0);
+    }
+    &--button {
+        @apply absolute inset-0 flex items-center justify-center;
+        box-shadow: none !important;
+        & > button {
+            padding: 0.185rem 0.7rem !important;
+        }
+    }
+    &.is-visible > &--button {
+        @apply hidden;
+    }
+    &--tooltip {
+        @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
+    }
+    &:hover > &--tooltip {
+        @apply scale-100 opacity-100;
+    }
+}
+
+/** click to copy **/
+
+.click-to-copy {
+    @apply relative;
+    &--tooltip {
+        @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
+    }
+    &:hover > &--tooltip {
+        @apply scale-100 opacity-100;
+    }
+}
+
+.console-main-content {
+    @apply w-full h-screen;
+    & .scrollable-content {
+        @apply pb-14;
+    }
+}
+
+.section-content .ember-scrollable .ember-light-table {
+    padding-bottom: 13rem;
+}
+
+.section-content.ui-map-layout {
+    position: absolute;
+    top: 0;
+    margin-top: 0;
+}
+
+.section-header-actions.section-header-actions-map-ui {
+    position: absolute;
+    right: 0;
+    margin-right: 2rem;
+    padding: 1rem;
+    z-index: 30;
+    @apply rounded-md bg-gray-900 shadow;
+}
+
+.live-map-component {
+    height: 100%;
+    width: 100%;
+}
+
+.orders-map {
+    height: 100%;
+    width: 100vw;
+}
+
+.fleetops-home-map {
+    height: 25vh;
+    width: 100vw;
+}
+
+/** `list-scroll-box` specialized scrolling ul list **/
+
+[data-theme='dark'] .list-scroll-box {
+    @apply border-gray-900;
+}
+
+.list-scroll-box {
+    @apply border border-gray-300 block w-full overflow-y-scroll;
+    margin: 0.5rem 0;
+    height: 250px;
+    padding-inline-start: 0px;
+}
+
+.list-scroll-box > li {
+    @apply flex items-center justify-between py-2 px-3 border-b border-gray-300 list-none;
+}
+
+[data-theme='dark'] .list-scroll-box > li {
+    @apply border-gray-900;
+}
+
+.list-scroll-box > li:last-child {
+    border-bottom: 0px;
+}
+
+.z-999 {
+    z-index: 9999;
+}
+
+.z-9999 {
+    z-index: 9999;
+}
+
+.z-99999 {
+    z-index: 9999;
+}
+
+#console-loader,
+.overloader {
+    @apply absolute inset-0 w-full h-full bg-gray-100 text-gray-800 flex items-center justify-center;
+    z-index: 9999999999;
+}
+
+body[data-theme="light"] {
+    & #console-loader,
+    & .overloader {
+        @apply bg-gray-100 text-gray-800;
+    }
+}
+
+body[data-theme="dark"] {
+    & #console-loader,
+    & .overloader {
+        @apply bg-gray-900 text-gray-100;
+    }
+}
+
+.overloader.overloader-opacity-3 {
+    background-color: rgba(17, 24, 39, 0.5);
+}
+
+.overloader.overloader-opacity-2 {
+    background-color: rgba(17, 24, 39, 0.3);
+}
+
+.overloader.overloader-opacity-1 {
+    background-color: rgba(17, 24, 39, 0.2);
+}
+
+.waypoint-label {
+    @apply bg-green-500 rounded-full px-3 py-2;
+}
+
+.order-route-list {
+    @apply text-sm relative z-20;
+
+    &.storefront:before {
+        z-index: 80;
+        height: 100%;
+        @apply border-blue-500;
+    }
+
+    &.storefront .order-route-stop {
+        &:first-child {
+            @apply items-start;
+
+            & .order-route-stop-index {
+                z-index: 99;
+                & .index-count {
+                    @apply bg-blue-500;
+                }
+            }
+        }
+
+        &:last-child {
+            @apply items-end mb-0;
+
+            & .order-route-stop-index {
+                z-index: 99;
+                & .index-count {
+                    z-index: 99;
+                    @apply bg-red-500;
+                }
+            }
+        }
+    }
+
+    &:before {
+        @apply absolute border-l-2 border-green-500 h-full absolute left-0 ml-6 opacity-90;
+        content: '';
+        z-index: -1;
+    }
+    & .order-route-stop {
+        @apply flex items-start justify-between text-sm px-3 mb-3 z-20;
+
+        &.bg--green {
+            @apply bg-green-600;
+        }
+
+        &:last-child {
+            @apply items-end mb-0;
+        }
+
+        & .order-route-location {
+            @apply flex-1 truncate;
+        }
+
+        & .order-route-stop-index {
+            @apply mr-3;
+            & .index-count {
+                @apply bg-green-500 rounded-full text-sm text-gray-100 h-6 w-6 flex items-center justify-center shadow-sm;
+            }
+        }
+    }
+}
+
+/** clean tooltips **/
+
+.ember-attacher-tooltip.clean {
+    @apply bg-transparent m-0 p-0 rounded-none;
+}
+
+.zones-panel {
+    @apply m-8;
+    width: 500px;
+}
+
+.radio-group-condensed {
+    @apply bg-white rounded-md;
+    & .radio-group-item {
+        @apply relative border border-gray-200 p-4 flex;
+        & label span {
+            &:first-child {
+                @apply text-gray-900;
+            }
+            &:last-child {
+                @apply text-gray-500;
+            }
+        }
+        &.is-checked label span {
+            &:first-child {
+                @apply text-blue-900;
+            }
+            &:last-child {
+                @apply text-blue-700;
+            }
+        }
+        & input[type='radio'] {
+            @apply h-4 w-4 text-blue-600 cursor-pointer border-gray-300;
+        }
+        &:first-child {
+            @apply rounded-tl-md rounded-tr-md;
+        }
+        &:last-child {
+            @apply rounded-bl-md rounded-br-md;
+        }
+    }
+}
+
+body[data-theme='dark'] {
+    & .radio-group-condensed {
+        @apply bg-night-805 shadow;
+        & .radio-group-item {
+            @apply text-gray-100 border-night-905;
+            /** patch for info blocks **/
+            & .ui-input-info-block {
+                & .ui-input-info-block-text {
+                    & > span,
+                    & > p {
+                        @apply text-blue-700;
+                    }
+                }
+                &.warning .ui-input-info-block-text {
+                    & > span,
+                    & > p {
+                        @apply text-yellow-900;
+                    }
+                }
+                &.success .ui-input-info-block-text {
+                    & > span,
+                    & > p {
+                        @apply text-green-900;
+                    }
+                }
+            }
+            & label span {
+                &:first-child {
+                    @apply text-gray-200;
+                }
+                &:last-child {
+                    @apply text-gray-50;
+                }
+            }
+            &.is-checked label span {
+                &:first-child {
+                    @apply text-blue-200;
+                }
+                &:last-child {
+                    @apply text-blue-100;
+                }
+            }
+            & input[type='radio'] {
+                @apply border-gray-900;
+            }
+        }
+    }
+}
+
+.ui-input-info-block {
+    @apply bg-blue-50 border border-blue-300 text-blue-700 p-4;
+    &.md {
+        @apply px-4 py-3;
+    }
+    &.sm {
+        @apply px-3 py-2;
+    }
+    &.xs {
+        @apply px-2 py-1;
+    }
+    & .ui-input-info-block-text,
+    & p {
+        @apply text-blue-900;
+        &.warning {
+            & span,
+            & p {
+                @apply text-yellow-900;
+            }
+        }
+        &.success {
+            & span,
+            & p {
+                @apply text-green-900;
+            }
+        }
+    }
+    &.warning {
+        @apply bg-yellow-200 border-yellow-300 text-yellow-900;
+        & .ui-input-info-block-text,
+        & .ui-input-info-block-text > span,
+        & .ui-input-info-block-text > span:last-child,
+        & .ui-input-info-block-text > p,
+        & span,
+        & span:last-child,
+        & span:first-child,
+        & p {
+            @apply text-yellow-900;
+        }
+    }
+    &.danger {
+        @apply bg-red-200 border-red-300 text-red-900;
+        & .ui-input-info-block-text,
+        & .ui-input-info-block-text > span,
+        & .ui-input-info-block-text > span:last-child,
+        & .ui-input-info-block-text > p,
+        & span,
+        & span:last-child,
+        & span:first-child,
+        & p {
+            @apply text-red-900;
+        }
+    }
+    &.success {
+        @apply bg-green-200 border-green-300 text-green-900;
+        & .ui-input-info-block-text,
+        & .ui-input-info-block-text > span,
+        & .ui-input-info-block-text > p,
+        & span,
+        & span:last-child,
+        & span:first-child,
+        & p {
+            @apply text-green-900;
+        }
+    }
+}
+
+/** activity flow **/
+
+.activity-flow-connector {
+    position: relative;
+    &:before {
+        @apply border-r-4 border-gray-900 absolute;
+        height: 80%;
+        content: '';
+        top: 0;
+        left: 0;
+        margin-left: 50%;
+        z-index: -1;
+    }
+    & .activity-events-list {
+        & > div {
+            @apply rounded-none;
+            &:first-child {
+                @apply rounded-t;
+            }
+            &:last-child {
+                @apply rounded-b;
+            }
+        }
+    }
+}
+
+.activity-flow-sub-connector {
+    position: relative;
+    &:before {
+        @apply border-r-4 border-green-400 h-full absolute;
+        content: '';
+        top: 0;
+        left: 0;
+        margin-left: 50%;
+        z-index: -1;
+    }
+    &:last-child {
+        &:before {
+            height: 70%;
+        }
+    }
+    &.live-flow,
+    &.created-flow,
+    &.enabled-flow,
+    &.success-flow,
+    &.succeeded-flow,
+    &.dispatched-flow,
+    &.operational-flow,
+    &.active-flow,
+    &.completed-flow {
+        &:before {
+            @apply border-green-100;
+        }
+    }
+    &[class*='5'],
+    &.disabled-flow,
+    &.failed-flow,
+    &.canceled-flow {
+        &:before {
+            @apply border-red-100;
+        }
+    }
+    &[class*='4'],
+    &.test-flow,
+    &.warning-flow,
+    &.pending-flow {
+        &:before {
+            @apply border-yellow-100;
+        }
+    }
+    &.dispatched-flow,
+    &.assigned-flow {
+        &:before {
+            @apply border-indigo-100;
+        }
+    }
+    &.driver-enroute-element,
+    &.driver-enroute-flow {
+        &:before {
+            @apply border-orange-100;
+        }
+    }
+    &.info-flow,
+    &.in-progress-flow {
+        &:before {
+            @apply border-blue-100;
+        }
+    }
+}
+
+/** ui-combo-box **/
+
+.ui-combo-box {
+    & .selected-list a.combo-box-option,
+    & .options-list a.combo-box-option {
+        @apply flex text-gray-800 px-4 py-2 border-b border-gray-200 bg-gray-50 relative;
+        &:first-child {
+            @apply rounded-t-md;
+        }
+        &:hover {
+            @apply bg-gray-300;
+        }
+        &.selected:hover,
+        &.selected {
+            @apply bg-blue-400;
+            background-color: #76a9fa !important;
+        }
+    }
+}
+
+body[data-theme='dark'] .ui-combo-box {
+    & .selected-list a.combo-box-option,
+    & .options-list a.combo-box-option {
+        @apply border-gray-900 text-gray-100 bg-gray-700 relative;
+        &:hover {
+            @apply bg-gray-600;
+        }
+    }
+}
+
+.file-dropzone {
+    @apply w-full rounded-lg px-4 py-8 bg-gray-50 text-gray-800 text-center flex flex-col items-center justify-center border-2 border-dashed border-gray-200;
+    min-height: 14rem;
+}
+
+body[data-theme='dark'] .file-dropzone {
+    @apply text-white bg-gray-900 border-gray-700;
+}
+
+.aside-item-link.active {
+    @apply bg-blue-400 text-white;
+}
+
+body[data-theme='dark'] .aside-item-link.active {
+    @apply bg-blue-600;
+}
+
+/** invitation views **/
+body[data-theme='dark'].invite-for-network,
+body.invite-for-network {
+    background-color: #222;
+}
+
+/** container patches **/
+body.fleetbase-console .container {
+    @apply px-4 py-2;
+}
+
+/** when hovering over a network folder **/
+.network-folder:hover,
+.network-folder.hovering {
+    opacity: .5; 
+}
+
+.network-folder {
+    cursor: pointer;
+}
+
+.network-folder > .network-store {
+    display: none;
+}
+
+.store-boolean-settings {
+    @apply border border-gray-200 bg-gray-50 rounded-md;
+
+    & > .input-group {
+        @apply px-4 py-3 border-b border-gray-200 mb-0;
+
+        &:last-child {
+            @apply border-b-0;
+        }
+    }
+}
+
+body[data-theme="dark"] {
+    & .store-boolean-settings {
+        @apply border-gray-700 bg-gray-900;
+
+        & > .input-group {
+            @apply  border-gray-700;
+        }
+    }
+}
+
+/** patch phone number input **/
+body[data-theme="dark"] li.iti__country > span {
+    @apply text-gray-100;
+}
+
+/** ui-input-info **/
+.ui-input-info {
+    @apply bg-night-905 px-3 py-1.5 text-sm leading-5 rounded-md border border-night-905 shadow-sm;
+}
+
+.ui-input-info.danger {
+    @apply bg-red-100 text-red-600 border-red-600;
+}
+
+body[data-theme="light"] {
+    & .ui-input-info {
+        @apply bg-gray-50 bg-opacity-75 border-gray-200 text-gray-600;
+    }
+
+    & .ui-input-info.danger {
+        @apply bg-red-100 text-red-600 border-red-600;
+    }
+}
+
+/** add padding left to c-notification icon **/
+.fleetbase-console .ember-cli-notifications-notification__container .c-notification__icon {
+    @apply flex items-center justify-center;
+}
+
+.fleetbase-console .ember-cli-notifications-notification__container .c-notification__content {
+    @apply text-sm;
+}
+
+.fleetbase-console .ember-cli-notifications-notification__container .c-notification__content .c-notification__close {
+    @apply pt-1;
+}
+
+/** patch syntax highligt **/
+.fleetbase-console .token.operator, 
+.fleetbase-console .token.entity, 
+.fleetbase-console .token.url, 
+.fleetbase-console .language-css .token.string, 
+.fleetbase-console .style .token.string {
+    @apply bg-transparent;
+}
+
+.fleetbase-console code[class*="language-"], 
+.fleetbase-console pre[class*="language-"] {
+    text-shadow: none;
+}
+
+/** anchor link button **/
+.anchor-button {
+    @apply px-2 py-0.5 rounded-md border border-gray-200 flex flex-row items-center shadow-sm;
+
+    &:hover {
+        @apply outline-offset-2 outline-blue-500;
+
+        & > div::last-child {
+            @apply text-blue-400;
+        }
+    }
+
+    & div {
+        @apply px-1 flex items-center;
+    }
+
+    & div:first-child {
+        @apply justify-center;
+    }
+
+    & > div:last-child {
+        @apply border-l border-gray-200 truncate flex-1;
+    }
+}
+
+body[data-theme="dark"] {
+    & .anchor-button  {
+        @apply border-gray-700 bg-gray-900 text-gray-100;
+
+        & > div:last-child {
+        @apply border-gray-700;
+    }
+    }
+}
