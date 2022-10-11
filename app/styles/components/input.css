@@ -300,3 +300,18 @@ body[data-theme='dark'] .iti__country-list {
     justify-content: center;
     padding: 0;
 }
+
+/** ui-date-time-input */
+.ui-date-time-input > input[type="date"],
+.ui-date-time-input > input[type="time"] {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    outline: 0;
+
+    &:focus {
+        outline: 0;
+    }
+}
