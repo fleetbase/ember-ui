@@ -731,19 +731,19 @@ body[data-theme='dark'] {
     @apply w-5;
 }
 
-.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-toggle {
+.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle {
     @apply border-none text-gray-800 block;
 }
 
-.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-toggle.next-orders-driver-header {
+.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle.next-orders-driver-header {
     @apply pl-14 flex;
 }
 
-.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-toggle.next-content-panel-header {
+.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle.next-content-panel-header {
     @apply bg-white rounded-none;
 }
 
-.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-body {
+.next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-body {
     @apply border-none;
 }
 
@@ -758,7 +758,7 @@ body[data-theme='dark'] {
 .next-content-overlay > .next-content-overlay-panel-container > .next-content-overlay-panel.orders-panel .next-content-overlay-panel-body {
     @apply px-0;
 
-    & .order-listings > .cp-Panel-body-inner .order-listings-row {
+    & .order-listings > .next-content-panel-body-inner .order-listings-row {
         @apply pl-4 py-2 pr-2;
 
         &.selected {
@@ -778,7 +778,7 @@ body[data-theme='dark'] {
         > .next-content-overlay-panel.orders-panel
         .next-content-overlay-panel-body
         .order-listings
-        > .cp-Panel-body-inner
+        > .next-content-panel-body-inner
         .order-listings-row {
         &.selected {
             @apply bg-blue-500 bg-opacity-75;
@@ -789,11 +789,11 @@ body[data-theme='dark'] {
         }
     }
 
-    & .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-toggle {
+    & .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle {
         @apply text-gray-100;
     }
 
-    & .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .cp-Panel-toggle.next-content-panel-header {
+    & .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle.next-content-panel-header {
         @apply bg-gray-900;
     }
 }
@@ -951,10 +951,12 @@ body[data-theme='dark'] {
                 }
             }
 
+            &.next-content-panel-is-closed > .next-content-panel-header,
             &.cp-is-closed > .next-content-panel-header {
                 @apply rounded-md;
             }
 
+            &.next-content-panel-is-closed > .next-content-panel-body,
             &.cp-is-closed > .next-content-panel-body {
                 @apply border-0;
             }
@@ -1153,7 +1155,7 @@ body[data-theme='dark'] {
     }
 }
 
-.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .cp-Panel-body .next-nav-item {
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel-body .next-nav-item {
     @apply pl-8;
 }
 
@@ -1496,7 +1498,7 @@ body[data-theme='dark'] {
     }
 
     /** Next/Siderbar Panel **/
-    & .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle.cp-is-open .title {
+    & .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle.next-content-panel-is-open .title {
         @apply text-white;
     }
 
@@ -1541,7 +1543,7 @@ body[data-theme='light'] {
         @apply text-gray-900;
     }
 
-    & .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle.cp-is-open .title {
+    & .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle.next-content-panel-is-open .title {
         @apply text-gray-700;
     }
 

@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { camelize } from '@ember/string';
-import { v4 } from 'ember-uuid';
+import { guidFor } from '@ember/object/internals';
 
 export default class InputGroupComponent extends Component {
   /**
@@ -17,11 +17,11 @@ export default class InputGroupComponent extends Component {
   }
 
   /**
-   * Get a randomly generated uuid for form-group
+   * Get a randomly generated id for form-group
    *
    * @var {String}
    */
   get randomId() {
-    return v4();
+    return guidFor(this);
   }
 }

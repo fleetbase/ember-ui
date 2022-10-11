@@ -1,0 +1,65 @@
+<div class="next-content-panel-wrapper {{@wrapperClass}} {{if @isLoading 'is-loading'}}" {{did-insert this.setupComponent}}>
+    <div class="next-content-panel-container">
+        <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
+            <div class="next-content-panel-header next-content-panel-toggle {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelHeaderClass}} {{if @isLoading 'is-loading'}}">
+                <a href="#" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{@panelHeaderLeftClass}}" {{on "click" (fn this.toggle)}}>
+                    <span class="icon-container">
+                        <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
+                    </span>
+                    {{#if @isLoading}}
+                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="mr-2" />
+                    {{/if}}
+                    <div class="py-2 flex flex-row {{@titleContainerClass}}">
+                        <div class="flex flex-row items-center justify-between">
+                            <div>
+                                {{#if @prefixTitle}}
+                                    <div class={{@prefixTitleContainerClass}}>
+                                        <span class="text-xs {{@prefixTitleClass}}">{{@prefixTitle}}</span>
+                                    </div>
+                                {{/if}}
+                            </div>
+                        </div>
+                        <span class="panel-title flex-shrink-0 {{@panelTitleClass}}">
+                            {{@title}}
+                            {{#if @titleStatus}}
+                                <span class="ml-2 {{@titleStatusContainerClass}}">
+                                    <Badge @status={{@titleStatus}} @hideStatusDot={{@hideStatusDot}} class={{@titleStatusClass}} @disableHumanize={{@disableTitleStatusHumanize}} />
+                                </span>
+                            {{/if}}
+                        </span>
+                    </div>
+                </a>
+                <div class="next-content-panel-header-right {{@panelHeaderRightClass}}">
+                    {{#if @prefixTitleRight}}
+                        <div class={{@prefixTitleRightContainerClass}}>
+                            <span class="text-xs {{@prefixTitleRightClass}}">{{@prefixTitleRight}}</span>
+                        </div>
+                    {{/if}}
+                    {{#if @titleStatusRight}}
+                        <span class="ml-2 {{@titleStatusRightContainerClass}}">
+                            <Badge @status={{@titleStatusRight}} @hideStatusDot={{@hideStatusDot}} class={{@titleStatusRightClass}} @disableHumanize={{@disableTitleStatusRightHumanize}} />
+                        </span>
+                    {{/if}}
+                    {{#each @actionButtons as |button|}}
+                        <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} />
+                    {{/each}}
+                </div>
+            </div>
+            <div class="next-content-panel-body {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelBodyClass}} {{if @isLoading 'is-loading'}}">
+                {{#if this.isOpen}}
+                    <div class="next-content-panel-body-inner next-content-panel-body-wrapper relative {{@panelBodyWrapperClass}} {{if @pad 'p-4'}} {{if @isLoading 'opacity-50'}} {{if @isLoading 'is-loading'}}">
+                        {{#if @isLoading}}
+                            <div class="absolute w-full h-full inset-0 bg-opacity-50 bg-gray-900 flex items-center justify-center">
+                                <div class="flex flex-row items-center">
+                                    <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="mr-1" />
+                                    <span>Loading...</span>
+                                </div>
+                            </div>
+                        {{/if}}
+                        {{yield}}
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,7 @@
 <div class="input-group {{@wrapperClass}}">
-    <InputLabel for={{this.id}} @labelText={{@name}} @helpText={{@helpText}} @required={{@required}} @wrapperClass={{@labelWrapperClass}} />
+    {{#if (and @name (not @hideLabel))}}
+        <InputLabel for={{this.id}} @labelText={{@name}} @helpText={{@helpText}} @required={{@required}} @wrapperClass={{@labelWrapperClass}} />
+    {{/if}}
     {{#if (has-block)}}
         {{yield this.id @name}}
     {{else}}

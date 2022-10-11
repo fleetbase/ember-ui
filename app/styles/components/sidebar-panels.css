@@ -7,7 +7,9 @@
         height: auto;
     }
 
+    & .next-content-panel-container,
     & .cp-Panels {
+        & .next-content-panel,
         & .cp-Panel {
             & .cp-Panel-toggle {
                 @apply flex items-center px-3 py-2 text-white no-underline border-b border-gray-300 select-none;
@@ -26,6 +28,7 @@
                 }
             }
 
+            &.next-content-panel-is-open,
             &.cp-is-open {
                 & .cp-Panel-toggle {
                     & svg {
@@ -34,6 +37,7 @@
                 }
             }
 
+            & .next-content-panel-body,
             & .cp-Panel-body {
                 & .cp-Panel-body-inner {
                     @apply py-4 border-b border-gray-900;
@@ -75,8 +79,11 @@ body[data-theme='dark'] #extensionsNav,
 body[data-theme='dark'] .sidebar-panels {
     @apply bg-gray-800 border-gray-900;
 
+    & .next-content-panel-container,
     & .cp-Panels {
+        & .next-content-panel,
         & .cp-Panel {
+            & .next-content-panel-toggle,
             & .cp-Panel-toggle {
                 @apply border-gray-900;
 
@@ -85,7 +92,9 @@ body[data-theme='dark'] .sidebar-panels {
                 }
             }
 
+            & .next-content-panel-body,
             & .cp-Panel-body {
+                & .next-content-panel-body-inner,
                 & .cp-Panel-body-inner {
                     @apply border-gray-900;
                     & a {
@@ -109,8 +118,11 @@ body[data-theme='light'] #extensionsNav,
 body[data-theme='light'] .sidebar-panels {
     @apply bg-gray-100 border-gray-300;
 
+    & .next-content-panel-container,
     & .cp-Panels {
+        & .next-content-panel,
         & .cp-Panel {
+            & .next-content-panel-toggle,
             & .cp-Panel-toggle {
                 @apply text-gray-700 border-gray-300;
 
@@ -123,7 +135,9 @@ body[data-theme='light'] .sidebar-panels {
                 }
             }
 
+            & .next-content-panel-body,
             & .cp-Panel-body {
+                & .next-content-panel-body-inner,
                 & .cp-Panel-body-inner {
                     @apply border-gray-300;
                     & a {
@@ -143,9 +157,13 @@ body[data-theme='light'] .sidebar-panels {
     }
 }
 
+.next-content-panel-container,
 .cp-Panels {
+    & .next-content-panel,
     & .cp-Panel {
+        &.next-content-panel-is-open,
         &.cp-is-open {
+            & .next-content-panel-toggle,
             & .cp-Panel-toggle {
                 & span.panel-caret svg {
                     transform: rotate(90deg);

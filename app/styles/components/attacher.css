@@ -132,7 +132,7 @@
     z-index: 9999;
 
     @each $position, $index in var(--origins) {
-        &[x-placement^="$(position)"] {
+        &[x-placement^='$(position)'] {
             & div[x-arrow] {
                 @mixin arrow $position, 10px;
             }
@@ -203,15 +203,11 @@
 }
 
 .ember-attacher-tooltip {
-    background-color: #333;
-    border-radius: 4px;
-    color: #fff;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
-    max-width: 400px;
-    padding: 0.5rem 1rem;
-    position: relative;
     text-align: center;
+    max-width: 380px;
+    position: relative;
     will-change: transform;
 
     &.ember-attacher-fill {
@@ -251,7 +247,7 @@
     }
 }
 
-@media {
+@media (max-width: 450px) {
     .ember-attacher-tooltip {
         max-width: 96%;
         max-width: calc(100% - 42px);

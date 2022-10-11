@@ -15,9 +15,9 @@
         {{#if @helpText}}
             <div class={{if @label "ml-2"}}>
                 <FaIcon @icon={{or @icon "info-circle" }} class="dark:text-gray-100 {{@iconClass}}" />
-                <AttachTooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right" }}>
-                    <Ui::InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
-                </AttachTooltip>
+                <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right" }}>
+                    <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+                </Attach::Tooltip>
             </div>
         {{/if}}
     </div>

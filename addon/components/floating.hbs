@@ -1,12 +1,12 @@
 {{#if @renderInPlace}}
-    <div x-placement={{@placement}} {{did-insert this.setupComponent}} ...attributes>
+    <div {{did-insert this.setupComponent}} role={{@ariaRole}} x-placement={{@placement}} ...attributes>
         {{yield}}
     </div>
 {{else}}
     <div class="floating--parent-finder" {{did-insert this.findParent}} />
     {{#if this.floatingContainer}}
         {{#in-element this.floatingContainer insertBefore=null}}
-            <div x-placement={{@placement}} {{did-insert this.setupComponent}} ...attributes>
+            <div {{did-insert this.setupComponent}} role={{@ariaRole}} x-placement={{@placement}} ...attributes>
                 {{yield}}
 
                 {{#if @arrow}}

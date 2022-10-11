@@ -121,32 +121,49 @@ export default class FloatingComponent extends Component {
   }
 
   @action setupComponent(element) {
-    const { registerAPI, renderInPlace } = this.args;
-    const { placement, strategy, middleware } = this.getOptions(element);
+    const { registerAPI } = this.args;
     const target = (this.target = this.resolveTarget(element));
-
-    console.log('target -> ', target);
-    console.log('element -> ', element);
-
-    assign(element.style, { position: strategy });
 
     if (typeof registerAPI === 'function') {
       registerAPI({
         floatingElement: element,
         floatingTarget: target,
+        computePosition: this.computePosition.bind(this),
       });
     }
 
-    return computePosition(target, element, {
+    return this.computePosition(target, element);
+  }
+
+  @action computePosition(target, element) {
+    const { onPositionComputed } = this.args;
+    const { placement, strategy, middleware } = this.getOptions(element);
+
+    assign(element.style, { position: strategy });
+
+    computePosition(target, element, {
       placement,
       strategy,
       middleware,
     }).then(({ x, y }) => {
       assign(element.style, {
         position: 'absolute',
-        left: `${x}px`,
-        top: `${y}px`,
+        pointerEvents: 'none',
+        willChange: 'transform',
+        top: '0',
+        left: '0',
+        transform: `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`,
       });
+
+      if (typeof onPositionComputed === 'function') {
+        onPositionComputed({
+          floatingElement: element,
+          floatingTarget: target,
+          computePosition: this.computePosition.bind(this),
+          x,
+          y,
+        });
+      }
     });
   }
 }

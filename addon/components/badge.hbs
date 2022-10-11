@@ -13,9 +13,9 @@
             {{/if}}
         {{/if}}
         {{#if @helpText}}
-            <AttachTooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top" }}>
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top" }}>
                 <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
-            </AttachTooltip>
+            </Attach::Tooltip>
         {{/if}}
     </span>
 </div>

@@ -1,3 +1,14 @@
+.fleetbase-console .form-input,
+.fleetbase-console .form-textarea,
+.fleetbase-console .form-multiselect,
+.fleetbase-console .form-select {
+    @apply rounded-md;
+
+    &:hover {
+        @apply outline-none;
+    }
+}
+
 .ember-power-select-trigger.form-input.form-input-sm,
 .ember-power-select-trigger.form-input-sm,
 select.form-input-sm,
@@ -104,12 +115,10 @@ body[data-theme='dark'] .input-group {
     }
 }
 
-body[data-theme='dark'] .form-select:hover,
 body[data-theme='dark'] .form-datalist:hover {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%23f3f4f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
 }
 
-body[data-theme='light'] .form-select:hover,
 body[data-theme='light'] .form-datalist:hover {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
 }

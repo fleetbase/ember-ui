@@ -53,11 +53,13 @@ export default class AttachPopoverComponent extends Component {
     return `ember-attacher-${this.animation} ${showOrHideClass} ${arrowClass}`;
   }
 
-  @computed('style', 'transitionDuration') get computedStyle() {
-    const { style, transitionDuration } = this;
+  @computed('style', 'transitionDuration', 'isShown') get computedStyle() {
+    const { style, transitionDuration, isShown } = this;
 
     return htmlSafe(
-      `transition-duration: ${transitionDuration}ms; ${style ?? ''}`
+      `transition-duration: ${transitionDuration}ms; pointer-events: ${
+        isShown ? 'auto' : 'none'
+      }; ${style ?? ''}`
     );
   }
 
@@ -84,6 +86,7 @@ export default class AttachPopoverComponent extends Component {
   @action registerAPI(api) {
     this.floatingElement = api.floatingElement;
     this.floatingTarget = api.floatingTarget;
+    this.computePosition = api.computePosition;
   }
 
   @action setDefaultOptions() {
@@ -421,6 +424,11 @@ export default class AttachPopoverComponent extends Component {
   }
 
   @action startShowAnimation() {
+    // Recompute position before showing animation
+    if (typeof this.computePosition === 'function') {
+      this.computePosition(this.floatingTarget, this.floatingElement);
+    }
+
     // Start the show animation on the next cycle so CSS transitions can have an effect.
     // If we start the animation immediately, the transition won't work because
     // `display: none` => `display: ''` is not transition-able.

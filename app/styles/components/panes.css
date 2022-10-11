@@ -12,16 +12,21 @@ body[data-theme="dark"] {
 
 /** modal collapsable panes **/
 .collapsible-panes {
+    & .next-content-panel,
     & .cp-Panel {
         @apply border border-gray-800 shadow-sm rounded mb-2;
+        & > .next-content-panel-toggle,
         & > .cp-Panel-toggle {
             @apply px-4 py-2 border-b border-gray-800 bg-gray-800 block;
         }
 
+        &.next-content-panel-is-open,
         &.cp-is-open {
+            & > .next-content-panel-body,
             & > .cp-Panel-body {
                 @apply p-4;
             }
+            & .next-content-panel-toggle,
             & .cp-Panel-toggle {
                 & svg {
                     transform: rotate(90deg);
