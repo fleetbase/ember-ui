@@ -3,10 +3,6 @@
 .fleetbase-console .form-multiselect,
 .fleetbase-console .form-select {
     @apply rounded-md;
-
-    &:hover {
-        @apply outline-none;
-    }
 }
 
 .ember-power-select-trigger.form-input.form-input-sm,
@@ -43,14 +39,12 @@ body.fleetbase-console {
     @apply text-xs leading-4;
 }
 
-
 /** model select **/
 
 .fleetbase-power-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
 .fleetbase-model-select .ember-power-select-trigger.form-select .ember-power-select-status-icon {
     @apply hidden;
 }
-
 
 /** icons within input **/
 
@@ -82,7 +76,14 @@ body.fleetbase-console {
     padding-right: 0.75rem;
 }
 
-select.form-select {
+body.fleetbase-console select.form-select,
+div.input-group > select.form-select,
+select.form-select,
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%239fa6b2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-size: 1.5em 1.5em;
     @apply text-sm;
 }
 
@@ -142,7 +143,7 @@ body[data-theme='light'] .form-datalist:hover {
         @apply w-full px-3 py-2 text-sm leading-4 truncate;
     }
     & .ember-power-select-search {
-        &>input {
+        & > input {
             @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
         }
     }
@@ -183,7 +184,7 @@ body[data-theme='dark'] .ember-model-select {
         }
     }
     & .ember-power-select-search {
-        &>input {
+        & > input {
             @apply text-white bg-gray-700 border border-gray-900 shadow;
         }
     }
@@ -237,9 +238,7 @@ body[data-theme='dark'] {
     }
 }
 
-
 /** removes annoying autocomplete styling **/
-
 
 /* body[data-theme="dark"] {
     input:-webkit-autofill {
@@ -250,7 +249,6 @@ body[data-theme='dark'] {
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
 } */
-
 
 /** tag input **/
 
@@ -302,8 +300,8 @@ body[data-theme='dark'] .iti__country-list {
 }
 
 /** ui-date-time-input */
-.ui-date-time-input > input[type="date"],
-.ui-date-time-input > input[type="time"] {
+.ui-date-time-input > input[type='date'],
+.ui-date-time-input > input[type='time'] {
     font-size: 0.875rem;
     line-height: 1.25rem;
     padding: 0;
