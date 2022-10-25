@@ -1,3 +1,3 @@
-import Component from '@glimmer/component';
+import TableCellComponent from './cell';
 
-export default class TableTdComponent extends Component {}
+export default class TableTdComponent extends TableCellComponent {}

@@ -1,0 +1,23 @@
+<div class="next-view-section-subheader {{if @hideActions 'actions-hidden'}}" ...attributes>
+    <div class="next-view-section-subheader-left {{@leftSubheaderClass}}">
+        <div class="flex flex-row items-center">
+            {{#if @icon}}
+                <FaIcon @icon={{@icon}} @size={{@iconSize}} @prefix={{@iconPrefix}} class="{{@iconClass}} mr-2" />
+            {{/if}}
+            <h2 class="next-view-section-subheader-title">{{@title}}</h2>
+            {{#if @subtitle}}
+                <div>
+                    {{@subtitle}}
+                </div>
+            {{/if}}
+        </div>
+        {{#if @onSearch}}
+            <Input @type="text" @value={{@searchQuery}} placeholder={{or @searchPlaceholder (concat "Search " (pluralize @title))}} class="w-64 ml-3 form-input form-input-sm {{@searchInputClass}}" {{on "keyup" @onSearch}} />
+        {{/if}}
+    </div>
+    {{#unless @hideActions}}
+        <div class="next-view-section-subheader-actions {{@actionsWrapperClass}}">
+            {{yield}}
+        </div>
+    {{/unless}}
+</div>

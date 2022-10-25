@@ -1,1 +1,34 @@
-{{yield}}
+<div class="next-table-wrapper {{@wrapperClass}}">
+    <table ...attributes>
+        {{#if (has-block)}}
+            {{yield}}
+        {{else}}
+            <Table::Head>
+                <Table::Row>
+                    {{#if @canSelectAll}}
+                        <Table::Th @width={{40}} @resizable={{false}}>
+                            <Table::Cell::Checkbox @value={{this.allRowsSelected}} @onToggle={{fn this.selectAllRows}} />
+                        </Table::Th>
+                    {{/if}}
+                    {{#each this.visibleColumns as |column|}}
+                        <Table::Th @column={{column}} @resizable={{column.resizable}} @sortable={{column.sortable}}>{{column.label}}</Table::Th>
+                    {{/each}}
+                </Table::Row>
+            </Table::Head>
+            <Table::Body>
+                {{#each @rows as |row|}}
+                    <Table::Row @selected={{get row 'checked'}}>
+                        {{#if @selectable}}
+                            <Table::Td>
+                                <Table::Cell::Checkbox @row={{row}} @value={{get row 'checked'}} />
+                            </Table::Td>
+                        {{/if}}
+                        {{#each this.visibleColumns as |column|}}
+                            <Table::Td @column={{column}} @row={{row}} @value={{get row column.valuePath}} />
+                        {{/each}}
+                    </Table::Row>
+                {{/each}}
+            </Table::Body>
+        {{/if}}
+    </table>
+</div>

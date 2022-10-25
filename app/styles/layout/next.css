@@ -1269,6 +1269,10 @@ section.next-view-section {
 .next-table-wrapper {
     height: 100%;
     @apply inline-block w-full min-w-full overflow-hidden align-middle;
+
+    & table {
+        @apply table-fixed w-full;
+    }
 }
 
 .next-table-wrapper .lt-body-wrap > .lt-scrollable .tse-scroll-content .tse-content table {
@@ -1280,7 +1284,8 @@ section.next-view-section {
 }
 
 .next-table-wrapper table thead tr th {
-    @apply px-4 py-2 text-xs font-medium leading-4 tracking-wider text-gray-900 truncate whitespace-nowrap uppercase border-b border-r border-gray-200;
+    @apply px-4 py-2 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200;
+    text-overflow: ellipsis;
     cursor: default !important;
 
     &.lt-column.is-draggable,
@@ -1288,12 +1293,9 @@ section.next-view-section {
         @apply cursor-default;
     }
 
-    border-right-color: transparent !important;
-
     &.is-resizing,
     &:hover {
-        @apply border-gray-200 text-gray-500;
-        border-right-color: #d2d6dc !important;
+        @apply text-gray-500;
     }
 }
 
@@ -1470,7 +1472,6 @@ body[data-theme='dark'] {
         &.is-resizing,
         &:hover {
             @apply border-gray-700 text-gray-100;
-            border-right-color: #3f83f8 !important;
         }
     }
 

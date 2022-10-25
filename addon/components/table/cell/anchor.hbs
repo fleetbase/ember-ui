@@ -1,0 +1,7 @@
+<a href="#" {{on "click" this.onClick}} ...attributes>
+    {{#if (has-block)}}
+        {{yield}}
+    {{else}}
+        <span class={{@anchorSpanClassnames}}>{{@value}}</span>
+    {{/if}}
+</a>

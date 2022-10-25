@@ -9,8 +9,12 @@ export default class ContentPanelComponent extends Component {
     this._isOpen = isOpen;
   }
 
-  @computed('_isOpen', 'args.isOpen') get isOpen() {
-    const { isOpen } = this.args;
+  @computed('_isOpen', 'args.{isOpen,open}') get isOpen() {
+    const { isOpen, open } = this.args;
+
+    if (open !== undefined) {
+      return open;
+    }
 
     if (isOpen !== undefined) {
       return isOpen;

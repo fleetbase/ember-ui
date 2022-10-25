@@ -1,0 +1,7 @@
+<LinkTo @route={{@column.route}} @model={{@row}} ...attributes>
+    {{#if (has-block)}}
+        {{yield}}
+    {{else}}
+        {{get-default-value @value}}
+    {{/if}}
+</LinkTo>
