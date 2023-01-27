@@ -1,4 +1,4 @@
-<a href="javascript:;" class="next-nav-item" {{on "click" this.onClick}} ...attributes>
+<a href="javascript:;" class="next-nav-item {{if this.active 'active'}}" {{on "click" this.onClick}} ...attributes>
     <div class="next-nav-item-icon-container">
         {{#if @icon}}
             <FaIcon @prefix={{@iconPrefix}} @icon={{@icon}} @size={{or @iconSize "xs"}} class={{@iconClass}} />

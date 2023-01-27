@@ -7,7 +7,7 @@
                 <Table::Row>
                     {{#if @canSelectAll}}
                         <Table::Th @width={{40}} @resizable={{false}}>
-                            <Table::Cell::Checkbox @value={{this.allRowsSelected}} @onToggle={{fn this.selectAllRows}} />
+                            <Table::Cell::Checkbox @value={{this.allRowsSelected}} @onToggle={{this.selectAllRows}} />
                         </Table::Th>
                     {{/if}}
                     {{#each this.visibleColumns as |column|}}

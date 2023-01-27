@@ -4,13 +4,13 @@
             <img src="/images/icon.png" width="20" height="20" class="w-8 h-8 shadow-sm" alt="Fleetbase" />
         </LinkToExternal>
         <ExtensionsList @extensions={{@extensions}} @onAction={{@onAction}} @itemClass="next-view-header-item" class="mr-4" />
-        <span id="view-header-left-content-a"></span>
+        <div id="view-header-left-content-a"></div>
         {{yield}}
-        <span id="view-header-left-content-b"></span>
+        <div id="view-header-left-content-b"></div>
     </div>
     <div class="next-view-header-right">
         <Layout::Header::LoadingIndicator />
-        <span id="view-header-actions"></span>
+        <div id="view-header-actions"></div>
         <div class="flex items-center justify-between">
             <div class="flex-1 flex items-center pr-1">
                 <Layout::Header::Dropdown @items={{this.orgNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" @dropdownMenuClass="py-3" as |dd|>

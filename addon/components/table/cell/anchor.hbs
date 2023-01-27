@@ -1,7 +1,7 @@
-<a href="#" {{on "click" this.onClick}} ...attributes>
+<a href="#" {{on "click" this.onClick}} disabled={{not @value}} ...attributes>
     {{#if (has-block)}}
         {{yield}}
     {{else}}
-        <span class={{@anchorSpanClassnames}}>{{@value}}</span>
+        <span class={{@anchorSpanClassnames}}>{{get-default-value @value "-"}}</span>
     {{/if}}
 </a>

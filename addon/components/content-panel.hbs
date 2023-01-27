@@ -1,5 +1,5 @@
 <div class="next-content-panel-wrapper {{@wrapperClass}} {{if @isLoading 'is-loading'}}" {{did-insert this.setupComponent}}>
-    <div class="next-content-panel-container">
+    <div class="next-content-panel-container {{@containerClass}}">
         <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
             <div class="next-content-panel-header next-content-panel-toggle {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelHeaderClass}} {{if @isLoading 'is-loading'}}">
                 <a href="#" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{@panelHeaderLeftClass}}" {{on "click" this.toggle}}>
@@ -9,7 +9,7 @@
                     {{#if @isLoading}}
                         <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="mr-2" />
                     {{/if}}
-                    <div class="py-2 flex flex-row {{@titleContainerClass}}">
+                    <div class="next-content-panel-title-container {{@titleContainerClass}}">
                         <div class="flex flex-row items-center justify-between">
                             <div>
                                 {{#if @prefixTitle}}

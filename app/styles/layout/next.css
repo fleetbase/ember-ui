@@ -940,6 +940,10 @@ body[data-theme='dark'] {
                     & > .panel-title {
                         @apply text-base;
                     }
+
+                    & > .next-content-panel-title-container {
+                        @apply flex flex-row py-2;
+                    }
                 }
 
                 & .next-content-panel-header-right {
@@ -1103,6 +1107,10 @@ body[data-theme='dark'] {
     flex: 1;
     height: 100%;
     width: 100%;
+
+    & > .next-sidebar-content-inner {
+        @apply px-2 pt-3;
+    }
 }
 
 .next-content-overlay > .next-content-overlay-panel-container > .next-content-overlay-panel + .gutter,
@@ -1130,6 +1138,10 @@ body[data-theme='dark'] {
     @apply bg-gray-700;
 }
 
+.next-sidebar .next-nav-item.active {
+    @apply bg-gray-700 bg-opacity-25;
+}
+
 .next-sidebar .next-nav-item .next-nav-item-icon-container {
     margin-top: -2px;
     @apply w-5;
@@ -1139,15 +1151,20 @@ body[data-theme='dark'] {
     @apply text-gray-100;
 }
 
-.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle {
-    @apply flex flex-row items-center justify-between px-3 py-0.5 rounded-md text-sm mb-1;
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle {
+    @apply flex flex-row items-center justify-between px-3 py-0.5 rounded-md text-sm mb-1 border-0;
+    min-height: auto;
+
+    & > .next-content-panel-header-left > .next-content-panel-title-container {
+        @apply py-0;
+    }
 }
 
-.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle:hover {
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover {
     @apply bg-gray-700;
 }
 
-.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-sidebar-panel-toggle > .left {
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle > .left {
     @apply flex-1 flex flex-row items-center;
 
     & > .icon-container {
@@ -1155,7 +1172,11 @@ body[data-theme='dark'] {
     }
 }
 
-.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel-body .next-nav-item {
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body {
+    @apply rounded-none border-0 p-0 m-0;
+}
+
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item {
     @apply pl-8;
 }
 

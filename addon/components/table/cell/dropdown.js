@@ -2,58 +2,58 @@ import Component from '@glimmer/component';
 import { action, computed } from '@ember/object';
 
 export default class TableCellDropdownComponent extends Component {
-    defaultButtonText = 'Actions';
+  defaultButtonText = 'Actions';
 
-    @computed('args.column.ddButtonText', 'defaultButtonText') get buttonText() {
-        const { ddButtonText } = this.args.column;
+  @computed('args.column.ddButtonText', 'defaultButtonText') get buttonText() {
+    const { ddButtonText } = this.args.column;
 
-        if (ddButtonText === undefined) {
-            return this.defaultButtonText;
-        }
-
-        if (ddButtonText === false) {
-            return null;
-        }
-
-        return ddButtonText;
+    if (ddButtonText === undefined) {
+      return this.defaultButtonText;
     }
 
-    @action setupComponent(dropdownWrapperNode) {
-        const tableCellNode = this.getOwnerTableCell(dropdownWrapperNode);
-        tableCellNode.style.overflow = 'visible';
+    if (ddButtonText === false) {
+      return null;
     }
 
-    @action getOwnerTableCell(dropdownWrapperNode) {
-        while (dropdownWrapperNode) {
-            dropdownWrapperNode = dropdownWrapperNode.parentNode;
+    return ddButtonText;
+  }
 
-            if (dropdownWrapperNode.tagName.toLowerCase() === 'td') {
-                return dropdownWrapperNode;
-            }
-        }
+  @action setupComponent(dropdownWrapperNode) {
+    const tableCellNode = this.getOwnerTableCell(dropdownWrapperNode);
+    tableCellNode.style.overflow = 'visible';
+  }
 
-        return undefined;
+  @action getOwnerTableCell(dropdownWrapperNode) {
+    while (dropdownWrapperNode) {
+      dropdownWrapperNode = dropdownWrapperNode.parentNode;
+
+      if (dropdownWrapperNode.tagName.toLowerCase() === 'td') {
+        return dropdownWrapperNode;
+      }
     }
 
-    @action onDropdownItemClick(columnAction, row, dd) {
-        if (typeof dd?.actions?.close === 'function') {
-            dd.actions.close();
-        }
+    return undefined;
+  }
 
-        if (typeof columnAction?.fn === 'function') {
-            columnAction.fn(row);
-        }
+  @action onDropdownItemClick(columnAction, row, dd) {
+    if (typeof dd?.actions?.close === 'function') {
+      dd.actions.close();
     }
 
-    @action calculatePosition(trigger) {
-        let { width } = trigger.getBoundingClientRect();
-
-        let style = {
-            marginTop: '0px',
-            right: width + 3,
-            top: 0,
-        };
-
-        return { style };
+    if (typeof columnAction?.fn === 'function') {
+      columnAction.fn(row);
     }
+  }
+
+  @action calculatePosition(trigger) {
+    let { width } = trigger.getBoundingClientRect();
+
+    let style = {
+      marginTop: '0px',
+      right: width + 3,
+      top: 0,
+    };
+
+    return { style };
+  }
 }

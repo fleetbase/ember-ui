@@ -179,43 +179,47 @@ body[data-theme='dark'] {
     }
 }
 
-/** click to reveal **/
-
 .click-to-reveal {
     @apply relative;
-    &--hidden-value {
+
+    & .click-to-reveal--hidden-value {
         @apply block w-full max-w-full truncate;
         filter: blur(2px);
     }
-    &.is-visible > &--hidden-value {
+
+    & .click-to-reveal.is-visible > &--hidden-value {
         filter: blur(0);
     }
-    &--button {
+
+    & .click-to-reveal--button {
         @apply absolute inset-0 flex items-center justify-center;
         box-shadow: none !important;
         & > button {
             padding: 0.185rem 0.7rem !important;
         }
     }
-    &.is-visible > &--button {
+
+    & .click-to-reveal.is-visible > &--button {
         @apply hidden;
     }
-    &--tooltip {
+
+    & .click-to-reveal--tooltip {
         @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
     }
-    &:hover > &--tooltip {
+
+    & .click-to-reveal:hover > &--tooltip {
         @apply scale-100 opacity-100;
     }
 }
 
-/** click to copy **/
-
 .click-to-copy {
     @apply relative;
-    &--tooltip {
+
+    & .click-to-copy--tooltip {
         @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
     }
-    &:hover > &--tooltip {
+    
+    &:hover > .click-to-copy--tooltip {
         @apply scale-100 opacity-100;
     }
 }

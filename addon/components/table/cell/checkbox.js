@@ -4,50 +4,50 @@ import { action, set, computed } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 
 export default class TableCellCheckboxComponent extends Component {
-    /**
-     * Generates a unique ID for this checkbox instance
-     *
-     * @var {String}
-     */
-    @computed('args.row.id') get id() {
-        const { row } = this.args;
+  /**
+   * Generates a unique ID for this checkbox instance
+   *
+   * @var {String}
+   */
+  @computed('args.row.id') get id() {
+    const { row } = this.args;
 
-        if (row.id) {
-            return row.id;
-        }
-
-        return guidFor(this);
+    if (row?.id) {
+      return row.id;
     }
 
-    /**
-     * Whether this checkbox is checked or not
-     *
-     * @param {Boolean} checked
-     */
-    @tracked checked = false;
+    return guidFor(this);
+  }
 
-    /**
-     * Toggles the checkbox and sends up an action
-     *
-     * @void
-     */
-    @action onToggle(checked) {
-        const { row, column, onToggle } = this.args;
-        const checkedProperty = column?.valuePath ?? 'checked';
+  /**
+   * Whether this checkbox is checked or not
+   *
+   * @param {Boolean} checked
+   */
+  @tracked checked = false;
 
-        this.checked = checked;
+  /**
+   * Toggles the checkbox and sends up an action
+   *
+   * @void
+   */
+  @action onToggle(checked) {
+    const { row, column, onToggle } = this.args;
+    const checkedProperty = column?.valuePath ?? 'checked';
 
-        if (row) {
-            set(row, checkedProperty, checked);
-            set(row, 'checked', checked);
-        }
+    this.checked = checked;
 
-        if (typeof column?.onToggle === 'function') {
-            column.onToggle(checked, row);
-        }
-
-        if (typeof onToggle === 'function') {
-            onToggle(checked, row);
-        }
+    if (row) {
+      set(row, checkedProperty, checked);
+      set(row, 'checked', checked);
     }
+
+    if (typeof column?.onToggle === 'function') {
+      column.onToggle(checked, row);
+    }
+
+    if (typeof onToggle === 'function') {
+      onToggle(checked, row);
+    }
+  }
 }
