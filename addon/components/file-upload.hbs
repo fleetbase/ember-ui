@@ -1,0 +1,6 @@
+{{#let (file-queue name=@name onFileAdded=@onFileAdded) as |queue|}}
+    <label class="file-upload">
+        <input type="file" accept={{@accept}} hidden={{or @hidden true}} {{queue.selectFile}}>
+        {{yield queue}}
+    </label>
+{{/let}}

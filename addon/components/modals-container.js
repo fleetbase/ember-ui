@@ -8,14 +8,14 @@ export default class ModalsContainer extends Component {
   /**
    * @category Action Handlers
    */
-  @action confirm(v) {
-    this.modalsManager.onConfirmClick(v);
+  @action confirm() {
+    this.modalsManager.onConfirmClick(...arguments);
   }
 
   /**
    * @category Action Handlers
    */
-  @action decline(v) {
-    this.modalsManager.onDeclineClick(v);
+  @action decline() {
+    this.modalsManager.onDeclineClick(...arguments);
   }
 }

@@ -1,10 +1,10 @@
 .fleetbase-pagination {
-    @apply flex items-center justify-between py-3;
+    @apply flex flex-1 items-center justify-between py-3;
 
     & .direction-button {
-        @apply relative inline-flex items-center px-3 py-1.5 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md;
+        @apply relative inline-flex items-center px-3 py-1 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md;
         &:focus {
-            @apply border-blue-300 outline-none outline-offset-2 outline-blue-500;
+            @apply border-blue-300 outline-none outline-offset-0 outline-blue-500;
         }
         &:hover {
             @apply text-gray-500;
@@ -16,9 +16,9 @@
     }
 
     & .page-item {
-        @apply relative inline-flex items-center px-3 py-1.5 -ml-px text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300;
+        @apply relative inline-flex items-center px-3 py-1 -ml-px text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300;
         &:focus {
-            @apply z-10 border-blue-300 outline-none outline-offset-2 outline-blue-500;
+            @apply z-10 border-blue-300 outline-none outline-offset-0 outline-blue-500;
         }
         &:hover {
             @apply text-gray-500;
@@ -30,9 +30,9 @@
     }
 
     & .page-item-arrow {
-        @apply relative inline-flex items-center px-2 py-2 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out bg-white border border-gray-300;
+        @apply relative inline-flex items-center px-2 py-1 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out bg-white border border-gray-300;
         &:focus {
-            @apply z-10 border-blue-300 outline-none outline-offset-2 outline-blue-500;
+            @apply z-10 border-blue-300 outline-none outline-offset-0 outline-blue-500;
         }
         &:hover {
             @apply text-gray-400;
@@ -53,17 +53,17 @@
     & .page-item,
     & .page-item-arrow,
     & .direction-button {
-        @apply text-gray-300 bg-gray-700 border-gray-800 shadow;
+        @apply text-gray-100 bg-gray-800 border-gray-700 shadow;
         &:hover {
-            @apply text-gray-200;
+            @apply text-white;
         }
         &:active,
         &.active {
-            @apply text-gray-400 bg-gray-600;
+            @apply text-gray-100 bg-gray-700;
         }
     }
 
     & .pagination-showing {
-        @apply text-gray-300;
+        @apply text-gray-100;
     }
 }

@@ -15,10 +15,10 @@ as |Title Close|
       {{#if (has-block)}}
         {{yield}}
       {{else}}
-        <Title>{{@title}}</Title>
+        <Modal::Header::Title>{{@title}}</Modal::Header::Title>
       {{/if}}
       {{#if (or @closeButton true)}}
-        <Close />
+        <Modal::Header::Close @onClick={{@onClose}} />
       {{/if}}
     {{/if}}
   </div>

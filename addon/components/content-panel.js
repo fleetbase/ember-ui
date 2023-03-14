@@ -3,25 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action, computed } from '@ember/object';
 
 export default class ContentPanelComponent extends Component {
-  @tracked _isOpen = true;
-
-  set isOpen(isOpen) {
-    this._isOpen = isOpen;
-  }
-
-  @computed('_isOpen', 'args.{isOpen,open}') get isOpen() {
-    const { isOpen, open } = this.args;
-
-    if (open !== undefined) {
-      return open;
-    }
-
-    if (isOpen !== undefined) {
-      return isOpen;
-    }
-
-    return this._isOpen;
-  }
+  @tracked isOpen = false;
 
   @action toggle() {
     this.isOpen = !this.isOpen;
@@ -36,8 +18,12 @@ export default class ContentPanelComponent extends Component {
   }
 
   @action setupComponent() {
-    if (typeof this.args.onInsert === 'function') {
-      this.args.onInsert(...arguments);
+    const { onInsert, open } = this.args;
+
+    this.isOpen = open;
+
+    if (typeof onInsert === 'function') {
+      onInsert(...arguments);
     }
   }
 }

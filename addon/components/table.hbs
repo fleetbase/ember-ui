@@ -29,6 +29,19 @@
                     </Table::Row>
                 {{/each}}
             </Table::Body>
+            {{#if (or @tfoot @pagination)}}
+                <Table::Foot>
+                    <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
+                        <td class="tfoot-column {{if @pagination 'next-pagination-column'}}" colspan={{add this.visibleColumns.length 1}}>
+                            <div class="tfoot-wrapper">
+                                {{#if @pagination}}
+                                    <Pagination @columns={{this.visibleColumns}} @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
+                                {{/if}}
+                            </div>
+                        </td>
+                    </tr>
+                </Table::Foot>
+            {{/if}}
         {{/if}}
     </table>
 </div>

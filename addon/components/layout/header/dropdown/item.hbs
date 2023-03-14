@@ -1,6 +1,12 @@
 {{#if this.isTextOnly}}
     <div class="px-1 {{@item.wrapperClass}}">
-        <div class="{{@item.class}}">{{@item.text}}</div>
+        {{#if (is-array @item.text)}}
+            {{#each @item.text as |line|}}
+                <div class="{{@item.class}}">{{line}}</div>
+            {{/each}}
+        {{else}}
+            <div class="{{@item.class}}">{{@item.text}}</div>
+        {{/if}}
     </div>
 {{/if}}
 

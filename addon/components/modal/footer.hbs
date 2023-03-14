@@ -5,7 +5,7 @@
     {{else}}
       {{#if @submitTitle}}
         <Button @onClick={{@onClose}}>{{or @closeTitle "Ok"}}</Button>
-        <Button @type={{or @submitButtonType "primary"}} onClick={{@onSubmit}} disabled={{or @submitDisabled false}}>{{@submitTitle}}</Button>
+        <Button @type={{or @submitButtonType "primary"}} @onClick={{@onSubmit}} disabled={{or @submitDisabled false}}>{{@submitTitle}}</Button>
       {{else}}
         <Button @type="primary" @onClick={{@onClose}}>{{or @closeTitle "Ok"}}</Button>
       {{/if}}

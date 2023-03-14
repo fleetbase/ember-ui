@@ -28,6 +28,20 @@ select.form-select.has--placeholder {
     color: #9fa6b2;
 }
 
+.fleetbase-console .form-input, 
+.fleetbase-console .form-textarea, 
+.fleetbase-console .form-select, 
+.fleetbase-console .form-multiselect {
+    @apply border border-gray-300 dark:border-gray-900;
+}
+
+body[data-theme="dark"] .fleetbase-console .form-input, 
+body[data-theme="dark"] .fleetbase-console .form-textarea, 
+body[data-theme="dark"] .fleetbase-console .form-select, 
+body[data-theme="dark"] .fleetbase-console .form-multiselect {
+    @apply border-gray-900;
+}
+
 body.fleetbase-console {
     & .form-input {
         @apply text-sm;
@@ -90,7 +104,18 @@ select.form-select,
 body[data-theme='dark'] .form-input.ember-power-select-trigger,
 body[data-theme='dark'] .form-input,
 body[data-theme='dark'] .form-select {
-    @apply text-sm text-white bg-gray-700 border border-gray-900 shadow;
+    @apply text-sm text-white bg-gray-700 border border-gray-900 shadow-sm shadow-gray-900 outline-0;
+
+    &:active,
+    &:focus {
+        @apply shadow-gray-900 outline-0;
+    }
+}
+
+body[data-theme='dark'] input.form-input:active,
+body[data-theme='dark'] input.form-input:focus {
+    @apply outline-0;
+    box-shadow: none;
 }
 
 .input-group {
@@ -100,10 +125,8 @@ body[data-theme='dark'] .form-select {
     }
 }
 
-body[data-theme='dark'] .input-group {
-    & label {
-        @apply text-gray-100;
-    }
+body[data-theme='dark'] .input-group label {
+    @apply text-gray-100;
 }
 
 .form-input:disabled {
@@ -299,6 +322,10 @@ body[data-theme='dark'] .iti__country-list {
     padding: 0;
 }
 
+.ui-money-input input.form-input {
+    @apply rounded-l-none shadow-none outline-0 outline-none;
+}
+
 /** ui-date-time-input */
 .ui-date-time-input > input[type='date'],
 .ui-date-time-input > input[type='time'] {
@@ -312,4 +339,25 @@ body[data-theme='dark'] .iti__country-list {
     &:focus {
         outline: 0;
     }
+}
+
+/** fix checkboxes */
+.fleetbase-console .form-checkbox {
+    @apply rounded shadow-sm;
+}
+
+.fleetbase-console .form-checkbox:focus,
+.fleetbase-console .form-checkbox:focus-visible,
+.fleetbase-console .form-checkbox:focus-within,
+.fleetbase-console .form-radio:focus {
+    outline: 0;
+    outline-offset: 0;
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+}
+
+.fleetbase-console .form-checkbox[data-checked],
+.fleetbase-console .form-radio[data-checked] {
+    outline: 0;
+    outline-offset: 0;
+    @apply bg-blue-400 shadow-sm;
 }

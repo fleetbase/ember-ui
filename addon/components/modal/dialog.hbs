@@ -1,4 +1,4 @@
-<div role="dialog" tabindex="-1" aria-labelledby={{this.titleId}} class="flb--modal {{if @fade "fade"}} {{if @showModal "show"}} {{if @inDom "d-block"}}" ...attributes {{on "keydown" this.handleKeyDown}} {{on "mousedown" this.handleMouseDown}} {{on "mouseup" this.handleMouseUp}} {{on "click" this.handleClick}} {{style
+<div role="dialog" tabindex="-1" aria-labelledby={{this.titleId}} class="flb--modal {{if @fade "fade"}} {{if @showModal "show"}} {{if @inDom "block"}}" ...attributes {{on "keydown" this.handleKeyDown}} {{on "mousedown" this.handleMouseDown}} {{on "mouseup" this.handleMouseUp}} {{on "click" this.handleClick}} {{style
     paddingLeft=(concat @paddingLeft "px")
     paddingRight=(concat @paddingRight "px")
     display=(if @inDom "block" "")

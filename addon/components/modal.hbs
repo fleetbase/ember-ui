@@ -36,11 +36,9 @@
           )
         }}
             </Dialog>
-            <div>
-                {{#if this.shouldShowBackdrop}}
-                    <div class="flb--modal-backdrop {{if this._fade "fade"}} {{if this.showModal "show"}}" {{create-ref "backdropElement"}}></div>
-                {{/if}}
-            </div>
+            {{#if this.shouldShowBackdrop}}
+                <div class="flb--modal-backdrop {{if this._fade "fade"}} {{if this.showModal "show"}}" {{create-ref "backdropElement"}}></div>
+            {{/if}}
         {{else}}
             {{#in-element this.destinationElement insertBefore=null}}
                 <Dialog {{create-ref "modalElement"}} ...attributes>
@@ -54,11 +52,9 @@
             )
           }}
                 </Dialog>
-                <div>
-                    {{#if this.shouldShowBackdrop}}
-                        <div class="flb--modal-backdrop {{if this._fade "fade"}} {{if this.showModal "show"}}" {{create-ref "backdropElement"}}></div>
-                    {{/if}}
-                </div>
+                {{#if this.shouldShowBackdrop}}
+                    <div class="flb--modal-backdrop {{if this._fade "fade"}} {{if this.showModal "show"}}" {{create-ref "backdropElement"}}></div>
+                {{/if}}
             {{/in-element}}
         {{/if}}
     {{/let}}

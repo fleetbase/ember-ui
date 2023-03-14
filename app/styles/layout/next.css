@@ -1,4 +1,8 @@
 /** Misc **/
+.next-content-overlay .new-order-overlay-body {
+    @apply px-4 pt-4 space-y-4;
+}
+
 .next-content-overlay .new-order-overlay-body .input-group {
     @apply mb-0;
 }
@@ -94,68 +98,66 @@ body[data-theme='dark'] .fleetbase-next-container {
         @apply shadow-none;
     }
 
-    &.minimized {
-        & > .next-content-overlay-panel-container {
-            & > .gutter {
-                @apply hidden;
-            }
+    &.minimized > .next-content-overlay-panel-container {
+        @apply bg-transparent pointer-events-none;
+        
+        & > .gutter {
+            @apply hidden;
+        }
 
-            @apply bg-transparent pointer-events-none;
+        & > .next-content-overlay-panel {
+            @apply bg-transparent shadow-none border-none;
 
-            & > .next-content-overlay-panel {
-                @apply bg-transparent shadow-none border-none;
+            & > .next-content-overlay-panel-header {
+                @apply bg-white h-60 rounded-tl-md rounded-bl-md flex-col px-1 border-t border-l border-r border-gray-200 shadow-md justify-start items-start pointer-events-auto;
+                transform: translateY(50px);
 
-                & > .next-content-overlay-panel-header {
-                    @apply bg-white h-60 rounded-tl-md rounded-bl-md flex-col px-1 border-t border-l border-r border-gray-200 shadow-md justify-start items-start pointer-events-auto;
-                    transform: translateY(50px);
+                & > .next-view-header-left {
+                    @apply flex-col flex-1 pt-2 pl-1.5;
 
-                    & > .next-view-header-left {
-                        @apply flex-col flex-1 pt-2 pl-1.5;
+                    & > div {
+                        height: 100%;
 
-                        & > div {
+                        & > div:first-child {
                             height: 100%;
 
-                            & > div:first-child {
-                                height: 100%;
-
-                                & > div {
-                                    @apply hidden;
-                                }
-                            }
-
-                            & > div:not(:first-child) {
+                            & > div {
                                 @apply hidden;
                             }
                         }
 
-                        & .next-content-overlay-panel-title {
-                            @apply text-right flex flex-col flex-1;
-                            writing-mode: vertical-rl;
-                            transform: rotate(180deg);
-                        }
-
-                        & div[class="flex"] {
-                            flex-direction: column
-                        }
-                    }
-
-                    & > .next-view-header-right {
-                        @apply flex-col items-center justify-evenly pl-1;
-
-                        & > *:not([type='button']) {
+                        & > div:not(:first-child) {
                             @apply hidden;
                         }
+                    }
 
-                        & > [type='button'] {
-                            @apply m-0 w-7 h-7;
-                        }
+                    & .next-content-overlay-panel-title {
+                        @apply text-right flex flex-col flex-1;
+                        writing-mode: vertical-rl;
+                        transform: rotate(180deg);
+                    }
+
+                    & div[class='flex'] {
+                        flex-direction: column;
                     }
                 }
 
-                & > .next-content-overlay-panel-body {
-                    filter: blur(1px);
-                    @apply hidden;
+                & > .next-view-header-right {
+                    @apply flex-col items-center justify-evenly pl-1;
+
+                    & > *:not([type='button']) {
+                        @apply hidden;
+                    }
+
+                    & > [type='button'] {
+                        @apply m-0 w-7 h-7;
+                    }
                 }
+            }
+
+            & > .next-content-overlay-panel-body {
+                filter: blur(1px);
+                @apply hidden;
             }
         }
     }
@@ -197,12 +199,20 @@ body[data-theme='dark'] .fleetbase-next-container {
         }
     }
 
-    &[class="h-full"] .next-content-overlay-panel-container .next-content-overlay-panel {
+    &.full-height > .next-content-overlay-panel-container > .next-content-overlay-panel {
         height: 100%;
 
         & > .next-content-overlay-panel-body {
             height: 100%;
-            @apply pb-36;
+
+            & > .next-content-overlay-panel-body-inner-wrapper {
+                height: 100%;
+                box-sizing: border-box;
+
+                & > div {
+                    box-sizing: border-box;
+                }
+            }
         }
     }
 
@@ -315,40 +325,41 @@ body[data-theme='dark'] .fleetbase-next-container {
 }
 
 /** Next/Overlay (Dark Mode) **/
-body[data-theme='dark'] {
-    & .next-content-overlay {
-        &.minimized > .next-content-overlay-panel-container > .next-content-overlay-panel {
-            @apply bg-transparent shadow-none border-none;
+body[data-theme='dark'] .next-content-overlay {
+    display: flex;
+    height: 100%;
 
-            & > .next-content-overlay-panel-header {
-                @apply bg-gray-900 border-t border-l border-r border-gray-700;
-            }
+    &.minimized > .next-content-overlay-panel-container > .next-content-overlay-panel {
+        @apply bg-transparent shadow-none border-none;
+
+        & > .next-content-overlay-panel-header {
+            @apply bg-gray-900 border-t border-l border-r border-gray-700;
         }
+    }
 
-        & > .next-content-overlay-panel-container > .next-content-overlay-panel {
-            @apply bg-gray-900;
+    & > .next-content-overlay-panel-container > .next-content-overlay-panel {
+        @apply bg-gray-900;
+    }
+
+    & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-cancel-button {
+        @apply bg-gray-700;
+
+        &:hover {
+            @apply bg-gray-500;
         }
+    }
 
-        & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-cancel-button {
-            @apply bg-gray-700;
+    & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-maximize-button,
+    & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-minimize-button {
+        @apply bg-gray-700;
 
-            &:hover {
-                @apply bg-gray-500;
-            }
+        &:hover {
+            @apply bg-gray-500;
         }
+    }
 
-        & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-maximize-button,
-        & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-minimize-button {
-            @apply bg-gray-700;
-
-            &:hover {
-                @apply bg-gray-500;
-            }
-        }
-
-        & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-header {
-            @apply border-gray-700;
-        }
+    & > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-header {
+        @apply border-gray-700;
     }
 }
 
@@ -1255,6 +1266,10 @@ body[data-theme='dark'] {
     @apply text-sm flex flex-row items-center px-3 py-0.5 rounded-md my-1 text-gray-800;
 }
 
+.next-dd-menu .next-dd-session-user-wrapper {
+    @apply pt-3 pb-1;
+}
+
 body[data-theme='dark'] {
     & .next-dd-menu .next-dd-title {
         @apply text-gray-300;
@@ -1288,12 +1303,70 @@ section.next-view-section {
 
 /** Next/Table Wrapper **/
 .next-table-wrapper {
-    height: 100%;
-    @apply inline-block w-full min-w-full overflow-hidden align-middle;
+    overflow: scroll;
+    @apply inline-block w-full min-w-full align-middle;
 
-    & table {
+    & > table {
         @apply table-fixed w-full;
+        border-collapse: separate;
+        border-spacing: 0;
     }
+
+    & table > tbody:after {
+        content: '';
+        display: block;
+        height: 37px;
+        width: 100%;
+    }
+
+    & table > thead,
+    & table > tfoot {
+        position: sticky;
+    }
+
+    & table thead th {
+        position: sticky;
+        top: 0;
+    }
+
+    & table tfoot tr {
+        position: sticky;
+        bottom: 0;
+    }
+
+    & table > thead {
+        inset-block-start: 0;
+    }
+    & table > tfoot {
+        inset-block-end: 20px;
+    }
+}
+
+.next-table-wrapper .tfoot-row {
+    @apply bg-white dark:bg-gray-800 border-0 m-0 p-0;
+
+    & > td {
+        @apply border-t border-b border-gray-200 dark:border-gray-700;
+    }
+}
+
+body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
+    @apply border-gray-700;
+}
+
+.next-table-wrapper .tfoot-column {
+    margin: 0px;
+    width: 100%;
+    min-width: 100%;
+    padding: 0px;
+}
+
+.next-table-wrapper .tfoot-wrapper {
+    padding: 0px 24px 0px 36px;
+    height: 57px;
+    min-width: 100%;
+    max-width: 100%;
+    @apply flex flex-1 flex-row items-center justify-between flex-shrink-0;
 }
 
 .next-table-wrapper .lt-body-wrap > .lt-scrollable .tse-scroll-content .tse-content table {
@@ -1305,7 +1378,7 @@ section.next-view-section {
 }
 
 .next-table-wrapper table thead tr th {
-    @apply px-4 py-2 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200;
+    @apply px-4 py-2 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200 bg-white;
     text-overflow: ellipsis;
     cursor: default !important;
 
@@ -1340,6 +1413,7 @@ section.next-view-section {
     }
 }
 
+.next-table-wrapper table tfoot tr td,
 .next-table-wrapper table tbody tr td {
     @apply px-4 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;
 
@@ -1351,6 +1425,22 @@ section.next-view-section {
     &.overflow-visible {
         overflow: visible !important;
     }
+}
+
+.next-table-wrapper > table > tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+.next-table-wrapper > table > tbody > tr:first-child > td {
+    border-top: 0;
+}
+
+body[data-theme='dark'] .next-table-wrapper table tfoot tr td {
+    @apply bg-gray-900;
+}
+
+body[data-theme='light'] .next-table-wrapper table tfoot tr td {
+    @apply bg-white;
 }
 
 .next-pagination-row .next-pagination-column {

@@ -373,12 +373,22 @@ export default class Modal extends Component {
    */
 
   @action close() {
-    if (this.args.onHide?.() !== false) {
-      this.hide();
+    if (typeof this.args.onHide === 'function') {
+      this.args.onHide();
     }
+
+    if (typeof this.args.onClose === 'function') {
+      this.args.onClose();
+    }
+
+    this.hide();
   }
 
   @action doSubmit() {
+    if (typeof this.args.onSubmit === 'function') {
+      this.args.onSubmit();
+    }
+
     let forms = this.modalElement.querySelectorAll('.flb--modal-body form');
     if (forms.length > 0) {
       // trigger submit event on body forms
@@ -387,9 +397,6 @@ export default class Modal extends Component {
       Array.prototype.slice
         .call(forms)
         .forEach((form) => form.dispatchEvent(event));
-    } else {
-      // if we have no form, we send a submit action
-      this.args.onSubmit?.();
     }
   }
 

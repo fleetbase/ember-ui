@@ -1,0 +1,21 @@
+<div class="ui-input-info-block rounded-md" ...attributes>
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <FaIcon @icon={{or @icon "info-circle"}} />
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+            <div class="ui-input-info-block-text text-sm subpixel-antialiased {{@blockClass}}">
+                {{#if (has-block)}}
+                    {{yield}}
+                {{else}}
+                    <span class={{@textClass}}>{{@text}}</span>
+                    {{#if @exampleText}}
+                        <div>
+                            <code class="mt-3 break-text subpixel-antialiased text-xs font-mono">{{@exampleText}}</code>
+                        </div>
+                    {{/if}}
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

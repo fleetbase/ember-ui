@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { action } from '@ember/object';
 import { alias } from '@ember/object/computed';
@@ -13,20 +14,25 @@ import frontendUrl from '@fleetbase/ember-core/utils/frontend-url';
  * @extends {Component}
  */
 export default class LayoutHeaderComponent extends Component {
+  @service store;
   @alias('args.user') user;
 
   @computed('store', 'user.company_uuid') get company() {
-    return this.store.peekRecord('company', user.company_uuid);
+    return this.store.peekRecord('company', this.user.company_uuid);
   }
 
-  @computed('args.organizations', 'organizations.@each.id', 'user.email')
+  @computed(
+    'args.organizations',
+    'organizations.@each.id',
+    'user.{company_name,email}'
+  )
   get orgNavigationItems() {
     const items = [
       {
-        text: this.user.email,
+        text: [this.user.email, this.user.company_name],
         class:
-          'flex flex-row items-center px-3 py-1 rounded-md text-gray-800 dark:text-gray-300 leading-1',
-        wrapperClass: 'pt-1.5',
+          'flex flex-row items-center px-3 rounded-md text-gray-800 text-sm dark:text-gray-300 leading-1',
+        wrapperClass: 'next-dd-session-user-wrapper',
       },
       {
         seperator: true,

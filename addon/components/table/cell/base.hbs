@@ -3,7 +3,7 @@
         {{#if (has-block)}}
             {{yield}}
         {{else}}
-            {{get-default-value @value}}
+            {{get-default-value @value "&mdash;"}}
         {{/if}}
     </span>
 </div>

@@ -1,6 +1,17 @@
+@keyframes expandIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .flb--modal {
     --flb-modal-zindex: 1055;
-    --flb-modal-width: 500px;
+    --flb-modal-width: 1024px;
     --flb-modal-padding: 1rem;
     --flb-modal-margin: 0.5rem;
     --flb-modal-color: ;
@@ -38,10 +49,7 @@
     margin: var(--flb-modal-margin);
     pointer-events: none;
 }
-.flb--modal.fade .flb--modal-dialog {
-    transition: transform 0.3s ease-out;
-    transform: translate(0, -50px);
-}
+
 @media (prefers-reduced-motion: reduce) {
     .flb--modal.fade .flb--modal-dialog {
         transition: none;
@@ -87,8 +95,9 @@
 }
 
 .flb--modal-backdrop {
-    --flb-backdrop-zindex: 1050;
-    --flb-backdrop-bg: rgba(107, 114, 128, .5);
+    @apply transition-all;
+    --flb-backdrop-zindex: 1000;
+    --flb-backdrop-bg: rgba(107, 114, 128, 0.5);
     --flb-backdrop-opacity: 0.5;
     position: fixed;
     top: 0;
@@ -295,9 +304,125 @@
     }
 }
 
+.flb--modal.roll-key-modal .flb--modal-dialog .flb--modal-content {
+    width: 30rem;
+    & .flb--modal-body {
+        @apply text-sm;
+    }
+}
 
-/** 
- * Dark Theme Styles
- * 
- * body[data-theme="dark"]
- */
+.flb--modal.modal-2xl .flb--modal-dialog .flb--modal-content {
+    width: 72rem;
+}
+
+.flb--modal.modal-xl .flb--modal-dialog .flb--modal-content {
+    width: 60rem;
+}
+
+.flb--modal.modal-lg .flb--modal-dialog .flb--modal-content {
+    width: 50rem;
+}
+
+.flb--modal.modal-base .flb--modal-dialog .flb--modal-content {
+    width: 40rem;
+}
+
+.flb--modal.modal-sm .flb--modal-dialog .flb--modal-content {
+    width: 30rem;
+}
+
+.flb--modal.modal-sm .flb--modal-dialog .flb--modal-content {
+    width: 20rem;
+}
+
+.flb--modal.flb--default-modal {
+    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto;
+    z-index: 900;
+
+    & > .flb--modal-dialog {
+        @apply flex items-center justify-center w-full h-full mx-auto;
+        animation: expandIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        & > .flb--modal-content {
+            @apply inline-block text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl opacity-100;
+            width: 40rem;
+            overflow: visible;
+
+            & > .flb--modal-header {
+                @apply flex items-center justify-between px-4 py-3 rounded-t-lg;
+
+                & .flb--modal-title {
+                    @apply text-lg font-medium leading-6 text-gray-900;
+                }
+
+                & button.close {
+                    @apply text-2xl outline-none;
+
+                    &:hover,
+                    &:active,
+                    &:focus {
+                        @apply outline-none;
+                    }
+
+                    &:hover {
+                        @apply opacity-50 cursor-pointer;
+                    }
+                }
+            }
+
+            & > .flb--modal-body > .modal-body-container {
+                @apply px-4 py-3;
+            }
+
+            & > .flb--modal-footer {
+                @apply flex items-center justify-end px-4 py-3 rounded-b-lg bg-gray-50;
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .flb--modal.flb--default-modal > .flb--modal-dialog > .modal-content {
+        margin-top: 0px;
+    }
+
+    .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header > button.close {
+        @apply w-7 h-7 bg-red-400 text-white flex items-center justify-center rounded-full p-0 m-0;
+    }
+
+    body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header > button.close {
+        @apply bg-red-500;
+    }
+}
+
+.flb--default-modal + .flb--modal-backdrop {
+    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto transition-opacity ease-in-out bg-gray-500 opacity-50;
+    z-index: 850;
+    &.show {
+        @apply opacity-50;
+    }
+}
+
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content {
+    @apply bg-gray-900;
+
+    & > .flb--modal-header {
+        @apply text-gray-100;
+
+        & .flb--modal-title {
+            @apply text-gray-100;
+        }
+
+        & button.close {
+            @apply text-gray-100;
+        }
+    }
+
+    & > .flb--modal-header {
+        @apply bg-gray-900;
+    }
+
+    & > .flb--modal-footer {
+        @apply bg-gray-800;
+    }
+}
