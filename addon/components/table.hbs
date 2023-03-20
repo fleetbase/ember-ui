@@ -30,7 +30,7 @@
                 {{/each}}
             </Table::Body>
             {{#if (or @tfoot @pagination)}}
-                <Table::Foot>
+                <Table::Foot @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
                     <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
                         <td class="tfoot-column {{if @pagination 'next-pagination-column'}}" colspan={{add this.visibleColumns.length 1}}>
                             <div class="tfoot-wrapper">

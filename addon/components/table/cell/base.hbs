@@ -1,9 +1,9 @@
-<div aria-label={{get-default-value @value}}>
+<div aria-label={{n-a @value}}>
     <span class={{@column.cellClassNames}}>
         {{#if (has-block)}}
             {{yield}}
         {{else}}
-            {{get-default-value @value "&mdash;"}}
+            {{n-a @value}}
         {{/if}}
     </span>
 </div>

@@ -1304,10 +1304,11 @@ section.next-view-section {
 /** Next/Table Wrapper **/
 .next-table-wrapper {
     overflow: scroll;
+    height: 100vh;
     @apply inline-block w-full min-w-full align-middle;
 
     & > table {
-        @apply table-fixed w-full;
+        @apply table-fixed w-full h-screen;
         border-collapse: separate;
         border-spacing: 0;
     }
@@ -1315,39 +1316,42 @@ section.next-view-section {
     & table > tbody:after {
         content: '';
         display: block;
-        height: 37px;
+        height: 153px;
         width: 100%;
     }
 
-    & table > thead,
-    & table > tfoot {
+    & table > thead {
         position: sticky;
+        inset-block-start: 0;
+        z-index: 12;
     }
 
     & table thead th {
         position: sticky;
         top: 0;
+        z-index: 16;
+    }
+
+    & table > tfoot {
+        position: sticky;
+        bottom: 53px;
+        min-width: 100%;
+        width: 100%;
+        background-color: black;
     }
 
     & table tfoot tr {
         position: sticky;
         bottom: 0;
     }
-
-    & table > thead {
-        inset-block-start: 0;
-    }
-    & table > tfoot {
-        inset-block-end: 20px;
-    }
 }
 
 .next-table-wrapper .tfoot-row {
     @apply bg-white dark:bg-gray-800 border-0 m-0 p-0;
+}
 
-    & > td {
-        @apply border-t border-b border-gray-200 dark:border-gray-700;
-    }
+.next-table-wrapper .tfoot-row > td {
+    @apply border-t border-gray-200 dark:border-gray-700;
 }
 
 body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
@@ -1363,7 +1367,7 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 
 .next-table-wrapper .tfoot-wrapper {
     padding: 0px 24px 0px 36px;
-    height: 57px;
+    height: 53px;
     min-width: 100%;
     max-width: 100%;
     @apply flex flex-1 flex-row items-center justify-between flex-shrink-0;

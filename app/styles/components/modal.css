@@ -311,27 +311,33 @@
     }
 }
 
-.flb--modal.modal-2xl .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-2xl > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-2xl > .flb--modal-dialog > .flb--modal-content {
     width: 72rem;
 }
 
-.flb--modal.modal-xl .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-xl > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-xl > .flb--modal-dialog > .flb--modal-content {
     width: 60rem;
 }
 
-.flb--modal.modal-lg .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-lg > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-lg > .flb--modal-dialog > .flb--modal-content {
     width: 50rem;
 }
 
-.flb--modal.modal-base .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-base > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-base > .flb--modal-dialog > .flb--modal-content {
     width: 40rem;
 }
 
-.flb--modal.modal-sm .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-sm > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-sm > .flb--modal-dialog > .flb--modal-content {
     width: 30rem;
 }
 
-.flb--modal.modal-sm .flb--modal-dialog .flb--modal-content {
+.flb--modal.flb--default-modal.modal-xs > .flb--modal-dialog > .flb--modal-content,
+.flb--modal.modal-xs > .flb--modal-dialog > .flb--modal-content {
     width: 20rem;
 }
 

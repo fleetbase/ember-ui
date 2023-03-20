@@ -3,7 +3,7 @@
         {{#if (has-block)}}
             {{yield}}
         {{else}}
-            {{@value}}
+            {{n-a @value}}
         {{/if}}
     </span>
     <Button @text={{get-default-value @buttonText "Click to reveal"}} @size="xs" @wrapperClass="click-to-reveal--button" @onClick={{this.reveal}} @isLoading={{this.isLoading}} />
