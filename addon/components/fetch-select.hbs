@@ -1,4 +1,4 @@
-<div class="fetch-select {{@wrapperClass}}" {{did-insert (fn this.fetchOptions)}}>
+<div class="fetch-select {{@wrapperClass}}" {{did-insert this.fetchOptions}}>
     <Select ...attributes @fetched={{true}} @options={{this.options}} @placeholder={{this.placeholder}} @optionLabel={{@optionLabel}} @optionValue={{@optionValue}} @onSelect={{@onSelect}} @humanize={{@humanize}} as |option key optionLabel|>
         {{yield option key optionLabel}}
     </Select>

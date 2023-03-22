@@ -33,12 +33,14 @@ export default class TableCellCheckboxComponent extends Component {
    */
   @action onToggle(checked) {
     const { row, column, onToggle } = this.args;
-    const checkedProperty = column?.valuePath ?? 'checked';
+    const checkedProperty = column?.valuePath;
 
     this.checked = checked;
 
     if (row) {
-      set(row, checkedProperty, checked);
+      if (checkedProperty) {
+        set(row, checkedProperty, checked);
+      }
       set(row, 'checked', checked);
     }
 

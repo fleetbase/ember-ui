@@ -6,403 +6,409 @@ import { isArray } from '@ember/array';
 import RSVP, { defer } from 'rsvp';
 
 export default class ModalsManagerService extends Service {
-  @tracked modalIsOpened = false;
-  @tracked modalDefer = null;
-  @tracked componentToRender = null;
-  @tracked options = {};
-  @tracked arguments = [];
-  @tracked defaultOptions = {
-    title: ' ',
-    body: ' ',
-    footer: ' ',
-    confirmButtonDefaultText: 'Yes',
-    confirmButtonFulfilledText: 'Yes',
-    confirmButtonPendingText: 'Yes',
-    confirmButtonRejectedText: 'Yes',
-    declineButtonDefaultText: 'No',
-    declineButtonFulfilledText: 'No',
-    declineButtonPendingText: 'No',
-    declineButtonRejectedText: 'No',
-    cancel: 'Cancel',
-    backdrop: true,
-    backdropClose: true,
-    backdropTransitionDuration: 150,
-    fade: true,
-    keyboard: true,
-    position: 'top',
-    renderInPlace: false,
-    scrollable: false,
-    size: null,
-    transitionDuration: 300,
-    confirmIsActive: false,
-    confirmButtonSize: 'md',
-    confirmButtonType: 'primary',
-    confirmIconActive: '',
-    confirmIconInactive: '',
-    declineIsActive: false,
-    declineButtonSize: 'md',
-    declineButtonType: 'secondary',
-    declineIconActive: '',
-    declineIconInactive: '',
-    modalClass: '',
-  };
+    @tracked modalIsOpened = false;
+    @tracked modalDefer = null;
+    @tracked componentToRender = null;
+    @tracked options = {};
+    @tracked arguments = [];
+    @tracked defaultOptions = {
+        title: ' ',
+        body: ' ',
+        footer: ' ',
+        confirmButtonDefaultText: 'Yes',
+        confirmButtonFulfilledText: 'Yes',
+        confirmButtonPendingText: 'Yes',
+        confirmButtonRejectedText: 'Yes',
+        declineButtonDefaultText: 'No',
+        declineButtonFulfilledText: 'No',
+        declineButtonPendingText: 'No',
+        declineButtonRejectedText: 'No',
+        cancel: 'Cancel',
+        backdrop: true,
+        backdropClose: true,
+        backdropTransitionDuration: 150,
+        fade: true,
+        keyboard: true,
+        position: 'top',
+        renderInPlace: false,
+        scrollable: false,
+        size: null,
+        transitionDuration: 300,
+        confirmIsActive: false,
+        confirmButtonSize: 'md',
+        confirmButtonType: 'primary',
+        confirmIconActive: '',
+        confirmIconInactive: '',
+        declineIsActive: false,
+        declineButtonSize: 'md',
+        declineButtonType: 'secondary',
+        declineIconActive: '',
+        declineIconInactive: '',
+        modalClass: '',
+    };
 
-  /**
-   * @throws {Error} if some modal is already opened
-   * @param componentToRender Component's child-class represents needed modal
-   * @param options options passed to the rendered modal
-   */
-  @action show(componentToRender, options) {
-    assert(
-      'Only one modal may be opened in the same time!',
-      !this.modalIsOpened
-    );
-    const component = componentToRender;
-    const opts = Object.assign({}, this.defaultOptions, options);
-    this.componentToRender = component;
-    this.modalIsOpened = true;
-    this.options = opts;
-    const modalDefer = defer();
-    this.modalDefer = modalDefer;
-    return modalDefer.promise;
-  }
+    /**
+     * @throws {Error} if some modal is already opened
+     * @param componentToRender Component's child-class represents needed modal
+     * @param options options passed to the rendered modal
+     */
+    @action show(componentToRender, options) {
+        assert('Only one modal may be opened in the same time!', !this.modalIsOpened);
+        const component = componentToRender;
+        const opts = Object.assign({}, this.defaultOptions, options);
+        this.componentToRender = component;
+        this.modalIsOpened = true;
+        this.options = opts;
+        const modalDefer = defer();
+        this.modalDefer = modalDefer;
+        return modalDefer.promise;
+    }
 
-  /**
-   * Shows a confirmation dialog
-   *
-   * @method confirm
-   * @param {object} options
-   * @return {RSVP.Promise}
-   */
-  @action confirm(options) {
-    return this.show('modal/layouts/confirm', options);
-  }
+    /**
+     * Shows a confirmation dialog
+     *
+     * @method confirm
+     * @param {object} options
+     * @return {RSVP.Promise}
+     */
+    @action confirm(options) {
+        return this.show('modal/layouts/confirm', options);
+    }
 
-  /**
-   * Shows a alert dialog
-   */
-  @action alert(options) {
-    return this.show('modal/layouts/alert', options);
-  }
+    /**
+     * Shows a alert dialog
+     */
+    @action alert(options) {
+        return this.show('modal/layouts/alert', options);
+    }
 
-  /**
-   * Shows a prompt dialog
-   */
-  @action prompt(options) {
-    return this.show('modal/layouts/prompt', options);
-  }
+    /**
+     * Shows a prompt dialog
+     */
+    @action prompt(options) {
+        return this.show('modal/layouts/prompt', options);
+    }
 
-  /**
-   * Shows a progress dialog
-   * @category Default Modals
-   * @throws {Error} if `options.promises` is not an array
-   */
-  @action progress(options) {
-    assert(
-      '`options.promises` must be an array',
-      options && isArray(options.promises)
-    );
-    return this.show('modal/layouts/progress', options);
-  }
+    /**
+     * Shows a bulk action dialog
+     */
+    @action bulk(options) {
+        return this.show('modal/layouts/bulk-action', options);
+    }
 
-  /**
-   * Shows a process dialog
-   * @category Default Modals
-   * @throws {Error} if `options.process` is not defined
-   */
-  @action process(options) {
-    assert(
-      '`options.process` must be defined',
-      !!(options && options?.process)
-    );
-    return this.show('modal/layouts/process', options);
-  }
+    /**
+     * Shows a progress dialog
+     * @category Default Modals
+     * @throws {Error} if `options.promises` is not an array
+     */
+    @action progress(options) {
+        assert('`options.promises` must be an array', options && isArray(options.promises));
+        return this.show('modal/layouts/progress', options);
+    }
 
-  /**
-   * Shows a loading dialog
-   *
-   * @method confirm
-   * @param {object} options
-   * @return {RSVP.Promise}
-   */
-  @action async displayLoader(options = {}) {
-    await this.done();
+    /**
+     * Shows a process dialog
+     * @category Default Modals
+     * @throws {Error} if `options.process` is not defined
+     */
+    @action process(options) {
+        assert('`options.process` must be defined', !!(options && options?.process));
+        return this.show('modal/layouts/process', options);
+    }
 
-    this.show('modal/layouts/loading', { title: 'Loading...', ...options });
-  }
+    /**
+     * Shows a loading dialog
+     *
+     * @method confirm
+     * @param {object} options
+     * @return {RSVP.Promise}
+     */
+    @action async displayLoader(options = {}) {
+        await this.done();
 
-  /**
-   * Alias for showing a loading dialog
-   *
-   * @method confirm
-   * @param {object} options
-   * @return {RSVP.Promise}
-   */
-  @action async loader(options = {}) {
-    return this.displayLoader(options);
-  }
+        this.show('modal/layouts/loading', { title: 'Loading...', ...options });
+    }
 
-  /**
-   * Shows a dialog that allows user to select options from prompt
-   *
-   * @method confirm
-   * @param {object} options
-   * @return {RSVP.Promise}
-   */
-  @action async userSelectOption(title, promptOptions = [], modalOptions = {}) {
-    await this.done();
+    /**
+     * Alias for showing a loading dialog
+     *
+     * @method confirm
+     * @param {object} options
+     * @return {RSVP.Promise}
+     */
+    @action async loader(options = {}) {
+        return this.displayLoader(options);
+    }
 
-    return new Promise((resolve) => {
-      const selected = null;
+    /**
+     * Shows a dialog that allows user to select options from prompt
+     *
+     * @method confirm
+     * @param {object} options
+     * @return {RSVP.Promise}
+     */
+    @action async userSelectOption(title, promptOptions = [], modalOptions = {}) {
+        await this.done();
 
-      this.show('modal/layouts/option-prompt', {
-        title,
-        promptOptions,
-        selected,
-        selectOption: (event) => {
-          const { value } = event.target;
+        return new Promise((resolve) => {
+            const selected = null;
 
-          this.setOption('selected', value);
-        },
-        confirm: () => {
-          this.startLoading();
-          const selected = this.getOption('selected');
+            this.show('modal/layouts/option-prompt', {
+                title,
+                promptOptions,
+                selected,
+                selectOption: (event) => {
+                    const { value } = event.target;
 
-          this.done();
-          resolve(selected);
-        },
-        decline: () => {
-          resolve(null);
-        },
-        ...modalOptions,
-      });
-    });
-  }
+                    this.setOption('selected', value);
+                },
+                confirm: () => {
+                    this.startLoading();
+                    const selected = this.getOption('selected');
 
-  /**
-   * @category Action Handlers
-   */
-  @action onConfirmClick(v) {
-    this.modalIsOpened = false;
-    this.modalDefer && this.modalDefer.resolve(v);
-    this.clearOptions();
-  }
-
-  /**
-   * @category Action Handlers
-   */
-  @action onDeclineClick(v) {
-    this.modalIsOpened = false;
-    // eslint-disable-next-line ember/no-array-prototype-extensions
-    this.modalDefer && this.modalDefer.reject(v);
-    this.clearOptions();
-  }
-
-  /**
-   * Same as onClickConfirm but allows a handler to run then resolve by user
-   *
-   * @param {EbmmModalOptions} v
-   */
-  @action onClickConfirmWithDone(v) {
-    const done = this.done.bind(this, v, 'onConfirm');
-
-    if (this.options.confirm && typeof this.options.confirm === 'function') {
-      const response = this.options.confirm(this, done);
-
-      // hack keep dialog open until hold is true
-      if (this.options.exitOverride && this.options.exitOverride === true) {
-        return;
-      }
-
-      if (response && typeof response.then === 'function') {
-        return response.finally(() => {
-          done();
+                    this.done();
+                    resolve(selected);
+                },
+                decline: () => {
+                    resolve(null);
+                },
+                ...modalOptions,
+            });
         });
-      }
-      return;
     }
 
-    return done(v);
-  }
-
-  /**
-   * Same as onClickDecline but allows a handler to run then resolve by user
-   *
-   * @param {EbmmModalOptions} v
-   */
-  @action onClickDeclineWithDone(v) {
-    const done = this.done.bind(this, v, 'onDecline');
-
-    if (this.options.decline && typeof this.options.decline === 'function') {
-      const response = this.options.decline(this, done);
-      if (response && typeof response.then === 'function') {
-        return response.finally(() => {
-          return done();
-        });
-      }
-      return;
+    /**
+     * @category Action Handlers
+     */
+    @action onConfirmClick() {
+        this.modalIsOpened = false;
+        this.modalDefer && this.modalDefer.resolve(this);
+        this.clearOptions();
     }
 
-    return done(v);
-  }
-
-  /**
-   * Closes the modal and cleans up
-   *
-   * @void
-   */
-  @action done(v = {}, action) {
-    return new Promise((resolve) => {
-      const parentArguments = this.getArguments();
-      const callback = get(this, `options.${action}`);
-      const finalCallback = get(this, `options.onFinish`);
-
-      set(this, 'modalIsOpened', false);
-      this.modalDefer?.resolve(v);
-      this.clearOptions();
-      this.clearArguments();
-      resolve(true);
-
-      if (typeof callback === 'function') {
-        callback(...parentArguments, this.options);
-      }
-
-      if (typeof finalCallback === 'function') {
-        finalCallback(...parentArguments, this.options);
-      }
-    });
-  }
-
-  /**
-   * Get arguments based on service path array of argument names that exist in options
-   *
-   * @param {String} path
-   * @return {Array}
-   */
-  @action getArguments(path = 'options.args') {
-    const parentArguments = [];
-    const currentArguments = get(this, path);
-
-    if (this.arguments.length) {
-      return this.arguments;
+    /**
+     * @category Action Handlers
+     */
+    @action onDeclineClick() {
+        this.modalIsOpened = false;
+        // eslint-disable-next-line ember/no-array-prototype-extensions
+        this.modalDefer && this.modalDefer.reject(this);
+        this.clearOptions();
     }
 
-    if (isArray(currentArguments)) {
-      for (let i = 0; i < currentArguments.length; i++) {
-        const arg = currentArguments[i];
+    /**
+     * Same as onClickConfirm but allows a handler to run then resolve by user
+     *
+     * @param {EbmmModalOptions} v
+     */
+    @action onClickConfirmWithDone() {
+        const done = this.done.bind(this, this, 'onConfirm');
+        const { confirm, keepOpen } = this.options;
 
-        if (this.options[arg]) {
-          parentArguments.pushObject(this.options[arg]);
+        if (typeof confirm === 'function') {
+            const response = confirm(this, done);
+
+            // hack keep dialog open until hold is true
+            if (keepOpen === true) {
+                return;
+            }
+
+            if (response && typeof response.then === 'function') {
+                return response.finally(() => {
+                    done();
+                });
+            }
+            return;
         }
-      }
+
+        return done();
     }
 
-    return parentArguments;
-  }
+    /**
+     * Same as onClickDecline but allows a handler to run then resolve by user
+     *
+     * @param {EbmmModalOptions} v
+     */
+    @action onClickDeclineWithDone() {
+        const done = this.done.bind(this, this, 'onDecline');
+        const { decline, keepOpen } = this.options;
 
-  /**
-   * Sets arguments
-   *
-   * @param {String} path
-   * @void
-   */
-  @action setArguments(_args = []) {
-    this.arguments = isArray(_args) ? _args : [];
-  }
+        if (decline === 'function') {
+            const response = decline(this, done);
 
-  /**
-   * Clears arguments
-   *
-   * @param {String} path
-   * @void
-   */
-  @action clearArguments() {
-    this.setArguments();
-  }
+            // hack keep dialog open until hold is true
+            if (keepOpen === true) {
+                return;
+            }
 
-  /**
-   * Retrieves an option
-   *
-   * @param {String} key
-   * @return {Mixed}
-   */
-  @action getOption(key) {
-    if (isArray(key)) {
-      return this.getOptions(key);
+            if (response && typeof response.then === 'function') {
+                return response.finally(() => {
+                    return done();
+                });
+            }
+            return;
+        }
+
+        return done();
     }
 
-    return get(this.options, key);
-  }
+    /**
+     * Closes the modal and cleans up
+     *
+     * @void
+     */
+    @action done(instance, action) {
+        return new Promise((resolve) => {
+            const parentArguments = this.getArguments();
+            const callback = get(this, `options.${action}`);
+            const onFinish = get(this, `options.onFinish`);
 
-  /**
-   * Allows multiple options to be get
-   *
-   * @param {Object} options
-   * @void
-   */
-  @action getOptions(props = []) {
-    if (props?.length === 0) {
-      return this.options ?? {};
+            set(this, 'modalIsOpened', false);
+            this.modalDefer?.resolve(this);
+            this.clearOptions();
+            this.clearArguments();
+            resolve(true);
+
+            if (typeof callback === 'function') {
+                callback(...parentArguments, this.options);
+            }
+
+            if (typeof onFinish === 'function') {
+              onFinish(...parentArguments, this.options);
+            }
+        });
     }
 
-    return getProperties(this.options, props);
-  }
+    /**
+     * Get arguments based on service path array of argument names that exist in options
+     *
+     * @param {String} path
+     * @return {Array}
+     */
+    @action getArguments(path = 'options.args') {
+        const parentArguments = [];
+        const currentArguments = get(this, path);
 
-  /**
-   * Updates an option in the service
-   *
-   * @param {String} key
-   * @param {Mixed} value
-   * @void
-   */
-  @action setOption(key, value) {
-    set(this.options, key, value);
-  }
+        if (this.arguments.length) {
+            return this.arguments;
+        }
 
-  /**
-   * Allows multiple options to be updated
-   *
-   * @param {Object} options
-   * @void
-   */
-  @action setOptions(options = {}) {
-    setProperties(this.options, options);
-  }
+        if (isArray(currentArguments)) {
+            for (let i = 0; i < currentArguments.length; i++) {
+                const arg = currentArguments[i];
 
-  /**
-   * Executes a function passed in options
-   *
-   * @void
-   */
-  @action invoke(fn, ...params) {
-    const callable = get(this.options, fn);
+                if (this.options[arg]) {
+                    parentArguments.pushObject(this.options[arg]);
+                }
+            }
+        }
 
-    if (typeof callable === 'function') {
-      return callable(...params);
+        return parentArguments;
     }
 
-    return null;
-  }
+    /**
+     * Sets arguments
+     *
+     * @param {String} path
+     * @void
+     */
+    @action setArguments(_args = []) {
+        this.arguments = isArray(_args) ? _args : [];
+    }
 
-  /**
-   * Alias to start loading indicator on modal
-   *
-   * @void
-   */
-  @action startLoading() {
-    this.setOption('isLoading', true);
-  }
+    /**
+     * Clears arguments
+     *
+     * @param {String} path
+     * @void
+     */
+    @action clearArguments() {
+        this.setArguments();
+    }
 
-  /**
-   * Alias to stop loading indicator on modal
-   *
-   * @void
-   */
-  @action stopLoading() {
-    this.setOption('isLoading', false);
-  }
+    /**
+     * Retrieves an option
+     *
+     * @param {String} key
+     * @return {Mixed}
+     */
+    @action getOption(key) {
+        if (isArray(key)) {
+            return this.getOptions(key);
+        }
 
-  @action clearOptions() {
-    this.options = {};
-  }
+        return get(this.options, key);
+    }
+
+    /**
+     * Allows multiple options to be get
+     *
+     * @param {Object} options
+     * @void
+     */
+    @action getOptions(props = []) {
+        if (props?.length === 0) {
+            return this.options ?? {};
+        }
+
+        return getProperties(this.options, props);
+    }
+
+    /**
+     * Updates an option in the service
+     *
+     * @param {String} key
+     * @param {Mixed} value
+     * @void
+     */
+    @action setOption(key, value) {
+        set(this.options, key, value);
+    }
+
+    /**
+     * Allows multiple options to be updated
+     *
+     * @param {Object} options
+     * @void
+     */
+    @action setOptions(options = {}) {
+        setProperties(this.options, options);
+    }
+
+    /**
+     * Executes a function passed in options
+     *
+     * @void
+     */
+    @action invoke(fn, ...params) {
+        const callable = get(this.options, fn);
+
+        if (typeof callable === 'function') {
+            return callable(...params);
+        }
+
+        return null;
+    }
+
+    /**
+     * Alias to start loading indicator on modal
+     *
+     * @void
+     */
+    @action startLoading() {
+        this.setOption('isLoading', true);
+    }
+
+    /**
+     * Alias to stop loading indicator on modal
+     *
+     * @void
+     */
+    @action stopLoading() {
+        this.setOption('isLoading', false);
+    }
+
+    @action clearOptions() {
+        this.options = {};
+    }
 }

@@ -1,5 +1,5 @@
 <div class="next-table-wrapper {{@wrapperClass}}">
-    <table ...attributes>
+    <table ...attributes {{did-insert this.setupComponent}}>
         {{#if (has-block)}}
             {{yield}}
         {{else}}
@@ -16,7 +16,7 @@
                 </Table::Row>
             </Table::Head>
             <Table::Body>
-                {{#each @rows as |row|}}
+                {{#each this.rows as |row|}}
                     <Table::Row @selected={{get row 'checked'}}>
                         {{#if @selectable}}
                             <Table::Td>

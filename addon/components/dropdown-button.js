@@ -10,14 +10,17 @@ export default class DropdownButtonComponent extends Component {
    * @void
    */
   @action forwardAction(_action, params = [], dd) {
+    const { onAction } = this.args;
+    const actionCallbackName = `on${classify(_action)}`;
+
     tryInvoke(dd.actions, 'close');
 
-    if (typeof this.args[`on${classify(_action)}`] === 'function') {
-      this.args[`on${classify(_action)}`](...params);
+    if (typeof this.args[actionCallbackName] === 'function') {
+      this.args[actionCallbackName](...params);
     }
 
-    if (typeof this.args.onAction === 'function') {
-      this.args.onAction(_action, ...params);
+    if (typeof onAction === 'function') {
+      onAction(...params);
     }
   }
 
@@ -27,7 +30,7 @@ export default class DropdownButtonComponent extends Component {
    * @var {String}
    */
   @computed('args.type') get type() {
-    return this.args.type || 'default';
+    return this.args.type ?? 'default';
   }
 
   /**
@@ -36,6 +39,6 @@ export default class DropdownButtonComponent extends Component {
    * @var {String}
    */
   @computed('args.size') get buttonSize() {
-    return this.args.size || 'md';
+    return this.args.size ?? 'md';
   }
 }
