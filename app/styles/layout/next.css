@@ -1417,6 +1417,12 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     }
 }
 
+.next-table-wrapper table tbody tr,
+.next-table-wrapper table tbody tr td {
+    height: 37px;
+    max-height: 40px;
+}
+
 .next-table-wrapper table tfoot tr td,
 .next-table-wrapper table tbody tr td {
     @apply px-4 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;

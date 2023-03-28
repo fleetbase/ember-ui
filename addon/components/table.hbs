@@ -16,7 +16,7 @@
                 </Table::Row>
             </Table::Head>
             <Table::Body>
-                {{#each this.rows as |row|}}
+                {{#each @rows as |row|}}
                     <Table::Row @selected={{get row 'checked'}}>
                         {{#if @selectable}}
                             <Table::Td>

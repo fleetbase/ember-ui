@@ -3,22 +3,20 @@ import { tracked } from '@glimmer/tracking';
 import { action, set } from '@ember/object';
 import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
-import { filter } from '@ember/object/computed';
+import { filter, alias } from '@ember/object/computed';
 
 export default class TableComponent extends Component {
     @tracked allRowsSelected = false;
     @tracked tableNode;
-    @tracked rows = [];
-    @tracked columns = [];
-    @filter('columns.@each.hidden', (column) => !column.hidden) visibleColumns;
-    @filter('rows.@each.checked', (row) => row.checked) selectedRows;
+    @alias('args.rows') rows;
+    @alias('args.columns') columns;
+    @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
+    @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
 
     @action setupComponent(tableNode) {
-        const { onSetup, rows, columns } = this.args;
+        const { onSetup } = this.args;
 
         this.tableNode = tableNode;
-        this.setRows(rows);
-        this.setColumns(columns);
 
         later(
             this,
@@ -29,15 +27,6 @@ export default class TableComponent extends Component {
             },
             100
         );
-    }
-
-    @action setColumns(columns = []) {
-        if (typeof columns?.toArray === 'function') {
-            this.columns = columns.toArray();
-        } else {
-            this.columns = columns;
-        }
-        return this;
     }
 
     @action addRow(row) {
@@ -66,15 +55,6 @@ export default class TableComponent extends Component {
     @action removeRows(rows = []) {
         this.rows.removeObjects(rows);
         return this.resetRowCheckboxes();
-    }
-
-    @action setRows(rows = []) {
-        if (typeof rows?.toArray === 'function') {
-            this.rows = rows.toArray();
-        } else {
-            this.rows = rows;
-        }
-        return this;
     }
 
     @action resetRowCheckboxes() {
