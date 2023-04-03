@@ -274,7 +274,7 @@ export default class ModalsManagerService extends Service {
             }
 
             if (typeof onFinish === 'function') {
-              onFinish(...parentArguments, this.options);
+                onFinish(...parentArguments, this.options);
             }
         });
     }

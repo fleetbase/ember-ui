@@ -4,27 +4,25 @@ import { inject as service } from '@ember/service';
 import { action, get } from '@ember/object';
 
 export default class CountryNameComponent extends Component {
-  @service fetch;
-  @tracked countryName;
+    @service fetch;
+    @tracked countryName;
 
-  constructor(owner, { country }) {
-    super(...arguments);
+    constructor(owner, { country }) {
+        super(...arguments);
 
-    this.countryName = country;
+        this.countryName = country;
 
-    if (typeof country === 'string' && country.length === 2) {
-      this.lookupCountryName(country);
+        if (typeof country === 'string' && country.length === 2) {
+            this.lookupCountryName(country);
+        }
     }
-  }
 
-  @action async lookupCountryName(country) {
-    const lookupResponse = await this.fetch.cachedGet(
-      `lookup/country/${country}`
-    );
-    const countryName = lookupResponse.name;
+    @action async lookupCountryName(country) {
+        const lookupResponse = await this.fetch.cachedGet(`lookup/country/${country}`);
+        const countryName = lookupResponse.name;
 
-    this.countryName = countryName;
+        this.countryName = countryName;
 
-    return countryName;
-  }
+        return countryName;
+    }
 }

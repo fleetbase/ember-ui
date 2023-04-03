@@ -1,3 +1,3 @@
 export default function closeSidebar() {
-  return true;
+    return true;
 }

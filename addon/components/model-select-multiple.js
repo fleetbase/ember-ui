@@ -9,13 +9,13 @@ import { action } from '@ember/object';
  * @class ModelSelectMultipleComponent
  */
 export default class ModelSelectMultipleComponent extends PowerSelectMultipleComponent {
-  @action change(option, select) {
-    const suggestion = option.find((item) => item.__isSuggestion__);
+    @action change(option, select) {
+        const suggestion = option.find((item) => item.__isSuggestion__);
 
-    if (suggestion) {
-      this.args.onCreate(suggestion.__value__, select);
-    } else {
-      this.args.onChange(option, select);
+        if (suggestion) {
+            this.args.onCreate(suggestion.__value__, select);
+        } else {
+            this.args.onChange(option, select);
+        }
     }
-  }
 }

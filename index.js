@@ -2,9 +2,9 @@
 const name = require('./package').name;
 
 module.exports = {
-  name,
+    name,
 
-  isDevelopingAddon: function () {
-    return true;
-  },
+    isDevelopingAddon: function () {
+        return true;
+    },
 };

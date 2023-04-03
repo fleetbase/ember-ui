@@ -1,3 +1,3 @@
 export default function getDefaultValue() {
-  return true;
+    return true;
 }

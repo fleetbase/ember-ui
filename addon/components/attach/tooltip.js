@@ -3,13 +3,13 @@ import { tracked } from '@glimmer/tracking';
 import { computed } from '@ember/object';
 
 export default class AttachTooltipComponent extends Component {
-  @computed('args.placement') get placement() {
-    const { placement } = this.args;
+    @computed('args.placement') get placement() {
+        const { placement } = this.args;
 
-    if (typeof placement === 'string') {
-      return placement;
+        if (typeof placement === 'string') {
+            return placement;
+        }
+
+        return 'right';
     }
-
-    return 'right';
-  }
 }

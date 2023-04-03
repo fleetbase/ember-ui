@@ -4,12 +4,12 @@ import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Modifier | set-max-width', function (hooks) {
-  setupRenderingTest(hooks);
+    setupRenderingTest(hooks);
 
-  // Replace this with your real tests.
-  test('it renders', async function (assert) {
-    await render(hbs`<div {{set-max-width}}></div>`);
+    // Replace this with your real tests.
+    test('it renders', async function (assert) {
+        await render(hbs`<div {{set-max-width}}></div>`);
 
-    assert.ok(true);
-  });
+        assert.ok(true);
+    });
 });

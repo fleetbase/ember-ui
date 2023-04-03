@@ -3,63 +3,63 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class TableCellResizerComponent extends Component {
-  @tracked tableCellNode;
-  @tracked resizerNode;
-  @tracked x;
-  @tracked w;
+    @tracked tableCellNode;
+    @tracked resizerNode;
+    @tracked x;
+    @tracked w;
 
-  @action setupComponent(resizerNode) {
-    const { parentNode } = resizerNode;
+    @action setupComponent(resizerNode) {
+        const { parentNode } = resizerNode;
 
-    this.resizerNode = resizerNode;
-    this.tableCellNode = parentNode;
-    this.setupResizerNode(resizerNode);
-    this.setupTableCellNode(parentNode);
-  }
-
-  @action setupTableCellNode(tableCellNode) {
-    tableCellNode.style.position = 'relative';
-    tableCellNode.setAttribute('nowrap', '');
-  }
-
-  @action setupResizerNode(resizerNode) {
-    const table = this.getOwnerTable(resizerNode);
-    resizerNode.style.height = `${table.offsetHeight}px`;
-  }
-
-  @action getOwnerTable(resizerNode) {
-    while (resizerNode) {
-      resizerNode = resizerNode.parentNode;
-
-      if (resizerNode.tagName.toLowerCase() === 'table') {
-        return resizerNode;
-      }
+        this.resizerNode = resizerNode;
+        this.tableCellNode = parentNode;
+        this.setupResizerNode(resizerNode);
+        this.setupTableCellNode(parentNode);
     }
 
-    return undefined;
-  }
+    @action setupTableCellNode(tableCellNode) {
+        tableCellNode.style.position = 'relative';
+        tableCellNode.setAttribute('nowrap', '');
+    }
 
-  @action onMouseDown(e) {
-    this.resizerNode.classList.add('resizing');
-    this.x = e.clientX;
+    @action setupResizerNode(resizerNode) {
+        const table = this.getOwnerTable(resizerNode);
+        resizerNode.style.height = `${table.offsetHeight}px`;
+    }
 
-    const styles = window.getComputedStyle(this.tableCellNode);
-    this.w = parseInt(styles.width, 10);
+    @action getOwnerTable(resizerNode) {
+        while (resizerNode) {
+            resizerNode = resizerNode.parentNode;
 
-    document.addEventListener('mousemove', this.onMouseMove);
-    document.addEventListener('mouseup', this.onMouseUp);
-  }
+            if (resizerNode.tagName.toLowerCase() === 'table') {
+                return resizerNode;
+            }
+        }
 
-  @action onMouseMove(e) {
-    const dx = e.clientX - this.x;
+        return undefined;
+    }
 
-    this.tableCellNode.style.width = `${this.w + dx}px`;
-  }
+    @action onMouseDown(e) {
+        this.resizerNode.classList.add('resizing');
+        this.x = e.clientX;
 
-  @action onMouseUp() {
-    this.resizerNode.classList.remove('resizing');
+        const styles = window.getComputedStyle(this.tableCellNode);
+        this.w = parseInt(styles.width, 10);
 
-    document.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onMouseUp);
-  }
+        document.addEventListener('mousemove', this.onMouseMove);
+        document.addEventListener('mouseup', this.onMouseUp);
+    }
+
+    @action onMouseMove(e) {
+        const dx = e.clientX - this.x;
+
+        this.tableCellNode.style.width = `${this.w + dx}px`;
+    }
+
+    @action onMouseUp() {
+        this.resizerNode.classList.remove('resizing');
+
+        document.removeEventListener('mousemove', this.onMouseMove);
+        document.removeEventListener('mouseup', this.onMouseUp);
+    }
 }

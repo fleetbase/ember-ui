@@ -4,14 +4,16 @@ import { action, set } from '@ember/object';
 import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
 import { filter, alias } from '@ember/object/computed';
+import { isEqual } from '@fleetbase/ember-core/decorators/is-equal';
 
 export default class TableComponent extends Component {
-    @tracked allRowsSelected = false;
     @tracked tableNode;
+    @tracked allRowsToggled = false;
     @alias('args.rows') rows;
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
     @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
+    @isEqual('selectedRows.length', 'rows.length') allRowsSelected;
 
     @action setupComponent(tableNode) {
         const { onSetup } = this.args;
@@ -67,11 +69,11 @@ export default class TableComponent extends Component {
     }
 
     @action selectAllRows() {
-        this.allRowsSelected = !this.allRowsSelected;
+        this.allRowsToggled = !this.allRowsToggled;
 
         for (let i = 0; i < this.rows.length; i++) {
             const row = this.rows.objectAt(i);
-            set(row, 'checked', this.allRowsSelected);
+            set(row, 'checked', this.allRowsToggled);
         }
     }
 }

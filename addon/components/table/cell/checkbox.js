@@ -4,52 +4,52 @@ import { action, set, computed } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 
 export default class TableCellCheckboxComponent extends Component {
-  /**
-   * Generates a unique ID for this checkbox instance
-   *
-   * @var {String}
-   */
-  @computed('args.row.id') get id() {
-    const { row } = this.args;
+    /**
+     * Generates a unique ID for this checkbox instance
+     *
+     * @var {String}
+     */
+    @computed('args.row.id') get id() {
+        const { row } = this.args;
 
-    if (row?.id) {
-      return row.id;
+        if (row?.id) {
+            return row.id;
+        }
+
+        return guidFor(this);
     }
 
-    return guidFor(this);
-  }
+    /**
+     * Whether this checkbox is checked or not
+     *
+     * @param {Boolean} checked
+     */
+    @tracked checked = false;
 
-  /**
-   * Whether this checkbox is checked or not
-   *
-   * @param {Boolean} checked
-   */
-  @tracked checked = false;
+    /**
+     * Toggles the checkbox and sends up an action
+     *
+     * @void
+     */
+    @action onToggle(checked) {
+        const { row, column, onToggle } = this.args;
+        const checkedProperty = column?.valuePath;
 
-  /**
-   * Toggles the checkbox and sends up an action
-   *
-   * @void
-   */
-  @action onToggle(checked) {
-    const { row, column, onToggle } = this.args;
-    const checkedProperty = column?.valuePath;
+        this.checked = checked;
 
-    this.checked = checked;
+        if (row) {
+            if (checkedProperty) {
+                set(row, checkedProperty, checked);
+            }
+            set(row, 'checked', checked);
+        }
 
-    if (row) {
-      if (checkedProperty) {
-        set(row, checkedProperty, checked);
-      }
-      set(row, 'checked', checked);
+        if (typeof column?.onToggle === 'function') {
+            column.onToggle(checked, row);
+        }
+
+        if (typeof onToggle === 'function') {
+            onToggle(checked, row);
+        }
     }
-
-    if (typeof column?.onToggle === 'function') {
-      column.onToggle(checked, row);
-    }
-
-    if (typeof onToggle === 'function') {
-      onToggle(checked, row);
-    }
-  }
 }

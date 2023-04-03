@@ -4,12 +4,12 @@ import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Modifier | increase-height-by', function (hooks) {
-  setupRenderingTest(hooks);
+    setupRenderingTest(hooks);
 
-  // Replace this with your real tests.
-  test('it renders', async function (assert) {
-    await render(hbs`<div {{increase-height-by}}></div>`);
+    // Replace this with your real tests.
+    test('it renders', async function (assert) {
+        await render(hbs`<div {{increase-height-by}}></div>`);
 
-    assert.ok(true);
-  });
+        assert.ok(true);
+    });
 });

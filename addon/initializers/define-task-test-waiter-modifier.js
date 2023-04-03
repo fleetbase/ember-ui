@@ -1,9 +1,9 @@
 import defineModifier from 'ember-concurrency-test-waiter/define-modifier';
 
 export function initialize() {
-  defineModifier();
+    defineModifier();
 }
 
 export default {
-  initialize,
+    initialize,
 };

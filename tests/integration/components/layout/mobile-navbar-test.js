@@ -4,23 +4,23 @@ import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | layout/mobile-navbar', function (hooks) {
-  setupRenderingTest(hooks);
+    setupRenderingTest(hooks);
 
-  test('it renders', async function (assert) {
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders', async function (assert) {
+        // Set any properties with this.set('myProperty', 'value');
+        // Handle any actions with this.set('myAction', function(val) { ... });
 
-    await render(hbs`<Layout::MobileNavbar />`);
+        await render(hbs`<Layout::MobileNavbar />`);
 
-    assert.dom(this.element).hasText('');
+        assert.dom(this.element).hasText('');
 
-    // Template block usage:
-    await render(hbs`
+        // Template block usage:
+        await render(hbs`
       <Layout::MobileNavbar>
         template block text
       </Layout::MobileNavbar>
     `);
 
-    assert.dom(this.element).hasText('template block text');
-  });
+        assert.dom(this.element).hasText('template block text');
+    });
 });

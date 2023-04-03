@@ -5,31 +5,31 @@ import { later } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 
 function calculateOffset(offset, elements) {
-  let calculatedOffset = 0;
+    let calculatedOffset = 0;
 
-  if (offset) {
-    calculatedOffset += parseInt(numbersOnly(offset));
-  }
-
-  if (isArray(elements)) {
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements.objectAt(i);
-
-      if (element instanceof HTMLElement) {
-        calculatedOffset += parseInt(numbersOnly(element.offsetHeight));
-      }
-
-      if (typeof element === 'string') {
-        const foundElement = document.querySelector(element);
-
-        if (foundElement instanceof HTMLElement) {
-          calculatedOffset += parseInt(numbersOnly(foundElement.offsetHeight));
-        }
-      }
+    if (offset) {
+        calculatedOffset += parseInt(numbersOnly(offset));
     }
-  }
 
-  return calculatedOffset;
+    if (isArray(elements)) {
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements.objectAt(i);
+
+            if (element instanceof HTMLElement) {
+                calculatedOffset += parseInt(numbersOnly(element.offsetHeight));
+            }
+
+            if (typeof element === 'string') {
+                const foundElement = document.querySelector(element);
+
+                if (foundElement instanceof HTMLElement) {
+                    calculatedOffset += parseInt(numbersOnly(foundElement.offsetHeight));
+                }
+            }
+        }
+    }
+
+    return calculatedOffset;
 }
 
 /**
@@ -37,34 +37,30 @@ function calculateOffset(offset, elements) {
  * ex {{vertical-offset-by "bottom" (hash offset = 20)}}
  * ex {{vertical-offset-by "bottom" (hash elements = "#header,.subheader")}}
  */
-export default modifier(function verticalOffsetBy(
-  element,
-  [direction = 'bottom'],
-  { offset = null, elements = null }
-) {
-  if (isBlank(offset) && isBlank(elements)) {
-    return;
-  }
+export default modifier(function verticalOffsetBy(element, [direction = 'bottom'], { offset = null, elements = null }) {
+    if (isBlank(offset) && isBlank(elements)) {
+        return;
+    }
 
-  if (typeof elements === 'string' && elements.includes(',')) {
-    elements = elements.split(',');
-  }
+    if (typeof elements === 'string' && elements.includes(',')) {
+        elements = elements.split(',');
+    }
 
-  if (typeof elements === 'string' && elements.includes('|')) {
-    elements = elements.split('|');
-  }
+    if (typeof elements === 'string' && elements.includes('|')) {
+        elements = elements.split('|');
+    }
 
-  if (typeof elements === 'string') {
-    elements = [elements];
-  }
+    if (typeof elements === 'string') {
+        elements = [elements];
+    }
 
-  const calculatedOffset = calculateOffset(offset, elements);
+    const calculatedOffset = calculateOffset(offset, elements);
 
-  later(
-    this,
-    () => {
-      element.style[direction] = `${calculatedOffset}px`;
-    },
-    100
-  );
+    later(
+        this,
+        () => {
+            element.style[direction] = `${calculatedOffset}px`;
+        },
+        100
+    );
 });

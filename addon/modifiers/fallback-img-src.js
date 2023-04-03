@@ -1,18 +1,18 @@
 import { modifier } from 'ember-modifier';
 
 export default modifier(function fallbackImgSrc(element, [fallbackUrl]) {
-  const useFallbackUrl = function (event) {
-    if (typeof fallbackUrl === 'string') {
-      const url = new URL(fallbackUrl);
+    const useFallbackUrl = function (event) {
+        if (typeof fallbackUrl === 'string') {
+            const url = new URL(fallbackUrl);
 
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        this.src = url.toString();
-        this.setAttribute('fallback-url', url.toString());
-      }
-    }
-  };
+            if (url.protocol === 'http:' || url.protocol === 'https:') {
+                this.src = url.toString();
+                this.setAttribute('fallback-url', url.toString());
+            }
+        }
+    };
 
-  element.addEventListener('error', useFallbackUrl);
+    element.addEventListener('error', useFallbackUrl);
 
-  return () => element.removeEventListener('error', useFallbackUrl);
+    return () => element.removeEventListener('error', useFallbackUrl);
 });
