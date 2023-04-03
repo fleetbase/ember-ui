@@ -1,1 +1,31 @@
-{{yield}}
+<DropdownButton @text={{or @text "Filter"}} @icon={{or @icon "filter"}} @type={{@type}} @size={{or @size "xs"}} @buttonClass={{@buttonClass}} @buttonWrapperClass={{@buttonWrapperClass}} @triggerClass={{@triggerClass}} @wrapperClass={{@wrapperClass}} @renderInPlace={{@renderInPlace}} @registerAPI={{@registerAPI}} @horizontalPosition={{@horizontalPosition}} @verticalPosition={{@verticalPosition}} @calculatePosition={{@calculatePosition}} @defaultClass={{@defaultClass}} @matchTriggerWidth={{@matchTriggerWidth}} @onOpen={{@onOpen}} @onClose={{@onClose}} ...attributes as |dd|>
+    <div class="filters-dropdown-container">
+        <div class="filters-dropdown-header">
+            <h4>{{or @dropdownHeaderText "Filters"}}</h4>
+        </div>
+        <div class="filters-dropdown-body">
+            <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full">
+                {{#each this.filterComponents as |column|}}
+                    <div class="filter-component">
+                        <label class="filter-component-label">{{or column.filterLabel column.label}}</label>
+                        {{component
+                                        column.filterComponent
+                                        value=column.filterValue
+                                        column=column
+                                        options=column.filterOptions
+                                        optionLabel=column.filterOptionLabel
+                                        optionValue=column.filterOptionValue
+                                        optionFormats=column.filterOptionFormats
+                                        placeholder=(or column.filterComponentPlaceholder column.filterLabel column.label)
+                                        onChange=(fn @onChange column)
+                                    }}
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="filters-dropdown-footer space-x-2">
+            <Button @text="Clear" @icon="trash" @size="xs" @onClick={{fn @onClear}} />
+            <Button @text="Apply" @icon="check" @type="primary" @size="xs" @onClick={{fn @onApply}} />
+        </div>
+    </div>
+</DropdownButton>
