@@ -1,4 +1,10 @@
 export default function getUrlParam(key) {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(key);
+    let urlParam = urlParams.get(key);
+
+    if (!urlParam) {
+        urlParam = urlParams.get(`${key}[]`);
+    }
+
+    return urlParam;
 }

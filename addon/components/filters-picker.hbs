@@ -5,27 +5,28 @@
         </div>
         <div class="filters-dropdown-body">
             <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full">
-                {{#each this.filterComponents as |column|}}
+                {{#each this.filters as |filter|}}
                     <div class="filter-component">
-                        <label class="filter-component-label">{{or column.filterLabel column.label}}</label>
+                        <label class="filter-component-label">{{or filter.filterLabel filter.label}}</label>
+                        {{log (or filter.filterLabel filter.label) " value: " filter.filterValue}}
                         {{component
-                                        column.filterComponent
-                                        value=column.filterValue
-                                        column=column
-                                        options=column.filterOptions
-                                        optionLabel=column.filterOptionLabel
-                                        optionValue=column.filterOptionValue
-                                        optionFormats=column.filterOptionFormats
-                                        placeholder=(or column.filterComponentPlaceholder column.filterLabel column.label)
-                                        onChange=(fn @onChange (or column.filterParam column.valuePath))
+                                        filter.filterComponent
+                                        value=filter.filterValue
+                                        column=filter
+                                        options=filter.filterOptions
+                                        optionLabel=filter.filterOptionLabel
+                                        optionValue=filter.filterOptionValue
+                                        optionFormats=filter.filterOptionFormats
+                                        placeholder=(or filter.filterComponentPlaceholder filter.filterLabel filter.label)
+                                        onChange=(fn @onChange (or filter.filterParam filter.valuePath))
                                     }}
                     </div>
                 {{/each}}
             </div>
         </div>
         <div class="filters-dropdown-footer space-x-2">
-            <Button @text="Clear" @icon="trash" @size="xs" @onClick={{fn @onClear}} />
-            <Button @text="Apply" @icon="check" @type="primary" @size="xs" @onClick={{fn @onApply}} />
+            <Button @text="Clear" @icon="trash" @size="xs" @onClick={{this.clearFilters}} />
+            <Button @text="Apply" @icon="check" @type="primary" @size="xs" @onClick={{@onApply}} />
         </div>
     </div>
 </DropdownButton>
