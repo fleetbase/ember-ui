@@ -17,7 +17,7 @@
                                         optionValue=column.filterOptionValue
                                         optionFormats=column.filterOptionFormats
                                         placeholder=(or column.filterComponentPlaceholder column.filterLabel column.label)
-                                        onChange=(fn @onChange column)
+                                        onChange=(fn @onChange (or column.filterParam column.valuePath))
                                     }}
                     </div>
                 {{/each}}
