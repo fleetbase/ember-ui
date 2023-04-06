@@ -7,21 +7,26 @@ import { isArray } from '@ember/array';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
-    @service hostRouter;
-
     /**
-     * Alias for columns argument.
+     * Inject router to handle param changes via `transitionTo`
      *
      * @memberof FiltersPickerComponent
      */
-    @alias('args.columns') columns;
+    @service hostRouter;
+
+    /**
+     * Array of filters created from columns argument.
+     *
+     * @memberof FiltersPickerComponent
+     */
+    @tracked filters = [];
 
     /**
      * Filters which are active and should be applied.
      *
      * @memberof FiltersPickerComponent
      */
-    @filter('columns.@each.isFilterActive', (filter) => filter.isFilterActive === true) activeFilters;
+    @filter('filters.@each.isFilterActive', (filter) => filter.isFilterActive === true) activeFilters;
 
     /**
      * Computed property that determines if any filters are set.
@@ -31,51 +36,123 @@ export default class FiltersPickerComponent extends Component {
     @gt('activeFilters.length', 0) hasFilters;
 
     /**
-     * Filters which are active and should be applied.
-     *
+     * Creates an instance of FiltersPickerComponent.
      * @memberof FiltersPickerComponent
      */
-    @filter('columns.@each.filterable', (filter) => filter.filterable) filterables;
+    constructor() {
+        super(...arguments);
+        this.updateFilters();
+    }
 
     /**
-     * Map in filters suited for FiltersPickerComponent.
+     * Creates and updates filters via map
+     *
+     * @param {null|Function} onColumn
+     * @memberof FiltersPickerComponent
+     */
+    @action updateFilters(onColumn) {
+        this.filters = this.args.columns
+            .filter((column) => column.filterable)
+            .map((column, trueIndex) => {
+                // add true index to column
+                column = { ...column, trueIndex };
+
+                // set the column param
+                column.param = column.filterParam ?? column.valuePath;
+
+                // get the active param if any and update filter
+                const activeParam = getUrlParam(column.param);
+
+                // update if an activeParam exists
+                if (activeParam) {
+                    column.isFilterActive = true;
+
+                    if (isArray(activeParam) && activeParam.length === 0) {
+                        column.isFilterActive = false;
+                    }
+
+                    column.filterValue = activeParam;
+                }
+
+                // callback to modify column from hook
+                if (typeof onColumn === 'function') {
+                    onColumn(column, trueIndex, activeParam);
+                }
+
+                return column;
+            });
+
+        return this;
+    }
+
+    /**
+     * Triggers the apply callback for the filters picker.
      *
      * @memberof FiltersPickerComponent
      */
-    @map('filterables.@each.{filterValue,isFilterActive}', function (column, trueIndex) {
-        // add true index to column
-        column = { ...column, trueIndex };
+    @action applyFilters() {
+        const { onApply } = this.args;
 
-        // get the url param key
-        const paramKey = column.filterParam ?? column.valuePath;
+        // run `onApply()` callback
+        if (typeof onApply === 'function') {
+            onApply();
+        }
+    }
 
-        // get the active param if any and update filter
-        const activeParam = getUrlParam(column);
+    /**
+     * Updates an individual filter/column value.
+     *
+     * @param {String} key
+     * @param {*} value
+     * @memberof FiltersPickerComponent
+     */
+    @action updateFilterValue({ param }, value) {
+        const { onChange } = this.args;
 
-        // update if an activeParam exists
-        if (activeParam) {
-            column.isFilterActive = true;
+        // run `onChange()` callback
+        if (typeof onChange === 'function') {
+            onChange(param, value);
+        }
+    }
 
-            if (isArray(activeParam) && activeParam.length === 0) {
-                column.isFilterActive = false;
+    /**
+     * Callback to clear a single filter/column value.
+     *
+     * @param {String} key
+     * @memberof FiltersPickerComponent
+     */
+    @action clearFilterValue({ param }) {
+        const { onFilterClear } = this.args;
+
+        // update filters 
+        this.updateFilters((column) => {
+            if (column.param !== param) {
+                return;
             }
 
-            column.filterValue = activeParam;
+            // clear column values
+            set(column, 'filterValue', undefined);
+            set(column, 'isFilterActive', false);
+        });
+
+        // run `onFilterClear()` callback
+        if (typeof onFilterClear === 'function') {
+            onFilterClear(param);
         }
+    }
 
-        return column;
-    })
-    filters;
-
+    /**
+     * Used to clear all filter/column values and URL params.
+     *
+     * @memberof FiltersPickerComponent
+     */
     @action clearFilters() {
-        const { onClear, columns } = this.args;
-
+        const { onClear } = this.args;
         const currentRouteName = this.hostRouter.currentRouteName;
         const currentQueryParams = { ...this.hostRouter.currentRoute.queryParams };
 
-        columns.forEach((column) => {
-            if (!column.filterable) return;
-
+        // update filters
+        this.updateFilters((column) => {
             const paramKey = column.filterParam ?? column.valuePath;
             delete currentQueryParams[paramKey];
             delete currentQueryParams[`${paramKey}[]`];
@@ -90,7 +167,7 @@ export default class FiltersPickerComponent extends Component {
 
         // run `onClear()` callback
         if (typeof onClear === 'function') {
-            onClear();
+            onClear(...arguments);
         }
     }
 }

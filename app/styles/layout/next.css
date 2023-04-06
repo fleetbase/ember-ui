@@ -100,7 +100,7 @@ body[data-theme='dark'] .fleetbase-next-container {
 
     &.minimized > .next-content-overlay-panel-container {
         @apply bg-transparent pointer-events-none;
-        
+
         & > .gutter {
             @apply hidden;
         }
@@ -1727,25 +1727,45 @@ a.text-danger {
 }
 
 /** filters dropdown */
+.customize-columns-dropdown-container,
 .filters-dropdown-container {
-    @apply rounded-md shadow-md flex flex-col mt-2 border border-gray-200 dark:border-gray-700;
+    @apply rounded-md shadow-lg flex flex-col mt-2 border border-gray-200 dark:border-gray-700;
+}
+
+.filters-dropdown-container {
     width: 800px;
 }
 
+.customize-columns-dropdown-container {
+    width: 500px;
+}
+
+.customize-columns-dropdown-container > .customize-columns-dropdown-header,
 .filters-dropdown-container > .filters-dropdown-header {
-    @apply rounded-t-md flex flex-row items-center py-4 px-4 w-full bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700;
+    @apply rounded-t-md flex flex-row items-center py-2.5 px-4 w-full bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700;
 }
 
+.customize-columns-dropdown-container > .customize-columns-dropdown-footer,
 .filters-dropdown-container > .filters-dropdown-footer {
-    @apply rounded-b-md flex flex-row items-center py-2 px-4 w-full bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700;
+    @apply rounded-b-md flex flex-row items-center py-2.5 px-4 w-full bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700;
 }
 
+.customize-columns-dropdown-container > .customize-columns-dropdown-header h4,
 .filters-dropdown-container > .filters-dropdown-header h4 {
     @apply text-sm font-semibold text-black dark:text-gray-100;
 }
 
+.customize-columns-dropdown-container > .customize-columns-dropdown-body,
 .filters-dropdown-container > .filters-dropdown-body {
-    @apply rounded-b-md flex flex-row items-center py-2 px-4 w-full bg-gray-100 dark:bg-gray-900;
+    @apply rounded-b-md flex flex-row items-center w-full bg-gray-100 dark:bg-gray-900;
+}
+
+.filters-dropdown-container > .filters-dropdown-body {
+    @apply py-2 px-4;
+}
+
+.customize-columns-dropdown-container > .customize-columns-dropdown-body {
+    @apply py-2 px-4;
 }
 
 .filter-component-label {
@@ -1753,7 +1773,15 @@ a.text-danger {
 }
 
 .filter-string {
-    @apply flex flex-col;
+    @apply flex flex-col relative;
+}
+
+.filter-string > .clear-button {
+    @apply absolute inset-y-0 right-0 dark:text-gray-500 text-gray-700 pr-3;
+}
+
+.filter-string > .clear-button:hover {
+    @apply opacity-50;
 }
 
 .filter-string > .filter-string-method {

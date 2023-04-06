@@ -34,6 +34,7 @@ const getConfigOption = (key, defaultValue) => {
 export default class ModelSelectComponent extends Component {
     @service store;
     @service fetch;
+    @service infinity;
 
     /**
      * Source to query, either an ember data model or the store
@@ -46,57 +47,6 @@ export default class ModelSelectComponent extends Component {
     get source() {
         return this.args.source || this.store;
     }
-
-    @service infinity;
-
-    /**
-     * Name of the ember-data model.
-     *
-     * @argument modelName
-     * @type {String}
-     * @required
-     */
-
-    /**
-     * Selected model or its id.
-     *
-     * @argument selectedModel
-     * @type {EmberData.Model|String|Number}
-     */
-
-    /**
-     * Name of property on model to use as label.
-     *
-     * @argument labelProperty
-     * @type {String}
-     * @required
-     */
-
-    /**
-     * Name of the key in which search queries are passed.
-     *
-     * @argument searchProperty
-     * @type {String}
-     * @default 'search'
-     */
-    get searchProperty() {
-        return this.args.searchProperty || getConfigOption('searchProperty', 'search');
-    }
-
-    /**
-     * Optional key to search on. Will default to `labelProperty` if unset.
-     *
-     * @argument searchKey
-     * @type {String}
-     */
-
-    /**
-     * Whether to start loading models when dropdown is opened (but no search is entered, yet).
-     *
-     * @argument loadDefaultOptions
-     * @type {Boolean}
-     * @default true
-     */
 
     /**
      * Whether or not to use infinite scroll.
@@ -121,13 +71,6 @@ export default class ModelSelectComponent extends Component {
     }
 
     /**
-     * Additional parameters for data query. Can be used to sort etc.
-     *
-     * @argument query
-     * @type {Object}
-     */
-
-    /**
      * Debounce duration in ms used when searching.
      *
      * @argument debounceDuration
@@ -139,22 +82,6 @@ export default class ModelSelectComponent extends Component {
     }
 
     /**
-     * Whether to allow creation of entries in case search yields no results.
-     *
-     * @argument withCreate
-     * @type {Boolean}
-     * @default false
-     */
-
-    /**
-     * Function which outputs the label to be shown for the create option when `withCreate` is set to `true`.
-     *
-     * @argument buildSuggestion
-     * @type {Function}
-     * @default 'Add "${term}"...'
-     */
-
-    /**
      * Ember-infinity argument.
      *
      * See: https://github.com/ember-infinity/ember-infinity#json-requestresponse-customization
@@ -164,7 +91,7 @@ export default class ModelSelectComponent extends Component {
      * @default 'page[size]'
      */
     get perPageParam() {
-        return this.args.perPageParam || getConfigOption('perPageParam', 'page[size]');
+        return this.args.perPageParam || getConfigOption('perPageParam', 'limit');
     }
 
     /**
@@ -177,7 +104,7 @@ export default class ModelSelectComponent extends Component {
      * @default 'page[number]'
      */
     get pageParam() {
-        return this.args.pageParam || getConfigOption('pageParam', 'page[number]');
+        return this.args.pageParam || getConfigOption('pageParam', 'page');
     }
 
     /**
@@ -215,6 +142,7 @@ export default class ModelSelectComponent extends Component {
 
     @tracked _options;
     @tracked model;
+    @tracked selectedModel;
 
     // constructor() {
     //   super(...arguments);
@@ -224,23 +152,19 @@ export default class ModelSelectComponent extends Component {
     // assert('{{model-select}} requires `debounceDuration` to be an Integer.', !isEmpty(this.get('debounceDuration')) && Number.isInteger(this.get('debounceDuration')));
     // assert('{{model-select}} `searchProperty` cannot be undefined or empty', !isEmpty(this.get('searchProperty')));
     // }
+    constructor() {
+        super(...arguments);
+        this.loadSelectedModel();
+    }
 
-    /**
-     * The model selected by the user
-     *
-     * @property _selectedModel
-     * @private
-     */
-    // eslint-disable-next-line ember/require-computed-property-dependencies
-    @computed('args.{selectedModel,modelName}') get _selectedModel() {
-        const selectedModel = this.args.selectedModel;
+    @action loadSelectedModel() {
+        const { selectedModel, modelName } = this.args;
 
-        if (typeof selectedModel === 'number' || typeof selectedModel === 'string') {
-            const id = parseInt(selectedModel, 10);
-            return !isNaN(id) ? this.findRecord.perform(this.args.modelName, id) : null;
-        } else {
-            return selectedModel;
+        if (typeof selectedModel === 'string') {
+            return this.findRecord.perform(this.args.modelName, selectedModel);
         }
+
+        this.selectedModel = selectedModel;
     }
 
     @dropTask({ withTestWaiter: true }) findRecord = function* (modelName, id) {
@@ -249,7 +173,10 @@ export default class ModelSelectComponent extends Component {
         // Error: Assertion Failed: You attempted to remove a function listener which
         // did not exist on the instance, which means you may have attempted to remove
         // it before it was added.
-        return yield this.store.findRecord(modelName, id);
+        const resolvedModel = yield this.store.findRecord(modelName, id);
+        this.selectedModel = resolvedModel;
+
+        return resolvedModel;
     };
 
     @restartableTask({ withTestWaiter: true }) searchModels = function* (term, options, initialLoad = false) {
@@ -276,12 +203,7 @@ export default class ModelSelectComponent extends Component {
         const query = assign({}, this.args.query);
 
         if (term) {
-            const searchProperty = this.searchProperty;
-            const searchKey = this.args.searchKey || this.args.labelProperty;
-
-            const searchObj = get(query, `${searchProperty}`) || {};
-            set(searchObj, searchKey, term);
-            set(query, searchProperty, searchObj);
+            set(query, 'query', term);
         }
 
         let _options;
@@ -289,7 +211,6 @@ export default class ModelSelectComponent extends Component {
         if (this.infiniteScroll) {
             // ember-infinity configuration
             query.perPage = this.pageSize;
-
             query.perPageParam = this.perPageParam;
             query.pageParam = this.pageParam;
             query.totalPagesParam = this.totalPagesParam;
@@ -312,45 +233,57 @@ export default class ModelSelectComponent extends Component {
     };
 
     loadDefaultOptions() {
-        if (this.args.loadDefaultOptions === undefined || this.args.loadDefaultOptions) {
+        const { loadDefaultOptions } = this.args;
+
+        if (loadDefaultOptions === undefined || loadDefaultOptions) {
             this.searchModels.perform(null, null, true);
         }
     }
 
     @action onOpen() {
+        const { onOpen } = this.args;
+
         this.loadDefaultOptions();
 
-        if (this.args.onOpen) {
-            this.args.onOpen(...arguments);
+        if (typeof onOpen === 'function') {
+            onOpen(...arguments);
         }
     }
 
     @action onInput(term) {
+        const { onInput } = this.args;
+
         if (isEmpty(term)) {
             this.loadDefaultOptions();
         }
 
-        if (this.args.onInput) {
-            this.args.onInput(...arguments);
+        if (typeof onInput === 'function') {
+            onInput(...arguments);
         }
     }
 
     @action onClose() {
+        const { onClose } = this.args;
+
         this.searchModels.cancelAll();
 
-        if (this.args.onClose) {
-            this.args.onClose(...arguments);
+        if (typeof onClose === 'function') {
+            onClose(...arguments);
         }
     }
 
     @action change(model, select) {
+        const { onCreate, onChange } = this.args;
+
+        this.selectedModel = model;
+
         if (!isEmpty(model) && model.__isSuggestion__) {
-            if (this.args.onCreate) {
-                this.args.onCreate(model.__value__, select);
+            if (typeof onCreate === 'function') {
+                onCreate(model.__value__, select);
             }
         } else {
-            if (this.args.onChange) {
-                this.args.onChange(model, select);
+            if (typeof onChange === 'function') {
+                onChange(model, select);
             }
         }
     }

@@ -1,1 +1,11 @@
-{{yield}}
+<div class="filter-multi-option">
+    <MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{this.onChange}} @allowClear={{@allowClear}} as |option|>
+        {{or (get option @optionLabel) option}}
+    </MultiSelect>
+
+    {{#if this.isLoading}}
+        <div class="ember-model-select__loading">
+            <ModelSelect::Spinner />
+        </div>
+    {{/if}}
+</div>

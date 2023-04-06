@@ -28,24 +28,22 @@ select.form-select.has--placeholder {
     color: #9fa6b2;
 }
 
-.fleetbase-console .form-input, 
-.fleetbase-console .form-textarea, 
-.fleetbase-console .form-select, 
+.fleetbase-console .form-input,
+.fleetbase-console .form-textarea,
+.fleetbase-console .form-select,
 .fleetbase-console .form-multiselect {
     @apply border border-gray-300 dark:border-gray-900;
 }
 
-body[data-theme="dark"] .fleetbase-console .form-input, 
-body[data-theme="dark"] .fleetbase-console .form-textarea, 
-body[data-theme="dark"] .fleetbase-console .form-select, 
-body[data-theme="dark"] .fleetbase-console .form-multiselect {
+body[data-theme='dark'] .fleetbase-console .form-input,
+body[data-theme='dark'] .fleetbase-console .form-textarea,
+body[data-theme='dark'] .fleetbase-console .form-select,
+body[data-theme='dark'] .fleetbase-console .form-multiselect {
     @apply border-gray-900;
 }
 
-body.fleetbase-console {
-    & .form-input {
-        @apply text-sm;
-    }
+body.fleetbase-console .form-input {
+    @apply text-sm;
 }
 
 .fleetbase-input:not(.fleetbase-date-input),
@@ -54,14 +52,13 @@ body.fleetbase-console {
 }
 
 /** model select **/
-
 .fleetbase-power-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
+.fleetbase-multi-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
 .fleetbase-model-select .ember-power-select-trigger.form-select .ember-power-select-status-icon {
     @apply hidden;
 }
 
 /** icons within input **/
-
 .fleetbase-input.with-left-icon .form-input {
     padding-left: 2rem;
 }
@@ -109,6 +106,7 @@ body[data-theme='dark'] .form-select {
     &:active,
     &:focus {
         @apply shadow-gray-900 outline-0;
+        --tw-shadow: transparent;
     }
 }
 
@@ -116,6 +114,7 @@ body[data-theme='dark'] input.form-input:active,
 body[data-theme='dark'] input.form-input:focus {
     @apply outline-0;
     box-shadow: none;
+    --tw-shadow: transparent;
 }
 
 .input-group {
@@ -133,10 +132,8 @@ body[data-theme='dark'] .input-group label {
     @apply opacity-50 cursor-not-allowed;
 }
 
-.form-datalist {
-    &::-webkit-calendar-picker-indicator {
-        display: none;
-    }
+.form-datalist::-webkit-calendar-picker-indicator {
+    display: none;
 }
 
 body[data-theme='dark'] .form-datalist:hover {
@@ -159,9 +156,11 @@ body[data-theme='light'] .form-datalist:hover {
             @apply w-full ml-0 truncate;
         }
     }
+
     & .ember-model-select__dropdown {
         @apply bg-white border border-gray-300 shadow;
     }
+
     & .ember-power-select-option {
         @apply w-full px-3 py-2 text-sm leading-4 truncate;
     }
@@ -360,4 +359,9 @@ body[data-theme='dark'] .iti__country-list {
     outline: 0;
     outline-offset: 0;
     @apply bg-blue-400 shadow-sm;
+}
+
+/** fleetbase checkbox style */
+.fleetbase-checkbox {
+    @apply w-4 h-4 transition duration-150 ease-in-out bg-gray-200 border-gray-200 dark:bg-gray-800 dark:border-gray-900;
 }

@@ -3,7 +3,7 @@
       this.optionsComponent
       infiniteScroll=this.infiniteScroll
       infiniteModel=this.model
-      withCreate=this.withCreate}} @placeholder={{@placeholder}} @placeholderComponent={{@placeholderComponent}} @preventScroll={{@preventScroll}} @renderInPlace={{@renderInPlace}} @scrollTo={{@scrollTo}} @search={{perform this.searchModels}} @searchEnabled={{get-default-value @searchEnabled true}} @searchField={{@searchField}} @searchMessage={{@searchMessage}} @searchPlaceholder={{@searchPlaceholder}} @selected={{this._selectedModel}} @selectedItemComponent={{@selectedItemComponent}} @tabindex={{@tabindex}} @triggerClass={{@triggerClass}} @triggerComponent={{@triggerComponent}} @triggerId={{@triggerId}} @triggerRole={{@triggerRole}} @typeAheadMatcher={{@typeAheadMatcher}} @verticalPosition={{@verticalPosition}} @withCreate={{@withCreate}} ...attributes as |model|>
+      withCreate=this.withCreate}} @placeholder={{@placeholder}} @placeholderComponent={{@placeholderComponent}} @preventScroll={{@preventScroll}} @renderInPlace={{@renderInPlace}} @scrollTo={{@scrollTo}} @search={{perform this.searchModels}} @searchEnabled={{get-default-value @searchEnabled true}} @searchField={{@searchField}} @searchMessage={{@searchMessage}} @searchPlaceholder={{@searchPlaceholder}} @selected={{this.selectedModel}} @selectedItemComponent={{@selectedItemComponent}} @tabindex={{@tabindex}} @triggerClass={{@triggerClass}} @triggerComponent={{@triggerComponent}} @triggerId={{@triggerId}} @triggerRole={{@triggerRole}} @typeAheadMatcher={{@typeAheadMatcher}} @verticalPosition={{@verticalPosition}} @withCreate={{@withCreate}} ...attributes as |model|>
         {{#if (has-block)}}
             {{yield model}}
         {{else}}
