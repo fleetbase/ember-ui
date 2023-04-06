@@ -41,3 +41,9 @@
 .ember-power-select-clear-btn:active {
     @apply bg-red-400 dark:bg-red-500;
 }
+
+.ember-power-select-trigger-multiple-input,
+.ember-power-select-trigger-multiple-input[type="search"] {
+    @apply bg-transparent text-sm text-white outline-0 leading-5 px-1;
+    max-height: 21px;
+}

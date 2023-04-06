@@ -1,8 +1,10 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
-import { action } from '@ember/object';
+import { action, get } from '@ember/object';
 import { isArray } from '@ember/array';
+import { later } from '@ember/runloop';
+import { assign } from '@ember/polyfills';
 
 export default class FilterMultiOptionComponent extends Component {
     @service fetch;
@@ -16,7 +18,7 @@ export default class FilterMultiOptionComponent extends Component {
         const { value, options, filter } = this.args;
 
         this.value = this.parseValue(value);
-        this.options = options ?? [];
+        this.options = isArray(options) ? options : [];
 
         if (typeof filter?.filterFetchOptions === 'string') {
             this.fetchOptions(filter?.filterFetchOptions);
@@ -24,20 +26,51 @@ export default class FilterMultiOptionComponent extends Component {
     }
 
     @action onChange(selection) {
-        const { onChange, filter } = this.args;
+        const { onChange, filter, optionValue } = this.args;
 
-        this.value = selection;
+        if (isArray(selection)) {
+            this.value = selection.map((selected) => {
+                if (typeof selected === 'string') {
+                    return selected;
+                }
+
+                return optionValue ? get(selected, optionValue) : selected;
+            });
+        } else {
+            this.value = [optionValue ? get(selection, optionValue) : selection];
+        }
 
         if (typeof onChange === 'function') {
-            onChange(filter, selection);
+            onChange(filter, this.value);
         }
     }
 
-    @action fetchOptions(uri) {
-        this.isLoading = true;
+    @action search(query) {
+        const { filter, optionLabel } = this.args;
+        const { multiOptionSearchField, filterFetchOptions } = filter;
 
+        if (typeof filterFetchOptions === 'string') {
+            return this.fetchOptions(filterFetchOptions, { query });
+        }
+
+        this.options = this.options.filter((option) => {
+            const optionText = get(option, optionLabel ?? 'name') ?? option;
+
+            if (typeof optionText === 'string') {
+                return optionText.toLowerCase().includes(searchText.toLowerCase());
+            }
+
+            return false;
+        });
+    }
+
+    @action fetchOptions(uri, params = {}) {
+        const { fetchParams } = this.args;
+        const queryParams = assign(params, fetchParams ?? {});
+
+        this.isLoading = true;
         this.fetch
-            .get(uri)
+            .get(uri, queryParams)
             .then((options) => {
                 this.options = options;
             })
