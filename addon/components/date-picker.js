@@ -12,7 +12,7 @@ export default class DatePickerComponent extends Component {
     defaultOptions = {
         inline: false,
         locale: localeEn,
-        dateFormat: 'yyyy-MM-dd'
+        dateFormat: 'yyyy-MM-dd',
     };
 
     @action setupComponent(node) {

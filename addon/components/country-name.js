@@ -10,19 +10,17 @@ export default class CountryNameComponent extends Component {
     constructor(owner, { country }) {
         super(...arguments);
 
-        this.countryName = country;
-
-        if (typeof country === 'string' && country.length === 2) {
-            this.lookupCountryName(country);
-        }
+        this.setCountryName(country);
     }
 
-    @action async lookupCountryName(country) {
-        const lookupResponse = await this.fetch.cachedGet(`lookup/country/${country}`);
-        const countryName = lookupResponse.name;
+    @action async setCountryName(country) {
+        if (typeof country === 'string' && country.length === 2) {
+            const lookupResponse = await this.fetch.cachedGet(`lookup/country/${country}`);
+            const countryName = lookupResponse?.name;
 
-        this.countryName = countryName;
-
-        return countryName;
+            this.countryName = countryName ?? country;
+        } else {
+            this.countryName = country;
+        }
     }
 }
