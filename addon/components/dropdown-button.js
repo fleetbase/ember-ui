@@ -2,28 +2,9 @@ import Component from '@glimmer/component';
 import { action, computed } from '@ember/object';
 import { tryInvoke } from '@ember/utils';
 import { classify } from '@ember/string';
+import { isBlank } from '@ember/utils';
 
 export default class DropdownButtonComponent extends Component {
-    /**
-     * Forwards an action to component owner
-     *
-     * @void
-     */
-    @action forwardAction(_action, params = [], dd) {
-        const { onAction } = this.args;
-        const actionCallbackName = `on${classify(_action)}`;
-
-        tryInvoke(dd.actions, 'close');
-
-        if (typeof this.args[actionCallbackName] === 'function') {
-            this.args[actionCallbackName](...params);
-        }
-
-        if (typeof onAction === 'function') {
-            onAction(...params);
-        }
-    }
-
     /**
      * Default button type
      *
@@ -40,5 +21,17 @@ export default class DropdownButtonComponent extends Component {
      */
     @computed('args.size') get buttonSize() {
         return this.args.size ?? 'md';
+    }
+
+    /**
+     * Additional arguments for a passed buttonComponent
+     *
+     * @readonly
+     * @memberof DropdownButtonComponent
+     */
+    @computed('args.buttonComponentArgs') get buttonComponentArgs() {
+        const { buttonComponentArgs } = this.args;
+
+        return isBlank(buttonComponentArgs) || typeof buttonComponentArgs !== 'object' ? {} : buttonComponentArgs;
     }
 }

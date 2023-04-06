@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { set, action } from '@ember/object';
 import { alias, filter, gt, map } from '@ember/object/computed';
 import { isArray } from '@ember/array';
+import { later } from '@ember/runloop';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
@@ -97,6 +98,15 @@ export default class FiltersPickerComponent extends Component {
         if (typeof onApply === 'function') {
             onApply();
         }
+
+        // manually run update filters after apply with slight 300ms delay to update activeFilters
+        later(
+            this,
+            () => {
+                this.updateFilters();
+            },
+            150
+        );
     }
 
     /**
@@ -124,7 +134,7 @@ export default class FiltersPickerComponent extends Component {
     @action clearFilterValue({ param }) {
         const { onFilterClear } = this.args;
 
-        // update filters 
+        // update filters
         this.updateFilters((column) => {
             if (column.param !== param) {
                 return;
