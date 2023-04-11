@@ -24,6 +24,51 @@ For more information on how to use each component, please refer to the documenta
 
 The following components are included in the Fleetbase Ember UI Components library:
 
+<details>
+  <summary>Attach</summary>
+  
+  * [`popover`](./popover.md) A component for displaying content in a popup box that appears when the user clicks on an element.
+  * [`tooltip`](./tooltip.md) A component for displaying a brief description or explanation of an element when the user hovers over it.
+</details>
+
+<details>
+    <summary>Filter</summary>
+  
+  * [`date-filter`](./date.md): A component for filtering a list of data based on a date range.
+  * [`model-filter`](./model.md): A component for filtering a list of data based on a model.
+  * [`multi-option-filter`](./multi-option.md):A component for filtering a list of data based on multiple options.
+  * [`select-filter`](./select.md): A component for filtering a list of data based on a single selected option.
+  * [`string-filter`](./string.md): A component for filtering a list of data based on a search string.
+</details>
+
+<details>
+    <summary>Filters Picker</summary>
+
+  * [`filters-picker-button`](./filters-picker-button.md):  A button component for opening and closing a dropdown list of filters.
+</details>
+
+<details>
+    <summary>Layout</summary>
+
+  * [`dropdown-header-item`](./dropdown-header-item.md): A component for displaying a single item in a dropdown list in the header.
+  * [`dark-mode-toggle`](./dark-mode-toggle.md): A toggle button component for switching between light and dark mode.
+  * [`loading-indicator`](.loading-indicator.md):  A component for displaying a loading indicator.
+  * [`section-body`](./section-body.md):  A component for displaying the body of a section.
+  * [`section-container`](./section-container.md): A container component for a section..
+  * [`section-header`](./section-header.md): A component for displaying the header of a section.
+  * [`section-header`](./section-header.md):  A component for displaying the header of a section.
+  * [`sidebar-item`](./sidebar-item.md): A component for displaying a single item in a sidebar.
+  * [`sidebar-panel`](./sidebar-panel.md): A component for displaying a panel in a sidebar.
+  * [`layout-container`](./layout-container.md):   A container component for the layout.
+  * [`header`](./header.md):  A component for displaying the header of the page.
+  * [`main`](./main.md): A component for displaying the main content of the page.
+  * [`mobile-navbar`](./mobile-navbar.md): A component for displaying the navigation bar on mobile devices.
+  * [`section`](./section.md): A component for displaying a section on the page.
+  * [`sidebar`](./sidebar.md): A component for displaying a sidebar on the page.
+  
+</details>
+
+
 
 - [`popover`](./popover.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
 - [`tooltip`](./tooltip.md): A component for displaying a brief description or explanation of an element when the user hovers over it.
