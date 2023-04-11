@@ -1,5 +1,5 @@
 <div class="filter-multi-option">
-    <MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{fn this.onChange}} @allowClear={{@allowClear}} as |option|>
+    <MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @search={{this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{this.onChange}} @allowClear={{@allowClear}} as |option|>
         {{or (get option @optionLabel) option}}
     </MultiSelect>
 

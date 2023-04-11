@@ -2,21 +2,11 @@
     <div class="flex rounded-md shadow-sm">
         <span class="shadow-sm inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-200 sm:text-sm">
             {{#if @canSelectCurrency}}
-                <PowerSelect class="money-input-currency-selector" @matcher={{this.searchCurrencies}} @searchEnabled={{true}} @searchField="code" @searchPlaceholder="Search by currency code" @renderInPlace={{true}} @options={{this.currencies}} @selected={{this.currencyData}} @onChange={{this.setCurrency}}
-                    @triggerComponent={{component "money-input/currency-handle" currency=this.currencyData}} as |currency|>
-                    <div class="truncate flex items-center">
-                        <div class="w-16">
-                            <span>{{currency.emoji}}</span>
-                            <strong>{{currency.code}}</strong>
-                        </div>
-                        <span class="w-4">-</span>
-                        <span>{{currency.title}}</span>
-                    </div>
-                </PowerSelect>
+                <CurrencySelect @onChange={{fn this.setCurrency}} @currency={{this.currency}} @currencyData={{this.currencyData}} />
             {{else}}
                 <MoneyInput::CurrencyHandle @currency={{this.currencyData}} />
             {{/if}}
-         </span>
+        </span>
         <Input @type="tel" @value={{@value}} class="form-input flex-1 rounded-l-none" {{did-insert this.autoNumerize}} ...attributes />
     </div>
 </div>
