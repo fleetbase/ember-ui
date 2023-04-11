@@ -41,7 +41,7 @@ The following components are included in the Fleetbase Ember UI Components libra
 - [`section-header`](./section-header.md): A component for displaying the header of a section.
 - [`section-header`](./section-header.md):  A component for displaying the header of a section.
 - [`sidebar-item`](./sidebar-item.md): A component for displaying a single item in a sidebar.
-- [`sidebar-panel`](./dark-mode-toggle.md): A component for displaying a panel in a sidebar.
+- [`sidebar-panel`](./sidebar-panel.md): A component for displaying a panel in a sidebar.
 - [`layout-container`](./layout-container.md):   A container component for the layout.
 - [`header`](./header.md):  A component for displaying the header of the page.
 - [`main`](./main.md): A component for displaying the main content of the page.
