@@ -72,7 +72,7 @@ The following components are included in the Fleetbase Ember UI Components libra
 - [`table/cell/media-name`](./docs/table/cell/checkbox.md): A component that renders the name of a media item within a table cell.
 
 - [`app-container`](./docs/app-container.md): A component for the main application container.
-- [`badge`](./docs/badge.md): A badge component.
+- [`badge`](./badge.md): A badge component.
 - [`button`](./docs/button.md): A button component.
 - [`checkbox`](./docs/checkbox.md): A checkbox component. 
 - [`click-to-copy`](./docs/click-to-copy.md): A component for copying text on click. 
