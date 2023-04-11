@@ -100,7 +100,7 @@ The following components are included in the Fleetbase Ember UI Components libra
 - [`model-select`](./model-select.md): A component that allows the user to select a single item from a list of models.
 - [`money-input`](.//money-input.md): A component that allows the user to input monetary values, with additional functionality such as currency selection.
 - [`multi-select`](.multi-select.md): A component that allows the user to select multiple items from a list.  
-- [`overlay`](./floating.md): A component that displays an overlay, which is a semi-transparent layer that covers the main application and is typically used to provide a modal-like user interface.  
+- [`overlay`](./overlay.md): A component that displays an overlay, which is a semi-transparent layer that covers the main application and is typically used to provide a modal-like user interface.  
 - [`pagination`](./pagination.md): A component that displays pagination controls, allowing the user to navigate through a large list of items.  
 - [`phone-input`](./phone-input.md): A component that allows the user to input phone numbers, with additional functionality such as international formatting. 
 - [`scrollable`](./scrollable.md): A component that provides a scrollable container for other components, allowing the user to scroll through a large amount of content. 
