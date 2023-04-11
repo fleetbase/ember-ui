@@ -1,26 +1,38 @@
-# @fleetbase/ember-ui
+# Fleetbase Ember UI Components
 
-[Short description of the addon.]
+Welcome to the Fleetbase Ember UI Components library! 
 
-
-## Compatibility
-
-* Ember.js v3.24 or above
-* Ember CLI v3.24 or above
-* Node.js v14 or above
-
+This library contains a collection of reusable UI components that you can use in your Ember.js applications to create a consistent and cohesive user interface.
 
 ## Installation
 
-```
-ember install @fleetbase/ember-ui
-```
+To install the Fleetbase Ember UI Components library, simply run the following command:
 
+<code>ember install @fleetbase/ember-ui-components</code>
 
 ## Usage
 
-[Longer description of how to use the addon in apps.]
+Once you have installed the Fleetbase Ember UI Components library, you can start using the components in your application. 
 
+To use a component, simply include it in your template like this:
+
+<code>{{#ui-button}}Click me{{/ui-button}}</code>
+
+For more information on how to use each component, please refer to the documentation.
+
+## Components
+
+The following components are included in the Fleetbase Ember UI Components library:
+
+- [`fleet-button`](./docs/fleet-button.md): A simple button component
+- [`fleet-input`](./docs/fleet-input.md): An input component
+- [`fleet-checkbox`](./docs/fleet-checkbox.md): A checkbox component
+- [`fleet-radio`](./docs/fleet-radio.md): A radio button component
+- [`fleet-dropdown`](./docs/fleet-dropdown.md): A dropdown component
+- [`fleet-modal`](./docs/fleet-modal.md): A modal component
+- [`fleet-tab`](./docs/fleet-tab.md): A tab component
+
+We are continually adding new components, so be sure to check back for updates!
 
 ## Contributing
 
