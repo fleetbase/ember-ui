@@ -77,7 +77,9 @@ The following components are included in the Fleetbase Ember UI Components libra
 <details>
     <summary>Model-Select</summary>
 
-  * [`popover`](./popover.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
+  * [`options`](./options.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
+  * [`spinner`](./spinner.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
+
 </details>
 
 <details>
