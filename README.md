@@ -93,9 +93,10 @@ The following components are included in the Fleetbase Ember UI Components libra
 <details>
     <summary>Overlay</summary>
 
-   * [`overlay/body`](./overlay/body.md): A component that renders the body content for an overlay.
-   * [`overlay/footer`](./overlay/footer.md): A component that renders the footer content for an overlay.
-   * [`overlay/header`](./overlay/header.md): A component that renders the header content for an overlay.</details>
+  * [`overlay/body`](./overlay/body.md): A component that renders the body content for an overlay.
+  * [`overlay/footer`](./overlay/footer.md): A component that renders the footer content for an overlay.
+  * [`overlay/header`](./overlay/header.md): A component that renders the header content for an overlay.
+</details>
 
 <details>
     <summary>Table</summary>
