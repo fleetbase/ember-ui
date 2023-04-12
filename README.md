@@ -56,7 +56,6 @@ The following components are included in the Fleetbase Ember UI Components libra
   * [`loading-indicator`](./loading-indicator.md):  A component for displaying a loading indicator.
   * [`section-body`](./section-body.md):  A component for displaying the body of a section.
   * [`section-container`](./section-container.md): A container component for a section..
-  * [`section-header`](./section-header.md): A component for displaying the header of a section.
   * [`section-header`](./section-header.md):  A component for displaying the header of a section.
   * [`sidebar-item`](./sidebar-item.md): A component for displaying a single item in a sidebar.
   * [`sidebar-panel`](./sidebar-panel.md): A component for displaying a panel in a sidebar.
