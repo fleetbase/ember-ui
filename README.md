@@ -53,7 +53,7 @@ The following components are included in the Fleetbase Ember UI Components libra
   * [`dropdown-header-item`](./dropdown-header-item.md): A component for displaying a single item in a dropdown list in the header.
   * [`dark-mode-toggle`](./dark-mode-toggle.md): A toggle button component for switching between light and dark mode.
   * [`dropdown`](.dropdown.md):  A component for displaying a dropdown.
-  * [`loading-indicator`](.loading-indicator.md):  A component for displaying a loading indicator.
+  * [`loading-indicator`](./loading-indicator.md):  A component for displaying a loading indicator.
   * [`section-body`](./section-body.md):  A component for displaying the body of a section.
   * [`section-container`](./section-container.md): A container component for a section..
   * [`section-header`](./section-header.md): A component for displaying the header of a section.
