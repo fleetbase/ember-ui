@@ -1,4 +1,4 @@
-# CMoney Input Component
+# Money Input Component
 
 The UI Money Input component provides a user interface for entering monetary values, with the option to select the currency.
 
