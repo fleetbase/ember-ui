@@ -107,7 +107,7 @@ The following components are included in the Fleetbase Ember UI Components libra
    * [`table-cell-country`](./table-cell-country.md): A component that renders a country flag within a table cell.
    * [`table-cell-dropdown`](./table-cell-dropdown.md): A component that renders a dropdown menu within a table cell.
    * [`table-cell-link-to`](./table-cell-link-to.md): A component that renders a link within a table cell.
-   * [`table-cell-media-name`](./table-cell-checkbox.md): A component that renders the name of a media item within a table cell.</details>
+   * [`table-cell-media-name`](./table-cell-media-name.md): A component that renders the name of a media item within a table cell.</details>
 
 <details>
     <summary>Fleetbase Components</summary>
