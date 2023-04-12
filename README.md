@@ -129,9 +129,7 @@ The following components are included in the Fleetbase Ember UI Components libra
    * [`filters-picker`](./filters-picker.md): A component for selecting filters.  
    * [`floating`](./floating.md): A component for creating a floating element.  
    * [`image`](./image.md): A component for displaying an image.  
-   * [`info-block`](.info-block.md): A component for selecting a country. 
-   * [`date-picker`](./date-picker.md): A component for displaying an informational block. 
-   * [`date-time-input`](./date-time-input.md): A component for selecting a date and time
+   * [`info-block`](./info-block.md): A component for selecting a country. 
    * [`input-group`](./input-group.md): : A component that groups together multiple input components, such as a text input and a dropdown menu, and provides additional functionality such as label and error handling.
    * [`input-info`](./input-info.md): A component that displays additional information about an input field, such as helper text or validation errors..  
    * [`input-label`](.//input-label.md): A component that displays a label for an input field.  
