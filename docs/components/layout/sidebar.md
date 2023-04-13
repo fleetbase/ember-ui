@@ -19,7 +19,9 @@ To use the Next Sidebar component, you can simply import it into your Ember comp
 
 You can customize the Next Sidebar component by passing in different props:
 
-- `yield`: The content to be displayed in the sidebar.
+| Property | Description                                 |
+|----------|---------------------------------------------|
+| `yield`    | The content to be displayed in the sidebar. |
 
 ## Example
 
