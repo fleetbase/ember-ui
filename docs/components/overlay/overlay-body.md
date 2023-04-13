@@ -16,8 +16,10 @@ To use the Next-Content-Overlay-Panel-Body component, you can simply import it i
 
 You can customize the Next-Content-Overlay-Panel-Body component by passing in different props:
 
-- `wrapperClass`: Adds a class to the div wrapping the yielded content.
-- `increaseInnerBodyHeightBy`: Increases the height of the component by the specified value.
+| Parameter                 | Description                                                   |
+|---------------------------|---------------------------------------------------------------|
+| `wrapperClass`              | Adds a class to the div wrapping the yielded content.         |
+| `increaseInnerBodyHeightBy` | Increases the height of the component by the specified value. |
 
 ## Example
 
