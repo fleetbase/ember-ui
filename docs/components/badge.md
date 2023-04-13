@@ -6,12 +6,14 @@ This code defines a component in Ember.js that renders a status badge. The compo
 
 To use the status-badge component, include it in your Ember application and pass in the necessary parameters as follows:
 
-- `status`: a string representing the status of the badge
-- `spanClass`: a string representing additional class names for the span element inside the badge
-- `hideStatusDot`: a boolean indicating whether the dot inside the badge should be hidden
-- `disableHumanize`: a boolean indicating whether the status string should be humanized (converted from camel case to spaced words)
-- `helpText`: a string representing the help text to be displayed in a tooltip
-- `exampleText`: a string representing example text to be displayed in the tooltip
+| Parameter       | Description                                                                                                     |
+|-----------------|-----------------------------------------------------------------------------------------------------------------|
+| `status`          | A string representing the status of the badge.                                                                  |
+| `spanClass`       | A string representing additional class names for the span element inside the badge.                             |
+| `hideStatusDot`   | A boolean indicating whether the dot inside the badge should be hidden.                                         |
+| `disableHumanize` | A boolean indicating whether the status string should be humanized (converted from camel case to spaced words). |
+| `helpText`        | A string representing the help text to be displayed in a tooltip.                                               |
+| `exampleText`     | A string representing example text to be displayed in the tooltip.                                              |
 
 The `status` parameter is required, while the other parameters are optional.
 
