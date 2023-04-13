@@ -15,12 +15,15 @@ You can customize the Button component by passing in different props:
 You can customize the Click-to-Reveal component by passing in different props:
 
 
-- `type` (optional): The type of button to display. Possible values include "primary", "secondary", "danger", and "success". Default is "primary".
-- `text` (optional): The text to display on the button.
-- `icon` (optional): The name of the icon to display on the button (using FontAwesome icons). See https://fontawesome.com/icons for a list of available icons.
-- `size` (optional): The size of the button. Possible values include "xs", "sm", "md", and "lg". Default is "md".
-- `wrapperClass` (optional): A CSS class to apply to the button's outer wrapper.
-- ...attributes (optional): Any additional attributes to apply to the button element.
+| Option              | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| `type` (optional)   | The type of button to display. Possible values include "primary", "secondary", "danger", and "success". Default is "primary". |
+| `text` (optional)   | The text to display on the button.                                       |
+| `icon` (optional)   | The name of the icon to display on the button (using FontAwesome icons). See https://fontawesome.com/icons for a list of available icons. |
+| `size` (optional)   | The size of the button. Possible values include "xs", "sm", "md", and "lg". Default is "md". |
+| `wrapperClass` (optional) | A CSS class to apply to the button's outer wrapper.                       |
+| `...attributes` (optional) | Any additional attributes to apply to the button element.                  |
+
 
 ## Example
 
