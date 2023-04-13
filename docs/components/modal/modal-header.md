@@ -14,10 +14,12 @@ To use the Modal Header component, you can simply import it into your Ember comp
 
 You can customize the Modal Header component by passing in different props:
 
-- `title`: The title to be displayed in the header.
-- `closeButton`: Whether or not to display a close button in the header.
-- `titleComponent`: The component to be used to render the title.
-- `closeComponent`: The component to be used to render the close button.
+| Parameter      | Description                                             |
+|----------------|---------------------------------------------------------|
+| `title`          | The title to be displayed in the header.                |
+| `closeButton`    | Whether or not to display a close button in the header. |
+| `titleComponent` | The component to be used to render the title.           |
+| `closeComponent` | The component to be used to render the close button.    |
 
 You can also customize the Title and Close components by passing in different props to them.
 
