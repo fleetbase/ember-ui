@@ -14,9 +14,11 @@ To use the Checkbox component, you can simply import it into your Ember componen
 
 You can customize the Checkbox component by passing in different props:
 
-- `id`: The id attribute of the checkbox input element.
-- `onToggle`: A callback function that will be called when the checkbox is toggled.
-- `value`: The boolean value that the checkbox represents.
+| Parameter | Description                                                           |
+|-----------|-----------------------------------------------------------------------|
+| `id`        | The id attribute of the checkbox input element.                       |
+| `onToggle`  | A callback function that will be called when the checkbox is toggled. |
+| `value`     | The boolean value that the checkbox represents.                       |
 
 ## Example
 
