@@ -1,10 +1,12 @@
-# Filter Date Component
+# FilterDate Component
 
-This is a reusable Filter Date component built with Ember.js. It provides a customizable UI element that allows users to select a date range using a date picker.
+This is a reusable FilterDate component built with Ember.js. 
+
+It provides a customizable UI element that allows users to select a date range using a date picker.
 
 ## Usage
 
-To use the Filter Date component, you can simply import it into your Ember component and include it in your template as follows:
+To use the FilterDate component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
@@ -12,7 +14,7 @@ To use the Filter Date component, you can simply import it into your Ember compo
 
 ```
 
-You can customize the Filter Date component by passing in different props:
+You can customize the FilterDate component by passing in different props:
 
 | Option         | Description                                                                 |
 | -------------- | --------------------------------------------------------------------------- |
@@ -31,4 +33,10 @@ You can customize the Filter Date component by passing in different props:
 
 ```
 
-This will render a date picker element with the placeholder text "Select date range". When the user selects a date range, the filterByDate action will be called with the selected date range as an argument. The selectedDate property should be updated to reflect the selected date range. The range, toggleSelected, and autoClose props are set to true, false, and false respectively, but you can customize them as needed.
+This will render a date picker element with the placeholder text "Select date range". 
+
+When the user selects a date range, the `filterByDate` action will be called with the selected date range as an argument. 
+
+The selectedDate property should be updated to reflect the selected date range. 
+
+The range, toggleSelected, and autoClose props are set to true, false, and false respectively, but you can customize them as needed.
