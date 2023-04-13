@@ -1,6 +1,8 @@
 # Floating Component
 
-This is a reusable Floating component built with Ember.js. It provides a customizable UI element that allows users to create floating elements that follow a specific target element, with customizable positioning, container, and animation options.
+This is a reusable Floating component built with Ember.js. 
+
+It provides a customizable UI element that allows users to create floating elements that follow a specific target element, with customizable positioning, container, and animation options.
 
 ## Usage
 
@@ -43,4 +45,10 @@ You can customize the Floating component by passing in different props:
 
 ```
 
-This will render a button with the text "Click to toggle floating element". When the user clicks on the button, a floating element will appear below the button, with a distance of 10 pixels between the button and the floating element. The floating element will have a white background, a border, a rounded shape, and a shadow. The floating element will disappear when the user clicks outside of it.
+This will render a button with the text "Click to toggle floating element". 
+
+When the user clicks on the button, a floating element will appear below the button, with a distance of 10 pixels between the button and the floating element. 
+
+The floating element will have a white background, a border, a rounded shape, and a shadow. 
+
+The floating element will disappear when the user clicks outside of it.
