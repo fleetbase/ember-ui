@@ -14,9 +14,11 @@ To use the Customizable Cell component, you can simply import it into your Ember
 
 You can customize the Customizable Cell component by passing in different props:
 
-- `value`: The value to be displayed.
-- `column`: An object that describes the column and its formatting options.
-- `n-a`: A function that will be called if there is no value to display (e.g. if the value is undefined or null).
+| Parameter | Description                                                                                              |
+|-----------|----------------------------------------------------------------------------------------------------------|
+| `value`     | The value to be displayed.                                                                               |
+| `column`    | An object that describes the column and its formatting options.                                          |
+| `n-a`       | A function that will be called if there is no value to display (e.g. if the value is undefined or null). |
 
 ## Example
 
