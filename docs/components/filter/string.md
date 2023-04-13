@@ -15,9 +15,12 @@ To use the String Filter component, you can simply import it into your Ember com
 You can customize the String Filter component by passing in different props:
 
 
-- `value`: The current value of the string filter input.
-- `placeholder`: The placeholder text to be displayed in the input field.
-- `onChange`: A function that will be called when the user changes the value of the input field.
+| Option        | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `value`       | The current value of the string filter input.                            |
+| `placeholder` | The placeholder text to be displayed in the input field.                 |
+| `onChange`    | A function that will be called when the user changes the value of the input field. |
+
 
 ## Example
 
