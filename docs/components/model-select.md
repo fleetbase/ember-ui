@@ -1,6 +1,8 @@
 # PowerSelect Component
 
-This is a reusable PowerSelect component built with Ember.js. It provides a customizable dropdown menu that allows users to select from a list of options, with the ability to search and filter through the options.
+This is a reusable PowerSelect component built with Ember.js. 
+
+It provides a customizable dropdown menu that allows users to select from a list of options, with the ability to search and filter through the options.
 
 ## Usage
 
@@ -16,9 +18,11 @@ To use the PowerSelect component, you can simply import it into your Ember compo
 
 You can customize the PowerSelect component by passing in different props:
 
-- `options`: An array of options to display in the dropdown.
-- `selected`: The currently selected option.
-- `onChange`: A function that will be called when an option is selected.
+| Parameter | Description                                                |
+|-----------|------------------------------------------------------------|
+| `options`   | An array of options to display in the dropdown.            |
+| `selected`  | The currently selected option.                             |
+| `onChange`  | A function that will be called when an option is selected. |
 
 ## Example
 
@@ -30,5 +34,7 @@ You can customize the PowerSelect component by passing in different props:
 
 ```
 
-This will render a dropdown menu with the options passed in as options. When the user selects an option, the onChange function will be called with the selected option as an argument.
+This will render a dropdown menu with the options passed in as options. 
+
+When the user selects an option, the `onChange` function will be called with the selected option as an argument.
 
