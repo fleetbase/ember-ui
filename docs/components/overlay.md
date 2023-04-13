@@ -1,6 +1,4 @@
-# Fleetbase Overlay Component
-
-To use the Fleetbase Overlay component, you can simply include it in your template as follows:
+# Overlay Component
 
 ## Usage
 
@@ -17,14 +15,15 @@ To use the Overlay component, you can include it in your template as follows:
 You can customize the Overlay component by passing in different props:
 
 
-- `position`: The position of the overlay panel, default is "right".
-- `noBackdrop`: Whether or not to show a backdrop behind the overlay panel.
-- `outView`: Whether or not to move the overlay panel out of view when it is closed.
-- `fullHeight`: Whether or not to make the overlay panel full height.
-- `overlayClass`: The CSS class name to be applied to the outer overlay element.
-- `containerClass`: The CSS class name to be applied to the container element.
-- `width`: The width of the overlay panel.
-- `isResizable`: Whether or not the overlay panel can be resized.
+| Property       | Description                                                             |
+|----------------|-------------------------------------------------------------------------|
+| `noBackdrop`     | Whether or not to show a backdrop behind the overlay panel.             |
+| `outView`        | Whether or not to move the overlay panel out of view when it is closed. |
+| `fullHeight`     | Whether or not to make the overlay panel full height.                   |
+| `overlayClass`   | The CSS class name to be applied to the outer overlay element.          |
+| `containerClass` | The CSS class name to be applied to the container element.              |
+| `width`          | The width of the overlay panel.                                         |
+| `isResizable`    | Whether or not the overlay panel can be resized.                        |
 
 ## Example
 
@@ -45,4 +44,8 @@ You can customize the Overlay component by passing in different props:
 
 ```
 
-This will render a button that will toggle the overlay panel when clicked. The overlay panel will have a position of "right", a backdrop behind it, a width of 600px, and will be resizable. The content of the overlay panel will be the div element provided as a yield block.
+This will render a button that will toggle the overlay panel when clicked. 
+
+The overlay panel will have a position of "right", a backdrop behind it, a width of 600px, and will be resizable. 
+
+The content of the overlay panel will be the div element provided as a yield block.
