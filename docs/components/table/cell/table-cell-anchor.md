@@ -20,10 +20,12 @@ To use the Clickable Anchor component, you can simply import it into your Ember 
 
 You can customize the Clickable Anchor component by passing in different props:
 
-- `onClick`: The action to be triggered when the link is clicked.
-- `disabled`: Whether or not the link should be disabled.
-- `value`: The text to be displayed in the link. If a value is not provided, a default value of "-" will be displayed.
-- `anchorSpanClassnames`: A list of CSS class names to be applied to the link text span.
+| Property Name        | Description                                                                                                 |
+|----------------------|-------------------------------------------------------------------------------------------------------------|
+| `onClick`              | The action to be triggered when the link is clicked.                                                        |
+| `disabled`             | Whether or not the link should be disabled.                                                                 |
+| `value`                | The text to be displayed in the link. If a value is not provided, a default value of "-" will be displayed. |
+| `anchorSpanClassnames` | A list of CSS class names to be applied to the link text span.                                              |
 
 If a block is provided, its contents will be used as the link text.
 
