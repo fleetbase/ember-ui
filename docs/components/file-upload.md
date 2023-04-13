@@ -19,10 +19,12 @@ To use the File Upload component, you can simply import it into your Ember compo
 
 You can customize the File Upload component by passing in different props:
 
-- `name`: The name of the file queue.
-- `accept`: The file types that are allowed to be uploaded.
-- `hidden`: Whether or not to hide the file input element.
-- `onFileAdded`: A function that will be called when a file is added to the queue.
+| Parameter   | Description                                                                                              |
+|-------------|----------------------------------------------------------------------------------------------------------|
+| `name`        | The name of the file queue.                                                                              |
+| `accept`      | The file types that are allowed to be uploaded.                                                          |
+| `hidden`      | Whether or not to hide the file input element.                                                           |
+| `onFileAdded` | A function that will be called when a file is added to the queue. This function receives the added file. |
 
 ## Example
 
