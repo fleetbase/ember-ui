@@ -21,8 +21,11 @@ To use the Dark Mode Toggle component, you can simply import it into your Ember 
 You can customize the Dark Mode Toggle component by passing in different props:
 
 
-- `isToggled`: A boolean value indicating whether the toggle is in dark mode or light mode.
-- `onToggle`: A function that will be called when the toggle is clicked.
+| Option     | Description                                                           |
+| ---------- | --------------------------------------------------------------------- |
+| `isToggled` | A boolean value indicating whether the toggle is in dark mode or light mode. |
+| `onToggle`  | A function that will be called when the toggle is clicked.            |
+
 
 ## Example
 
