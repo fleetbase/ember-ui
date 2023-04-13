@@ -16,11 +16,13 @@ To use the Content Panel component, you can import it into your Ember component 
 
 You can customize the Content Panel component by passing in different props:
 
-- `title`: The title of the panel.
-- `open`: Whether or not the panel should be open by default.
-- `wrapperClass`: The class name for the container element that wraps the panel.
-- `containerClass`: The class name for the element that contains the panel content.
-- `panelHeaderClass`: The class name for the panel header element.
+| Property           | Description                                                     |
+|--------------------|-----------------------------------------------------------------|
+| `title`            | The title of the panel.                                         |
+| `open`             | Whether or not the panel should be open by default.             |
+| `wrapperClass`     | The class name for the container element that wraps the panel.  |
+| `containerClass`   | The class name for the element that contains the panel content. |
+| `panelHeaderClass` | The class name for the panel header element.                    |
 
 ## Example
 
