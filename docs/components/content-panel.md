@@ -35,17 +35,25 @@ The `next-content-panel` component is a UI element that can be used to display c
 
 The `next-content-panel` component has several configurable options that can be passed as parameters. These include:
 
-| Parameter | Description |
-| --- | --- |
-| `title` | The title of the panel |
-| `isOpen` | Whether the panel is open or closed |
-| `isLoading` | Whether the panel is currently loading content |
-| `pad` | Whether to add padding to the panel body |
-| `actionButtons` | An array of objects representing action buttons to display on the right side of the panel header |
-| `prefixTitle` | A prefix to display before the title |
-| `prefixTitleRight` | A prefix to display after the title on the right side |
-| `titleStatus` | A status to display next to the title |
-| `titleStatusRight` | A status to display after the title on the right side |
+| Prop name                       | Description                                                                                                                                                                                                                     |
+|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `wrapperClass` (optional)      | A CSS class to apply to the outermost wrapper element.                                                                                                                                                                         |
+| `containerClass` (optional)    | A CSS class to apply to the container element inside the outermost wrapper element.                                                                                                                                            |
+| `panelClass` (optional)        | A CSS class to apply to the panel element inside the container element.                                                                                                                                                         |
+| `panelHeaderClass` (optional)  | A CSS class to apply to the header element inside the panel element.                                                                                                                                                            |
+| `panelHeaderLeftClass` (optional) | A CSS class to apply to the left-hand side of the header element.                                                                                                                                                               |
+| `titleContainerClass` (optional) | A CSS class to apply to the container element for the title and prefix title elements.                                                                                                                                          |
+| `prefixTitleClass` (optional)  | A CSS class to apply to the prefix title element.                                                                                                                                                                               |
+| `panelTitleClass` (optional)   | A CSS class to apply to the title element.                                                                                                                                                                                       |
+| `titleStatusContainerClass` (optional) | A CSS class to apply to the container element for the title status element.                                                                                                                                                  |
+| `titleStatusClass` (optional)  | A CSS class to apply to the title status element.                                                                                                                                                                                |
+| `prefixTitleRightContainerClass` (optional) | A CSS class to apply to the container element for the right-hand prefix title element.                                                                                                                                       |
+| `prefixTitleRightClass` (optional) | A CSS class to apply to the right-hand prefix title element.                                                                                                                                                                     |
+| `titleStatusRightContainerClass` (optional) | A CSS class to apply to the container element for the right-hand title status element.                                                                                                                                       |
+| `titleStatusRightClass` (optional) | A CSS class to apply to the right-hand title status element.                                                                                                                                                                     |
+| `panelHeaderRightClass` (optional) | A CSS class to apply to the right-hand side of the header element.                                                                                                                                                               |
+| `actionButtons` (optional)     | An array of objects representing action buttons to display in the header. Each object must have a `type` (string), `text` (string), and `onClick` (function) property. Other optional properties include `icon`
+
 
 
 ## Example
