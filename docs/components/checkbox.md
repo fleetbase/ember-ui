@@ -6,11 +6,13 @@ The Checkbox Component provides a customizable checkbox input that can be used i
 
 It provides a customizable checkbox input that can be used in any Ember application
 
-- `label`: The label text to be displayed next to the checkbox.
-- `value`: The value of the checkbox.
-- `checked`: Whether the checkbox is checked or not.
-- `disabled`: Whether the checkbox is disabled or not.
-- `color`: The color of the checkbox. Currently, the available colors are blue, green, red, and yellow.
+| Parameter | Description                                                                                  |
+|-----------|----------------------------------------------------------------------------------------------|
+| `label`     | The label text to be displayed next to the checkbox.                                         |
+| `value`     | The value of the checkbox.                                                                   |
+| `checked`   | Whether the checkbox is checked or not.                                                      |
+| `disabled`  | Whether the checkbox is disabled or not.                                                     |
+| `color`     | The color of the checkbox. Currently, the available colors are blue, green, red, and yellow. |
 
 
 ## Example
