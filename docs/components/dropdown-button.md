@@ -40,16 +40,20 @@ To use the Basic Dropdown component, you can simply import it into your Ember co
 
 You can customize the Basic Dropdown component by passing in different props:
 
-- `wrapperClass`: The class to be applied to the wrapper element of the dropdown.
-- `renderInPlace`: Whether to render the dropdown in place or append it to the document body.
-- `registerAPI`: A callback function that will receive the API object of the dropdown.
-- `horizontalPosition`: The horizontal position of the dropdown relative to the trigger element.
-- `verticalPosition`: The vertical position of the dropdown relative to the trigger element.
-- `calculatePosition`: A function that calculates the position of the dropdown.
-- `defaultClass`: The default class to be applied to the dropdown.
-- `matchTriggerWidt`h: Whether to match the width of the dropdown to the width of the trigger element.
-- `onOpen`: A callback function that will be called when the dropdown is opened.
-- `onClose`: A callback function that will be called when the dropdown is closed.
+| Parameter          | Description                                                                     |
+|--------------------|---------------------------------------------------------------------------------|
+| `wrapperClass`       | The class to be applied to the wrapper element of the dropdown.                 |
+| `renderInPlace`      | Whether to render the dropdown in place or append it to the document body.      |
+| `registerAPI`        | A callback function that will receive the API object of the dropdown.           |
+| `horizontalPosition` | The horizontal position of the dropdown relative to the trigger element.        |
+| `verticalPosition`   | The vertical position of the dropdown relative to the trigger element.          |
+| `calculatePosition`  | A function that calculates the position of the dropdown.                        |
+| `defaultClass`       | The default class to be applied to the dropdown.                                |
+| `matchTriggerWidth`  | Whether to match the width of the dropdown to the width of the trigger element. |
+| `onOpen`             | A callback function that will be called when the dropdown is opened.            |
+| `onClose`            | A callback function that will be called when the dropdown is closed.            |
+
+
 
 ## Example
 
