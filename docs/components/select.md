@@ -1,10 +1,12 @@
-# Form Select Component
+# FormSelect Component
 
-This is a reusable Form Select component built with Ember.js. It provides a customizable UI element that allows users to select an option from a dropdown menu.
+This is a reusable Form Select component built with Ember.js. 
+
+It provides a customizable UI element that allows users to select an option from a dropdown menu.
 
 ## Usage
 
-To use the Form Select component, you can simply import it into your Ember component and include it in your template as follows:
+To use the FormSelect component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
@@ -14,11 +16,13 @@ To use the Form Select component, you can simply import it into your Ember compo
 
 You can customize the Form Select component by passing in different props:
 
-- `options`: An array of options to be displayed in the dropdown menu.
-- `optionValue`: The key used to retrieve the value of the option object.
-- `optionLabel`: The key used to retrieve the label of the option object.
-- `placeholder`: The text to be displayed as a placeholder in the dropdown menu.
-- `humanize`: Whether or not to apply humanization to the option labels.
+| Parameter   | Description                                                     |
+|-------------|-----------------------------------------------------------------|
+| `options`     | An array of options to be displayed in the dropdown menu.       |
+| `optionValue` | The key used to retrieve the value of the option object.        |
+| `optionLabel` | The key used to retrieve the label of the option object.        |
+| `placeholder` | The text to be displayed as a placeholder in the dropdown menu. |
+| `humanize`    | Whether or not to apply humanization to the option labels.      |
 
 ## Example
 
@@ -30,4 +34,10 @@ You can customize the Form Select component by passing in different props:
 
 ```
 
-This will render a dropdown menu with the placeholder text "Select an option" and three options: "Option 1", "Option 2", and "Option 3". If @humanize is set to true, the options will be humanized (e.g. "Option 1" becomes "Option one"). If @optionValue and @optionLabel are provided, the options will be objects with keys corresponding to the values provided. For example, the first option could be { value: "option_1", label: "Option 1" }.
+This will render a dropdown menu with the placeholder text "Select an option" and three options: "Option 1", "Option 2", and "Option 3". 
+
+If `@humanize` is set to true, the options will be humanized (e.g. "Option 1" becomes "Option one"). 
+
+If `@optionValue` and `@optionLabel` are provided, the options will be objects with keys corresponding to the values provided. 
+
+For example, the first option could be { value: "option_1", label: "Option 1" }.
