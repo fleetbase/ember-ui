@@ -26,12 +26,14 @@ To use the UI Input Info component, you can simply import it into your Tailwind 
 
 You can customize the UI Input Info component by passing in different props:
 
-- `opacity`: The opacity of the information block background. By default, it is set to 100.
-- `icon`: The icon to display in the information block. By default, it is set to "info-circle".
-- `iconClass`: Any additional classes to apply to the icon element.
-- `spanClass`: Any additional classes to apply to the span element.
-- `text`: The text to display in the information block.
-- `exampleText`: Any example text to display in the information block.
+| Name        | Description                                                                           |
+|-------------|---------------------------------------------------------------------------------------|
+| `opacity`     | The opacity of the information block background. By default, it is set to 100.        |
+| `icon`        | The icon to display in the information block. By default, it is set to "info-circle". |
+| `iconClass`   | Any additional classes to apply to the icon element.                                  |
+| `spanClass`   | Any additional classes to apply to the span element.                                  |
+| `text`        | The text to display in the information block.                                         |
+| `exampleText` | Any example text to display in the information block.                                 |
 
 ## Example
 
@@ -47,4 +49,6 @@ You can customize the UI Input Info component by passing in different props:
 
 ```
 
-This will render an information block with a yellow background and an exclamation-triangle icon. The text "The password must be at least 8 characters long and contain a mix of uppercase and lowercase letters, numbers, and symbols." will be displayed in red text.
+This will render an information block with a yellow background and an exclamation-triangle icon. 
+
+The text "The password must be at least 8 characters long and contain a mix of uppercase and lowercase letters, numbers, and symbols." will be displayed in red text.
