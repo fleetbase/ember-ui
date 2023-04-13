@@ -71,7 +71,13 @@ The following components are included in the Fleetbase Ember UI Components libra
 <details>
     <summary>Modal</summary>
 
-  * [`popover`](./popover.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
+   * [`modal-body`](./docs/components/modal/modal-body.md): A component that represents the body content of a modal dialog.
+   * [`modal-default`](./docs/components/modal/modal-default.md): A default template for a modal dialog that includes a header, body, and footer.
+   * [`modal-dialog`](./docs/components/modal/modal-dialog.md): A component that represents the entire modal dialog, including the header, body, and footer.
+   * [`modal-footer`](./docs/components/modal/modal-footer.md): A component that represents the footer content of a modal dialog.
+   * [`modal-header`](./docs/components/modal/modal-header.md): A component that represents the header content of a modal dialog.
+   * [`modal-title-with-buttons`](./docs/components/modal/modal-title-with-buttons.md): A component that represents the title and buttons in the header of a modal dialog.
+
 </details>
 
 <details>
