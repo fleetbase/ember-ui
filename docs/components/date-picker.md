@@ -15,8 +15,10 @@ To use the Date Picker component, you can simply import it into your Ember compo
 You can customize the Date Picker component by passing in different props:
 
 
-- `value`: The value of the selected date.
-- `placeholder`: The placeholder text to be displayed in the input field.
+| Parameter   | Description                                              |
+|-------------|----------------------------------------------------------|
+| `value`       | The value of the selected date.                          |
+| `placeholder` | The placeholder text to be displayed in the input field. |
 
 ## Example
 
