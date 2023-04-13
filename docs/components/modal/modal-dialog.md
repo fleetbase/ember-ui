@@ -18,15 +18,17 @@ To use the Modal component, you can simply import it into your Ember component a
 
 You can customize the Modal component by passing in different props:
 
-- `titleId`: The id for the title of the modal dialog.
-- `fade`: Whether or not the modal should fade in and out.
-- `showModal`: Whether or not the modal is visible.
-- `inDom`: Whether or not the modal is in the DOM.
-- `paddingLeft`: The amount of padding to apply to the left side of the modal content.
-- `paddingRight`: The amount of padding to apply to the right side of the modal content.
-- `centered`: Whether or not the modal should be centered in the viewport.
-- `scrollable`: Whether or not the modal should be scrollable.
-- `fullscreen`: Whether or not the modal should be full screen.
+| Property     | Description                                                            |
+|--------------|------------------------------------------------------------------------|
+| titleId      | The id for the title of the modal dialog.                              |
+| fade         | Whether or not the modal should fade in and out.                       |
+| showModal    | Whether or not the modal is visible.                                   |
+| inDom        | Whether or not the modal is in the DOM.                                |
+| paddingLeft  | The amount of padding to apply to the left side of the modal content.  |
+| paddingRight | The amount of padding to apply to the right side of the modal content. |
+| centered     | Whether or not the modal should be centered in the viewport.           |
+| scrollable   | Whether or not the modal should be scrollable.                         |
+| fullscreen   | Whether or not the modal should be full screen.                        |
 
 ## Example
 
