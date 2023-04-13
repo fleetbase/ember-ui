@@ -34,8 +34,6 @@ The `next-content-panel` component is a UI element that can be used to display c
 ```
 
 The `next-content-panel` component has several configurable options that can be passed as parameters. These include:
-You can customize the Click-to-Reveal component by passing in different props:
-
 
 | Parameter | Description |
 | --- | --- |
