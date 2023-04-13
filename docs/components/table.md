@@ -1,14 +1,12 @@
-# Next Table Component
+# NextTable Component
 
-The Next Table component is a customizable table built with Ember.js. It provides a fully functional table with sorting, pagination, and row selection, as well as the ability to customize the table's appearance through various props.
+The NextTable component is a customizable table built with Ember.js. 
+
+It provides a fully functional table with sorting, pagination, and row selection, as well as the ability to customize the table's appearance through various props.
 
 ## Usage
 
-Next Table Component
-The Next Table component is a customizable table built with Ember.js. It provides a fully functional table with sorting, pagination, and row selection, as well as the ability to customize the table's appearance through various props.
-
-Usage
-To use the Next Table component, you can simply import it into your Ember component and include it in your template as follows:
+To use the NextTable component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
@@ -29,19 +27,20 @@ To use the Next Table component, you can simply import it into your Ember compon
 
 ```
 
-You can customize the Next Table component by passing in different props:
+You can customize the NextTable component by passing in different props:
 
-
-- `@rows`: An array of objects that represent the rows of the table.
-- `@columns`: An array of objects that represent the columns of the table. Each object should have a label property that represents the column header and a valuePath property that represents the value to display in each row for that column.
-- `@pagination`: Whether or not to display pagination controls at the bottom of the table.
-- `@onPageChange`: A function that will be called when the user changes the current page.
-- `@selectable`: Whether or not to enable row selection in the table.
-- `@canSelectAll`: Whether or not to enable the ability to select all rows in the table.
-- `@wrapperClass`: The CSS class to apply to the table wrapper element.
-- `@tfoot`: Whether or not to display a table footer.
-- `@tfootVerticalOffset`: The vertical offset in pixels to apply to the table footer.
-- `@tfootVerticalOffsetElements`: A CSS selector that identifies the elements that should be taken into account when calculating the vertical offset.
+| Parameters                        | Description                                                                                                                                                                                                                        |
+|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `rows`                        | An array of objects that represent the rows of the table.                                                                                                                                                                          |
+| `columns`                     | An array of objects that represent the columns of the table. Each object should have a label property that represents the column header and a valuePath property that represents the value to display in each row for that column. |
+| `pagination `                 | Whether or not to display pagination controls at the bottom of the table.                                                                                                                                                          |
+| `onPageChange`                | A function that will be called when the user changes the current page.                                                                                                                                                             |
+| `selectable`                  | Whether or not to enable row selection in the table.                                                                                                                                                                               |
+| `canSelectAll`                | Whether or not to enable the ability to select all rows in the table.                                                                                                                                                              |
+| `wrapperClass`                | The CSS class to apply to the table wrapper element.                                                                                                                                                                               |
+| `tfoot`                       | Whether or not to display a table footer.                                                                                                                                                                                          |
+| `tfootVerticalOffset`         | The vertical offset in pixels to apply to the table footer.                                                                                                                                                                        |
+| `tfootVerticalOffsetElements` | A CSS selector that identifies the elements that should be taken into account when calculating the vertical offset.                                                                                                                |
 
 
 ## Example
@@ -115,4 +114,10 @@ And here's an example usage of the component:
 
 ```
 
-In this example, the component is passed an array of rows and an array of columns as props. It also has pagination and tfoot set to true, which will render a pagination component and a custom footer respectively. The wrapperClass prop is also set to "my-custom-table-wrapper-class" to add a custom CSS class to the table wrapper. The custom footer content is defined inside a tfoot block.
+In this example, the component is passed an array of rows and an array of columns as props. 
+
+It also has `pagination` and `tfoot` set to true, which will render a pagination component and a custom footer respectively. 
+
+The `wrapperClass` prop is also set to "my-custom-table-wrapper-class" to add a custom CSS class to the table wrapper. 
+
+The custom footer content is defined inside a `tfoot` block.
