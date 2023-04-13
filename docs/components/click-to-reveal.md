@@ -1,34 +1,49 @@
-# Click-to-Reveal Component
+# Modal Component
 
-This is a reusable Click-to-Reveal component built with Ember.js. It provides a customizable UI element that allows users to reveal hidden content with a single click, and optionally copy the content to their clipboard.
+This is a reusable Modal component built with Ember.js. It provides a customizable UI element that allows users to display a modal dialog with hidden content.
 
 ## Usage
 
-To use the Click-to-Reveal component, you can simply import it into your Ember component and include it in your template as follows:
+To use the Modal component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
-<ClickToReveal @value="Value to be revealed" />
+<Modal @titleId={{this.titleId}} @fade={{true}} @showModal={{true}} @inDom={{true}} @paddingLeft={{10}} @paddingRight={{20}} @centered={{true}} @scrollable={{false}} @fullscreen={{false}}>
+  <h2>{{this.title}}</h2>
+  <p>{{this.content}}</p>
+</Modal>
 
 ```
 
-You can customize the Click-to-Reveal component by passing in different props:
+You can customize the Modal component by passing in different props:
 
 
-- `value`: The value to be revealed.
-- `buttonText`: The text to be displayed on the reveal button. 
-- `canClickToCopy`: Whether or not the user can click to copy the revealed value.
-- `n-a`: A function that will be called if there is no value to reveal (e.g. if the value is undefined or null).
+- `titleId`: The id for the title of the modal dialog.
+- `fade`: Whether or not the modal should fade in and out.
+- `showModal`: Whether or not the modal is visible.
+- `inDom`: Whether or not the modal is in the DOM.
+- `paddingLeft`: The amount of padding to apply to the left side of the modal content.
+- `paddingRight`: The amount of padding to apply to the right side of the modal content.
+- `centered`: Whether or not the modal should be centered in the viewport.
+- `scrollable`: Whether or not the modal should be scrollable.
+- `fullscreen`: Whether or not the modal should be full screen.
 
 ## Example
 
 ```hbs
 
 <div class="flex items-center">
-  <ClickToReveal @value="Some value to be revealed" @buttonText="Reveal" @canClickToCopy={{true}} />
+  <Modal @titleId={{this.titleId}} @fade={{true}} @showModal={{true}} @inDom={{true}} @paddingLeft={{10}} @paddingRight={{20}} @centered={{true}} @scrollable={{false}} @fullscreen={{false}}>
+    <h2>{{this.title}}</h2>
+    <p>{{this.content}}</p>
+  </Modal>
 </div>
+
 
 ```
 
-This will render a clickable element with the text "Click to reveal". When the user clicks on it, the value "Some value to be revealed" will be revealed, and a button with the text "Reveal" will appear. The user can click on the "Reveal" button to hide the revealed value. Additionally, if @canClickToCopy is set to true, a tooltip with the text "Click to copy" will appear. When the user clicks on the tooltip, the revealed value will be copied to their clipboard, and the tooltip text will change to "Copied!".
+This will render a modal dialog with a title and content. The modal will fade in and out when shown or hidden, and will be centered in the viewport. The amount of padding on the left and right sides of the modal content can be customized, and the modal can be made scrollable or full screen if desired.
+
+
+
 
