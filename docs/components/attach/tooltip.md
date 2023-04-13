@@ -1,6 +1,8 @@
 # Popover Component
 
-This is a reusable Popover component built with Ember.js. It provides a customizable UI element that allows users to display content in a popover.
+This is a reusable Popover component built with Ember.js. 
+
+It provides a customizable UI element that allows users to display content in a popover.
 
 ## Usage
 
@@ -53,4 +55,8 @@ You can customize the Popover component by passing in different props:
 
 ```
 
-This will render a button with the text "Hover over me!". When the user hovers over the button, a Popover will be displayed with the text "This is some content in a Popover!". The Popover will be positioned below the button, with an arrow pointing to it.
+This will render a button with the text "Hover over me!". 
+
+When the user hovers over the button, a Popover will be displayed with the text "This is some content in a Popover!". 
+
+The Popover will be positioned below the button, with an arrow pointing to it.
