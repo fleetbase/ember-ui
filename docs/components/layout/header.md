@@ -22,16 +22,18 @@ To use the Next View Section Subheader Component, you can simply import it into 
 
 You can customize the Next View Section Subheader Component by passing in different props:
 
-- `title`: The main title to display in the subheader.
-- `subtitle`: An optional subtitle to display below the main title.
-- `icon`: An optional icon to display to the left of the title.
-- `onSearch`: A function to call when the user types into the search input.
-- `searchQuery`: The current value of the search input.
-- `searchPlaceholder`: An optional placeholder to display in the search input.
-- `hideActions`: Whether or not to hide the actions section of the subheader.
-- `leftSubheaderClass`: An optional class to apply to the left section of the subheader.
-- `searchInputClass`: An optional class to apply to the search input.
-- `actionsWrapperClass`: An optional class to apply to the actions section of the subheader.
+| `Property             | Description                                                         |
+|-----------------------|---------------------------------------------------------------------|
+| `title`                | The main title to display in the subheader.                         |
+| `subtitle`            | An optional subtitle to display below the main title.               |
+| `icon`                | An optional icon to display to the left of the title.               |
+| `onSearch`            | A function to call when the user types into the search input.       |
+| `searchQuery`         | The current value of the search input.                              |
+| `searchPlaceholder`   | An optional placeholder to display in the search input.             |
+| `hideActions`         | Whether or not to hide the actions section of the subheader.        |
+| `leftSubheaderClass`  | An optional class to apply to the left section of the subheader.    |
+| `searchInputClass`    | An optional class to apply to the search input.                     |
+| `actionsWrapperClass` | An optional class to apply to the actions section of the subheader. |
 
 ## Example
 
