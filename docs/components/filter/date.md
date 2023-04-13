@@ -14,9 +14,12 @@ To use the Filter Date component, you can simply import it into your Ember compo
 
 You can customize the Filter Date component by passing in different props:
 
-- `value`: The selected date range.
-- `onChange`: The action to be called when the user selects a date range.
-- `placeholder`: The text to be displayed as a placeholder in the date picker.
+| Option         | Description                                                                 |
+| -------------- | --------------------------------------------------------------------------- |
+| `value`        | The selected date range.                                                    |
+| `onChange`     | The action to be called when the user selects a date range.                 |
+| `placeholder`  | The text to be displayed as a placeholder in the date picker.               |
+
 
 ## Example
 
