@@ -15,10 +15,11 @@ To use the LinkTo cell component, you can simply import it into your Ember compo
 
 You can customize the LinkTo cell component by passing in different props:
 
-
-- `route`: The name of the route to link to.
-- `model`: The model to be passed to the route's dynamic segments.
-- `n-a`: A function that will be called if either route or model is undefined or null.
+| Parameter | Description                                                                   |
+|-----------|-------------------------------------------------------------------------------|
+| `route`     | The name of the route to link to.                                             |
+| `model`     | The model to be passed to the route's dynamic segments.                       |
+| `n-a`       | A function that will be called if either route or model is undefined or null. |
 
 ## Example
 
