@@ -16,9 +16,11 @@ To use the Floating component, you can simply import it into your Ember componen
 
 You can customize the Floating component by passing in different props:
 
-- `@ariaRole`: The ARIA role for the floating component.
-- `@placement`: The placement of the floating component relative to its trigger.
-- `@renderInPlace`: Whether to render the floating component in place or in a separate container..
+| Name           | Description                                                                   |
+|----------------|-------------------------------------------------------------------------------|
+| `@ariaRole`      | The ARIA role for the floating component.                                     |
+| `@placement`     | The placement of the floating component relative to its trigger.              |
+| `@renderInPlace` | Whether to render the floating component in place or in a separate container. |
 
 ## Example
 
@@ -42,4 +44,10 @@ You can customize the Floating component by passing in different props:
 
 ```
 
-This will render a button labeled "Toggle Floating". When the user clicks on it, the Floating component will be displayed. The content of the floating component can be customized by passing in child elements. By default, the Floating component will be rendered in place, but you can also choose to render it in a separate container by setting @renderInPlace to false. The placement of the floating component can be set using the @placement prop, and the ARIA role can be set using the @ariaRole prop.
+This will render a button labeled "Toggle Floating". When the user clicks on it, the Floating component will be displayed. 
+
+The content of the floating component can be customized by passing in child elements. 
+
+By default, the Floating component will be rendered in place, but you can also choose to render it in a separate container by setting `@renderInPlace` to false. 
+
+The placement of the floating component can be set using the `@placement prop`, and the ARIA role can be set using the `@ariaRole` prop.
