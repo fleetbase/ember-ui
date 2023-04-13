@@ -18,11 +18,13 @@ To use the UI Input Info Block component, you can simply import it into your Emb
 
 You can customize the UI Input Info Block component by passing in different props:
 
-- `icon`: The icon to be displayed in the UI Input Info Block component.
-- `text`: The text to be displayed in the UI Input Info Block component.
-- `exampleText`: The example text to be displayed in the UI Input Info Block component.
-- `blockClass`: The class to be added to the UI Input Info Block container element.
-- `textClass`: The class to be added to the UI Input Info Block text element.
+| Parameter        | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `icon`        | The icon to be displayed in the UI Input Info Block component.         |
+| `text`        | The text to be displayed in the UI Input Info Block component.         |
+| `exampleText` | The example text to be displayed in the UI Input Info Block component. |
+| `blockClass`  | The class to be added to the UI Input Info Block container element.    |
+| `textClass`   | The class to be added to the UI Input Info Block text element.         |
 
 You can also use block syntax to include more complex content in the UI Input Info Block component:
 
@@ -54,6 +56,10 @@ You can also use block syntax to include more complex content in the UI Input In
 
 ```
 
-This will render an input field with a UI Input Info Block component below it. The UI Input Info Block component will display an information icon, the text "Please enter a valid email address", and an example email address in a monospace font. The UI Input Info Block component will have a margin-top of 1 and a text color of red.
+This will render an input field with a UI Input Info Block component below it. 
+
+The UI Input Info Block component will display an information icon, the text "Please enter a valid email address", and an example email address in a monospace font. 
+
+The UI Input Info Block component will have a margin-top of 1 and a text color of red.
 
 
