@@ -16,22 +16,26 @@ To use the Popover component, you can simply import it into your Ember component
 
 You can customize the Popover component by passing in different props:
 
-- `classNames`: Additional class names to apply to the Popover.
-- `ariaRole`: The ARIA role of the Popover.
-- `renderInPlace`: Whether to render the Popover inside the parent element or at the end of the body.
-- `placement`: The placement of the Popover relative to the target element.
-- `arrow`: Whether to display an arrow on the Popover pointing to the target element.
-- `offset`: The offset of the Popover from the target element.
-- `shiftOptions`: Additional options to shift the position of the Popover.
-- `animation`: The animation to use when showing and hiding the Popover.
-- `hideOn`: The event on which to hide the Popover.
-- `showOn`: The event on which to show the Popover.
-- `interactive`: Whether the Popover is interactive or not.
-- `isShown`: Whether the Popover is initially shown or not.
-- `lazyRender`: Whether to render the Popover lazily.
-- `showDelay`: The delay before showing the Popover.
-- `showDuration`: The duration of the show animation.
-- `transitionDuration`: The duration of the transition between show and hide.
+
+| Option | Description |
+| ------ | ----------- |
+| `classNames` | Additional class names to apply to the Popover. |
+| `ariaRole` | The ARIA role of the Popover. |
+| `renderInPlace` | Whether to render the Popover inside the parent element or at the end of the body. |
+| `placement` | The placement of the Popover relative to the target element. |
+| `arrow` | Whether to display an arrow on the Popover pointing to the target element. |
+| `offset` | The offset of the Popover from the target element. |
+| `shiftOptions` | Additional options to shift the position of the Popover. |
+| `animation` | The animation to use when showing and hiding the Popover. |
+| `hideOn` | The event on which to hide the Popover. |
+| `showOn` | The event on which to show the Popover. |
+| `interactive` | Whether the Popover is interactive or not. |
+| `isShown` | Whether the Popover is initially shown or not. |
+| `lazyRender` | Whether to render the Popover lazily. |
+| `showDelay` | The delay before showing the Popover. |
+| `showDuration` | The duration of the show animation. |
+| `transitionDuration` | The duration of the transition between show and hide. |
+
 
 ## Example
 
