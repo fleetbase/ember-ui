@@ -14,10 +14,13 @@ To use the Next Catalog Menu Items component, you can simply import it into your
 
 You can customize the Next Catalog Menu Items component by passing in different props:
 
-- `extensions`: An array of objects representing the extensions to be displayed. Each object should have the following properties:
-- `extension`: The name of the extension.
-- `icon`: The name of the icon to be displayed.
-- `itemClass`: The class to be applied to each menu item.
+| Property   | Description                                                      |
+|------------|------------------------------------------------------------------|
+| `extensions` | An array of objects representing the extensions to be displayed. |
+|            | Each object should have the following properties:                |
+| `extension`  | The name of the extension.                                       |
+| `icon`       | The name of the icon to be displayed.                            |
+| `itemClass`  | The class to be applied to each menu item.                       |
 
 ## Example
 
