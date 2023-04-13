@@ -37,26 +37,28 @@ To use the Next Content Overlay Panel component, you can simply import it into y
 
 You can customize the Next Content Overlay Panel component by passing in different props:
 
-- `title`: The title of the panel.
-- `status`: The status of the panel.
-- `createdAt`: The creation time of the panel.
-- `headerLeftClass`: Custom class for the left section of the panel header.
-- `actionsWrapperClass`: Custom class for the right section of the panel header.
-- `maximizeButtonClass`: Custom class for the maximize button.
-- `minimizeButtonClass`: Custom class for the minimize button.
-- `cancelButtonClass`: Custom class for the cancel button.
-- `iconClass`: Custom class for the icons used in the buttons.
-- `iconSize`: Custom size for the icons used in the buttons.
-- `iconPrefix`: Custom prefix for the icons used in the buttons.
-- `maximizeButtonHeight`: Custom height for the maximize button.
-- `maximizeButtonWidth`: Custom width for the maximize button.
-- `minimizeButtonHeight`: Custom height for the minimize button.
-- `minimizeButtonWidth:` Custom width for the minimize button.
-- `cancelButtonHeigh`t: Custom height for the cancel button.
-- `cancelButtonWidth:` Custom width for the cancel button.
-- `dispatched`: Whether or not the panel has been dispatched.
-- `overlay`: An object containing the state of the overlay (e.g. isMinimized, onMaximize, onMinimize).
-- `onPressCancel`: A function that will be called when the cancel button is pressed.
+| Property             | Description                                                                               |
+|----------------------|-------------------------------------------------------------------------------------------|
+| `title`                | The title of the panel.                                                                   |
+| `status`               | The status of the panel.                                                                  |
+| `createdAt`            | The creation time of the panel.                                                           |
+| `headerLeftClass`      | Custom class for the left section of the panel header.                                    |
+| `actionsWrapperClass`  | Custom class for the right section of the panel header.                                   |
+| `maximizeButtonClass`  | Custom class for the maximize button.                                                     |
+| `minimizeButtonClass`  | Custom class for the minimize button.                                                     |
+| `cancelButtonClass`    | Custom class for the cancel button.                                                       |
+| `iconClass`            | Custom class for the icons used in the buttons.                                           |
+| `iconSize`             | Custom size for the icons used in the buttons.                                            |
+| `iconPrefix`           | Custom prefix for the icons used in the buttons.                                          |
+| `maximizeButtonHeight` | Custom height for the maximize button.                                                    |
+| `maximizeButtonWidth`  | Custom width for the maximize button.                                                     |
+| `minimizeButtonHeight` | Custom height for the minimize button.                                                    |
+| `minimizeButtonWidth`  | Custom width for the minimize button.                                                     |
+| `cancelButtonHeight`   | Custom height for the cancel button.                                                      |
+| `cancelButtonWidth`    | Custom width for the cancel button.                                                       |
+| `dispatched`           | Whether or not the panel has been dispatched.                                             |
+| `overlay`              | An object containing the state of the overlay (e.g. isMinimized, onMaximize, onMinimize). |
+| `onPressCancel`        | A function that will be called when the cancel button is pressed.                         |
 
 ## Example
 
