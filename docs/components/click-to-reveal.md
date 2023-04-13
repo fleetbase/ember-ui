@@ -15,10 +15,12 @@ To use the Modal component, you can simply import it into your Ember component a
 You can customize the Click-to-Reveal component by passing in different props:
 
 
-- `value`: The value to be revealed.
-- `buttonText`: The text to be displayed on the reveal button. 
-- `canClickToCopy`: Whether or not the user can click to copy the revealed value.
-- `n-a`: A function that will be called if there is no value to reveal (e.g. if the value is undefined or null).
+| Parameter      | Description                                                                                             |
+|----------------|---------------------------------------------------------------------------------------------------------|
+| `value`          | The value to be revealed.                                                                               |
+| `buttonText`     | The text to be displayed on the reveal button.                                                          |
+| `canClickToCopy` | Whether or not the user can click to copy the revealed value. Defaults to false.                        |
+| `n-a`            | A function that will be called if there is no value to reveal (e.g. if the value is undefined or null). |
 
 ## Example
 
