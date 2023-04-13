@@ -17,16 +17,19 @@ To use the ModelSelect component, you can simply import it into your Ember compo
 
 You can customize the ModelSelect component by passing in different props:
 
-- `modelName`: The name of the model to select from.
-- `labelProperty`: The property to display for each option.
-- `selectedModel`: The currently selected model.
-- `placeholder`: The text to display as a placeholder.
-- `triggerClass`: The CSS class to apply to the trigger element.
-- `infiniteScroll`: Whether to use infinite scrolling or pagination.
-- `renderInPlace`: Whether to render the dropdown in place or as a separate element.
-- `onChange`: A function to call when the selection changes.
-- `allowClear`: Whether to allow clearing the selection.
-- `onClear`: A function to call when the selection is cleared
+| Option           | Description                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `modelName`      | The name of the model to select from.                                         |
+| `labelProperty`  | The property to display for each option.                                     |
+| `selectedModel`  | The currently selected model.                                                |
+| `placeholder`    | The text to display as a placeholder.                                        |
+| `triggerClass`   | The CSS class to apply to the trigger element.                               |
+| `infiniteScroll` | Whether to use infinite scrolling or pagination.                             |
+| `renderInPlace`  | Whether to render the dropdown in place or as a separate element.            |
+| `onChange`       | A function to call when the selection changes.                               |
+| `allowClear`     | Whether to allow clearing the selection.                                     |
+| `onClear`        | A function to call when the selection is cleared.                            |
+
 
 ## Example
 
