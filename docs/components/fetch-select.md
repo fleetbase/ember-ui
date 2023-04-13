@@ -28,12 +28,14 @@ To use the Fetch-Select component, you can simply import it into your Ember comp
 You can customize the Fetch-Select component by passing in different props:
 
 
-- `options`: An array of options to populate the dropdown menu. This can be set directly, or fetched asynchronously from a specified API endpoint.
-- `placeholder`: The placeholder text to display in the dropdown menu when no option is selected.
-- `optionLabel`: The property of each option object to use as the display label in the dropdown menu.
-- `optionValue`: The property of each option object to use as the value when an option is selected.
-- `onSelect`: A function that will be called when an option is selected from the dropdown menu.
-- `humanize`: A boolean value indicating whether or not to humanize the option labels. If set to true, option labels will be transformed from camelCase to human-readable form.
+| Property    | Description                                                                                                                                                       |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `options`     | An array of options to populate the dropdown menu. This can be set directly, or fetched asynchronously from a specified API endpoint.                             |
+| `placeholder` | The placeholder text to display in the dropdown menu when no option is selected.                                                                                  |
+| `optionLabel` | The property of each option object to use as the display label in the dropdown menu.                                                                              |
+| `optionValue` | The property of each option object to use as the value when an option is selected.                                                                                |
+| `onSelect`    | A function that will be called when an option is selected from the dropdown menu.                                                                                 |
+| `humanize`   | A boolean value indicating whether or not to humanize the option labels. If set to true, option labels will be transformed from camelCase to human-readable form. |
 
 ## Example
 
