@@ -16,9 +16,11 @@ To use the Mobile Navbar Component, you can simply import it into your Ember com
 
 You can customize the Mobile Navbar Component by passing in different props:
 
-- `extensions`: An array of extension items to display in the navbar.
-- `onAction`: A function to be called when an extension item is clicked.
-- `toggleSidebar`: A function to be called when the sidebar menu toggle button is clicked.
+| Property      | Description                                                             |
+|---------------|-------------------------------------------------------------------------|
+| `extensions`    | An array of extension items to display in the navbar.                   |
+| `onAction`   | A function to be called when an extension item is clicked.              |
+| `toggleSidebar` | A function to be called when the sidebar menu toggle button is clicked. |
 
 ## Example
 
