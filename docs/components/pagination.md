@@ -1,6 +1,4 @@
-# Fleetbase Pagination Component
-
-To use the Fleetbase Pagination component, you can simply include it in your template as follows:
+# FleetbasePagination Component
 
 ## Usage
 
@@ -15,9 +13,11 @@ To use the Fleetbase Pagination component, you can import it into your Ember com
 You can customize the Fleetbase Pagination component by passing in different props:
 
 
-- `currentPage`: The current page number.
-- `totalPages`: The total number of pages.
-- `onPageChange`: A function that will be called when the user clicks on a page number.
+| Parameter    | Description                                                           |
+|--------------|-----------------------------------------------------------------------|
+| `currentPage`  | The current page number.                                              |
+| `totalPages`   | The total number of pages.                                            |
+| `onPageChange` | A function that will be called when the user clicks on a page number. |
 
 ## Example
 
@@ -29,4 +29,10 @@ You can customize the Fleetbase Pagination component by passing in different pro
 
 ```
 
-This will render a pagination component with page numbers based on the totalPages prop. The currentPage prop determines the initially selected page. When the user clicks on a page number, the onPageChange function will be called with the new page number as an argument. You can then use this information to update your data or fetch new data based on the selected page.
+This will render a pagination component with page numbers based on the `totalPages` prop. 
+
+The `currentPage` prop determines the initially selected page. 
+
+When the user clicks on a page number, the `onPageChange` function will be called with the new page number as an argument. 
+
+You can then use this information to update your data or fetch new data based on the selected page.
