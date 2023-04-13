@@ -24,12 +24,14 @@ To use the UI Date-Time Input component, you can simply import it into your Embe
 
 You can customize the UI Date-Time Input component by passing in different props:
 
-- `date`: The initial date value to be displayed.
-- `time`: The initial time value to be displayed.
-- `minDate`: The minimum date value that can be selected.
-- `maxDate`: The maximum date value that can be selected.
-- `minTime`: The minimum time value that can be selected.
-- `maxTime`: The maximum time value that can be selected.
+| Parameter | Description                                  |
+|-----------|----------------------------------------------|
+| `date`      | The initial date value to be displayed.      |
+| `time`      | The initial time value to be displayed.      |
+| `minDate`   | The minimum date value that can be selected. |
+| `maxDate`   | The maximum date value that can be selected. |
+| `minTime`   | The minimum time value that can be selected. |
+| `maxTime`   | The maximum time value that can be selected. |
 
 You can also add an on "update" action to be notified when the user selects a new date or time value.
 
