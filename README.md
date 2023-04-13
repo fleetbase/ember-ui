@@ -1,22 +1,16 @@
-# Fleetbase Ember UI Components
+# 🛠️ Fleetbase Components
 
-Welcome to the Fleetbase Ember UI Components library! 
-
-This library contains a collection of reusable UI components that you can use in your Ember.js applications to create a consistent and cohesive user interface.
+This library contains a collection of reusable UI components that you can use in your application and extensions to create a consistent and cohesive user interface.
 
 ## Installation
 
-To install the Fleetbase Ember UI Components library, simply run the following command:
+To install the Fleetbase Components library, simply run the following command:
 
-<code>ember install @fleetbase/ember-ui-components</code>
+<code>git clone git@github.com:fleetbase/ember-ui</code>
 
 ## Usage
 
-Once you have installed the Fleetbase Ember UI Components library, you can start using the components in your application. 
-
-To use a component, simply include it in your template like this:
-
-<code>{{#ui-button}}Click me{{/ui-button}}</code>
+Once you have installed the Fleetbase Components library, you can start using the components in your application. 
 
 For more information on how to use each component, please refer to the documentation.
 
@@ -51,27 +45,42 @@ The following components are included in the Fleetbase Ember UI Components libra
     <summary>Layout</summary>
 
   * [`dropdown-header-item`](./dropdown-header-item.md): A component for displaying a single item in a dropdown list in the header.
+  
   * [`dark-mode-toggle`](./dark-mode-toggle.md): A toggle button component for switching between light and dark mode.
   * [`dropdown`](.dropdown.md):  A component for displaying a dropdown.
-  * [`loading-indicator`](./loading-indicator.md):  A component for displaying a loading indicator.
+  
   * [`section-body`](./section-body.md):  A component for displaying the body of a section.
   * [`section-container`](./section-container.md): A container component for a section..
   * [`section-header`](./section-header.md):  A component for displaying the header of a section.
+  
   * [`sidebar-item`](./sidebar-item.md): A component for displaying a single item in a sidebar.
   * [`sidebar-panel`](./sidebar-panel.md): A component for displaying a panel in a sidebar.
+  
   * [`layout-container`](./layout-container.md):   A container component for the layout.
   * [`header`](./header.md):  A component for displaying the header of the page.
   * [`main`](./main.md): A component for displaying the main content of the page.
   * [`mobile-navbar`](./mobile-navbar.md): A component for displaying the navigation bar on mobile devices.
   * [`section`](./section.md): A component for displaying a section on the page.
   * [`sidebar`](./sidebar.md): A component for displaying a sidebar on the page.
+
   
 </details>
 
 <details>
     <summary>Modal</summary>
 
-   * [`modal-body`](./docs/components/modal/modal-body.md): A component that represents the body content of a modal dialog.
+   * [`modal-body-container`](./docs/components/modal/modal-body-container.md): A component that represents the body content of a modal dialog.
+  
+   * [`modal-header-close.md`](./docs/components/modal/modal-header-close.md): A component that represents the body content of a modal dialog.
+   * [`modal-header-title.md`](./docs/components/modal/modal-header-title.md): A component that represents the body content of a modal dialog.
+  
+   * [`modal-layout-alert`](./docs/components/modal/modal-layout-alert.md): A default template for a modal dialog that includes a header, body, and footer.
+   * [`modal-layout-bulk-action`](./docs/components/modal/modal-layout-bulk-action.md): A component that represents the entire modal dialog, including the header, body, and footer.
+   * [`modal-layout-confirm`](./docs/components/modal/modal-layout-confirm.md): A component that represents the footer content of a modal dialog.
+   * [`modal-layout-loading`](./docs/components/modal/modal-layout-loading.md): A component that represents the header content of a modal dialog.
+   * [`modal-layout-option-prompt`](./docs/components/modal/modal-layout-option-prompt.md): A component that represents the title and buttons in the header of a modal dialog.
+   * [`modal-layout-process`](./docs/components/modal/modal-layout-layout-process.md): A component that represents the title and buttons in the header of a modal dialog.
+  
    * [`modal-default`](./docs/components/modal/modal-default.md): A default template for a modal dialog that includes a header, body, and footer.
    * [`modal-dialog`](./docs/components/modal/modal-dialog.md): A component that represents the entire modal dialog, including the header, body, and footer.
    * [`modal-footer`](./docs/components/modal/modal-footer.md): A component that represents the footer content of a modal dialog.
@@ -116,7 +125,7 @@ The following components are included in the Fleetbase Ember UI Components libra
    * [`table-cell-media-name`](./table-cell-media-name.md): A component that renders the name of a media item within a table cell.</details>
 
 <details>
-    <summary>Fleetbase Components</summary>
+    <summary>Components</summary>
 
    * [`app-container`](./app-container.md): A component for the main application container.
    * [`badge`](./badge.md): A badge component.
@@ -124,8 +133,7 @@ The following components are included in the Fleetbase Ember UI Components libra
    * [`checkbox`](./checkbox.md): A checkbox component. 
    * [`click-to-copy`](./click-to-copy.md): A component for copying text on click. 
    * [`click-to-reveal`](./click-to-reveal.md): A component for revealing text on click. 
-   * [`country-name`](./country-name.md): A component for displaying a country name.  
-   * [`country-select`](./country-select.md): A component for selecting a country. 
+   * [`content-panel`](./content-panel.md): A component that can be used to display content that can be toggled open or closed.   
    * [`date-picker`](./date-picker.md): A component for selecting a date. 
    * [`date-time-input`](./date-time-input.md): A component for selecting a date and time. 
    * [`dropdown-button`](./dropdown-button.md): A button component that opens a dropdown menu.
