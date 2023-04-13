@@ -15,8 +15,10 @@ To use the Navigation Item component, you can simply import it into your Ember c
 You can customize the Navigation Item component by passing in different props:
 
 
-- `icon`: The icon to be displayed next to the navigation item title.
-- `onClick`: The function to be called when the navigation item is clicked.
+| Property  | Description                                                    |
+|-----------|----------------------------------------------------------------|
+| `icon`    | The icon to be displayed next to the navigation item title.    |
+| `onClick` | The function to be called when the navigation item is clicked. |
 
 ## Example
 
