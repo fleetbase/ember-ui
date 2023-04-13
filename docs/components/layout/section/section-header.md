@@ -36,19 +36,23 @@ To use the Next View Section Subheader component, you can simply import it into 
 
 You can customize the Next View Section Subheader component by passing in different props:
 
-- `title`: The title to be displayed in the header.
-- `subtitle`: The subtitle to be displayed in the header.
-- `icon`: The icon to be displayed in the header.
-- `iconSize`: The size of the icon to be displayed in the header.
-- `iconPrefix`: The prefix for the icon (e.g. fas, far, fab).
-- `iconClass`: The CSS class to be applied to the icon.
-- `searchQuery`: The search query value to be displayed in the search bar.
-- `searchPlaceholder`: The placeholder text to be displayed in the search bar.
-- `searchInputClass`: The CSS class to be applied to the search input.
-- `onSearch`: The action to be called when the search input value is changed.
-- `hideActions`: A boolean indicating whether or not to hide the actions section of the header.
-- `actionsWrapperClass`: The CSS class to be applied to the actions section of the header.
-- `leftSubheaderClass`: The CSS class to be applied to the left section of the header.
+
+| Property            | Description                                                                    |
+|---------------------|--------------------------------------------------------------------------------|
+| `title`               | The title to be displayed in the header.                                       |
+| `subtitle`            | The subtitle to be displayed in the header.                                    |
+| `icon`                | The icon to be displayed in the header.                                        |
+| `iconSize`            | The size of the icon to be displayed in the header.                            |
+| `iconPrefix`          | The prefix for the icon (e.g. fas, far, fab).                                  |
+| `iconClass`           | The CSS class to be applied to the icon.                                       |
+| `searchQuery`         | The search query value to be displayed in the search bar.                      |
+| `searchPlaceholder`   | The placeholder text to be displayed in the search bar.                        |
+| `searchInputClass`    | The CSS class to be applied to the search input.                               |
+| `onSearch`            | The action to be called when the search input value is changed.                |
+| `hideActions`         | A boolean indicating whether or not to hide the actions section of the header. |
+| `actionsWrapperClass` | The CSS class to be applied to the actions section of the header.              |
+| `leftSubheaderClass`  | The CSS class to be applied to the left section of the header.                 |
+
 
 ## Example
 
