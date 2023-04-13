@@ -1,7 +1,10 @@
-# File Upload Component
+# FileUpload Component
 
 
-This is a reusable File Upload component built with Ember.js. It provides a customizable UI element that allows users to select and upload files, with an optional upload progress indicator.
+This is a reusable FileUpload component built with Ember.js. 
+
+It provides a customizable UI element that allows users to select and upload files, with an optional upload progress indicator.
+
 ## Usage
 
 To use the Click-to-Reveal component, you can simply import it into your Ember component and include it in your template as follows:
@@ -26,17 +29,19 @@ To use the Click-to-Reveal component, you can simply import it into your Ember c
 
 ```
 
-You can customize the File Upload component by passing in different props:
+You can customize the FileUpload component by passing in different props:
 
-- `name`: The name attribute of the file input element.
-- `accept`: The accepted file types, specified as a comma-separated list of MIME types or file extensions.
-- `onFileAdded`: A callback function that will be called when a file is added to the upload queue.
-- `buttonText`: The text to be displayed on the upload button.
-- `uploadIcon`: The icon to be displayed on the upload button.
-- `outline`: Whether or not to display an outline around the upload button.
-- `type`: The type of button to be used, e.g. "primary" or "danger".
-- `size`: The size of the upload button, e.g. "sm" or "lg".
-- `...attributes`: Any additional HTML attributes to be passed to the component.
+| Prop          | Description                                                                                                         |
+|---------------|---------------------------------------------------------------------------------------------------------------------|
+| `name`          | The name attribute of the file input element.                                                                       |
+| `accept`        | The accepted file types, specified as a comma-separated list of MIME types or file extensions.                      |
+| `onFileAdded`   | A callback function that will be called when a file is added to the upload queue.                                   |
+| `buttonText`    | The text to be displayed on the upload button.                                                                      |
+| `uploadIcon`    | The icon to be displayed on the upload button.                                                                      |
+| `outline`       | Whether or not to display an outline around the upload button.                                                      |
+| `type`          | The type of button to be used, e.g. "primary" or "danger".                                                          |
+| `size`         | The size of the upload button, e.g. "sm" or "lg".                                                                   |
+| `...attributes` | Any additional HTML attributes to be passed to the component. These attributes will be added to the button element. |
 
 ## Example
 
@@ -60,4 +65,10 @@ You can customize the File Upload component by passing in different props:
 
 ```
 
-This will render a clickable element with the text "Upload new image" and a cloud upload icon. When the user clicks on it, a file dialog will be displayed allowing them to select a file. After selecting a file, the text on the upload button will change to "Uploading..." and a spinner icon will be displayed until the file is successfully uploaded. If the upload fails, an error message will be displayed and the user can try again. The accepted file types are limited to image files only, and when a file is added to the queue, the handleFileAdded function will be called.
+This will render a clickable element with the text "Upload new image" and a cloud upload icon. 
+
+When the user clicks on it, a file dialog will be displayed allowing them to select a file. 
+
+After selecting a file, the text on the upload button will change to "Uploading..." and a spinner icon will be displayed until the file is successfully uploaded. If the upload fails, an error message will be displayed and the user can try again. 
+
+The accepted file types are limited to image files only, and when a file is added to the queue, the handleFileAdded function will be called.
