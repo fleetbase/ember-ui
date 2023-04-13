@@ -14,10 +14,12 @@ To use the CountryName component, you can simply import it into your Ember compo
 
 You can customize the CountryName component by passing in a different @country prop with the desired country name.
 
-- `value`: The value to be revealed.
-- `buttonText`: The text to be displayed on the reveal button. 
-- `canClickToCopy`: Whether or not the user can click to copy the revealed value.
-- `n-a`: A function that will be called if there is no value to reveal (e.g. if the value is undefined or null).
+| Parameter      | Description                                                                                             |
+|----------------|---------------------------------------------------------------------------------------------------------|
+| `value`          | The value to be revealed.                                                                               |
+| `buttonText`     | The text to be displayed on the reveal button.                                                          |
+| `canClickToCopy` | Whether or not the user can click to copy the revealed value.                                           |
+| `n-a`           | A function that will be called if there is no value to reveal (e.g. if the value is undefined or null). |
 
 ## Example
 
