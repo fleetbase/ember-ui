@@ -19,7 +19,10 @@ To use the Console Loading Indicator component, you can simply import it into yo
 You can customize the Console Loading Indicator component by passing in different props:
 
 
-- `delay`: The number of milliseconds to delay the loading indicator before it appears. Defaults to 500ms.
+| Option | Description                                                       |
+| ------ | ----------------------------------------------------------------- |
+| `delay` | The number of milliseconds to delay the loading indicator before it appears. Defaults to 500ms. |
+
 
 ## Example
 
