@@ -42,16 +42,18 @@ To use the PowerSelect component, you can simply import it into your Ember compo
 
 You can customize the PowerSelect component by passing in different props:
 
-- `loadingMessage`: A message to be displayed when the dropdown is loading data.
-- `select`: A function to be called when an option is selected.
-- `options`: An array of options to be displayed in the dropdown.
-- `groupIndex`: The index of the property in the options object to group the options by.
-- `optionsComponent`: The component to use for rendering the options.
-- `extra`: An object with extra properties to be passed to the options component.
-- `highlightOnHover`: Whether or not to highlight the option when the user hovers over it.
-- `groupComponent`: The component to use for rendering the option groups.
-- `infiniteModel`: The model to be used for the InfinityLoader.
-- `showLoader`: Whether or not to show the InfinityLoader.
+| Parameter        | Description                                                              |
+|------------------|--------------------------------------------------------------------------|
+| `loadingMessage`   | A message to be displayed when the dropdown is loading data.             |
+| `select`           | A function to be called when an option is selected.                      |
+| `options`          | An array of options to be displayed in the dropdown.                     |
+| `groupIndex`       | The index of the property in the options object to group the options by. |
+| `optionsComponent` | The component to use for rendering the options.                          |
+| `extra`            | An object with extra properties to be passed to the options component.   |
+| `highlightOnHover` | Whether or not to highlight the option when the user hovers over it.     |
+| `groupComponent`   | The component to use for rendering the option groups.                    |
+| `infiniteModel`    | The model to be used for the InfinityLoader.                             |
+| `showLoader`       | Whether or not to show the InfinityLoader.                               |
 
 ## Example
 
