@@ -14,14 +14,16 @@ To use the Click-to-Reveal component, you can simply import it into your Ember c
 
 You can customize the Click-to-Reveal component by passing in different props:
 
-- `value`: The value to be revealed.
-- `mediaUrl`: The URL of an image to display next to the revealed value.
-- `altText`: The alt text for the image.
-- `onClick`: A function to be called when the reveal button is clicked.
-- `showOnlineIndicator`: Whether or not to show an indicator of online status.
-- `hasOnline`: Whether or not the component has an online status.
-- `row`: The current row of data.
-- `column`: The current column of data.
+| Property Name       | Description                                                |
+|---------------------|------------------------------------------------------------|
+| `value`               | The value to be revealed.                                  |
+| `mediaUrl`            | The URL of an image to display next to the revealed value. |
+| `altText`             | The alt text for the image.                                |
+| `onClick`             | A function to be called when the reveal button is clicked. |
+| `showOnlineIndicator` | Whether or not to show an indicator of online status.      |
+| `hasOnline`           | Whether or not the component has an online status.         |
+| `row`                 | The current row of data.                                   |
+| `column`              | The current column of data.                                |
 
 ## Example
 
