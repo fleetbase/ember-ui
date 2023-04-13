@@ -32,9 +32,11 @@ To use the Dropdown Cell component, you can simply import it into your Ember com
 
 You can customize the Dropdown Cell component by passing in different props:
 
-- `row`: The corresponding row object.
-- `column`: The corresponding column object.
-- `buttonText`: The text to be displayed on the dropdown button.
+| Parameter  | Description                                      |
+|------------|--------------------------------------------------|
+| `row`        | The corresponding row object.                    |
+| `column`     | The corresponding column object.                 |
+| `buttonText` | The text to be displayed on the dropdown button. |
 
 ## Example
 
