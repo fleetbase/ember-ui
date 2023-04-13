@@ -14,12 +14,14 @@ To use the Modal Footer component, you can simply import it into your Ember comp
 
 You can customize the Modal Footer component by passing in different props:
 
-- `onClose`: A function that will be called when the close button is clicked.
-- `submitTitle`: The text to be displayed on the submit button.
-- `submitButtonType`: The type of the submit button (e.g. "primary", "success", "danger").
-- `submitDisabled`: Whether or not the submit button should be disabled.
-- `closeTitle`: The text to be displayed on the close button.
-- `buttonComponent`: The name of the component to be used for the buttons (defaults to "button").
+| Parameter        | Description                                                                  |
+|------------------|------------------------------------------------------------------------------|
+| onClose          | A function that will be called when the close button is clicked.             |
+| submitTitle      | The text to be displayed on the submit button.                               |
+| submitButtonType | The type of the submit button (e.g. "primary", "success", "danger").         |
+| submitDisabled   | Whether or not the submit button should be disabled.                         |
+| closeTitle       | The text to be displayed on the close button.                                |
+| buttonComponent  | The name of the component to be used for the buttons (defaults to "button"). |
 
 ## Example
 
