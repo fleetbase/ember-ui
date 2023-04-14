@@ -45,13 +45,13 @@ Additionally, you can also provide a block to customize the option label display
 
 ```hbs
 
-    <MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{fn this.onChange}} @allowClear={{@allowClear}} as |option|>
-        {{or (get option @optionLabel) option}}
-    </MultiSelect>
+<MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{fn this.onChange}} @allowClear={{@allowClear}} as |option|>
+{{or (get option @optionLabel) option}}
+</MultiSelect>
 
-    {{#if this.isLoading}}
-      <ModelSelect::Spinner />
-    {{/if}}
+{{#if this.isLoading}}
+  <ModelSelect::Spinner />
+{{/if}}
 
 ```
 
