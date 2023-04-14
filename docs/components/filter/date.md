@@ -1,26 +1,37 @@
-# FilterDate Component
+# DatePicker Component
 
-This is a reusable FilterDate component built with Ember.js. 
+This is a reusable DatePicker component built with Ember.js. 
 
 It provides a customizable UI element that allows users to select a date range using a date picker.
 
 ## Usage
 
-To use the FilterDate component, you can simply import it into your Ember component and include it in your template as follows:
+To use the DatePicker component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
-<FilterDate @value={{this.selectedDate}} @onChange={{this.filterByDate}} @placeholder="Select date range" />
-
+    <DatePicker 
+      @value={{this.dateRange}} 
+      @onSelect={{this.updateDateRange}} 
+      @placeholder="Select date range" 
+      @range={{true}} 
+      @toggleSelected={{false}} 
+      @autoClose={{false}} 
+      class="filter-date-input form-input-sm w-full flex-1" />
+  
 ```
 
-You can customize the FilterDate component by passing in different props:
+You can customize the DatePicker component by passing in different props:
 
-| Option         | Description                                                                 |
-| -------------- | --------------------------------------------------------------------------- |
-| `value`        | The selected date range.                                                    |
-| `onChange`     | The action to be called when the user selects a date range.                 |
-| `placeholder`  | The text to be displayed as a placeholder in the date picker.               |
+| Property        | Description                                                                                                                                                                               |
+|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @value          | Represents the currently selected date or date range. This property is passed in from the parent component.                                                                               |
+| @onSelect       | Represents a callback function that is called whenever a date or date range is selected. The function is passed in from the parent component and takes the new date range as an argument. |
+| @placeholder    | Represents the default text displayed in the input field. This property is passed in from the parent component.                                                                           |
+| @range          | A boolean that specifies whether the user can select a range of dates or a single date. This property is set to true.                                                                     |
+| @toggleSelected | A boolean that specifies whether the selected date(s) should be highlighted or not. This property is set to false.                                                                        |
+| @autoClose      | A boolean that specifies whether the date picker should automatically close after a selection is made. This property is set to false.                                                     |
+| class           | An HTML class that applies some styling to the input field.                                                                                                                               |
 
 
 ## Example
