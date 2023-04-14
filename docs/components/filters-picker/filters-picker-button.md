@@ -8,8 +8,8 @@ You can customize the Button component by passing in different props:
 
 ```hbs
 
-<ClickToReveal @value="Value to be revealed" />
-
+  <Button @type="secondary" @text="Filters" @icon="filter" @size="sm" @wrapperClass="mr-2" @onClick={{this.toggleFilters}} />
+  
 ```
 
 You can customize the Click-to-Reveal component by passing in different props:
@@ -29,14 +29,14 @@ You can customize the Click-to-Reveal component by passing in different props:
 
 ```hbs
 
-<div class="flex items-center">
   <Button @type="secondary" @text="Filters" @icon="filter" @size="sm" @wrapperClass="mr-2" @onClick={{this.toggleFilters}} />
   {{#if @buttonComponentArgs}}
     <ButtonWithBadge @type="primary" @text="Save" @icon="save" @size="sm" @wrapperClass="mr-2" @buttonComponentArgs={{@buttonComponentArgs}} />
   {{/if}}
   <Button @type="danger" @text="Delete" @icon="trash" @size="sm" @onClick={{this.delete}} />
-</div>
 
 ```
 
-This will render three buttons side by side: a secondary button with the text "Filters" and a filter icon, a primary button with the text "Save", and a danger button with the text "Delete" and a trash icon. If there are active filters (passed in via @buttonComponentArgs.activeFilters), a badge will be displayed on the "Save" button indicating the number of active filters.
+This will render three buttons side by side: a secondary button with the text "Filters" and a filter icon, a primary button with the text "Save", and a danger button with the text "Delete" and a trash icon. 
+
+If there are active filters (passed in via `@buttonComponentArgs.activeFilters`), a badge will be displayed on the "Save" button indicating the number of active filters.
