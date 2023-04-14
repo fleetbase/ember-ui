@@ -12,7 +12,7 @@ You can customize the Button component by passing in different props:
   
 ```
 
-You can customize the Click-to-Reveal component by passing in different props:
+You can customize the Button component by passing in different props:
 
 
 | Option              | Description                                                              |
