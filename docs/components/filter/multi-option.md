@@ -1,19 +1,21 @@
-# Multi-Select Filter Component
+# MultiSelect Component
 
-This is a reusable Multi-Select Filter component built with Ember.js. It provides a customizable UI element that allows users to select multiple options from a list.
+This is a reusable MultiSelect component built with Ember.js. 
+
+It provides a customizable UI element that allows users to select multiple options from a list.
 
 ## Usage
 
-To use the Multi-Select Filter component, you can simply import it into your Ember component and include it in your template as follows:
+To use the MultiSelect component, you can simply import it into your Ember component and include it in your template as follows:
 
 
 ```hbs
 
-<MultiSelectFilter @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @allowClear={{@allowClear}} @isLoading={{this.isLoading}} @onChange={{fn this.onChange}} />
+<MultiSelect @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @allowClear={{@allowClear}} @isLoading={{this.isLoading}} @onChange={{fn this.onChange}} />
 
 ```
 
-You can customize the Multi-Select Filter component by passing in different props:
+You can customize the MultiSelect component by passing in different props:
 
 | Option              | Description                                                                |
 | ------------------- | -------------------------------------------------------------------------- |
@@ -33,9 +35,9 @@ Additionally, you can also provide a block to customize the option label display
 
 ```hbs
 
-<MultiSelectFilter @options={{this.options}} @selected={{this.value}} as |option|>
+<MultiSelect @options={{this.options}} @selected={{this.value}} as |option|>
     {{or (get option @optionLabel) option}}
-</MultiSelectFilter>
+</MultiSelect>
 
 ```
 
@@ -43,16 +45,18 @@ Additionally, you can also provide a block to customize the option label display
 
 ```hbs
 
-<div class="filter-multi-option">
     <MultiSelect @selectClass="form-input-sm flex-1" @options={{this.options}} @search={{fn this.search}} @searchField={{@filter.multiOptionSearchField}} @searchEnabled={{@filter.multiOptionSearchEnabled}} @searchPlaceholder={{@filter.multiOptionSearchPlaceholder}} @selected={{this.value}} @placeholder={{@placeholder}} @onChange={{fn this.onChange}} @allowClear={{@allowClear}} as |option|>
         {{or (get option @optionLabel) option}}
     </MultiSelect>
 
     {{#if this.isLoading}}
-        <div class="ember-model-select__loading">
-            <ModelSelect::Spinner />
-        </div>
+      <ModelSelect::Spinner />
     {{/if}}
-</div>
 
 ```
+
+This is a multi-select dropdown UI component implemented using Ember.js. 
+
+It has various configurable properties such as `@options` for the list of selectable options, `@selected` for the currently selected options, and `@onChange` for the callback function when an option is selected. 
+
+The component also includes a conditional block to display a loading spinner when options are asynchronously loaded, specified by the `isLoading` property.
