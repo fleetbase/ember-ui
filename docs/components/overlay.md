@@ -33,10 +33,11 @@ You can customize the Overlay component by passing in different props:
 <button {{on "click" (fn this.toggleOverlay true)}}>Open Overlay</button>
 
 {{#if this.showOverlay}}
-  <Overlay @position="right" @noBackdrop={{false}} @outView={{false}} @fullHeight={{false}} @overlayClass="my-overlay-class" @containerClass="my-container-class" @width="600px" @isResizable={{true}}>
-    <div>
-      {{!-- Your overlay content --}}
-    </div>
+  <Overlay @position="right" @noBackdrop={{true}} @isResizable={{true}} @isMaximizable={{true}} @isMinimizable={{true}} @fullHeight={{true}} as |overlay|>
+    <Overlay::Header @title="Hello" @onPressCancel={{this.transitionBack}} />
+    <Overlay::Body>
+        <h3>Hello World</h3>
+    </Overlay::Body>
   </Overlay>
 {{/if}}
 
