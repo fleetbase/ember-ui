@@ -1,10 +1,12 @@
 # Modal Component
 
-This is a reusable Modal component built with Ember.js. It provides a customizable UI element that allows users to display content in a popup modal.
+This is a reusable Modal component built with Ember.js. 
+
+It provides a customizable UI element that allows users to display content in a popup modal.
 
 ## Usage
 
-To use the Click-to-Reveal component, you can simply import it into your Ember component and include it in your template as follows:
+To use the Modal component, you can simply import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
@@ -69,7 +71,5 @@ You can customize the Modal component by passing in different options:
 </Modal>
 
 ```
-
-This will render a modal element with the title "Your Modal Title", a
 
 
