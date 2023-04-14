@@ -38,9 +38,7 @@ You can customize the DatePicker component by passing in different props:
 
 ```hbs
 
-<div class="filter-date">
   <DatePicker @value={{this.selectedDate}} @onSelect={{this.filterByDate}} @placeholder="Select date range" @range={{true}} @toggleSelected={{false}} @autoClose={{false}} class="filter-date-input form-input-sm w-full flex-1" />
-</div>
 
 ```
 
