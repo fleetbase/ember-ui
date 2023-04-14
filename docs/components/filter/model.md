@@ -9,9 +9,7 @@ To use the ModelSelect component, you can simply import it into your Ember compo
 
 ```hbs
 
-<div class="filter-model-select">
   <ModelSelect @modelName={{@filter.model}} @labelProperty={{or @filter.modelNamePath "name"}} @selectedModel={{this.selectedModel}} @placeholder={{@placeholder}} @triggerClass="form-select form-input form-input-sm flex-1" @infiniteScroll={{false}} @renderInPlace={{true}} @onChange={{this.onChange}} @allowClear={{true}} @onClear={{this.clear}} />
-</div>
 
 ```
 
@@ -35,9 +33,7 @@ You can customize the ModelSelect component by passing in different props:
 
 ```hbs
 
-<div class="filter-model-select">
   <ModelSelect @modelName={{@filter.model}} @labelProperty={{or @filter.modelNamePath "name"}} @selectedModel={{this.selectedModel}} @placeholder={{@placeholder}} @triggerClass="form-select form-input form-input-sm flex-1" @infiniteScroll={{false}} @renderInPlace={{true}} @onChange={{this.onChange}} @allowClear={{true}} @onClear={{this.clear}} />
-</div>
 
 ```
 
