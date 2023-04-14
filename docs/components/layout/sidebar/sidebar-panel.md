@@ -1,10 +1,12 @@
-# Content Panel Component
+# ContentPanel Component
 
-This is a reusable Content Panel component that provides a collapsible panel with a header that can be clicked to toggle the panel's visibility. It is built with Ember.js and includes customizable classes to allow for easy styling.
+This is a reusable Content Panel component that provides a collapsible panel with a header that can be clicked to toggle the panel's visibility. 
+
+It is built with Ember.js and includes customizable classes to allow for easy styling.
 
 ## Usage
 
-To use the Content Panel component, you can import it into your Ember component and include it in your template as follows:
+To use the ContentPanel component, you can import it into your Ember component and include it in your template as follows:
 
 ```hbs
 
@@ -34,6 +36,12 @@ You can customize the Content Panel component by passing in different props:
 
 ```
 
-This will render a collapsible panel with the title "title". The panel will be open if @open is set to true, otherwise it will be closed. The content of the panel should be placed within the component's block. You can customize the appearance of the panel by setting the different class names.
+This will render a collapsible panel with the title "title". 
+
+The panel will be open if `@open` is set to true, otherwise it will be closed. 
+
+The content of the panel should be placed within the component's block. 
+
+You can customize the appearance of the panel by setting the different class names.
 
 
