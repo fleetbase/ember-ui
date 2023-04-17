@@ -1,1 +1,10 @@
-{{yield}}
+<div ...attributes>
+    <FaIcon @icon="spinner-third" @spin={{true}} @size={{@size}} class={{@iconClass}} />
+    <div class="loading-message">
+        {{#if (has-block)}}
+            {{yield}}
+        {{else}}
+            {{or @text @loadingMessage @message}}
+        {{/if}}
+    </div>
+</div>

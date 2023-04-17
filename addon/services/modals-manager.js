@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action, set, get, getProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
+import { assign } from '@ember/polyfills';
 import RSVP, { defer } from 'rsvp';
 
 export default class ModalsManagerService extends Service {
@@ -10,11 +11,10 @@ export default class ModalsManagerService extends Service {
     @tracked modalDefer = null;
     @tracked componentToRender = null;
     @tracked options = {};
-    @tracked arguments = [];
     @tracked defaultOptions = {
-        title: ' ',
-        body: ' ',
-        footer: ' ',
+        title: null,
+        body: null,
+        footer: null,
         confirmButtonDefaultText: 'Yes',
         confirmButtonFulfilledText: 'Yes',
         confirmButtonPendingText: 'Yes',
@@ -71,28 +71,39 @@ export default class ModalsManagerService extends Service {
      * @param {object} options
      * @return {RSVP.Promise}
      */
-    @action confirm(options) {
+    @action confirm(options = {}) {
+        options = assign(options, {
+            hideTitle: true,
+            modalClass: 'flb--confirm-modal modal-sm',
+        });
         return this.show('modal/layouts/confirm', options);
     }
 
     /**
      * Shows a alert dialog
      */
-    @action alert(options) {
+    @action alert(options = {}) {
+        options = assign(options, {
+            hideTitle: true,
+            hideAcceptButton: true,
+            declineButtonText: 'OK',
+            modalClass: 'flb--alert-modal modal-sm',
+        });
+
         return this.show('modal/layouts/alert', options);
     }
 
     /**
      * Shows a prompt dialog
      */
-    @action prompt(options) {
+    @action prompt(options = {}) {
         return this.show('modal/layouts/prompt', options);
     }
 
     /**
      * Shows a bulk action dialog
      */
-    @action bulk(options) {
+    @action bulk(options = {}) {
         return this.show('modal/layouts/bulk-action', options);
     }
 
@@ -101,7 +112,7 @@ export default class ModalsManagerService extends Service {
      * @category Default Modals
      * @throws {Error} if `options.promises` is not an array
      */
-    @action progress(options) {
+    @action progress(options = {}) {
         assert('`options.promises` must be an array', options && isArray(options.promises));
         return this.show('modal/layouts/progress', options);
     }
@@ -111,7 +122,7 @@ export default class ModalsManagerService extends Service {
      * @category Default Modals
      * @throws {Error} if `options.process` is not defined
      */
-    @action process(options) {
+    @action process(options = {}) {
         assert('`options.process` must be defined', !!(options && options?.process));
         return this.show('modal/layouts/process', options);
     }
@@ -178,25 +189,6 @@ export default class ModalsManagerService extends Service {
     }
 
     /**
-     * @category Action Handlers
-     */
-    @action onConfirmClick() {
-        this.modalIsOpened = false;
-        this.modalDefer && this.modalDefer.resolve(this);
-        this.clearOptions();
-    }
-
-    /**
-     * @category Action Handlers
-     */
-    @action onDeclineClick() {
-        this.modalIsOpened = false;
-        // eslint-disable-next-line ember/no-array-prototype-extensions
-        this.modalDefer && this.modalDefer.reject(this);
-        this.clearOptions();
-    }
-
-    /**
      * Same as onClickConfirm but allows a handler to run then resolve by user
      *
      * @param {EbmmModalOptions} v
@@ -215,7 +207,7 @@ export default class ModalsManagerService extends Service {
 
             if (response && typeof response.then === 'function') {
                 return response.finally(() => {
-                    done();
+                    return done();
                 });
             }
             return;
@@ -233,7 +225,7 @@ export default class ModalsManagerService extends Service {
         const done = this.done.bind(this, this, 'onDecline');
         const { decline, keepOpen } = this.options;
 
-        if (decline === 'function') {
+        if (typeof decline === 'function') {
             const response = decline(this, done);
 
             // hack keep dialog open until hold is true
@@ -259,71 +251,23 @@ export default class ModalsManagerService extends Service {
      */
     @action done(instance, action) {
         return new Promise((resolve) => {
-            const parentArguments = this.getArguments();
             const callback = get(this, `options.${action}`);
             const onFinish = get(this, `options.onFinish`);
 
             set(this, 'modalIsOpened', false);
             this.modalDefer?.resolve(this);
             this.clearOptions();
-            this.clearArguments();
-            resolve(true);
 
             if (typeof callback === 'function') {
-                callback(...parentArguments, this.options);
+                callback(this.options);
             }
 
             if (typeof onFinish === 'function') {
-                onFinish(...parentArguments, this.options);
+                onFinish(this.options);
             }
+
+            resolve(true);
         });
-    }
-
-    /**
-     * Get arguments based on service path array of argument names that exist in options
-     *
-     * @param {String} path
-     * @return {Array}
-     */
-    @action getArguments(path = 'options.args') {
-        const parentArguments = [];
-        const currentArguments = get(this, path);
-
-        if (this.arguments.length) {
-            return this.arguments;
-        }
-
-        if (isArray(currentArguments)) {
-            for (let i = 0; i < currentArguments.length; i++) {
-                const arg = currentArguments[i];
-
-                if (this.options[arg]) {
-                    parentArguments.pushObject(this.options[arg]);
-                }
-            }
-        }
-
-        return parentArguments;
-    }
-
-    /**
-     * Sets arguments
-     *
-     * @param {String} path
-     * @void
-     */
-    @action setArguments(_args = []) {
-        this.arguments = isArray(_args) ? _args : [];
-    }
-
-    /**
-     * Clears arguments
-     *
-     * @param {String} path
-     * @void
-     */
-    @action clearArguments() {
-        this.setArguments();
     }
 
     /**
@@ -408,6 +352,11 @@ export default class ModalsManagerService extends Service {
         this.setOption('isLoading', false);
     }
 
+    /**
+     * Clear modalsManager options.
+     *
+     * @memberof ModalsManagerService
+     */
     @action clearOptions() {
         this.options = {};
     }

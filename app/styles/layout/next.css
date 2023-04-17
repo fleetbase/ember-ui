@@ -1060,11 +1060,16 @@ body[data-theme='dark'] {
 }
 
 /** Next/View Container Subheader **/
+.next-view-section-footer,
 .next-view-section-subheader {
-    @apply flex items-center justify-between min-w-full max-w-full flex-shrink-0 border-b border-gray-200;
+    @apply flex items-center justify-between min-w-full max-w-full flex-shrink-0 border-b border-gray-200 dark:border-gray-700;
     box-align: center;
     padding: 0px 24px 0px 36px;
     height: 57px;
+}
+
+.next-view-section-footer {
+    @apply border-b-0 border-t sticky bottom-0 inset-x-0 dark:bg-gray-900;
 }
 
 .next-view-section-subheader .next-view-section-subheader-title {

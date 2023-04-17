@@ -25,6 +25,12 @@ dependencies:
   autonumeric:
     specifier: ^4.6.2
     version: 4.6.2
+  broccoli-funnel:
+    specifier: ^3.0.8
+    version: 3.0.8
+  broccoli-merge-trees:
+    specifier: ^4.2.0
+    version: 4.2.0
   ember-auto-import:
     specifier: ^2.4.2
     version: 2.4.2(webpack@5.74.0)
@@ -103,6 +109,9 @@ dependencies:
   imask:
     specifier: ^6.4.3
     version: 6.4.3
+  intl-tel-input:
+    specifier: ^18.1.3
+    version: 18.1.3
 
 devDependencies:
   '@ember/optional-features':
@@ -7859,6 +7868,10 @@ packages:
 
   /intersection-observer-admin@0.3.3:
     resolution: {integrity: sha512-aKMJPw/8cxybcgYTbnwGn87VgSFbSNNqeChRJahD+ai+jtwlCOdIcEvtuBd2BWO9bPuylVgeQVmGGfX2aS1NIg==}
+    dev: false
+
+  /intl-tel-input@18.1.3:
+    resolution: {integrity: sha512-5pyt4HA5fZewCnmjIbNJg1bLVWgePlcbga6ilr7KfdIYUYUtAAJmhK+FWS3Y7Hoz5cbAw/q1rdihNSzOvw16xw==}
     dev: false
 
   /invariant@2.2.4:

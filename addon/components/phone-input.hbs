@@ -1,1 +1,1 @@
-{{yield}}
+<Input type="tel" @value={{@value}} {{did-insert (fn this.setupIntlTelInput)}} {{on "keyup" (fn this.onInput)}} ...attributes />

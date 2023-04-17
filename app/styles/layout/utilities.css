@@ -88,8 +88,53 @@ a.badge-offline::before {
     height: 3.563rem !important;
 }
 
+.w-70pci,
 .w-70i {
     width: 70% !important;
+}
+
+.w-10pc {
+    width: 10%;
+}
+
+.w-10pc {
+    width: 10%;
+}
+
+.w-20pc {
+    width: 20%;
+}
+
+.w-30pc {
+    width: 30%;
+}
+
+.w-40pc {
+    width: 40%;
+}
+
+.w-50pc {
+    width: 50%;
+}
+
+.w-60pc {
+    width: 60%;
+}
+
+.w-70pc {
+    width: 70%;
+}
+
+.w-80pc {
+    width: 80%;
+}
+
+.w-90pc {
+    width: 90%;
+}
+
+.w-100pc {
+    width: 100%;
 }
 
 .h-screen-90 {
@@ -622,4 +667,8 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .py-0i {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+}
+
+.border-b-0i {
+    border-bottom-width: 0px !important;
 }

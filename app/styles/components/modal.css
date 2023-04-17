@@ -432,3 +432,18 @@ body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .f
         @apply bg-gray-800;
     }
 }
+
+
+.flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header,
+.flb--alert-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
+    padding: .35rem;
+}
+
+.flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header .close,
+.flb--alert-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header .close {
+    display: none;
+}
+
+.flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body > .modal-body-container {
+    padding: 1.5rem 1rem;
+}
