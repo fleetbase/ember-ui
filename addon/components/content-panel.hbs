@@ -7,7 +7,9 @@
                         <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
                     </span>
                     {{#if @isLoading}}
-                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
+                        <div class="flex mr-2i">
+                            <Spinner @iconClass="text-sky-500 fa-spin-800ms" />
+                        </div>
                     {{/if}}
                     {{#if @titleIcon}}
                         <span class="icon-container {{@titleIconWrapperClass}}">
