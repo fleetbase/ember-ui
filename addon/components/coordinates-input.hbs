@@ -1,0 +1,28 @@
+<div class="grid grid-cols-2 gap-2 coordinates-input" ...attributes>
+    <Input class="w-full form-input" @type="text" placeholder="Latitude" @value={{this.latitude}} />
+    <Input class="w-full form-input" @type="text" placeholder="Longitude" @value={{this.longitude}} />
+</div>
+<div class="my-1">
+    <BasicDropdown ...attributes @verticalPosition="top" @horizontalPosition="left" @renderInPlace={{true}} as |dd|>
+        <dd.Trigger class={{@triggerClass}}>
+            <span class="text-sky-500 hover:text-sky-600">Select from map</span>
+        </dd.Trigger>
+        <dd.Content class="bg-transparent min-w-500px">
+            <div class="rounded shadow-md w-60 h-60 relative my-3">
+                <LeafletMap class="w-60 h-60 rounded shadow-sm" @lat={{this.mapLat}} @lng={{this.mapLng}} @zoom={{12}} @onDragend={{this.setCoordinatesFromMap}} as |layers|>
+                    <layers.tile @url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" />
+                </LeafletMap>
+                <div class="absolute inset-0 m-auto z-9999 w-10 h-10">
+                    <img src="/images/map-marker.png" alt="Draggable map marker" class="w-10" />
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div class="flex flex-row items-center pb-4">
+                    <Input type="text" class="form-input mr-2" @value={{this.lookupQuery}} disabled={{this.isLoading}} placeholder="Enter address" />
+                    <Button @wrapperClass="mr-2" @icon="search-location" @type="primary" @size="md" @text="Lookup" @onClick={{this.reverseLookup}} @isLoading={{this.isLoading}} />
+                    <Button @type="default" @iconPrefix="fas" @icon="times" @size="md" @text="Done" @onClick={{dd.actions.close}} />
+                </div>
+            </div>
+        </dd.Content>
+    </BasicDropdown>
+</div>

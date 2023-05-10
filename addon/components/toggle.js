@@ -6,9 +6,16 @@ export default class ToggleComponent extends Component {
     /**
      * The active color of the toggle
      *
+     * @var {Boolean}
+     */
+    @tracked isToggled = false;
+
+    /**
+     * The active color of the toggle
+     *
      * @var {String}
      */
-    activeColor = 'green';
+    @tracked activeColor = 'green';
 
     /**
      * The active color class.
@@ -30,6 +37,10 @@ export default class ToggleComponent extends Component {
         super(...arguments);
 
         this.isToggled = this.args.isToggled === true;
+
+        if (typeof this.args.activeColor === 'string' && this.args.activeColor.length) {
+            this.activeColor = this.args.activeColor;
+        }
     }
 
     /**
@@ -44,7 +55,7 @@ export default class ToggleComponent extends Component {
             return;
         }
 
-        this.isToggled = isToggled === true;
+        this.isToggled = !isToggled;
 
         if (typeof onToggle === 'function') {
             onToggle(this.isToggled);

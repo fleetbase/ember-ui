@@ -1,7 +1,12 @@
-<a href="#" {{on "click" this.onClick}} disabled={{not @value}} ...attributes>
+<a href="#" {{on "click" this.onClick}} class={{@column.anchorClass}} disabled={{not @value}} ...attributes>
+    {{#if @column.anchorIcon}}
+        <span class="btn-icon-wrapper" data-icon-prefix={{@column.anchorIconPrefix}}>
+            <FaIcon @prefix={{@column.anchorIconPrefix}} @icon={{@column.anchorIcon}} @size={{@column.anchorIconSize}} @rotation={{@column.anchorIconRotation}} @flip={{@column.anchorIconFlip}} @spin={{@column.anchorIconSpin}} class={{@column.anchorIconClass}} />
+        </span>
+    {{/if}}
     {{#if (has-block)}}
         {{yield}}
     {{else}}
-        <span class={{@anchorSpanClassnames}}>{{get-default-value @value "-"}}</span>
+        <span class={{@anchorSpanClassnames}}>{{or @value @column.anchorText "-"}}</span>
     {{/if}}
 </a>

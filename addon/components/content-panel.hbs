@@ -7,26 +7,40 @@
                         <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
                     </span>
                     {{#if @isLoading}}
-                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="mr-2" />
+                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
+                    {{/if}}
+                    {{#if @titleIcon}}
+                        <span class="icon-container {{@titleIconWrapperClass}}">
+                            <FaIcon @icon={{@titleIcon}} @prefix={{@titleIconPrefix}} class={{@titleIconClass}} />
+                        </span>
                     {{/if}}
                     <div class="next-content-panel-title-container {{@titleContainerClass}}">
-                        <div class="flex flex-row items-center justify-between">
-                            <div>
-                                {{#if @prefixTitle}}
-                                    <div class={{@prefixTitleContainerClass}}>
-                                        <span class="text-xs {{@prefixTitleClass}}">{{@prefixTitle}}</span>
-                                    </div>
+                        {{#if @titleComponent}}
+                            {{component @titleComponent context=@titleComponentContext}}
+                        {{else}}
+                            <div class="flex flex-row items-center justify-between">
+                                <div>
+                                    {{#if @prefixTitle}}
+                                        <div class="next-content-panel-prefix-title-container {{@prefixTitleContainerClass}}">
+                                            <span class="next-content-panel-prefix-title text-xs {{@prefixTitleClass}}">{{@prefixTitle}}</span>
+                                        </div>
+                                    {{/if}}
+                                </div>
+                            </div>
+                            <div class="panel-title flex-shrink-0 {{@panelTitleClass}}">
+                                <div class="flex flex-col {{@panelTitleWrapperClass}}">
+                                    <span class={{@panelTitleInlineClass}}>{{@title}}</span>
+                                    {{#if @subtitle}}
+                                        <span class={{@panelSubtitleInlineClass}}>{{@subtitle}}</span>
+                                    {{/if}}
+                                </div>
+                                {{#if @titleStatus}}
+                                    <span class="ml-2 {{@titleStatusContainerClass}}">
+                                        <Badge @status={{@titleStatus}} @hideStatusDot={{@hideStatusDot}} class={{@titleStatusClass}} @disableHumanize={{@disableTitleStatusHumanize}} />
+                                    </span>
                                 {{/if}}
                             </div>
-                        </div>
-                        <span class="panel-title flex-shrink-0 {{@panelTitleClass}}">
-                            {{@title}}
-                            {{#if @titleStatus}}
-                                <span class="ml-2 {{@titleStatusContainerClass}}">
-                                    <Badge @status={{@titleStatus}} @hideStatusDot={{@hideStatusDot}} class={{@titleStatusClass}} @disableHumanize={{@disableTitleStatusHumanize}} />
-                                </span>
-                            {{/if}}
-                        </span>
+                        {{/if}}
                     </div>
                 </a>
                 <div class="next-content-panel-header-right {{@panelHeaderRightClass}}">
@@ -41,7 +55,7 @@
                         </span>
                     {{/if}}
                     {{#each @actionButtons as |button|}}
-                        <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} />
+                        <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @size={{button.size}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} />
                     {{/each}}
                 </div>
             </div>

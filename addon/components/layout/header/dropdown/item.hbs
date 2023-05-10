@@ -1,24 +1,39 @@
 {{#if this.isTextOnly}}
-    <div class="px-1 {{@item.wrapperClass}}">
-        {{#if (is-array @item.text)}}
-            {{#each @item.text as |line|}}
-                <div class="{{@item.class}}">{{line}}</div>
-            {{/each}}
-        {{else}}
-            <div class="{{@item.class}}">{{@item.text}}</div>
+    <div class="px-1 flex flex-row {{@item.wrapperClass}}">
+        {{#if @item.icon}}
+            <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
         {{/if}}
+        <div class="inline-flex flex-col">
+            {{#if (is-array @item.text)}}
+                {{#each @item.text as |line|}}
+                    <div class="{{@item.class}}">{{line}}</div>
+                {{/each}}
+            {{else}}
+                <div class="{{@item.class}}">{{@item.text}}</div>
+            {{/if}}
+        </div>
     </div>
 {{/if}}
 
 {{#if this.isLink}}
     <div class="px-1 {{@item.wrapperClass}}">
-        <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-dd-item {{@item.class}}">{{@item.text}}</LinkTo>
+        <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-dd-item {{@item.class}}">
+            {{#if @item.icon}}
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+            {{/if}}
+            <span>{{@item.text}}</span>
+        </LinkTo>
     </div>
 {{/if}}
 
 {{#if this.isAnchor}}
     <div class="px-1 {{@item.wrapperClass}}">
-        <a href={{@item.href}} class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}" target={{@item.target}} disabled={{@item.disabled}} {{on "click" (fn @onAction @item.action @item.params)}}>{{@item.text}}</a>
+        <a href={{@item.href}} class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}" target={{@item.target}} disabled={{@item.disabled}} {{on "click" (fn @onAction @item.action @item.params)}}>
+            {{#if @item.icon}}
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+            {{/if}}
+            <span>{{@item.text}}</span>
+        </a>
     </div>
 {{/if}}
 

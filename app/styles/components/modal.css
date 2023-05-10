@@ -155,6 +155,12 @@
     border-bottom-right-radius: var(--flb-modal-inner-border-radius);
     border-bottom-left-radius: var(--flb-modal-inner-border-radius);
 }
+
+.flb--modal-footer > .modal-footer-actions {
+    display: flex;
+    align-items: center;
+}
+
 .flb--modal-footer > * {
     margin: calc(var(--flb-modal-footer-gap) * 0.5);
 }

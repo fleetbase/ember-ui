@@ -1,6 +1,6 @@
 html,
 body {
-    font-family: "Inter UI", Arial, Helvetica, sans-serif;
+    font-family: 'Inter UI', Arial, Helvetica, sans-serif;
     font-size: 16px;
     line-height: 1.5;
     text-rendering: optimizeLegibility;
@@ -12,9 +12,88 @@ body {
     @apply h-screen overflow-hidden antialiased text-gray-900;
 }
 
-.font-default, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
-    font-family: "Inter UI", Arial, Helvetica, sans-serif;
-    letter-spacing: .02rem;
+.font-default,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    font-family: 'Inter UI', Arial, Helvetica, sans-serif;
+    letter-spacing: 0.02rem;
 }
 
 a.navbar-logo {
@@ -54,7 +133,7 @@ a {
 }
 
 a,
-div[role="button"],
+div[role='button'],
 button {
     cursor: default;
     user-select: none;
@@ -124,13 +203,11 @@ address {
     }
 }
 
-body[data-theme="dark"] {
-    & .filter-row {
-        @apply bg-gray-900 border-gray-700;
+body[data-theme='dark'] .filter-row {
+    @apply bg-gray-900 border-gray-700;
 
-        & .filter-row-body {
-            @apply bg-gray-900 bg-opacity-50;
-        }
+    & .filter-row-body {
+        @apply bg-gray-900 bg-opacity-50;
     }
 }
 
@@ -161,67 +238,62 @@ body[data-theme="dark"] {
     }
 }
 
-body[data-theme='dark'] {
-    & .datum-row {
-        @apply text-gray-100 bg-gray-900;
-    }
+body[data-theme='dark'] .datum-row {
+    @apply text-gray-100 bg-gray-900;
 }
-
-/** panel section title **/
 
 .overlay-panel-section-title {
     @apply mb-3 font-bold;
 }
 
-body[data-theme='dark'] {
-    & .overlay-panel-section-title {
-        @apply text-gray-100;
-    }
+body[data-theme='dark'] .overlay-panel-section-title {
+    @apply text-gray-100;
 }
 
 .click-to-reveal {
     @apply relative;
+}
 
-    & .click-to-reveal--hidden-value {
-        @apply block w-full max-w-full truncate;
-        filter: blur(2px);
-    }
+.click-to-reveal .click-to-reveal--hidden-value {
+    @apply block w-full max-w-full truncate;
+    filter: blur(2px);
+}
 
-    & .click-to-reveal.is-visible > &--hidden-value {
-        filter: blur(0);
-    }
+.click-to-reveal.is-visible > .click-to-reveal--hidden-value {
+    filter: blur(0);
+}
 
-    & .click-to-reveal--button {
-        @apply absolute inset-0 flex items-center justify-center;
-        box-shadow: none !important;
-        & > button {
-            padding: 0.185rem 0.7rem !important;
-        }
-    }
+.click-to-reveal .click-to-reveal--button {
+    @apply absolute inset-0 flex items-center justify-center;
+    box-shadow: none !important;
+}
 
-    & .click-to-reveal.is-visible > &--button {
-        @apply hidden;
-    }
+.click-to-reveal .click-to-reveal--button > button {
+    padding: 0.185rem 0.7rem !important;
+}
 
-    & .click-to-reveal--tooltip {
-        @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
-    }
+.click-to-reveal.is-visible > .click-to-reveal--button {
+    @apply hidden;
+}
 
-    & .click-to-reveal:hover > &--tooltip {
-        @apply scale-100 opacity-100;
-    }
+.click-to-reveal .click-to-reveal--tooltip {
+    @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-all duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
+}
+
+.click-to-reveal:hover > .click-to-reveal--tooltip {
+    @apply scale-100 opacity-100;
 }
 
 .click-to-copy {
     @apply relative;
+}
 
-    & .click-to-copy--tooltip {
-        @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-opacity transition-transform duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
-    }
-    
-    &:hover > .click-to-copy--tooltip {
-        @apply scale-100 opacity-100;
-    }
+.click-to-copy .click-to-copy--tooltip {
+    @apply absolute top-0 right-0 px-2 py-1 -mt-1 text-xs font-semibold text-center text-white transition-all duration-200 scale-0 bg-gray-800 rounded shadow-md opacity-0;
+}
+
+.click-to-copy:hover > .click-to-copy--tooltip {
+    @apply scale-100 opacity-100;
 }
 
 .console-main-content {
@@ -304,22 +376,18 @@ body[data-theme='dark'] {
 
 #console-loader,
 .overloader {
-    @apply absolute inset-0 w-full h-full bg-gray-100 text-gray-800 flex items-center justify-center;
+    @apply absolute inset-0 w-full h-full bg-gray-100 text-gray-800 flex items-center justify-center bg-opacity-10;
     z-index: 9999999999;
 }
 
-body[data-theme="light"] {
-    & #console-loader,
-    & .overloader {
-        @apply bg-gray-100 text-gray-800;
-    }
+body[data-theme='light'] #console-loader,
+body[data-theme='light'] .overloader {
+    @apply bg-gray-100 text-gray-800;
 }
 
-body[data-theme="dark"] {
-    & #console-loader,
-    & .overloader {
-        @apply bg-gray-900 text-gray-100;
-    }
+body[data-theme='dark'] #console-loader,
+body[data-theme='dark'] .overloader {
+    @apply bg-gray-900 text-gray-100 bg-opacity-10;
 }
 
 .overloader.overloader-opacity-3 {
@@ -651,32 +719,27 @@ body[data-theme='dark'] {
 }
 
 /** ui-combo-box **/
-
-.ui-combo-box {
-    & .selected-list a.combo-box-option,
-    & .options-list a.combo-box-option {
-        @apply flex text-gray-800 px-4 py-2 border-b border-gray-200 bg-gray-50 relative;
-        &:first-child {
-            @apply rounded-t-md;
-        }
-        &:hover {
-            @apply bg-gray-300;
-        }
-        &.selected:hover,
-        &.selected {
-            @apply bg-blue-400;
-            background-color: #76a9fa !important;
-        }
+.ui-combo-box .selected-list a.combo-box-option,
+.ui-combo-box .options-list a.combo-box-option {
+    @apply flex text-gray-800 px-4 py-2 border-b border-gray-200 bg-gray-50 relative;
+    &:first-child {
+        @apply rounded-t-md;
+    }
+    &:hover {
+        @apply bg-gray-300;
+    }
+    &.selected:hover,
+    &.selected {
+        @apply bg-blue-400;
+        background-color: #76a9fa !important;
     }
 }
 
-body[data-theme='dark'] .ui-combo-box {
-    & .selected-list a.combo-box-option,
-    & .options-list a.combo-box-option {
-        @apply border-gray-900 text-gray-100 bg-gray-700 relative;
-        &:hover {
-            @apply bg-gray-600;
-        }
+body[data-theme='dark'] .ui-combo-box .selected-list a.combo-box-option,
+body[data-theme='dark'] .ui-combo-box .options-list a.combo-box-option {
+    @apply border-gray-900 text-gray-100 bg-gray-700 relative;
+    &:hover {
+        @apply bg-gray-600;
     }
 }
 
@@ -711,7 +774,7 @@ body.fleetbase-console .container {
 /** when hovering over a network folder **/
 .network-folder:hover,
 .network-folder.hovering {
-    opacity: .5; 
+    opacity: 0.5;
 }
 
 .network-folder {
@@ -734,18 +797,16 @@ body.fleetbase-console .container {
     }
 }
 
-body[data-theme="dark"] {
-    & .store-boolean-settings {
-        @apply border-gray-700 bg-gray-900;
+body[data-theme='dark'] .store-boolean-settings {
+    @apply border-gray-700 bg-gray-900;
 
-        & > .input-group {
-            @apply  border-gray-700;
-        }
+    & > .input-group {
+        @apply border-gray-700;
     }
 }
 
 /** patch phone number input **/
-body[data-theme="dark"] li.iti__country > span {
+body[data-theme='dark'] li.iti__country > span {
     @apply text-gray-100;
 }
 
@@ -758,14 +819,12 @@ body[data-theme="dark"] li.iti__country > span {
     @apply bg-red-100 text-red-600 border-red-600;
 }
 
-body[data-theme="light"] {
-    & .ui-input-info {
-        @apply bg-gray-50 bg-opacity-75 border-gray-200 text-gray-600;
-    }
+body[data-theme='light'].ui-input-info {
+    @apply bg-gray-50 bg-opacity-75 border-gray-200 text-gray-600;
+}
 
-    & .ui-input-info.danger {
-        @apply bg-red-100 text-red-600 border-red-600;
-    }
+body[data-theme='light'] .ui-input-info.danger {
+    @apply bg-red-100 text-red-600 border-red-600;
 }
 
 /** add padding left to c-notification icon **/
@@ -782,16 +841,16 @@ body[data-theme="light"] {
 }
 
 /** patch syntax highligt **/
-.fleetbase-console .token.operator, 
-.fleetbase-console .token.entity, 
-.fleetbase-console .token.url, 
-.fleetbase-console .language-css .token.string, 
+.fleetbase-console .token.operator,
+.fleetbase-console .token.entity,
+.fleetbase-console .token.url,
+.fleetbase-console .language-css .token.string,
 .fleetbase-console .style .token.string {
     @apply bg-transparent;
 }
 
-.fleetbase-console code[class*="language-"], 
-.fleetbase-console pre[class*="language-"] {
+.fleetbase-console code[class*='language-'],
+.fleetbase-console pre[class*='language-'] {
     text-shadow: none;
 }
 
@@ -820,12 +879,10 @@ body[data-theme="light"] {
     }
 }
 
-body[data-theme="dark"] {
-    & .anchor-button  {
-        @apply border-gray-700 bg-gray-900 text-gray-100;
+body[data-theme='dark'] .anchor-button {
+    @apply border-gray-700 bg-gray-900 text-gray-100;
 
-        & > div:last-child {
+    & > div:last-child {
         @apply border-gray-700;
-    }
     }
 }

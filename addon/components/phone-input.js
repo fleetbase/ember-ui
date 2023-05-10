@@ -7,7 +7,7 @@ import intlTelInput from 'intl-tel-input';
 export default class PhoneInputComponent extends Component {
     @service fetch;
     @tracked iti;
-    
+
     @action setupIntlTelInput(element) {
         this.iti = intlTelInput(element, {
             customContainer: `w-full ${this.args.wrapperClass ?? ''}`,
@@ -17,7 +17,7 @@ export default class PhoneInputComponent extends Component {
                     success(response.country_code);
                 });
             },
-            utilsScript: '/assets/libphonenumber/utils.js'
+            utilsScript: '/assets/libphonenumber/utils.js',
         });
     }
 
@@ -25,7 +25,7 @@ export default class PhoneInputComponent extends Component {
         const { onInput } = this.args;
         const number = this.iti.getNumber();
 
-        if(typeof onInput === 'function') {
+        if (typeof onInput === 'function') {
             onInput(number, ...arguments);
         }
     }

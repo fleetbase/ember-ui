@@ -69,7 +69,7 @@
         & thead {
             & tr th {
                 @apply relative px-4 py-2 text-xs font-medium leading-4 tracking-wider text-gray-500 uppercase bg-gray-50;
-                
+
                 &:last-child {
                     @apply border-r-0;
                 }
@@ -93,6 +93,7 @@
             @apply border-none;
         }
 
+        & table tbody tr:hover:not(.is-expandable),
         & table tbody tr:hover:not(.is-selected) {
             @apply shadow;
             & td {
@@ -145,7 +146,7 @@
                     }
                 }
 
-                & tr th:not([class*="bg-"]) {
+                & tr th:not([class*='bg-']) {
                     @apply bg-gray-800;
                 }
             }
@@ -156,6 +157,7 @@
                     @apply text-gray-400 border-gray-900;
                 }
 
+                & tr:nth-child(even):not(.is-expandable) td,
                 & tr:nth-child(even):not(.is-selected) td {
                     @apply bg-moregray-750;
                 }
@@ -268,4 +270,35 @@ table .resizer {
     &.resizing {
         @apply border-r-4 border-solid border-blue-500 border-opacity-60;
     }
+}
+
+body[data-theme='dark'] .table-wrapper.table-fluid > .next-table-wrapper > table > tbody > tr.expandable-row.is-expanded > td,
+body[data-theme='dark'] .table-wrapper.table-fluid > .next-table-wrapper > table > tbody > tr.expandable-row:hover > td,
+.next-table-wrapper table > tbody > tr.expandable-row.is-expanded > td,
+.next-table-wrapper table > tbody > tr.expandable-row:hover > td,
+table > tbody > tr.expandable-row.is-expanded > td,
+table > tbody > tr.expandable-row:hover > td {
+    @apply bg-blue-500 text-blue-900 border-y border-blue-600;
+}
+
+body[data-theme='dark'] .next-table-wrapper > table.is-expandable > tbody > tr.expandable-row:nth-child(even) > td {
+    @apply bg-gray-800;
+}
+
+.next-table-wrapper > table.is-expandable > tbody > tr.expandable-row:nth-child(even) > td {
+    @apply bg-gray-200;
+}
+
+table > tbody > tr.expandable-row + tr.expanded-row {
+    display: none;
+}
+
+table > tbody > tr.expandable-row.is-expanded + tr.expanded-row {
+    display: table-row;
+}
+
+body[data-theme='dark'] .table-wrapper.table-fluid > .next-table-wrapper > table.is-expandable > tbody > tr.expandable-row > td a.next-dd-item,
+.table-wrapper.table-fluid > .next-table-wrapper > table.is-expandable > tbody > tr.expandable-row > td a.next-dd-item,
+.next-table-wrapper table.is-expandable > tbody > tr.expandable-row.is-expanded > td a.next-dd-item {
+    @apply text-white;
 }

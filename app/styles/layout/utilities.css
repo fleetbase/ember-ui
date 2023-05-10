@@ -587,8 +587,41 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .ml-0i {
     margin-left: 0px !important;
 }
+
 .mr-0i {
     margin-right: 0px !important;
+}
+
+.mb-1i {
+    margin-bottom: 0.25rem !important;
+}
+
+.mt-1i {
+    margin-top: 0.25rem !important;
+}
+
+.ml-1i {
+    margin-left: 0.25rem !important;
+}
+
+.mr-1i {
+    margin-right: 0.25rem !important;
+}
+
+.mb-2i {
+    margin-bottom: 0.5rem !important;
+}
+
+.mt-2i {
+    margin-top: 0.5rem !important;
+}
+
+.ml-2i {
+    margin-left: 0.5rem !important;
+}
+
+.mr-2i {
+    margin-right: 0.5rem !important;
 }
 
 .items-stretch-i {

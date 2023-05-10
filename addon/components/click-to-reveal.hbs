@@ -1,4 +1,4 @@
-<div class="relative click-to-reveal {{ if this.isVisible 'is-visible' 'is-blurred'}}" {{on "click" (fn this.copy @value)}} ...attributes>
+<div class="relative click-to-reveal {{if this.isVisible 'is-visible' 'is-blurred'}}" {{on "click" (fn this.copy @value)}} ...attributes>
     <span class="click-to-reveal--hidden-value">
         {{#if (has-block)}}
             {{yield}}

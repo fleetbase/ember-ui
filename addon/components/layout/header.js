@@ -48,25 +48,25 @@ export default class LayoutHeaderComponent extends Component {
                 seperator: true,
             },
             {
-                route: 'console',
+                route: 'console.home',
                 text: 'Home',
+                icon: 'house',
             },
             {
-                route: 'console',
+                route: 'console.settings',
                 text: 'Organization settings',
+                icon: 'gear',
             },
             {
                 href: 'javascript:;',
                 text: 'Create or join organizations',
                 action: 'createOrJoinOrg',
+                icon: 'building',
             },
             {
-                route: 'console',
-                text: 'Billing settings',
-            },
-            {
-                route: 'console',
+                route: 'console.extensions',
                 text: 'Explore extensions',
+                icon: 'puzzle-piece',
             },
             {
                 seperator: true,
@@ -75,6 +75,7 @@ export default class LayoutHeaderComponent extends Component {
                 href: 'javascript:;',
                 text: 'Logout',
                 action: 'invalidateSession',
+                icon: 'person-running',
             },
         ]);
 
@@ -86,12 +87,12 @@ export default class LayoutHeaderComponent extends Component {
             route: 'console.account',
             text: 'View Profile',
         },
-        {
-            href: 'javascript:;',
-            text: 'Download desktop app',
-            disabled: true,
-            action: 'downloadDesktopApp',
-        },
+        // {
+        //     href: 'javascript:;',
+        //     text: 'Download desktop app',
+        //     disabled: true,
+        //     action: 'downloadDesktopApp',
+        // },
         {
             href: 'javascript:;',
             text: 'Show keyboard shortcuts',
@@ -108,24 +109,26 @@ export default class LayoutHeaderComponent extends Component {
             action: 'viewChangelog',
         },
         {
-            href: 'https://discord.gg/fjP4sReEvH',
-            target: '_discord',
-            text: 'Join Discord Community',
-        },
-        {
-            href: 'https://fleetbase.zendesk.com/hc/en-us',
-            target: '_support',
-            text: 'Help & Support',
-        },
-        {
-            route: 'console',
+            route: 'console.developers',
             text: 'Developers',
         },
         {
-            href: frontendUrl('docs/api'),
+            href: 'https://discord.gg/fjP4sReEvH',
+            target: '_discord',
+            text: 'Join Discord Community',
+            icon: 'arrow-up-right-from-square',
+        },
+        {
+            href: 'https://github.com/fleetbase/fleetbase/issues',
+            target: '_support',
+            text: 'Help & Support',
+            icon: 'arrow-up-right-from-square',
+        },
+        {
+            href: 'https://fleetbase.dev/',
             target: '_api',
             text: 'API Reference',
-            icon: 'external-link',
+            icon: 'arrow-up-right-from-square',
         },
         {
             component: 'layout/header/dark-mode-toggle',
