@@ -291,6 +291,10 @@ body[data-theme='dark'] {
         &:visited {
             @apply border-gray-700;
         }
+
+        &.selected {
+            @apply border-blue-500 outline-offset-2 outline-blue-500;
+        }
     }
 }
 

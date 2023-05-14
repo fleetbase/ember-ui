@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { get, computed, action } from '@ember/object';
 import { isBlank } from '@ember/utils';
+import { isArray } from '@ember/array';
 
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
@@ -28,9 +29,12 @@ export default class CoordinatesInputComponent extends Component {
         }
     }
 
+    isPoint(point) {
+        return typeof point === 'object' && !isBlank(point.type) && point.type === 'Point' && isArray(point.coordinates);
+    }
+
     @action setInitialValueFromPoint(point) {
-        console.log('setInitialValueFromPoint() #point', point);
-        if (typeof point === 'object' && !isBlank(point.type) && point.type === 'Point') {
+        if (this.isPoint(point)) {
             const [longitude, latitude] = point.coordinates;
 
             this.updateCoordinates(latitude, longitude, false);
@@ -44,12 +48,18 @@ export default class CoordinatesInputComponent extends Component {
         this.mapLng = whois.longitude ?? DEFAULT_LONGITUDE;
     }
 
-    @action updateCoordinates(latitude, longitude, fireCallback = true) {
-        this.latitude = this.mapLat = latitude;
-        this.longitude = this.mapLng = longitude;
+    @action updateCoordinates(lat, lng, fireCallback = true) {
+        if (this.isPoint(lat)) {
+            const [longitude, latitude] = lat.coordinates;
+
+            return this.updateCoordinates(latitude, longitude);
+        }
+
+        this.latitude = this.mapLat = lat;
+        this.longitude = this.mapLng = lng;
 
         if (fireCallback && typeof this.args.onChange === 'function') {
-            this.args.onChange({ latitude, longitude });
+            this.args.onChange({ latitude: lat, longitude: lng });
         }
     }
 

@@ -16,17 +16,17 @@ export default class CountrySelectComponent extends Component {
         super(...arguments);
 
         this.fetch
-            .get('lookup/countries')
+            .get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji'] })
             .then((countries) => {
                 this.countries = countries;
+
+                if (this.args.value) {
+                    this.selected = this.findCountry(this.args.value);
+                }
             })
             .finally(() => {
                 this.isLoading = false;
             });
-
-        if (this.args.value) {
-            this.selected = this.findCountry(this.args.value);
-        }
     }
 
     @action changed(value) {
@@ -58,6 +58,10 @@ export default class CountrySelectComponent extends Component {
     }
 
     findCountry(iso2) {
-        return this.countries.find((country) => country.cca2 === iso2);
+        if (typeof iso2 === 'string') {
+            return this.countries.find((country) => country.cca2 === iso2.toUpperCase());
+        }
+
+        return null;
     }
 }

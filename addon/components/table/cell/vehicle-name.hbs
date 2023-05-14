@@ -1,5 +1,5 @@
 <div class="relative flex items-center">
-    <Image src={{this.mediaUrl}} @fallbackSrc={{config "defaultValues.vehicleAvatar"}} alt={{this.altText}} class="w-6 h-6 rounded-md {{if @column.hasOnline "mx-2" "mr-2"}}" />
+    <Image src={{this.mediaUrl}} @fallbackSrc={{config "defaultValues.vehicleAvatar"}} data-vehicle={{@row.id}} alt={{this.altText}} class="w-6 h-6 rounded-md {{if @column.hasOnline "mx-2" "mr-2"}}" />
     <span class="relative block">
         <a href="javascript:;" class="relative block" {{on "click" this.onClick}}>
             {{#if (has-block)}}

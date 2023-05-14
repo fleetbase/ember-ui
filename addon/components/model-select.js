@@ -273,7 +273,7 @@ export default class ModelSelectComponent extends Component {
     }
 
     @action change(model, select) {
-        const { onCreate, onChange } = this.args;
+        const { onCreate, onChange, onChangeId } = this.args;
 
         this.selectedModel = model;
 
@@ -284,6 +284,10 @@ export default class ModelSelectComponent extends Component {
         } else {
             if (typeof onChange === 'function') {
                 onChange(model, select);
+            }
+
+            if (typeof onChangeId === 'function') {
+                onChangeId(get(model, 'id'), select);
             }
         }
     }

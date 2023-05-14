@@ -40,6 +40,7 @@
         "chart.js": "^4.2.1",
         "chartjs-adapter-date-fns": "^3.0.0",
         "date-fns": "^2.29.3",
+        "ember-animated": "^1.0.4",
         "ember-auto-import": "^2.4.2",
         "ember-basic-dropdown": "^7.0.1",
         "ember-cli-accounting": "^2.1.0",

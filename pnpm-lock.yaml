@@ -40,6 +40,9 @@ dependencies:
   date-fns:
     specifier: ^2.29.3
     version: 2.29.3
+  ember-animated:
+    specifier: ^1.0.4
+    version: 1.0.4(@ember/test-helpers@2.8.1)(ember-source@4.6.0)
   ember-auto-import:
     specifier: ^2.4.2
     version: 2.4.2(webpack@5.74.0)
@@ -1518,7 +1521,6 @@ packages:
       - '@babel/core'
       - '@glint/template'
       - supports-color
-    dev: true
 
   /@ember/test-helpers@2.9.3(@babel/core@7.21.4)(ember-source@4.6.0):
     resolution: {integrity: sha512-ejVg4Dj+G/6zyLvQsYOvmGiOLU6AS94tY4ClaO1E2oVvjjtVJIRmVLFN61I+DuyBg9hS3cFoPjQRTZB9MRIbxQ==}
@@ -4799,6 +4801,26 @@ packages:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
+
+  /ember-animated@1.0.4(@ember/test-helpers@2.8.1)(ember-source@4.6.0):
+    resolution: {integrity: sha512-dqnVpHqW7Tv/GiMkdiTR+QhhHD5OaAoZCfoL0jl/D26yln5we2CftPtN/ZQ3Y7Ose5FNxovrCvGUBJp0ugfwpA==}
+    engines: {node: 12.* || 14.* || >= 16}
+    peerDependencies:
+      '@ember/test-helpers': ^2.6.0
+    peerDependenciesMeta:
+      '@ember/test-helpers':
+        optional: true
+    dependencies:
+      '@ember/test-helpers': 2.8.1(@babel/core@7.21.4)(ember-source@4.6.0)
+      '@embroider/addon-shim': 1.8.4
+      '@embroider/macros': 1.10.0
+      assert-never: 1.2.1
+      ember-element-helper: 0.6.1(ember-source@4.6.0)
+    transitivePeerDependencies:
+      - '@glint/template'
+      - ember-source
+      - supports-color
+    dev: false
 
   /ember-assign-helper@0.4.0:
     resolution: {integrity: sha512-GKHhT4HD2fhtDnuBk6eCdCA8XGew9hY7TVs8zjrykegiI7weC0CGtpJscmIG3O0gEEb0d07UTkF2pjfNGLx4Nw==}

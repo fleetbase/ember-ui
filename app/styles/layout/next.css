@@ -1310,6 +1310,20 @@ section.next-view-section {
 }
 
 /** Next/Table Wrapper **/
+.next-table-wrapper.h-auto {
+    height: auto !important;
+
+    & > table {
+        height: auto !important;
+    }
+
+    & table > tbody:after {
+        content: '';
+        height: auto !important;
+        width: auto !important;
+    }
+}
+
 .next-table-wrapper {
     overflow: scroll;
     height: 100vh;

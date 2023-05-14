@@ -25,7 +25,7 @@
             <Table::Head @canSelectAll={{@canSelectAll}} @columns={{this.visibleColumns}}>
                 <Table::Row>
                     {{#if @canSelectAll}}
-                        <Table::Th @width={{40}} @resizable={{false}}>
+                        <Table::Th @width={{20}} @resizable={{false}}>
                             <Table::Cell::Checkbox @value={{this.allRowsToggled}} @onToggle={{this.selectAllRows}} />
                         </Table::Th>
                     {{/if}}
