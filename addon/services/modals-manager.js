@@ -1,6 +1,6 @@
 import Service from '@ember/service';
 import { tracked } from '@glimmer/tracking';
-import { action, set, get, getProperties } from '@ember/object';
+import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { assign } from '@ember/polyfills';
