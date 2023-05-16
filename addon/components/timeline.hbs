@@ -1,6 +1,6 @@
-<div class="timeline timeline-activity-{{@activity.length}}" {{did-insert (fn this.setupComponent)}} ...attributes>
+<div class="timeline timeline-activity-{{@activity.length}}" {{did-insert this.setupComponent}} ...attributes>
     <div class="timeline-controls {{@controlsClass}}">
-        <button {{on "click" this.previous}} class="timeline-arrow-left {{@arrowClass}} {{@arrowLeftClass}}" disabled={{eq this.startIndex 0}}>&larr;</button>
+        <button class="timeline-arrow-left {{@arrowClass}} {{@arrowLeftClass}}" disabled={{eq this.startIndex 0}} type="button" {{on "click" this.previous}}>&larr;</button>
     </div>
 
     <div class="timeline-wrapper {{@wrapperClass}}">
@@ -10,6 +10,6 @@
     </div>
 
     <div class="timeline-controls {{@controlsClass}}">
-        <button {{on "click" this.next}} class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}" disabled={{eq this.endIndex (sub this.args.activity.length 1)}}>&rarr;</button>
+        <button class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}" disabled={{eq this.endIndex (sub this.args.activity.length 1)}} type="button" {{on "click" this.next}}>&rarr;</button>
     </div>
 </div>

@@ -134,7 +134,7 @@ export default class UnitInputComponent extends Component {
      * @readonly
      * @memberof UnitInputComponent
      */
-    @computed('args.placeholder', 'unit') get placeholder() {
+    @computed('args.placeholder', 'unit', 'unitName') get placeholder() {
         const { placeholder } = this.args;
 
         if (placeholder) {
@@ -210,7 +210,7 @@ export default class UnitInputComponent extends Component {
      * @readonly
      * @memberof UnitInputComponent
      */
-    @computed('selectedUnitObject') get unitName() {
+    @computed('selectedUnitObject.name', 'unit') get unitName() {
         return this.selectedUnitObject.name ?? this.unit;
     }
 

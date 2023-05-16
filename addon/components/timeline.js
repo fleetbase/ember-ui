@@ -17,7 +17,7 @@ export default class TimelineComponent extends Component {
         data: this.visibleTimelineData,
     };
 
-    @computed('startIndex', 'endIndex') get timelineActivity() {
+    @computed('args.activity.length', 'endIndex', 'startIndex') get timelineActivity() {
         if (isArray(this.args.activity)) {
             return this.args.activity.map((activity, index) => {
                 if (index === this.args.activity.length - 1) {
