@@ -400,7 +400,7 @@ body[data-theme='dark'] .next-content-overlay {
     @apply w-64;
 }
 
-.next-map-container > .next-leaflet-container-map > .leaflet-contextmenu > a.leaflet-contextmenu-item {
+.next-map-container .leaflet-contextmenu > a.leaflet-contextmenu-item {
     @apply text-gray-900 truncate;
 }
 
@@ -509,30 +509,24 @@ body[data-theme='light'] {
     }
 }
 
-body[data-theme='dark'] {
-    & .next-map-container.next-map-container-layout-map .leaflet-draw > .leaflet-draw-section {
-        & > .leaflet-draw-toolbar {
-            @apply bg-gray-900;
+body[data-theme='dark'] .next-map-container.next-map-container-layout-map .leaflet-draw > .leaflet-draw-section > .leaflet-draw-toolbar {
+    @apply bg-gray-900;
 
-            & > a {
-                @apply bg-gray-900;
-                background-image: linear-gradient(transparent, transparent), url(../images/drawing-controls-spritesheet-inverted.png);
+    & > a {
+        @apply bg-gray-900;
+        background-image: linear-gradient(transparent, transparent), url(/engines-dist/images/drawing-controls-spritesheet-inverted.png);
 
-                &:hover {
-                    @apply bg-gray-700;
-                }
-            }
+        &:hover {
+            @apply bg-gray-700;
         }
+    }
+}
 
-        & .leaflet-draw-actions {
-            & li a {
-                @apply bg-gray-900 border-gray-700;
+body[data-theme='dark'] .next-map-container.next-map-container-layout-map .leaflet-draw > .leaflet-draw-section > .leaflet-draw-actions li a {
+    @apply bg-gray-900 border-gray-700;
 
-                &:hover {
-                    @apply bg-gray-800;
-                }
-            }
-        }
+    &:hover {
+        @apply bg-gray-800;
     }
 }
 
@@ -660,7 +654,12 @@ body[data-theme='dark'] {
         @apply rounded-xl bg-white flex items-center justify-center w-70 shadow-next-nav;
 
         & > input {
-            @apply flex-1 bg-transparent m-0 p-0 text-gray-800 px-4 py-2;
+            @apply flex-1 bg-transparent m-0 p-0 text-gray-800 px-4 py-2 border-0;
+        }
+
+        & > input:focus {
+            @apply outline-0;
+            box-shadow: none;
         }
     }
 
@@ -743,7 +742,7 @@ body[data-theme='dark'] {
 }
 
 .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle {
-    @apply border-none text-gray-800 block;
+    @apply border-none text-gray-800 flex;
 }
 
 .next-content-overlay-panel.orders-panel .orders-panel-fleets .next-content-panel-container .next-content-panel-toggle.next-orders-driver-header {
@@ -1060,11 +1059,16 @@ body[data-theme='dark'] {
 }
 
 /** Next/View Container Subheader **/
+.next-view-section-footer,
 .next-view-section-subheader {
-    @apply flex items-center justify-between min-w-full max-w-full flex-shrink-0 border-b border-gray-200;
+    @apply flex items-center justify-between min-w-full max-w-full flex-shrink-0 border-b border-gray-200 dark:border-gray-700;
     box-align: center;
     padding: 0px 24px 0px 36px;
     height: 57px;
+}
+
+.next-view-section-footer {
+    @apply border-b-0 border-t sticky bottom-0 inset-x-0 dark:bg-gray-900;
 }
 
 .next-view-section-subheader .next-view-section-subheader-title {
@@ -1258,6 +1262,10 @@ body[data-theme='dark'] {
     padding: 0;
 }
 
+.next-dd-menu.overflow-visible {
+    overflow: visible !important;
+}
+
 .next-dd-menu .next-dd-item {
     @apply text-sm flex flex-row items-center px-3 py-0.5 rounded-md my-1;
 }
@@ -1302,6 +1310,20 @@ section.next-view-section {
 }
 
 /** Next/Table Wrapper **/
+.next-table-wrapper.h-auto {
+    height: auto !important;
+
+    & > table {
+        height: auto !important;
+    }
+
+    & table > tbody:after {
+        content: '';
+        height: auto !important;
+        width: auto !important;
+    }
+}
+
 .next-table-wrapper {
     overflow: scroll;
     height: 100vh;
@@ -1565,7 +1587,7 @@ body[data-theme='dark'] {
     }
 
     /** Next/Leaflet Context Menu Dark **/
-    & .next-leaflet-container-map > .leaflet-contextmenu {
+    & .next-leaflet-container-map .leaflet-contextmenu {
         @apply bg-gray-800 shadow-next-nav;
 
         & > .leaflet-contextmenu-separator {
@@ -1790,4 +1812,45 @@ a.text-danger {
 
 .filter-string > .filter-string-value {
     @apply flex flex-row items-center;
+}
+
+.fleetbase-loader-wrapper {
+    padding: 0;
+    margin: 0;
+    line-height: 1rem;
+}
+
+.fleetbase-loader.green-loader {
+    border: 3px solid rgb(22, 163, 74, 0.75);
+    border-bottom-color: rgb(134, 239, 172);
+}
+
+.fleetbase-loader {
+    width: 16px;
+    height: 16px;
+    border: 3px solid rgba(37, 99, 235, 0.75);
+    border-bottom-color: rgb(96, 165, 250);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+input.order-list-overlay-search {
+    border: 0;
+}
+
+input.order-list-overlay-search:hover,
+input.order-list-overlay-search:focus {
+    box-shadow: none;
 }

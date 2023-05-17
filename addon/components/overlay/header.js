@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action, computed } from '@ember/object';
+import { later } from '@ember/runloop';
 
 export default class OverlayHeaderComponent extends Component {
     @tracked overlayPanelHeaderRef;
@@ -21,13 +22,25 @@ export default class OverlayHeaderComponent extends Component {
         this.overlayPanelHeaderRef = element;
     }
 
-    @action cancel(...params) {
-        this.overlayPanelHeaderRef?.closest('.next-content-overlay')?.classList.remove('is-open');
+    @action cancel() {
+        const { onPressCancel } = this.args;
 
-        setTimeout(() => {
-            if (typeof this.args.onPressCancel === 'function') {
-                this.args.onPressCancel(...params);
-            }
-        }, 600);
+        const closeOverlay = (callback) => {
+            this.overlayPanelHeaderRef?.closest('.next-content-overlay')?.classList.remove('is-open');
+
+            later(
+                this,
+                () => {
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                },
+                600
+            );
+        };
+
+        if (typeof onPressCancel === 'function') {
+            onPressCancel({ closeOverlay });
+        }
     }
 }

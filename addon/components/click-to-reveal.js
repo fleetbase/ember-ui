@@ -33,7 +33,7 @@ export default class ClickToRevealComponent extends ClickToCopyComponent {
     @computed('args.clickToCopy') get clickToCopy() {
         const { clickToCopy } = this.args;
 
-        return clickToCopy || false;
+        return clickToCopy ?? false;
     }
 
     /**

@@ -291,10 +291,31 @@ body[data-theme='dark'] {
         &:visited {
             @apply border-gray-700;
         }
+
+        &.selected {
+            @apply border-blue-500 outline-offset-2 outline-blue-500;
+        }
     }
 }
 
 a.btn.hidden,
 .btn.hidden {
     display: none;
+}
+
+button.btn > .btn-loading-icon-wrapper,
+button.btn.btn-is-loading > .btn-loading-icon-wrapper {
+    line-height: 0;
+}
+
+button.btn > .btn-loading-icon-wrapper > .fleetbase-loader-wrapper,
+button.btn.btn-is-loading > .btn-loading-icon-wrapper > .fleetbase-loader-wrapper {
+    margin-right: .5rem;
+    line-height: 0 !important;
+}
+
+button.btn > .btn-loading-icon-wrapper > .fleetbase-loader-wrapper > span.fleetbase-loader,
+button.btn.btn-is-loading > .btn-loading-icon-wrapper > .fleetbase-loader-wrapper > span.fleetbase-loader {
+    width: 14px;
+    height: 14px;
 }

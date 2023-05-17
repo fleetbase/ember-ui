@@ -1,1 +1,7 @@
-{{yield}}
+<div class="country-selector fleetbase-power-select {{@wrapperClass}}">
+    <PowerSelect @searchEnabled={{true}} @selected={{this.selected}} @searchField="name" @options={{this.countries}} @onChange={{this.selectCountry}} @triggerClass="form-select form-input {{@triggerClass}}" @dropdownClass={{or @dropdownClass "ember-model-select__dropdown"}} @placeholder={{or @placeholder "Select country..."}} @disabled={{this.isLoading}} ...attributes as |country|>
+        <span class="mr-1">{{country.emoji}}</span>
+        <span>{{country.name}}</span>
+    </PowerSelect>
+    <Input @type="hidden" class="hidden" @value={{@value}} data-county={{@value}} {{did-insert this.listenForInputChanges}} />
+</div>

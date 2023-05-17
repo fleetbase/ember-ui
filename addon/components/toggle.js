@@ -6,9 +6,16 @@ export default class ToggleComponent extends Component {
     /**
      * The active color of the toggle
      *
+     * @var {Boolean}
+     */
+    @tracked isToggled = false;
+
+    /**
+     * The active color of the toggle
+     *
      * @var {String}
      */
-    activeColor = 'green';
+    @tracked activeColor = 'green';
 
     /**
      * The active color class.
@@ -22,27 +29,18 @@ export default class ToggleComponent extends Component {
     }
 
     /**
-     * If the toggle is on or off
+     * Creates an instance of ToggleComponent.
      *
-     * @var {Boolean}
+     * @memberof ToggleComponent
      */
-    @tracked _isToggled;
+    constructor() {
+        super(...arguments);
 
-    /**
-     * If the toggle is on or off
-     *
-     * @var {Boolean}
-     */
-    @computed('args.isToggled', '_isToggled') get isToggled() {
-        if (this._isToggled !== undefined) {
-            return this._isToggled;
+        this.isToggled = this.args.isToggled === true;
+
+        if (typeof this.args.activeColor === 'string' && this.args.activeColor.length) {
+            this.activeColor = this.args.activeColor;
         }
-
-        return this.args.isToggled || false;
-    }
-
-    set isToggled(isToggled) {
-        this._isToggled = isToggled;
     }
 
     /**
@@ -51,14 +49,16 @@ export default class ToggleComponent extends Component {
      * @void
      */
     @action toggle(isToggled) {
-        if (this.args.disabled) {
+        const { disabled, onToggle } = this.args;
+
+        if (disabled) {
             return;
         }
 
-        this.isToggled = isToggled === false ? true : false;
+        this.isToggled = !isToggled;
 
-        if (typeof this.args.onToggle === 'function') {
-            this.args.onToggle(this.isToggled);
+        if (typeof onToggle === 'function') {
+            onToggle(this.isToggled);
         }
     }
 }

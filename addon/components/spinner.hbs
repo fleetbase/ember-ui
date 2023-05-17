@@ -1,1 +1,8 @@
-{{yield}}
+<div class="fleetbase-loader-wrapper" ...attributes>
+    <span class="fleetbase-loader {{@iconClass}}" {{set-width (or @width 16)}} {{set-height (or @height 16)}}></span>
+    {{#if (has-block)}}
+        <div class="loading-message">{{yield}}</div>
+    {{else}}
+        <div class="loading-message">{{or @text @loadingMessage @message}}</div>
+    {{/if}}
+</div>

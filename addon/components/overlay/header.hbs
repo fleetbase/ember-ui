@@ -1,9 +1,9 @@
 <div class="next-content-overlay-panel-header" {{did-insert this.setupComponent}} ...attributes>
     {{#unless @hideLeftSection}}
         <div class="next-view-header-left {{@headerLeftClass}}">
-            <div>
-                <div class="flex flex-row items-center">
-                    <h2 class="next-content-overlay-panel-title">
+            <div class={{@headerLeftInnerClass}}>
+                <div class="flex flex-row items-center {{@titleWrapperClass}}">
+                    <h2 class="next-content-overlay-panel-title {{@titleClass}}">
                         {{#if @overlay.isMinimized}}
                             {{this.titleWithElipsis}}
                         {{else}}

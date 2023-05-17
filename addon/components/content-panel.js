@@ -5,6 +5,16 @@ import { action, computed } from '@ember/object';
 export default class ContentPanelComponent extends Component {
     @tracked isOpen = false;
 
+    constructor() {
+        super(...arguments);
+
+        this.isOpen = this.args.open === true;
+
+        if (typeof this.args.onInsert === 'function') {
+            this.args.onInsert(...arguments);
+        }
+    }
+
     @action toggle() {
         this.isOpen = !this.isOpen;
     }
@@ -15,15 +25,5 @@ export default class ContentPanelComponent extends Component {
 
     @action close() {
         this.isOpen = false;
-    }
-
-    @action setupComponent() {
-        const { onInsert, open } = this.args;
-
-        this.isOpen = open;
-
-        if (typeof onInsert === 'function') {
-            onInsert(...arguments);
-        }
     }
 }

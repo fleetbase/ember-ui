@@ -639,8 +639,14 @@ export default class Modal extends Component {
     }
 
     @action handleVisibilityChanges() {
+        const { onOpen } = this.args;
+
         if (this.open) {
             this.show();
+
+            if (typeof onOpen === 'function') {
+                onOpen();
+            }
         } else {
             this.hide();
         }

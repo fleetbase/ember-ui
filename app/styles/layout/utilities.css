@@ -88,8 +88,53 @@ a.badge-offline::before {
     height: 3.563rem !important;
 }
 
+.w-70pci,
 .w-70i {
     width: 70% !important;
+}
+
+.w-10pc {
+    width: 10%;
+}
+
+.w-10pc {
+    width: 10%;
+}
+
+.w-20pc {
+    width: 20%;
+}
+
+.w-30pc {
+    width: 30%;
+}
+
+.w-40pc {
+    width: 40%;
+}
+
+.w-50pc {
+    width: 50%;
+}
+
+.w-60pc {
+    width: 60%;
+}
+
+.w-70pc {
+    width: 70%;
+}
+
+.w-80pc {
+    width: 80%;
+}
+
+.w-90pc {
+    width: 90%;
+}
+
+.w-100pc {
+    width: 100%;
 }
 
 .h-screen-90 {
@@ -542,8 +587,41 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .ml-0i {
     margin-left: 0px !important;
 }
+
 .mr-0i {
     margin-right: 0px !important;
+}
+
+.mb-1i {
+    margin-bottom: 0.25rem !important;
+}
+
+.mt-1i {
+    margin-top: 0.25rem !important;
+}
+
+.ml-1i {
+    margin-left: 0.25rem !important;
+}
+
+.mr-1i {
+    margin-right: 0.25rem !important;
+}
+
+.mb-2i {
+    margin-bottom: 0.5rem !important;
+}
+
+.mt-2i {
+    margin-top: 0.5rem !important;
+}
+
+.ml-2i {
+    margin-left: 0.5rem !important;
+}
+
+.mr-2i {
+    margin-right: 0.5rem !important;
 }
 
 .items-stretch-i {
@@ -622,4 +700,8 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .py-0i {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+}
+
+.border-b-0i {
+    border-bottom-width: 0px !important;
 }

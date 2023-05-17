@@ -17,12 +17,19 @@ export default class SelectComponent extends Component {
         return !this.value && this.args.placeholder;
     }
 
-    @action select({ target }) {
-        const { value } = target;
+    @action select(event) {
+        const {
+            target: { value },
+        } = event;
+
         this.selected = value;
 
         if (typeof this.args.onSelect === 'function') {
             this.args.onSelect(value);
+        }
+
+        if (typeof this.args.onChange === 'function') {
+            this.args.onChange(event, value);
         }
     }
 }

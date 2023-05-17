@@ -1,108 +1,33 @@
-import { set } from '@ember/object';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { action, get, computed } from '@ember/object';
+import { action, get, computed, set } from '@ember/object';
 import { later } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 import getCurrency from '../utils/get-currency';
 import AutoNumeric from 'autonumeric';
 
 export default class MoneyInputComponent extends Component {
-    /**
-     * Injection of the `fetch` service
-     *
-     * @var {Service}
-     */
     @service fetch;
-
-    /**
-     * Injection of the `fetch` service
-     *
-     * @var {Service}
-     */
     @service currentUser;
-
-    /**
-     * All currencies.
-     *
-     * @var {Array}
-     */
     @tracked currencies = getCurrency();
-
-    /**
-     * Mutable currency selected.
-     *
-     * @var {Array}
-     */
-    @tracked selectedCurrency;
-
-    /**
-     * The mutable input value.
-     *
-     * @var {String}
-     */
-    @tracked _value;
-
-    /**
-     * The user value, or mutable value or default value
-     *
-     * @var {Integer}
-     */
-    @computed('_value', 'args.value') get value() {
-        return this._value || this.args.value || 0;
-    }
-
-    /** setter for value */
-    set value(value) {
-        this._value = value;
-    }
-
-    /**
-     * Data for selected currency.
-     *
-     * @var {Object}
-     */
-    @tracked _currencyData;
-
-    /**
-     * The autonumeric mask instance.
-     *
-     * @var {Object}
-     */
+    @tracked value;
+    @tracked currency;
+    @tracked currencyData;
     @tracked autonumeric;
 
-    /**
-     * Currencies loaded from the server.
-     *
-     * @var {Array}
-     */
-    @computed('args.currency', 'selectedCurrency') get currency() {
+    constructor() {
+        super(...arguments);
+
         let whois = this.currentUser.getOption('whois');
 
-        return this.selectedCurrency || this.args.currency || get(whois, 'currency.code') || 'USD';
-    }
-
-    /** setter for currency */
-    set currency(currency) {
-        this.selectedCurrency = currency;
-    }
-
-    /**
-     * Currencies loaded from the server.
-     *
-     * @var {Array}
-     */
-    @computed('currency') get currencyData() {
-        return getCurrency(this.currency);
-    }
-
-    /** setter for currencyData */
-    set currencyData(currencyData) {
-        this._currencyData = currencyData;
+        this.value = this.args.value ?? 0;
+        this.currency = this.args.currency ?? get(whois, 'currency.code') ?? 'USD';
+        this.currencyData = getCurrency(this.currency);
     }
 
     @action autoNumerize(element) {
+        const { onCurrencyChange } = this.args;
         let currency = this.currencyData;
         let value = numbersOnly(this.value);
         let amount = !currency.decimalSeparator ? value : value / 100;
@@ -110,27 +35,25 @@ export default class MoneyInputComponent extends Component {
         this.autonumeric = new AutoNumeric(element, amount, this.getCurrencyFormatOptions(currency));
 
         // default the currency from currency data
-        if (typeof this.args.onCurrencyChange === 'function') {
-            this.args.onCurrencyChange(currency.code, currency);
+        if (typeof onCurrencyChange === 'function') {
+            onCurrencyChange(currency.code, currency);
         }
 
         element.addEventListener('autoNumeric:formatted', this.onFormatCompleted.bind(this));
     }
 
-    @action setCurrency(currency, dd) {
-        if (typeof dd?.actions?.close === 'function') {
-            dd.actions.close();
-        }
+    @action setCurrency(currency) {
+        const { onCurrencyChange } = this.args;
 
         if (this.autonumeric) {
             this.autonumeric.set(numbersOnly(this.value, true), this.getCurrencyFormatOptions(currency));
         }
 
-        set(this, 'currency', currency.code);
+        this.currency = currency.code;
         this.currencyData = currency;
 
-        if (typeof this.args.onCurrencyChange === 'function') {
-            this.args.onCurrencyChange(currency.code, currency);
+        if (typeof onCurrencyChange === 'function') {
+            onCurrencyChange(currency.code, currency);
         }
     }
 
@@ -168,15 +91,5 @@ export default class MoneyInputComponent extends Component {
         }
 
         return options;
-    }
-
-    @action searchCurrencies(currency, term) {
-        if (!term || typeof term !== 'string') {
-            return -1;
-        }
-
-        let name = `${currency.title} ${currency.code} ${currency.iso2}`.toLowerCase();
-
-        return name.indexOf(term.toLowerCase());
     }
 }
