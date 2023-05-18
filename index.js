@@ -2,11 +2,10 @@
 const { name } = require('./package');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
-const packagePrefix = `node_modules/${name}/node_modules`;
+const path = require('path');
 
 module.exports = {
     name,
-    assetsFunneled: false,
 
     options: {
         autoImport: {
@@ -21,19 +20,21 @@ module.exports = {
         this._super.included.apply(this, arguments);
 
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
-        this.import(`node_modules/intl-tel-input/build/css/intlTelInput.min.css`);
+        const cssPath = path.dirname(require.resolve('intl-tel-input')) + '/build/css/intlTelInput.min.css';
+        this.import(cssPath);
     },
 
     treeForPublic: function () {
         const publicTree = this._super.treeForPublic.apply(this, arguments);
 
         // Use a Funnel to copy the `utils.js` file to `assets/libphonenumber`
+        const intlTelInputPath = path.dirname(require.resolve('intl-tel-input'));
         const addonTree = [
-            new Funnel(`${packagePrefix}/intl-tel-input/build/js`, {
+            new Funnel(`${intlTelInputPath}/build/js`, {
                 include: ['utils.js'],
                 destDir: 'assets/libphonenumber',
             }),
-            new Funnel(`${packagePrefix}/intl-tel-input/build/img`, {
+            new Funnel(`${intlTelInputPath}/build/img`, {
                 destDir: 'img',
                 overwrite: false,
             }),
