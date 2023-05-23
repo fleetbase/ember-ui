@@ -37,7 +37,7 @@ module.exports = {
                 destDir: 'img',
                 overwrite: false,
             }),
-            new Funnel(`node_modules/${name}/assets`, {
+            new Funnel(path.join(__dirname, 'assets'), {
                 destDir: '/',
             }),
         ];
