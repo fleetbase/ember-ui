@@ -2,9 +2,8 @@ import formatCurrency from 'dummy/utils/format-currency';
 import { module, test } from 'qunit';
 
 module('Unit | Utility | format-currency', function () {
-    // TODO: Replace this with your real tests.
     test('it works', function (assert) {
-        let result = formatCurrency();
-        assert.ok(result);
+        let result = formatCurrency(10000);
+        assert.equal(result, '$100.00');
     });
 });
