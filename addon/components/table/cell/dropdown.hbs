@@ -1,6 +1,6 @@
 <div class="cell-dropdown-button overflow-visible {{@column.wrapperClass}}" {{did-insert this.setupComponent}} ...attributes>
     <DropdownButton @icon={{@column.ddButtonIcon}} @iconPrefix={{@column.ddButtonIconPrefix}} @text={{this.buttonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{this.calculatePosition}} @renderInPlace={{true}} as |dd|>
-        <div class="next-dd-menu mt-0i" aria-orientation="vertical" aria-labelledby="user-menu">
+        <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
             {{#if @column.ddMenuLabel}}
                 <div class="px-1">
                     <div class="text-sm flex flex-row items-center px-3 py-1 rounded-md my-1 text-gray-800 dark:text-gray-300">
@@ -13,7 +13,7 @@
                 {{#if action.separator}}
                     <div class="next-dd-menu-seperator"></div>
                 {{else}}
-                    <div class="px-1">
+                    <div role="group" class="px-1">
                         <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action @row dd)}}>
                             {{#if action.icon}}
                                 <span class="mr-1">

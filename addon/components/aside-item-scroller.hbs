@@ -1,4 +1,4 @@
-<aside class="flex flex-col lg:hidden w-full border-b border-gray-200 dark:border-gray-700 shadow-sm px-2 py-3">
+<aside role="menubar" class="flex flex-col lg:hidden w-full border-b border-gray-200 dark:border-gray-700 shadow-sm px-2 py-3">
     <div class="flex items-center justify-between mb-2">
         <span>{{pluralize @items.length this.resource}}</span>
         {{#if @onCreate}}
@@ -16,7 +16,7 @@
                     </div>
                     <div class="next-dd-menu-seperator"></div>
                     {{#each items as |item|}}
-                        <div class="px-1">
+                        <div role="group" class="px-1">
                             <div role="menuitem" class="next-dd-item">
                                 {{yield item dd}}
                             </div>
@@ -33,7 +33,7 @@
         </DropdownButton>
     </div>
 </aside>
-<aside class="hidden xl:order-first lg:flex lg:flex-col flex-shrink-0 w-96 border-r border-gray-200 dark:border-gray-700 shadow-sm" ...attributes>
+<aside role="menu" class="hidden xl:order-first lg:flex lg:flex-col flex-shrink-0 w-96 border-r border-gray-200 dark:border-gray-700 shadow-sm" ...attributes>
     <div class="px-5 pt-6 pb-4">
         <div class="flex justify-between">
             <div class="flex-1">
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="mt-4">
-            <Input @type="text" class="form-input w-full" @value={{this.searchQuery}} placeholder="Search" />
+            <Input @type="text" class="form-input w-full" @value={{this.searchQuery}} aria-label="Search Input" placeholder="Search" />
         </div>
     </div>
     <div class="h-screen overflow-y-scroll {{@scrollableClass}}">

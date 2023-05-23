@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { isEmpty } from '@ember/utils';
-import { action, computed, get, set } from '@ember/object';
+import { action, get, set } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { assign } from '@ember/polyfills';
@@ -158,7 +158,7 @@ export default class ModelSelectComponent extends Component {
     }
 
     @action loadSelectedModel() {
-        const { selectedModel, modelName } = this.args;
+        const { selectedModel } = this.args;
 
         if (typeof selectedModel === 'string') {
             return this.findRecord.perform(this.args.modelName, selectedModel);

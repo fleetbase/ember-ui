@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { action, get } from '@ember/object';
+import { action } from '@ember/object';
 
 export default class CountryNameComponent extends Component {
     @service fetch;

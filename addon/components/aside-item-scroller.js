@@ -22,7 +22,7 @@ export default class AsideItemScrollerComponent extends Component {
         }
     }
 
-    @computed('args.{titleKey,items}', 'args.items.[]') get itemsGroupByTitleLetter() {
+    @computed('args.{titleKey,items,items.[]}') get itemsGroupByTitleLetter() {
         const { titleKey, items } = this.args;
         const grouped = {};
 

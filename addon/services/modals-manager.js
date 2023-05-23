@@ -4,7 +4,7 @@ import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { assign } from '@ember/polyfills';
-import RSVP, { defer } from 'rsvp';
+import { defer } from 'rsvp';
 
 export default class ModalsManagerService extends Service {
     @tracked modalIsOpened = false;

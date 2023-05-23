@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { action, computed } from '@ember/object';
+import { action } from '@ember/object';
 
 export default class ContentPanelComponent extends Component {
     @tracked isOpen = false;

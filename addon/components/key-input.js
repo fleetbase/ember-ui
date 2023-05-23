@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { computed, action } from '@ember/object';
+import { action } from '@ember/object';
 import { underscore } from '@ember/string';
 import generateUuid from '@fleetbase/ember-core/utils/generate-uuid';
 

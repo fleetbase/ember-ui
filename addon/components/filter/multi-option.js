@@ -3,7 +3,6 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, get } from '@ember/object';
 import { isArray } from '@ember/array';
-import { later } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
 
 export default class FilterMultiOptionComponent extends Component {
@@ -47,7 +46,7 @@ export default class FilterMultiOptionComponent extends Component {
 
     @action search(query) {
         const { filter, optionLabel } = this.args;
-        const { multiOptionSearchField, filterFetchOptions } = filter;
+        const { filterFetchOptions } = filter;
 
         if (typeof filterFetchOptions === 'string') {
             return this.fetchOptions(filterFetchOptions, { query });
@@ -57,7 +56,7 @@ export default class FilterMultiOptionComponent extends Component {
             const optionText = get(option, optionLabel ?? 'name') ?? option;
 
             if (typeof optionText === 'string') {
-                return optionText.toLowerCase().includes(searchText.toLowerCase());
+                return optionText.toLowerCase().includes(query.toLowerCase());
             }
 
             return false;

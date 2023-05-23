@@ -1,6 +1,6 @@
 <div class="grid grid-cols-2 gap-2 coordinates-input" ...attributes>
-    <Input class="w-full form-input" @type="text" placeholder="Latitude" @value={{this.latitude}} />
-    <Input class="w-full form-input" @type="text" placeholder="Longitude" @value={{this.longitude}} />
+    <Input class="w-full form-input" @type="text" placeholder="Latitude" aria-label="Latitude" @value={{this.latitude}} />
+    <Input class="w-full form-input" @type="text" placeholder="Longitude" aria-label="Longitude" @value={{this.longitude}} />
 </div>
 <div class="my-1">
     <BasicDropdown ...attributes @verticalPosition="top" @horizontalPosition="left" @renderInPlace={{true}} as |dd|>
@@ -18,7 +18,7 @@
             </div>
             <div class="flex flex-col">
                 <div class="flex flex-row items-center pb-4">
-                    <Input type="text" class="form-input mr-2" @value={{this.lookupQuery}} disabled={{this.isLoading}} placeholder="Enter address" />
+                    <Input @type="text" class="form-input mr-2" @value={{this.lookupQuery}} aria-label="Address Search" disabled={{this.isLoading}} placeholder="Enter address" />
                     <Button @wrapperClass="mr-2" @icon="search-location" @type="primary" @size="md" @text="Lookup" @onClick={{this.reverseLookup}} @isLoading={{this.isLoading}} />
                     <Button @type="default" @iconPrefix="fas" @icon="times" @size="md" @text="Done" @onClick={{dd.actions.close}} />
                 </div>

@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
-import { get, computed, action } from '@ember/object';
+import { action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import { isArray } from '@ember/array';
 

@@ -1,6 +1,6 @@
 import { helper } from '@ember/component/helper';
-import { isArray } from '@ember/array';
+import { isArray as EmberIsArray } from '@ember/array';
 
 export default helper(function isArray([arg]) {
-    return isArray(arg);
+    return EmberIsArray(arg);
 });

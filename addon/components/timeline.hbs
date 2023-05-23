@@ -10,6 +10,6 @@
     </div>
 
     <div class="timeline-controls {{@controlsClass}}">
-        <button class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}" disabled={{eq this.endIndex (sub this.args.activity.length 1)}} type="button" {{on "click" this.next}}>&rarr;</button>
+        <button class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}" disabled={{eq this.endIndex (sub @activity.length 1)}} type="button" {{on "click" this.next}}>&rarr;</button>
     </div>
 </div>

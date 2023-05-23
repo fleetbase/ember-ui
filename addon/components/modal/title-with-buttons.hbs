@@ -14,7 +14,7 @@
             {{#each @options.headerButtons as |button|}}
                 {{#if button.options}}
                     <DropdownButton @buttonWrapperClass="btn-flex" @text={{button.title}} @icon={{button.icon}} @iconPrefix={{button.iconPrefix}} @type={{button.type}} @size={{or button.size "xs"}} @horizontalPosition="left" @renderInPlace={{true}} as |dd|>
-                        <div class="next-dd-menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                        <div class="next-dd-menu" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                             {{#if button.ddMenuLabel}}
                                 <div class="px-1">
                                     <div class="text-sm flex flex-row items-center px-3 pt-2 rounded-md text-gray-800 dark:text-gray-300">
@@ -27,7 +27,7 @@
                                 {{#if menuOption.separator}}
                                     <div class="next-dd-menu-seperator"></div>
                                 {{else}}
-                                    <div class="px-1">
+                                    <div role="group" class="px-1">
                                         <a href="javascript:;" role="menuitem" class="next-dd-item {{menuOption.classNames}}" {{on "click" (fn this.handler menuOption dd)}}>
                                             {{#if menuOption.icon}}
                                                 <span class="w-6">

@@ -27,6 +27,8 @@ export default class TableCellMediaNameComponent extends Component {
         if (typeof column?.altTextPath === 'string') {
             return get(row, column.altTextPath);
         }
+
+        return '';
     }
 
     @action onClick(event) {

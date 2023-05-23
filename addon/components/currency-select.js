@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { get, action } from '@ember/object';
+import { action } from '@ember/object';
 import getCurrency from '../utils/get-currency';
 
 export default class CurrencySelectComponent extends Component {
@@ -15,7 +15,7 @@ export default class CurrencySelectComponent extends Component {
 
         let whois = this.currentUser.getOption('whois');
 
-        this.currency = this.args.currency ?? get(whois, 'currency.code') ?? 'USD';
+        this.currency = this.args.currency ?? whois?.currency?.code ?? 'USD';
         this.currencyData = this.args.currencyData ?? getCurrency(this.currency);
     }
 

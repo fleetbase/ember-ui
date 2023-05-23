@@ -1,7 +1,5 @@
 import Component from '@glimmer/component';
-import { action, computed } from '@ember/object';
-import { tryInvoke } from '@ember/utils';
-import { classify } from '@ember/string';
+import { computed } from '@ember/object';
 import { isBlank } from '@ember/utils';
 
 export default class DropdownButtonComponent extends Component {
