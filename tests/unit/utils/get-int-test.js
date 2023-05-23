@@ -5,6 +5,6 @@ module('Unit | Utility | get-int', function () {
     test('it works', function (assert) {
         let integerString = '123';
         let result = getInt(integerString);
-        assert.ok(typeof result === 'number');
+        assert.strictEqual(typeof result, 'number');
     });
 });

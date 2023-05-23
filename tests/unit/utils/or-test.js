@@ -5,6 +5,6 @@ module('Unit | Utility | or', function () {
     test('it works', function (assert) {
         let nonNullValue = 'Hello World';
         let result = or(null, nonNullValue);
-        assert.equal(result, nonNullValue);
+        assert.strictEqual(result, nonNullValue);
     });
 });
