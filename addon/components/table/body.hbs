@@ -2,7 +2,7 @@
     {{#if (has-block)}}
         {{#if @canExpand}}
             {{#each @rows as |row|}}
-                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}} as |content|>
+                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}}>
                     <Table::Td>
                         <Table::Cell::ExpandArrow @isExpanded={{get row 'expanded'}} />
                     </Table::Td>
@@ -23,7 +23,7 @@
     {{else}}
         {{#if @canExpand}}
             {{#each @rows as |row|}}
-                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}} as |content|>
+                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}}>
                     <Table::Td>
                         <Table::Cell::ExpandArrow @isExpanded={{get row 'expanded'}} />
                     </Table::Td>

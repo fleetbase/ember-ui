@@ -64,7 +64,7 @@ export default Helper.extend({
 
         if (this._fn === null) {
             this._fn = (...invocationArgs) => {
-                let [dd, fn, ...args] = this._positional;
+                let [, fn, ...args] = this._positional;
 
                 if (typeof fn[INVOKE] === 'function') {
                     // references with the INVOKE symbol expect the function behind

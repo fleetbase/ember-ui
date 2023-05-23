@@ -28,13 +28,13 @@
             {{#each-in this.loadedTranslations as |key value|}}
                 <div class="flex flex-row">
                     <div class="flex-1">
-                        <Input @value={{key}} {{on "blur" (fn this.setTranslationKey key)}} placeholder={{key}} class="form-input w-full" />
+                        <Input @value={{key}} {{on "blur" (fn this.setTranslationKey key)}} aria-label="Translation Key" placeholder={{key}} class="form-input w-full" />
                     </div>
                     <div class="flex items-center justify-center">
                         <FaIcon @icon="equals" @prefix="fas" class="text-gray-500 mx-2" />
                     </div>
                     <div class="flex-1">
-                        <Input @value={{value}} {{on "blur" (fn this.setTranslationValue key)}} placeholder={{key}} class="form-input w-full" />
+                        <Input @value={{value}} {{on "blur" (fn this.setTranslationValue key)}} aria-label="Translation Value" placeholder={{key}} class="form-input w-full" />
                     </div>
                     <div class="flex items-center justify-center">
                         <a href="javascript:;" class="text-danger" {{on "click" (fn this.removeTranslation key)}}>

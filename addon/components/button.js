@@ -1,6 +1,4 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
-import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { not, equal } from '@ember/object/computed';
 

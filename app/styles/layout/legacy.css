@@ -143,16 +143,6 @@ address {
     @apply not-italic;
 }
 
-/** main content view **/
-
-/* .primary-content-view {
-    max-height: 100vh;
-    height: 100vh;
-    overflow-y: auto;
-} */
-
-/** webhook icon **/
-
 .webhook-icon {
     fill: #f4f5f7;
     width: 1.25em;
@@ -160,13 +150,9 @@ address {
     margin-left: -3px;
 }
 
-/** icon rotate 45 **/
-
 .rotate-icon-45 {
     transform: rotate(45deg);
 }
-
-/** section header **/
 
 .section-header {
     @apply flex justify-between;
@@ -179,39 +165,36 @@ address {
     @apply w-full h-screen;
 }
 
-/** filter options picker **/
-
 .filter-row {
     @apply block bg-white w-full border-b border-gray-200;
-    &.filter-is-active {
-        & .filter-row-body {
-            @apply h-auto;
-            max-height: 800px;
-        }
-    }
-    & .filter-row-header {
-        @apply flex items-center px-3 py-2 text-sm;
-    }
-    & .filter-row-body {
-        @apply h-0 overflow-hidden bg-gray-50;
-        max-height: 0;
-        transition: max-height 0.15s ease-out;
-    }
+}
 
-    &:last-child {
-        @apply border-b-0 rounded-b;
-    }
+.filter-row.filter-is-active .filter-row-body {
+    @apply h-auto;
+    max-height: 800px;
+}
+
+.filter-row .filter-row-header {
+    @apply flex items-center px-3 py-2 text-sm;
+}
+
+.filter-row .filter-row-body {
+    @apply h-0 overflow-hidden bg-gray-50;
+    max-height: 0;
+    transition: max-height 0.15s ease-out;
+}
+
+.filter-row:last-child {
+    @apply border-b-0 rounded-b;
 }
 
 body[data-theme='dark'] .filter-row {
     @apply bg-gray-900 border-gray-700;
-
-    & .filter-row-body {
-        @apply bg-gray-900 bg-opacity-50;
-    }
 }
 
-/** box divider **/
+body[data-theme='dark'] .filter-row .filter-row-body {
+    @apply bg-gray-900 bg-opacity-50;
+}
 
 .box-divider {
     padding-left: 8px;
@@ -220,13 +203,9 @@ body[data-theme='dark'] .filter-row {
     box-sizing: border-box;
 }
 
-/** basic dropdown wormhole fix **/
-
 #ember-basic-dropdown-wormhole .ember-basic-dropdown-content {
     z-index: 99999;
 }
-
-/** editable data row **/
 
 .datum-row {
     @apply flex items-center justify-between w-full px-3 py-2 mb-2 text-gray-800 bg-gray-300 rounded;
@@ -337,8 +316,6 @@ body[data-theme='dark'] .overlay-panel-section-title {
     width: 100vw;
 }
 
-/** `list-scroll-box` specialized scrolling ul list **/
-
 [data-theme='dark'] .list-scroll-box {
     @apply border-gray-900;
 }
@@ -408,68 +385,60 @@ body[data-theme='dark'] .overloader {
 
 .order-route-list {
     @apply text-sm relative z-20;
-
-    &.storefront:before {
-        z-index: 80;
-        height: 100%;
-        @apply border-blue-500;
-    }
-
-    &.storefront .order-route-stop {
-        &:first-child {
-            @apply items-start;
-
-            & .order-route-stop-index {
-                z-index: 99;
-                & .index-count {
-                    @apply bg-blue-500;
-                }
-            }
-        }
-
-        &:last-child {
-            @apply items-end mb-0;
-
-            & .order-route-stop-index {
-                z-index: 99;
-                & .index-count {
-                    z-index: 99;
-                    @apply bg-red-500;
-                }
-            }
-        }
-    }
-
-    &:before {
-        @apply absolute border-l-2 border-green-500 h-full absolute left-0 ml-6 opacity-90;
-        content: '';
-        z-index: -1;
-    }
-    & .order-route-stop {
-        @apply flex items-start justify-between text-sm px-3 mb-3 z-20;
-
-        &.bg--green {
-            @apply bg-green-600;
-        }
-
-        &:last-child {
-            @apply items-end mb-0;
-        }
-
-        & .order-route-location {
-            @apply flex-1 truncate;
-        }
-
-        & .order-route-stop-index {
-            @apply mr-3;
-            & .index-count {
-                @apply bg-green-500 rounded-full text-sm text-gray-100 h-6 w-6 flex items-center justify-center shadow-sm;
-            }
-        }
-    }
 }
 
-/** clean tooltips **/
+.order-route-list.storefront:before {
+    z-index: 80;
+    height: 100%;
+    @apply border-blue-500;
+}
+
+.order-route-list.storefront .order-route-stop:first-child {
+    @apply items-start;
+}
+
+.order-route-list.storefront .order-route-stop:first-child .order-route-stop-index .index-count {
+    @apply bg-blue-500;
+}
+
+.order-route-list.storefront .order-route-stop:last-child {
+    @apply items-end mb-0;
+}
+
+.order-route-list.storefront .order-route-stop:last-child .order-route-stop-index .index-count {
+    z-index: 99;
+    @apply bg-red-500;
+}
+
+.order-route-list:before {
+    @apply absolute border-l-2 border-green-500 h-full left-0 ml-6 opacity-90;
+    content: '';
+    z-index: -1;
+}
+
+.order-route-list .order-route-stop {
+    @apply flex items-start justify-between text-sm px-3 mb-3 z-20;
+}
+
+.order-route-list .order-route-stop.bg--green {
+    @apply bg-green-600;
+}
+
+.order-route-list .order-route-stop:last-child {
+    @apply items-end mb-0;
+}
+
+.order-route-list .order-route-stop .order-route-location {
+    @apply flex-1 truncate;
+}
+
+.order-route-list .order-route-stop .order-route-stop-index {
+    @apply mr-3;
+}
+
+.order-route-list .order-route-stop .order-route-stop-index .index-count {
+    @apply bg-green-500 rounded-full text-sm text-gray-100 h-6 w-6 flex items-center justify-center shadow-sm;
+}
 
 .ember-attacher-tooltip.clean {
     @apply bg-transparent m-0 p-0 rounded-none;
@@ -482,265 +451,269 @@ body[data-theme='dark'] .overloader {
 
 .radio-group-condensed {
     @apply bg-white rounded-md;
-    & .radio-group-item {
-        @apply relative border border-gray-200 p-4 flex;
-        & label span {
-            &:first-child {
-                @apply text-gray-900;
-            }
-            &:last-child {
-                @apply text-gray-500;
-            }
-        }
-        &.is-checked label span {
-            &:first-child {
-                @apply text-blue-900;
-            }
-            &:last-child {
-                @apply text-blue-700;
-            }
-        }
-        & input[type='radio'] {
-            @apply h-4 w-4 text-blue-600 cursor-pointer border-gray-300;
-        }
-        &:first-child {
-            @apply rounded-tl-md rounded-tr-md;
-        }
-        &:last-child {
-            @apply rounded-bl-md rounded-br-md;
-        }
-    }
 }
 
-body[data-theme='dark'] {
-    & .radio-group-condensed {
-        @apply bg-night-805 shadow;
-        & .radio-group-item {
-            @apply text-gray-100 border-night-905;
-            /** patch for info blocks **/
-            & .ui-input-info-block {
-                & .ui-input-info-block-text {
-                    & > span,
-                    & > p {
-                        @apply text-blue-700;
-                    }
-                }
-                &.warning .ui-input-info-block-text {
-                    & > span,
-                    & > p {
-                        @apply text-yellow-900;
-                    }
-                }
-                &.success .ui-input-info-block-text {
-                    & > span,
-                    & > p {
-                        @apply text-green-900;
-                    }
-                }
-            }
-            & label span {
-                &:first-child {
-                    @apply text-gray-200;
-                }
-                &:last-child {
-                    @apply text-gray-50;
-                }
-            }
-            &.is-checked label span {
-                &:first-child {
-                    @apply text-blue-200;
-                }
-                &:last-child {
-                    @apply text-blue-100;
-                }
-            }
-            & input[type='radio'] {
-                @apply border-gray-900;
-            }
-        }
-    }
+.radio-group-condensed .radio-group-item {
+    @apply relative border border-gray-200 p-4 flex;
+}
+
+.radio-group-condensed .radio-group-item label span:first-child {
+    @apply text-gray-900;
+}
+
+.radio-group-condensed .radio-group-item label span:last-child {
+    @apply text-gray-500;
+}
+
+.radio-group-condensed .radio-group-item.is-checked label span:first-child {
+    @apply text-blue-900;
+}
+
+.radio-group-condensed .radio-group-item.is-checked label span:last-child {
+    @apply text-blue-700;
+}
+
+.radio-group-condensed .radio-group-item input[type='radio'] {
+    @apply h-4 w-4 text-blue-600 cursor-pointer border-gray-300;
+}
+
+.radio-group-condensed .radio-group-item:first-child {
+    @apply rounded-tl-md rounded-tr-md;
+}
+
+.radio-group-condensed .radio-group-item:last-child {
+    @apply rounded-bl-md rounded-br-md;
+}
+
+body[data-theme='dark'] .radio-group-condensed {
+    @apply bg-night-805 shadow;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item {
+    @apply text-gray-100 border-night-905;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item .ui-input-info-block .ui-input-info-block-text > span,
+body[data-theme='dark'] .radio-group-condensed .radio-group-item .ui-input-info-block .ui-input-info-block-text > p {
+    @apply text-blue-700;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.warning .ui-input-info-block .ui-input-info-block-text > span,
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.warning .ui-input-info-block .ui-input-info-block-text > p {
+    @apply text-yellow-900;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.success .ui-input-info-block .ui-input-info-block-text > span,
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.success .ui-input-info-block .ui-input-info-block-text > p {
+    @apply text-green-900;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item label span:first-child {
+    @apply text-gray-200;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item label span:last-child {
+    @apply text-gray-50;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.is-checked label span:first-child {
+    @apply text-blue-200;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item.is-checked label span:last-child {
+    @apply text-blue-100;
+}
+
+body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='radio'] {
+    @apply border-gray-900;
 }
 
 .ui-input-info-block {
     @apply bg-blue-50 border border-blue-300 text-blue-700 p-4;
-    &.md {
-        @apply px-4 py-3;
-    }
-    &.sm {
-        @apply px-3 py-2;
-    }
-    &.xs {
-        @apply px-2 py-1;
-    }
-    & .ui-input-info-block-text,
-    & p {
-        @apply text-blue-900;
-        &.warning {
-            & span,
-            & p {
-                @apply text-yellow-900;
-            }
-        }
-        &.success {
-            & span,
-            & p {
-                @apply text-green-900;
-            }
-        }
-    }
-    &.warning {
-        @apply bg-yellow-200 border-yellow-300 text-yellow-900;
-        & .ui-input-info-block-text,
-        & .ui-input-info-block-text > span,
-        & .ui-input-info-block-text > span:last-child,
-        & .ui-input-info-block-text > p,
-        & span,
-        & span:last-child,
-        & span:first-child,
-        & p {
-            @apply text-yellow-900;
-        }
-    }
-    &.danger {
-        @apply bg-red-200 border-red-300 text-red-900;
-        & .ui-input-info-block-text,
-        & .ui-input-info-block-text > span,
-        & .ui-input-info-block-text > span:last-child,
-        & .ui-input-info-block-text > p,
-        & span,
-        & span:last-child,
-        & span:first-child,
-        & p {
-            @apply text-red-900;
-        }
-    }
-    &.success {
-        @apply bg-green-200 border-green-300 text-green-900;
-        & .ui-input-info-block-text,
-        & .ui-input-info-block-text > span,
-        & .ui-input-info-block-text > p,
-        & span,
-        & span:last-child,
-        & span:first-child,
-        & p {
-            @apply text-green-900;
-        }
-    }
 }
 
-/** activity flow **/
+.ui-input-info-block.md {
+    @apply px-4 py-3;
+}
+
+.ui-input-info-block.sm {
+    @apply px-3 py-2;
+}
+
+.ui-input-info-block.xs {
+    @apply px-2 py-1;
+}
+
+.ui-input-info-block .ui-input-info-block-text,
+.ui-input-info-block p {
+    @apply text-blue-900;
+}
+
+.ui-input-info-block .ui-input-info-block-text.warning span,
+.ui-input-info-block .ui-input-info-block-text.warning p {
+    @apply text-yellow-900;
+}
+
+.ui-input-info-block .ui-input-info-block-text.success span,
+.ui-input-info-block .ui-input-info-block-text.success p {
+    @apply text-green-900;
+}
+
+.ui-input-info-block.warning {
+    @apply bg-yellow-200 border-yellow-300 text-yellow-900;
+}
+
+.ui-input-info-block.warning .ui-input-info-block-text,
+.ui-input-info-block.warning .ui-input-info-block-text > span,
+.ui-input-info-block.warning .ui-input-info-block-text > span:last-child,
+.ui-input-info-block.warning .ui-input-info-block-text > p,
+.ui-input-info-block.warning span,
+.ui-input-info-block.warning span:last-child,
+.ui-input-info-block.warning span:first-child,
+.ui-input-info-block.warning p {
+    @apply text-yellow-900;
+}
+
+.ui-input-info-block.danger {
+    @apply bg-red-200 border-red-300 text-red-900;
+}
+
+.ui-input-info-block.danger .ui-input-info-block-text,
+.ui-input-info-block.danger .ui-input-info-block-text > span,
+.ui-input-info-block.danger .ui-input-info-block-text > span:last-child,
+.ui-input-info-block.danger .ui-input-info-block-text > p,
+.ui-input-info-block.danger span,
+.ui-input-info-block.danger span:last-child,
+.ui-input-info-block.danger span:first-child,
+.ui-input-info-block.danger p {
+    @apply text-red-900;
+}
+
+.ui-input-info-block.success {
+    @apply bg-green-200 border-green-300 text-green-900;
+}
+
+.ui-input-info-block.success .ui-input-info-block-text,
+.ui-input-info-block.success .ui-input-info-block-text > span,
+.ui-input-info-block.success .ui-input-info-block-text > p,
+.ui-input-info-block.success span,
+.ui-input-info-block.success span:last-child,
+.ui-input-info-block.success span:first-child,
+.ui-input-info-block.success p {
+    @apply text-green-900;
+}
 
 .activity-flow-connector {
     position: relative;
-    &:before {
-        @apply border-r-4 border-gray-900 absolute;
-        height: 80%;
-        content: '';
-        top: 0;
-        left: 0;
-        margin-left: 50%;
-        z-index: -1;
-    }
-    & .activity-events-list {
-        & > div {
-            @apply rounded-none;
-            &:first-child {
-                @apply rounded-t;
-            }
-            &:last-child {
-                @apply rounded-b;
-            }
-        }
-    }
+}
+
+.activity-flow-connector:before {
+    @apply border-r-4 border-gray-900 absolute;
+    height: 80%;
+    content: '';
+    top: 0;
+    left: 0;
+    margin-left: 50%;
+    z-index: -1;
+}
+
+.activity-flow-connector .activity-events-list > div {
+    @apply rounded-none;
+}
+
+.activity-flow-connector .activity-events-list > div:first-child {
+    @apply rounded-t;
+}
+
+.activity-flow-connector .activity-events-list > div:last-child {
+    @apply rounded-b;
 }
 
 .activity-flow-sub-connector {
     position: relative;
-    &:before {
-        @apply border-r-4 border-green-400 h-full absolute;
-        content: '';
-        top: 0;
-        left: 0;
-        margin-left: 50%;
-        z-index: -1;
-    }
-    &:last-child {
-        &:before {
-            height: 70%;
-        }
-    }
-    &.live-flow,
-    &.created-flow,
-    &.enabled-flow,
-    &.success-flow,
-    &.succeeded-flow,
-    &.dispatched-flow,
-    &.operational-flow,
-    &.active-flow,
-    &.completed-flow {
-        &:before {
-            @apply border-green-100;
-        }
-    }
-    &[class*='5'],
-    &.disabled-flow,
-    &.failed-flow,
-    &.canceled-flow {
-        &:before {
-            @apply border-red-100;
-        }
-    }
-    &[class*='4'],
-    &.test-flow,
-    &.warning-flow,
-    &.pending-flow {
-        &:before {
-            @apply border-yellow-100;
-        }
-    }
-    &.dispatched-flow,
-    &.assigned-flow {
-        &:before {
-            @apply border-indigo-100;
-        }
-    }
-    &.driver-enroute-element,
-    &.driver-enroute-flow {
-        &:before {
-            @apply border-orange-100;
-        }
-    }
-    &.info-flow,
-    &.in-progress-flow {
-        &:before {
-            @apply border-blue-100;
-        }
-    }
 }
 
-/** ui-combo-box **/
+.activity-flow-sub-connector:before {
+    @apply border-r-4 border-green-400 h-full absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    margin-left: 50%;
+    z-index: -1;
+}
+
+.activity-flow-sub-connector:last-child:before {
+    height: 70%;
+}
+
+.activity-flow-sub-connector.live-flow:before,
+.activity-flow-sub-connector.created-flow:before,
+.activity-flow-sub-connector.enabled-flow:before,
+.activity-flow-sub-connector.success-flow:before,
+.activity-flow-sub-connector.succeeded-flow:before,
+.activity-flow-sub-connector.dispatched-flow:before,
+.activity-flow-sub-connector.operational-flow:before,
+.activity-flow-sub-connector.active-flow:before,
+.activity-flow-sub-connector.completed-flow:before {
+    @apply border-green-100;
+}
+
+.activity-flow-sub-connector[class*='5']:before,
+.activity-flow-sub-connector.disabled-flow:before,
+.activity-flow-sub-connector.failed-flow:before,
+.activity-flow-sub-connector.canceled-flow:before {
+    @apply border-red-100;
+}
+
+.activity-flow-sub-connector[class*='4']:before,
+.activity-flow-sub-connector.test-flow:before,
+.activity-flow-sub-connector.warning-flow:before,
+.activity-flow-sub-connector.pending-flow:before {
+    @apply border-yellow-100;
+}
+
+.activity-flow-sub-connector.dispatched-flow:before,
+.activity-flow-sub-connector.assigned-flow:before {
+    @apply border-indigo-100;
+}
+
+.activity-flow-sub-connector.driver-enroute-element:before,
+.activity-flow-sub-connector.driver-enroute-flow:before {
+    @apply border-orange-100;
+}
+
+.activity-flow-sub-connector.info-flow:before,
+.activity-flow-sub-connector.in-progress-flow:before {
+    @apply border-blue-100;
+}
+
 .ui-combo-box .selected-list a.combo-box-option,
 .ui-combo-box .options-list a.combo-box-option {
     @apply flex text-gray-800 px-4 py-2 border-b border-gray-200 bg-gray-50 relative;
-    &:first-child {
-        @apply rounded-t-md;
-    }
-    &:hover {
-        @apply bg-gray-300;
-    }
-    &.selected:hover,
-    &.selected {
-        @apply bg-blue-400;
-        background-color: #76a9fa !important;
-    }
+}
+
+.ui-combo-box .selected-list a.combo-box-option:first-child {
+    @apply rounded-t-md;
+}
+
+.ui-combo-box .options-list a.combo-box-option:hover {
+    @apply bg-gray-300;
+}
+
+.ui-combo-box .options-list a.combo-box-option.selected:hover,
+.ui-combo-box .options-list a.combo-box-option.selected {
+    @apply bg-blue-400;
+    background-color: #76a9fa !important;
 }
 
 body[data-theme='dark'] .ui-combo-box .selected-list a.combo-box-option,
 body[data-theme='dark'] .ui-combo-box .options-list a.combo-box-option {
     @apply border-gray-900 text-gray-100 bg-gray-700 relative;
-    &:hover {
-        @apply bg-gray-600;
-    }
+}
+
+body[data-theme='dark'] .ui-combo-box .selected-list a.combo-box-option:hover,
+body[data-theme='dark'] .ui-combo-box .options-list a.combo-box-option:hover {
+    @apply bg-gray-600;
 }
 
 .file-dropzone {
@@ -760,13 +733,11 @@ body[data-theme='dark'] .aside-item-link.active {
     @apply bg-blue-600;
 }
 
-/** invitation views **/
 body[data-theme='dark'].invite-for-network,
 body.invite-for-network {
     background-color: #222;
 }
 
-/** container patches **/
 body.fleetbase-console .container {
     @apply px-4 py-2;
 }
@@ -787,30 +758,28 @@ body.fleetbase-console .container {
 
 .store-boolean-settings {
     @apply border border-gray-200 bg-gray-50 rounded-md;
+}
 
-    & > .input-group {
-        @apply px-4 py-3 border-b border-gray-200 mb-0;
+.store-boolean-settings > .input-group {
+    @apply px-4 py-3 border-b border-gray-200 mb-0;
+}
 
-        &:last-child {
-            @apply border-b-0;
-        }
-    }
+.store-boolean-settings > .input-group:last-child {
+    @apply border-b-0;
 }
 
 body[data-theme='dark'] .store-boolean-settings {
     @apply border-gray-700 bg-gray-900;
-
-    & > .input-group {
-        @apply border-gray-700;
-    }
 }
 
-/** patch phone number input **/
+body[data-theme='dark'] .store-boolean-settings > .input-group {
+    @apply border-gray-700;
+}
+
 body[data-theme='dark'] li.iti__country > span {
     @apply text-gray-100;
 }
 
-/** ui-input-info **/
 .ui-input-info {
     @apply bg-night-905 px-3 py-1.5 text-sm leading-5 rounded-md border border-night-905 shadow-sm;
 }
@@ -827,7 +796,6 @@ body[data-theme='light'] .ui-input-info.danger {
     @apply bg-red-100 text-red-600 border-red-600;
 }
 
-/** add padding left to c-notification icon **/
 .fleetbase-console .ember-cli-notifications-notification__container .c-notification__icon {
     @apply flex items-center justify-center;
 }
@@ -840,7 +808,6 @@ body[data-theme='light'] .ui-input-info.danger {
     @apply pt-1;
 }
 
-/** patch syntax highligt **/
 .fleetbase-console .token.operator,
 .fleetbase-console .token.entity,
 .fleetbase-console .token.url,
@@ -854,35 +821,34 @@ body[data-theme='light'] .ui-input-info.danger {
     text-shadow: none;
 }
 
-/** anchor link button **/
 .anchor-button {
     @apply px-2 py-0.5 rounded-md border border-gray-200 flex flex-row items-center shadow-sm;
+}
 
-    &:hover {
-        @apply outline-offset-2 outline-blue-500;
+.anchor-button:hover {
+    @apply outline-offset-2 outline-blue-500;
+}
 
-        & > div::last-child {
-            @apply text-blue-400;
-        }
-    }
+.anchor-button:hover > div:last-child {
+    @apply text-blue-400;
+}
 
-    & div {
-        @apply px-1 flex items-center;
-    }
+.anchor-button div {
+    @apply px-1 flex items-center;
+}
 
-    & div:first-child {
-        @apply justify-center;
-    }
+.anchor-button div:first-child {
+    @apply justify-center;
+}
 
-    & > div:last-child {
-        @apply border-l border-gray-200 truncate flex-1;
-    }
+.anchor-button > div:last-child {
+    @apply border-l border-gray-200 truncate flex-1;
 }
 
 body[data-theme='dark'] .anchor-button {
     @apply border-gray-700 bg-gray-900 text-gray-100;
+}
 
-    & > div:last-child {
-        @apply border-gray-700;
-    }
+body[data-theme='dark'] .anchor-button > div:last-child {
+    @apply border-gray-700;
 }

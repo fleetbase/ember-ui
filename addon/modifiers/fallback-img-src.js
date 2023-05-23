@@ -1,7 +1,7 @@
 import { modifier } from 'ember-modifier';
 
 export default modifier(function fallbackImgSrc(element, [fallbackUrl]) {
-    const useFallbackUrl = function (event) {
+    const useFallbackUrl = function () {
         if (typeof fallbackUrl === 'string') {
             const url = new URL(fallbackUrl);
 

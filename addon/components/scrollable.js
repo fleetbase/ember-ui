@@ -29,7 +29,7 @@ export default class ScrollableComponent extends Component {
     }
 
     @action setComputedSize(element) {
-        const { clientHeight, clientWidth } = element;
+        const { clientHeight } = element;
 
         element.style.height = `${clientHeight}px`;
         element.style.overflowY = 'scroll';

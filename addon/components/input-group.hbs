@@ -5,6 +5,6 @@
     {{#if (has-block)}}
         {{yield this.id @name}}
     {{else}}
-        <Input class="w-full form-input {{@inputClass}}" id={{this.id}} @type={{or @type "text"}} @value={{@value}} placeholder={{or @placeholder @name}} required={{@required}} disabled={{@disabled}} autocomplete={{@autocomplete}} @autofill={{@autofill}} ...attributes />
+        <Input class="w-full form-input {{@inputClass}}" id={{this.id}} @type={{or @type "text"}} @value={{@value}} placeholder={{or @placeholder @name}} required={{@required}} disabled={{@disabled}} autocomplete={{@autocomplete}} autofill={{@autofill}} ...attributes />
     {{/if}}
 </div>

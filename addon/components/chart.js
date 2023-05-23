@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { action, getProperties, computed } from '@ember/object';
+import { action } from '@ember/object';
 import Chart, { _adapters } from 'chart.js/auto';
 import {
     parse,
@@ -55,8 +55,14 @@ export default class ChartComponent extends Component {
     }
 
     @action async renderChart(ctx) {
-        const options = getProperties(this.args, ['type', 'options']);
-        options.data = getProperties(this.args, ['labels', 'datasets']);
+        const options = {
+            type: this.args.type,
+            options: this.args.options,
+            data: {
+                labels: this.args.labels,
+                datasets: this.args.datasets,
+            },
+        };
 
         if (typeof options.data.datasets === 'function') {
             this.isLoading = true;

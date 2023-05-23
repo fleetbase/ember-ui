@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { action, get, computed, set } from '@ember/object';
+import { action } from '@ember/object';
 import { later } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 import getCurrency from '../utils/get-currency';
@@ -22,7 +22,7 @@ export default class MoneyInputComponent extends Component {
         let whois = this.currentUser.getOption('whois');
 
         this.value = this.args.value ?? 0;
-        this.currency = this.args.currency ?? get(whois, 'currency.code') ?? 'USD';
+        this.currency = this.args.currency ?? whois?.currency?.code ?? 'USD';
         this.currencyData = getCurrency(this.currency);
     }
 

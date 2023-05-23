@@ -1,6 +1,6 @@
 <div class="relative flex items-{{or @alignItems "start"}} {{if @disabled 'disabled opacity-75'}}" ...attributes>
     <div class="flex items-center h-4">
-        <Input @type="checkbox" id={{this.id}} @value={{@value}} @checked={{@value}} data-checked={{@value}} disabled={{@disabled}} class="fleetbase-checkbox form-checkbox {{this.colorClass}} {{@inputClass}}" {{on "change" this.toggle}} />
+        <Input @type="checkbox" id={{this.id}} data-value={{@value}} @checked={{@value}} data-checked={{@value}} disabled={{@disabled}} class="fleetbase-checkbox form-checkbox {{this.colorClass}} {{@inputClass}}" {{on "change" this.toggle}} />
     </div>
     {{#if (has-block)}}
         <div class="ml-2 text-sm leading-5">

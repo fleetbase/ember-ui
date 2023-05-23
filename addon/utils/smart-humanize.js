@@ -1,8 +1,9 @@
 import { capitalize, decamelize } from '@ember/string';
 import { humanize } from 'ember-cli-string-helpers/helpers/humanize';
+import { typeOf } from '@ember/utils';
 
 export default function smartHumanize(string) {
-    if (!typeof string === 'string') {
+    if (typeOf(string) !== 'string') {
         return string;
     }
 

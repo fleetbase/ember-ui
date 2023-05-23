@@ -16,24 +16,24 @@ body[data-theme='dark'] .dropdown-menu-content {
 
 .dropdown-menu-item {
     @apply block px-4 py-1 text-sm leading-5 text-gray-700 no-underline;
+}
 
-    &:hover {
-        @apply text-gray-900 bg-gray-100;
-    }
+.dropdown-menu-item:hover {
+    @apply text-gray-900 bg-gray-100;
+}
 
-    &:focus {
-        @apply text-gray-900 bg-gray-100 outline-none;
-    }
+.dropdown-menu-item:focus {
+    @apply text-gray-900 bg-gray-100 outline-none;
 }
 
 body[data-theme='dark'] .dropdown-menu-item {
     @apply text-gray-200;
+}
 
-    &:hover {
-        @apply text-gray-100 bg-gray-800 shadow-inner;
-    }
+body[data-theme='dark'] .dropdown-menu-item:hover {
+    @apply text-gray-100 bg-gray-800 shadow-inner;
+}
 
-    &:focus {
-        @apply text-gray-100 bg-gray-800;
-    }
+body[data-theme='dark'] .dropdown-menu-item:focus {
+    @apply text-gray-100 bg-gray-800;
 }

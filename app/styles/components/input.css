@@ -51,14 +51,12 @@ body.fleetbase-console .form-input {
     @apply text-xs leading-4;
 }
 
-/** model select **/
 .fleetbase-power-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
 .fleetbase-multi-select .ember-power-select-trigger.form-select .ember-power-select-status-icon,
 .fleetbase-model-select .ember-power-select-trigger.form-select .ember-power-select-status-icon {
     @apply hidden;
 }
 
-/** icons within input **/
 .fleetbase-input.with-left-icon .form-input {
     padding-left: 2rem;
 }
@@ -102,12 +100,16 @@ body[data-theme='dark'] .form-input.ember-power-select-trigger,
 body[data-theme='dark'] .form-input,
 body[data-theme='dark'] .form-select {
     @apply text-sm text-white bg-gray-700 border border-gray-900 shadow-sm shadow-gray-900 outline-0;
+}
 
-    &:active,
-    &:focus {
-        @apply shadow-gray-900 outline-0;
-        --tw-shadow: transparent;
-    }
+body[data-theme='dark'] .form-input.ember-power-select-trigger:active,
+body[data-theme='dark'] .form-input:active,
+body[data-theme='dark'] .form-select:active,
+body[data-theme='dark'] .form-input.ember-power-select-trigger:focus,
+body[data-theme='dark'] .form-input:focus,
+body[data-theme='dark'] .form-select:focus {
+    @apply shadow-gray-900 outline-0;
+    --tw-shadow: transparent;
 }
 
 body[data-theme='dark'] input.form-input:active,
@@ -119,9 +121,10 @@ body[data-theme='dark'] input.form-input:focus {
 
 .input-group {
     @apply mb-5;
-    & label {
-        @apply block mb-1 text-sm font-medium leading-5 text-gray-700;
-    }
+}
+
+.input-group label {
+    @apply block mb-1 text-sm font-medium leading-5 text-gray-700;
 }
 
 body[data-theme='dark'] .input-group label {
@@ -147,14 +150,13 @@ body[data-theme='light'] .form-datalist:hover {
 .fleetbase-power-select,
 #ember-basic-dropdown-wormhole,
 .ember-model-select {
-    & .ember-power-select-trigger {
-        & .ember-power-select-placeholder {
-            @apply w-full ml-0 truncate;
-            color: #9fa6b2;
-        }
-        & .ember-power-select-selected-item {
-            @apply w-full ml-0 truncate;
-        }
+    & .ember-power-select-trigger .ember-power-select-placeholder {
+        @apply w-full ml-0 truncate;
+        color: #9fa6b2;
+    }
+
+    & .ember-power-select-trigger .ember-power-select-selected-item {
+        @apply w-full ml-0 truncate;
     }
 
     & .ember-model-select__dropdown {
@@ -164,53 +166,52 @@ body[data-theme='light'] .form-datalist:hover {
     & .ember-power-select-option {
         @apply w-full px-3 py-2 text-sm leading-4 truncate;
     }
-    & .ember-power-select-search {
-        & > input {
-            @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
-        }
+    & .ember-power-select-search > input {
+        @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
     }
 }
 
-body[data-theme='light'] .fleetbase-power-select,
-body[data-theme='light'] #ember-basic-dropdown-wormhole,
-body[data-theme='light'] .ember-model-select {
-    &[aria-current='true'] {
-        @apply bg-gray-100;
-    }
-    &[aria-selected='true'] {
-        @apply bg-gray-300;
-    }
+/* Light Theme */
+body[data-theme='light'] .fleetbase-power-select[aria-current='true'],
+body[data-theme='light'] #ember-basic-dropdown-wormhole[aria-current='true'],
+body[data-theme='light'] .ember-model-select[aria-current='true'] {
+    @apply bg-gray-100;
 }
 
-body[data-theme='dark'] .fleetbase-power-select,
-body[data-theme='dark'] #ember-basic-dropdown-wormhole,
-body[data-theme='dark'] .ember-model-select {
-    & .ember-power-select-trigger {
-        & .ember-power-select-placeholder {
-            color: #9fa6b2;
-        }
-    }
-    & .ember-model-select__loading {
-        @apply bg-gray-700;
-    }
-    & .ember-model-select__dropdown {
-        @apply bg-gray-700 border border-gray-900 shadow;
-    }
-    & .ember-power-select-option {
-        @apply text-gray-100;
-        &[aria-current='true'] {
-            @apply bg-gray-800;
-        }
-        &[aria-selected='true'] {
-            @apply bg-gray-900;
-        }
-    }
-    & .ember-power-select-search {
-        & > input {
-            @apply text-white bg-gray-700 border border-gray-900 shadow;
-        }
-    }
+body[data-theme='light'] .fleetbase-power-select[aria-selected='true'],
+body[data-theme='light'] #ember-basic-dropdown-wormhole[aria-selected='true'],
+body[data-theme='light'] .ember-model-select[aria-selected='true'] {
+    @apply bg-gray-300;
 }
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-trigger .ember-power-select-placeholder {
+    color: #9fa6b2;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-model-select__loading {
+    @apply bg-gray-700;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-model-select__dropdown {
+    @apply bg-gray-700 border border-gray-900 shadow;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-option {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-option[aria-current='true'] {
+    @apply bg-gray-800;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-option[aria-selected='true'] {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-search > input {
+    @apply text-white bg-gray-700 border border-gray-900 shadow;
+}
+
 
 label.required:after {
     color: #e3342f;
@@ -239,7 +240,7 @@ label.required:after {
     & .ember-power-select-search-input {
         @apply text-sm rounded shadow-sm;
     }
-    
+
     &.ember-basic-dropdown-trigger,
     & .ember-basic-dropdown-trigger {
         @apply flex items-center justify-center text-center m-0 p-0;
@@ -289,7 +290,7 @@ label.required:after {
     & .ember-power-select-search-input {
         @apply text-sm rounded shadow-sm;
     }
-    
+
     &.ember-basic-dropdown-trigger,
     & .ember-basic-dropdown-trigger {
         @apply flex items-center justify-center text-center m-0 p-0;
@@ -330,20 +331,6 @@ body[data-theme='dark'] {
     }
 }
 
-/** removes annoying autocomplete styling **/
-
-/* body[data-theme="dark"] {
-    input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
-    }
-}
-
-input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-} */
-
-/** tag input **/
-
 .emberTagInput {
     height: 39px;
     display: flex;
@@ -370,7 +357,7 @@ input:-webkit-autofill {
     & .emberTagInput-tag > .emberTagInput-remove:before {
         color: #fff;
         margin-left: 0.5rem;
-        content: "x";
+        content: 'x';
     }
 }
 
@@ -386,7 +373,6 @@ body[data-theme='dark'] .iti__country-list {
     @apply bg-gray-900 rounded-md shadow-sm border-gray-700 mt-1;
 }
 
-/** .ui-money-input */
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger {
     border: 0px;
     background: transparent;
@@ -400,7 +386,6 @@ body[data-theme='dark'] .iti__country-list {
     @apply rounded-l-none shadow-none outline-0 outline-none;
 }
 
-/** ui-date-time-input */
 .ui-date-time-input > input[type='date'],
 .ui-date-time-input > input[type='time'] {
     font-size: 0.875rem;
@@ -409,13 +394,13 @@ body[data-theme='dark'] .iti__country-list {
     margin: 0;
     border: 0;
     outline: 0;
-
-    &:focus {
-        outline: 0;
-    }
 }
 
-/** fix checkboxes */
+.ui-date-time-input > input[type='date']:focus,
+.ui-date-time-input > input[type='time']:focus {
+    outline: 0;
+}
+
 .fleetbase-console .form-checkbox {
     @apply rounded shadow-sm;
 }
@@ -436,7 +421,6 @@ body[data-theme='dark'] .iti__country-list {
     @apply bg-blue-400 shadow-sm;
 }
 
-/** fleetbase checkbox style */
 .fleetbase-checkbox {
     @apply w-4 h-4 transition duration-150 ease-in-out bg-gray-200 border-gray-200 dark:bg-gray-800 dark:border-gray-900;
 }

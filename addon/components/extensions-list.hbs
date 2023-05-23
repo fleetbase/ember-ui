@@ -1,4 +1,4 @@
-<div class="next-catalog-menu-items flex" ...attributes>
+<div role="menu" class="next-catalog-menu-items flex" ...attributes>
     {{#each @extensions as |extension|}}
         <LinkToExternal @route={{concat "console." (dasherize extension.extension)}} class={{@itemClass}} role="menuitem">
             <div class="w-6">

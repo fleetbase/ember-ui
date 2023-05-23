@@ -16,7 +16,7 @@ module.exports = {
         },
     },
 
-    included: function (app) {
+    included: function () {
         this._super.included.apply(this, arguments);
 
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
@@ -37,7 +37,7 @@ module.exports = {
                 destDir: 'img',
                 overwrite: false,
             }),
-            new Funnel(`node_modules/${name}/assets`, {
+            new Funnel(path.join(__dirname, 'assets'), {
                 destDir: '/',
             }),
         ];

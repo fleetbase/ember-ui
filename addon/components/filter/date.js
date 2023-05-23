@@ -11,12 +11,16 @@ export default class FilterDateComponent extends Component {
     }
 
     @action onChange({ date, formattedDate }) {
-        const { onChange, filter } = this.args;
+        const { onChange, onDateChange, filter } = this.args;
 
         this.value = formattedDate;
 
         if (typeof onChange === 'function') {
             onChange(filter, formattedDate);
+        }
+
+        if (typeof onDateChange === 'function') {
+            onDateChange(filter, date);
         }
     }
 }

@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { computed, action, set } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { htmlSafe } from '@ember/template';
-import { cancel, debounce, later, next, run } from '@ember/runloop';
+import { cancel, debounce, later, run } from '@ember/runloop';
 
 export default class AttachPopoverComponent extends Component {
     @tracked animation = 'fill';

@@ -3,5 +3,5 @@
         <span class="mr-1">{{country.emoji}}</span>
         <span>{{country.name}}</span>
     </PowerSelect>
-    <Input @type="hidden" class="hidden" @value={{@value}} data-county={{@value}} {{did-insert this.listenForInputChanges}} />
+    <Input @type="hidden" class="hidden" @value={{@value}} aria-label="Country Value" data-county={{@value}} {{did-insert this.listenForInputChanges}} />
 </div>
