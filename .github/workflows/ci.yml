@@ -3,6 +3,8 @@ name: Ember CI
 on:
   push:
     branches: [ main ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main ]
 
@@ -84,5 +86,8 @@ jobs:
     - name: Build
       run: pnpm run build
 
+    - name: Set up npm
+      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+
     - name: Publish
-      run: pnpm publish --access public
+      run: npm publish --access public
