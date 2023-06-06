@@ -1,0 +1,212 @@
+.status-badge {
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.status-badge > span {
+    @apply text-gray-800 bg-gray-100;
+}
+
+.status-badge > span svg {
+    @apply text-gray-400;
+}
+
+.status-badge.status-badge-lg > span {
+    @apply px-3 py-1 text-base leading-5;
+}
+
+.status-badge[class*='2'] > span,
+.status-badge.live-status-badge > span,
+.status-badge.online-status-badge > span,
+.status-badge.created-status-badge > span,
+.status-badge.enabled-status-badge > span,
+.status-badge.success-status-badge > span,
+.status-badge.succeeded-status-badge > span,
+.status-badge.dispatched-status-badge > span,
+.status-badge.operational-status-badge > span,
+.status-badge.active-status-badge > span,
+.status-badge.completed-status-badge > span {
+    @apply text-green-800 bg-green-100;
+}
+
+.status-badge[class*='2'] > span svg,
+.status-badge.live-status-badge > span svg,
+.status-badge.online-status-badge > span svg,
+.status-badge.created-status-badge > span svg,
+.status-badge.enabled-status-badge > span svg,
+.status-badge.success-status-badge > span svg,
+.status-badge.succeeded-status-badge > span svg,
+.status-badge.dispatched-status-badge > span svg,
+.status-badge.operational-status-badge > span svg,
+.status-badge.active-status-badge > span svg,
+.status-badge.completed-status-badge > span svg {
+    @apply text-green-400;
+}
+
+.status-badge[class*='5'] > span,
+.status-badge.disabled-status-badge > span,
+.status-badge.failed-status-badge > span,
+.status-badge.canceled-status-badge > span {
+    @apply text-red-800 bg-red-100;
+}
+
+.status-badge[class*='5'] > span svg,
+.status-badge.disabled-status-badge > span svg,
+.status-badge.failed-status-badge > span svg,
+.status-badge.canceled-status-badge > span svg {
+    @apply text-red-400;
+}
+
+.status-badge[class*='4'] > span,
+.status-badge.test-status-badge > span,
+.status-badge.warning-status-badge > span,
+.status-badge.preparing-status-badge > span,
+.status-badge.pending-status-badge > span {
+    @apply text-yellow-800 bg-yellow-100;
+}
+
+.status-badge[class*='4'] > span svg,
+.status-badge.test-status-badge > span svg,
+.status-badge.warning-status-badge > span svg,
+.status-badge.preparing-status-badge > span svg,
+.status-badge.pending-status-badge > span svg {
+    @apply text-yellow-400;
+}
+
+.status-badge.offline-status-badge > span {
+    @apply text-gray-700 bg-gray-300;
+}
+
+.status-badge.offline-status-badge > span svg {
+    @apply text-gray-700;
+}
+
+.status-badge.dispatched-status-badge > span,
+.status-badge.assigned-status-badge > span {
+    @apply text-indigo-800 bg-indigo-100;
+}
+
+.status-badge.dispatched-status-badge > span svg,
+.status-badge.assigned-status-badge > span svg {
+    @apply text-indigo-400;
+}
+
+.status-badge.driver-enroute-badge > span,
+.status-badge.driver-enroute-status-badge > span {
+    @apply text-orange-900 bg-orange-100;
+}
+
+.status-badge.driver-enroute-badge > span svg,
+.status-badge.driver-enroute-status-badge > span svg {
+    @apply text-orange-400;
+}
+
+.status-badge.info-status-badge > span,
+.status-badge.in-progress-status-badge > span {
+    @apply text-blue-900 bg-blue-300;
+}
+
+.status-badge.info-status-badge > span svg,
+.status-badge.in-progress-status-badge > span svg {
+    @apply text-blue-900;
+}
+
+.status-badge.default-status-badge > span {
+    @apply text-gray-900 bg-gray-300;
+}
+
+.status-badge.default-status-badge > span svg {
+    @apply text-gray-900;
+}
+
+body[data-theme='dark'] .status-badge:not(.shadow-none) {
+    @apply shadow;
+}
+
+.status-element {
+    @apply text-orange-900 bg-orange-100;
+}
+
+.status-element.live-status-element,
+.status-element.created-status-element,
+.status-element.enabled-status-element,
+.status-element.success-status-element,
+.status-element.succeeded-status-element,
+.status-element.dispatched-status-element,
+.status-element.operational-status-element,
+.status-element.active-status-element,
+.status-element.completed-status-element {
+    @apply border-green-100;
+}
+
+.status-element.disabled-status-element,
+.status-element.failed-status-element,
+.status-element.canceled-status-element {
+    @apply border-red-100;
+}
+
+.status-element.test-status-element,
+.status-element.warning-status-element,
+.status-element.pending-status-element {
+    @apply border-yellow-100;
+}
+
+.status-element.dispatched-status-element,
+.status-element.assigned-status-element {
+    @apply border-indigo-100;
+}
+
+.status-element.driver-enroute-element,
+.status-element.driver-enroute-status-element,
+.status-element {
+    @apply border-orange-100;
+}
+
+.status-element.info-status-element,
+.status-element.in-progress-status-element {
+    @apply border-blue-300;
+}
+
+.status-element.live-status-element,
+.status-element.created-status-element,
+.status-element.enabled-status-element,
+.status-element.success-status-element,
+.status-element.succeeded-status-element,
+.status-element.dispatched-status-element,
+.status-element.operational-status-element,
+.status-element.active-status-element,
+.status-element.completed-status-element {
+    @apply text-green-800 bg-green-100;
+}
+
+.status-element.disabled-status-element,
+.status-element.failed-status-element,
+.status-element.canceled-status-element {
+    @apply text-red-800 bg-red-100;
+}
+
+.status-element.test-status-element,
+.status-element.warning-status-element,
+.status-element.pending-status-element {
+    @apply text-yellow-800 bg-yellow-100;
+}
+
+.status-element.dispatched-status-element,
+.status-element.assigned-status-element {
+    @apply text-indigo-800 bg-indigo-100;
+}
+
+.status-element.driver-enroute-element,
+.status-element.driver-enroute-status-element,
+.status-element {
+    @apply text-orange-900 bg-orange-100;
+}
+
+.status-element.info-status-element,
+.status-element.in-progress-status-element {
+    @apply text-blue-900 bg-blue-300;
+}
+
+.org-badge {
+    @apply rounded-md bg-yellow-500 text-gray-900 dark:text-white w-5 h-5 text-xs flex items-center justify-center text-center shadow-sm flex-shrink-0 mr-2.5;
+}

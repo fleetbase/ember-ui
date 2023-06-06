@@ -89,6 +89,8 @@ body.fleetbase-console select.form-select,
 div.input-group > select.form-select,
 select.form-select,
 .form-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%239fa6b2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
@@ -147,31 +149,37 @@ body[data-theme='light'] .form-datalist:hover {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
 }
 
-.fleetbase-power-select,
-#ember-basic-dropdown-wormhole,
-.ember-model-select {
-    & .ember-power-select-trigger .ember-power-select-placeholder {
-        @apply w-full ml-0 truncate;
-        color: #9fa6b2;
-    }
-
-    & .ember-power-select-trigger .ember-power-select-selected-item {
-        @apply w-full ml-0 truncate;
-    }
-
-    & .ember-model-select__dropdown {
-        @apply bg-white border border-gray-300 shadow;
-    }
-
-    & .ember-power-select-option {
-        @apply w-full px-3 py-2 text-sm leading-4 truncate;
-    }
-    & .ember-power-select-search > input {
-        @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
-    }
+.fleetbase-power-select .ember-power-select-trigger .ember-power-select-placeholder,
+#ember-basic-dropdown-wormhole .ember-power-select-trigger .ember-power-select-placeholder,
+.ember-model-select .ember-power-select-trigger .ember-power-select-placeholder {
+    @apply w-full ml-0 truncate;
+    color: #9fa6b2;
 }
 
-/* Light Theme */
+.fleetbase-power-select .ember-power-select-trigger .ember-power-select-selected-item,
+#ember-basic-dropdown-wormhole .ember-power-select-trigger .ember-power-select-selected-item,
+.ember-model-select .ember-power-select-trigger .ember-power-select-selected-item {
+    @apply w-full ml-0 truncate;
+}
+
+.fleetbase-power-select .ember-model-select__dropdown,
+#ember-basic-dropdown-wormhole .ember-model-select__dropdown,
+.ember-model-select .ember-model-select__dropdown {
+    @apply bg-white border border-gray-300 shadow;
+}
+
+.fleetbase-power-select .ember-power-select-option,
+#ember-basic-dropdown-wormhole .ember-power-select-option,
+.ember-model-select .ember-power-select-option {
+    @apply w-full px-3 py-2 text-sm leading-4 truncate;
+}
+
+.fleetbase-power-select .ember-power-select-search > input,
+#ember-basic-dropdown-wormhole .ember-power-select-search > input,
+.ember-model-select .ember-power-select-search > input {
+    @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
+}
+
 body[data-theme='light'] .fleetbase-power-select[aria-current='true'],
 body[data-theme='light'] #ember-basic-dropdown-wormhole[aria-current='true'],
 body[data-theme='light'] .ember-model-select[aria-current='true'] {
@@ -212,7 +220,6 @@ body[data-theme='dark'] .fleetbase-power-select .ember-power-select-search > inp
     @apply text-white bg-gray-700 border border-gray-900 shadow;
 }
 
-
 label.required:after {
     color: #e3342f;
     content: '*';
@@ -227,26 +234,46 @@ label.required:after {
 .ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger,
 .ui-unit-input .unit-input-selector {
     display: flex;
+}
 
-    & .ember-power-select-trigger {
-        @apply border-0 rounded-none bg-transparent m-0 p-0;
-    }
+.unit-input-currency-selector .ember-power-select-trigger,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-trigger,
+.ui-unit-input .unit-input-selector .ember-power-select-trigger {
+    @apply border-0 rounded-none bg-transparent m-0 p-0;
+}
 
-    & + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
-    & .ember-basic-dropdown-content {
-        min-width: 20rem;
-    }
+.unit-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.ui-unit-input .unit-input-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.unit-input-currency-selector .ember-basic-dropdown-content,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content,
+.ui-unit-input .unit-input-selector .ember-basic-dropdown-content {
+    min-width: 20rem;
+}
 
-    & .ember-power-select-search-input {
-        @apply text-sm rounded shadow-sm;
-    }
+.unit-input-currency-selector .ember-power-select-search-input,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-search-input,
+.ui-unit-input .unit-input-selector .ember-power-select-search-input {
+    @apply text-sm rounded shadow-sm;
+}
 
-    &.ember-basic-dropdown-trigger,
-    & .ember-basic-dropdown-trigger {
-        @apply flex items-center justify-center text-center m-0 p-0;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+.unit-input-currency-selector.ember-basic-dropdown-trigger,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
+.ui-unit-input .unit-input-selector.ember-basic-dropdown-trigger,
+.unit-input-currency-selector .ember-basic-dropdown-trigger,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-trigger,
+.ui-unit-input .unit-input-selector .ember-basic-dropdown-trigger {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.unit-input-currency-selector.ember-basic-dropdown-trigger,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
+.ui-unit-input .unit-input-selector.ember-basic-dropdown-trigger,
+.unit-input-currency-selector .ember-basic-dropdown-trigger,
+.ui-unit-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-trigger,
+.ui-unit-input .unit-input-selector .ember-basic-dropdown-trigger {
+    @apply flex items-center justify-center text-center m-0 p-0;
 }
 
 .ui-unit-input input.form-input {
@@ -262,11 +289,14 @@ label.required:after {
 }
 
 .ui-unit-input .ember-basic-dropdown > .unit-input-selector.ember-basic-dropdown-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: start;
     background: transparent !important;
     border: 0px !important;
+}
+
+.ui-unit-input .ember-basic-dropdown > .unit-input-selector.ember-basic-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .ui-unit-input-selector:not(.form-input-sm) {
@@ -277,32 +307,52 @@ label.required:after {
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger,
 .ui-money-input .money-input-currency-selector {
     display: flex;
+}
 
-    & .ember-power-select-trigger {
-        @apply border-0 rounded-none bg-transparent m-0 p-0;
-    }
+.money-input-currency-selector .ember-power-select-trigger,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-trigger,
+.ui-money-input .money-input-currency-selector .ember-power-select-trigger {
+    @apply border-0 rounded-none bg-transparent m-0 p-0;
+}
 
-    & + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
-    & .ember-basic-dropdown-content {
-        min-width: 20rem;
-    }
+.money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.ui-money-input .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+.money-input-currency-selector .ember-basic-dropdown-content,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content,
+.ui-money-input .money-input-currency-selector .ember-basic-dropdown-content {
+    min-width: 20rem;
+}
 
-    & .ember-power-select-search-input {
-        @apply text-sm rounded shadow-sm;
-    }
+.money-input-currency-selector .ember-power-select-search-input,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-search-input,
+.ui-money-input .money-input-currency-selector .ember-power-select-search-input {
+    @apply text-sm rounded shadow-sm;
+}
 
-    &.ember-basic-dropdown-trigger,
-    & .ember-basic-dropdown-trigger {
-        @apply flex items-center justify-center text-center m-0 p-0;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+.money-input-currency-selector.ember-basic-dropdown-trigger,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
+.ui-money-input .money-input-currency-selector.ember-basic-dropdown-trigger,
+.money-input-currency-selector .ember-basic-dropdown-trigger,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-trigger,
+.ui-money-input .money-input-currency-selector .ember-basic-dropdown-trigger {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.money-input-currency-selector.ember-basic-dropdown-trigger,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
+.ui-money-input .money-input-currency-selector.ember-basic-dropdown-trigger,
+.money-input-currency-selector .ember-basic-dropdown-trigger,
+.ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-trigger,
+.ui-money-input .money-input-currency-selector .ember-basic-dropdown-trigger {
+    @apply flex items-center justify-center text-center m-0 p-0;
 }
 
 .money-input-currency-selector.ember-basic-dropdown-trigger {
     display: flex;
     align-items: center;
-    justify-content: start;
+    justify-content: flex-start;
 }
 
 .money-input-currency-selector .ember-power-select-status-icon {
@@ -313,52 +363,67 @@ label.required:after {
     height: 38px;
 }
 
-body[data-theme='dark'] {
-    & .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger,
-    & .money-input-currency-selector {
-        & + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
-        & .ember-basic-dropdown-content {
-            @apply bg-gray-800 rounded-md shadow text-gray-100 border border-gray-900;
-            & .ember-power-select-option {
-                &[aria-selected='true'] {
-                    @apply bg-night-805;
-                }
-            }
-            & .ember-power-select-search-input {
-                @apply border border-blue-900 bg-gray-900 py-1;
-            }
-        }
-    }
+body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content,
+body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content {
+    @apply bg-gray-800 rounded-md shadow text-gray-100 border border-gray-900;
+}
+
+body[data-theme='dark']
+    .ui-money-input
+    .ember-basic-dropdown
+    > .ember-basic-dropdown-trigger
+    + .ember-basic-dropdown-content-wormhole-origin
+    > .ember-basic-dropdown-content
+    .ember-power-select-option[aria-selected='true'],
+body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'],
+body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'],
+body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'] {
+    @apply bg-night-805;
+}
+
+body[data-theme='dark']
+    .ui-money-input
+    .ember-basic-dropdown
+    > .ember-basic-dropdown-trigger
+    + .ember-basic-dropdown-content-wormhole-origin
+    > .ember-basic-dropdown-content
+    .ember-power-select-search-input,
+body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-search-input,
+body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content .ember-power-select-search-input,
+body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content .ember-power-select-search-input {
+    @apply border border-blue-900 bg-gray-900 py-1;
 }
 
 .emberTagInput {
     height: 39px;
     display: flex;
     flex-direction: row;
+}
 
-    & li.emberTagInput-new {
-        margin: 0;
-        padding: 0;
-        background: transparent;
-    }
+.emberTagInput li.emberTagInput-new {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+}
 
-    & li input.emberTagInput-input {
-        @apply text-sm;
-        background-color: transparent;
-        margin: 0;
-        padding: 0;
-    }
+.emberTagInput li input.emberTagInput-input {
+    @apply text-sm;
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+}
 
-    & .emberTagInput-tag {
-        margin-bottom: 0;
-        @apply rounded-md bg-sky-500 flex items-center px-2 mr-1;
-    }
+.emberTagInput .emberTagInput-tag {
+    margin-bottom: 0;
+    @apply rounded-md bg-sky-500 flex items-center px-2 mr-1;
+}
 
-    & .emberTagInput-tag > .emberTagInput-remove:before {
-        color: #fff;
-        margin-left: 0.5rem;
-        content: 'x';
-    }
+.emberTagInput .emberTagInput-tag > .emberTagInput-remove:before {
+    color: #fff;
+    margin-left: 0.5rem;
+    content: 'x';
 }
 
 body[data-theme='dark'] .emberTagInput input.emberTagInput-input {
@@ -409,9 +474,16 @@ body[data-theme='dark'] .iti__country-list {
 .fleetbase-console .form-checkbox:focus-visible,
 .fleetbase-console .form-checkbox:focus-within,
 .fleetbase-console .form-radio:focus {
+    box-shadow: 0 0 rgba(0, 0, 0, 0), 0 0 rgba(0, 0, 0, 0), var(--tw-shadow) !important;
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 rgba(0, 0, 0, 0)), var(--tw-ring-shadow, 0 0 rgba(0, 0, 0, 0)), var(--tw-shadow) !important;
+}
+
+.fleetbase-console .form-checkbox:focus,
+.fleetbase-console .form-checkbox:focus-visible,
+.fleetbase-console .form-checkbox:focus-within,
+.fleetbase-console .form-radio:focus {
     outline: 0;
     outline-offset: 0;
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
 }
 
 .fleetbase-console .form-checkbox[data-checked],

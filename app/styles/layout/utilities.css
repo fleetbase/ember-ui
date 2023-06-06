@@ -276,6 +276,7 @@ a.badge-offline::before {
     border-width: 20px;
     margin-top: -20px;
 }
+
 .dimensions-box:before {
     border-color: rgba(190, 190, 190, 0);
     border-right-color: #bebebe;
@@ -350,6 +351,7 @@ body[data-theme='dark'] .dimensions-box:before {
 .min-h-52 {
     min-height: 13rem;
 }
+
 .min-h-56 {
     min-height: 14rem;
 }
@@ -369,6 +371,7 @@ body[data-theme='dark'] .dimensions-box:before {
 .min-h-4r {
     min-height: 4rem;
 }
+
 .min-h-4\.5r {
     min-height: 4.5rem;
 }
@@ -636,15 +639,16 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 
 .comma-spans {
     display: flex;
-    padding-inline-start: 0;
+    padding-left: 0;
     list-style: none;
+}
 
-    & > span {
-        display: inline-block;
-        & ~ span::before {
-            content: ', ';
-        }
-    }
+.comma-spans > span {
+    display: inline-block;
+}
+
+.comma-spans > span ~ span::before {
+    content: ', ';
 }
 
 .map-height-sm {
@@ -676,7 +680,7 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 }
 
 .align-items-unset {
-    align-items: unset;
+    align-items: initial;
 }
 
 .align-items-end-i {

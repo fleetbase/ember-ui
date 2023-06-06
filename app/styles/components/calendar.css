@@ -125,7 +125,6 @@
     color: #1e1e1e;
 }
 
-/** date range picker **/
 .fleetbase-daterange-input.input-group > div {
     width: 50%;
 }
@@ -141,7 +140,6 @@
     border-bottom-left-radius: 0;
 }
 
-/** fleetbase-laycan-range-input **/
 .fleetbase-laycan-range-input {
     display: flex;
     flex-direction: row;
@@ -177,87 +175,73 @@
     padding: 0 1rem;
 }
 
-/** dark ui calendar **/
-body[data-theme="dark"] {
-    & .fleetbase-calendar {
-        @apply bg-transparent border border-gray-900 shadow;
-        
-        & .ember-power-calendar-nav,
-        & .ember-power-calendar-days {
-            @apply bg-gray-700;
-        }
-
-        & .ember-power-calendar-nav-title {
-            @apply text-gray-100
-        }
-
-        & .fleetbase-calendar-selection-header {
-            @apply bg-gray-800 border-b border-gray-900 text-gray-100;
-        }
-
-        & .ember-power-calendar-days {
-            @apply rounded-b-none;
-
-            & .ember-power-calendar-day,
-            & .ember-power-calendar-weekday {
-                @apply text-gray-100;
-            }
-        }
-    }
+body[data-theme='dark'] .fleetbase-calendar {
+    @apply bg-transparent border border-gray-900 shadow;
 }
 
-
-/** full calendar styles below **/
-.ui-full-calendar {
-     & .fc-header-toolbar {
-         @apply bg-white w-full px-0 py-0 mb-2 shadow-none flex items-center;
-
-         & .fc-toolbar-title {
-             @apply text-base font-semibold text-gray-800;
-         }
-
-         & .fc-toolbar-chunk {
-             & .fc-button {
-                 @apply py-2;
-             }
-         }
-     }
-
-     & .fc-view-harness {
-         @apply p-3 rounded;
-     }
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-nav,
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-days {
+    @apply bg-gray-700;
 }
 
-body[data-theme="dark"] {
-    & .ui-full-calendar {
-        & .fc-header-toolbar {
-            @apply bg-gray-900;
-
-            & .fc-toolbar-title {
-                @apply text-gray-100;
-            }
-        }
-
-        & .fc-col-header > tbody > tr,
-        & .fc-scrollgrid-section.fc-scrollgrid-section-header > td,
-        & .fc-scrollgrid-section.fc-scrollgrid-section-body > td {
-            @apply border-gray-700;
-        }
-
-        & .fc-theme-standard .fc-scrollgrid,
-        & .fc-daygrid-body .fc-daygrid-day,
-        & .fc-col-header-cell,
-        & table.fc-scrollgrid  {
-            @apply border border-gray-700;
-        }
-
-        & .fc-view-harness {
-            @apply bg-night-805;
-        }
-    }
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-nav-title {
+    @apply text-gray-100;
 }
 
-/** force mod full calendar button **/
+body[data-theme='dark'] .fleetbase-calendar .fleetbase-calendar-selection-header {
+    @apply bg-gray-800 border-b border-gray-900 text-gray-100;
+}
+
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-days {
+    @apply rounded-b-none;
+}
+
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-days .ember-power-calendar-day,
+body[data-theme='dark'] .fleetbase-calendar .ember-power-calendar-days .ember-power-calendar-weekday {
+    @apply text-gray-100;
+}
+
+.ui-full-calendar .fc-header-toolbar {
+    @apply bg-white w-full px-0 py-0 mb-2 shadow-none flex items-center;
+}
+
+.ui-full-calendar .fc-header-toolbar .fc-toolbar-title {
+    @apply text-base font-semibold text-gray-800;
+}
+
+.ui-full-calendar .fc-header-toolbar .fc-toolbar-chunk .fc-button {
+    @apply py-2;
+}
+
+.ui-full-calendar .fc-view-harness {
+    @apply p-3 rounded;
+}
+
+body[data-theme='dark'] .ui-full-calendar .fc-header-toolbar {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .ui-full-calendar .fc-header-toolbar .fc-toolbar-title {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .ui-full-calendar .fc-col-header > tbody > tr,
+body[data-theme='dark'] .ui-full-calendar .fc-scrollgrid-section.fc-scrollgrid-section-header > td,
+body[data-theme='dark'] .ui-full-calendar .fc-scrollgrid-section.fc-scrollgrid-section-body > td {
+    @apply border-gray-700;
+}
+
+body[data-theme='dark'] .ui-full-calendar .fc-theme-standard .fc-scrollgrid,
+body[data-theme='dark'] .ui-full-calendar .fc-daygrid-body .fc-daygrid-day,
+body[data-theme='dark'] .ui-full-calendar .fc-col-header-cell,
+body[data-theme='dark'] .ui-full-calendar table.fc-scrollgrid {
+    @apply border border-gray-700;
+}
+
+body[data-theme='dark'] .ui-full-calendar .fc-view-harness {
+    @apply bg-night-805;
+}
+
 .ui-full-calendar .fc-button {
     display: inline-flex !important;
     font-size: 0.875rem !important;
@@ -265,13 +249,16 @@ body[data-theme="dark"] {
     line-height: 1rem !important;
     border-width: 1px !important;
     border-color: transparent !important;
+}
+
+.ui-full-calendar .fc-button {
     border-radius: 0.375rem;
 }
 
 .ui-full-calendar .fc-button-group {
 }
 
-.ui-full-calendar .fc-daygrid-block-event .fc-event-time, 
+.ui-full-calendar .fc-daygrid-block-event .fc-event-time,
 .ui-full-calendar .fc-daygrid-block-event .fc-event-title {
     @apply py-px px-1.5;
 }
