@@ -34,6 +34,7 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1055;
     z-index: var(--flb-modal-zindex);
     display: none;
     width: 100%;
@@ -55,9 +56,11 @@
         transition: none;
     }
 }
+
 .flb--modal.show .flb--modal-dialog {
     transform: none;
 }
+
 .flb--modal.flb--modal-static .flb--modal-dialog {
     transform: scale(1.02);
 }
@@ -65,10 +68,12 @@
 .flb--modal-dialog-scrollable {
     height: calc(100% - var(--flb-modal-margin) * 2);
 }
+
 .flb--modal-dialog-scrollable .flb--modal-content {
     max-height: 100%;
     overflow: hidden;
 }
+
 .flb--modal-dialog-scrollable .flb--modal-body {
     overflow-y: auto;
 }
@@ -91,7 +96,7 @@
     border: var(--flb-modal-border-width) solid var(--flb-modal-border-color);
     border-radius: var(--flb-modal-border-radius);
     outline: 0;
-    filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));
+    filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.07)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06));
 }
 
 .flb--modal-backdrop {
@@ -102,14 +107,18 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1000;
     z-index: var(--flb-backdrop-zindex);
     width: 100vw;
     height: 100vh;
+    background-color: rgba(107, 114, 128, 0.5);
     background-color: var(--flb-backdrop-bg);
 }
+
 .flb--modal-backdrop.fade {
     opacity: 0;
 }
+
 .flb--modal-backdrop.show {
     opacity: var(--flb-backdrop-opacity);
 }
@@ -124,6 +133,7 @@
     border-top-left-radius: var(--flb-modal-inner-border-radius);
     border-top-right-radius: var(--flb-modal-inner-border-radius);
 }
+
 .flb--modal-header .btn-close {
     padding: calc(var(--flb-modal-header-padding-y) * 0.5) calc(var(--flb-modal-header-padding-x) * 0.5);
     margin: calc(var(--flb-modal-header-padding-y) * -0.5) calc(var(--flb-modal-header-padding-x) * -0.5) calc(var(--flb-modal-header-padding-y) * -0.5) auto;
@@ -179,32 +189,38 @@
         --flb-modal-width: 300px;
     }
 }
+
 @media (min-width: 992px) {
     .flb--modal-lg,
     .flb--modal-xl {
         --flb-modal-width: 800px;
     }
 }
+
 @media (min-width: 1200px) {
     .flb--modal-xl {
         --flb-modal-width: 1140px;
     }
 }
+
 .flb--modal-fullscreen {
     width: 100vw;
     max-width: none;
     height: 100%;
     margin: 0;
 }
+
 .flb--modal-fullscreen .flb--modal-content {
     height: 100%;
     border: 0;
     border-radius: 0;
 }
+
 .flb--modal-fullscreen .flb--modal-header,
 .flb--modal-fullscreen .flb--modal-footer {
     border-radius: 0;
 }
+
 .flb--modal-fullscreen .flb--modal-body {
     overflow-y: auto;
 }
@@ -229,6 +245,7 @@
         overflow-y: auto;
     }
 }
+
 @media (max-width: 767.98px) {
     .flb--modal-fullscreen-md-down {
         width: 100vw;
@@ -249,6 +266,7 @@
         overflow-y: auto;
     }
 }
+
 @media (max-width: 991.98px) {
     .flb--modal-fullscreen-lg-down {
         width: 100vw;
@@ -269,6 +287,7 @@
         overflow-y: auto;
     }
 }
+
 @media (max-width: 1199.98px) {
     .flb--modal-fullscreen-xl-down {
         width: 100vw;
@@ -289,6 +308,7 @@
         overflow-y: auto;
     }
 }
+
 @media (max-width: 1399.98px) {
     .flb--modal-fullscreen-xxl-down {
         width: 100vw;
@@ -312,9 +332,10 @@
 
 .flb--modal.roll-key-modal .flb--modal-dialog .flb--modal-content {
     width: 30rem;
-    & .flb--modal-body {
-        @apply text-sm;
-    }
+}
+
+.flb--modal.roll-key-modal .flb--modal-dialog .flb--modal-content .flb--modal-body {
+    @apply text-sm;
 }
 
 .flb--modal.flb--default-modal.modal-2xl > .flb--modal-dialog > .flb--modal-content,
@@ -348,49 +369,49 @@
 }
 
 .flb--modal.flb--default-modal {
-    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto;
     z-index: 900;
+    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto;
+}
 
-    & > .flb--modal-dialog {
-        @apply flex items-center justify-center w-full h-full mx-auto;
-        animation: expandIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.flb--modal.flb--default-modal > .flb--modal-dialog {
+    animation: expandIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    @apply flex items-center justify-center w-full h-full mx-auto;
+}
 
-        & > .flb--modal-content {
-            @apply inline-block text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl opacity-100;
-            width: 40rem;
-            overflow: visible;
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content {
+    width: 40rem;
+    overflow: visible;
+    @apply inline-block text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl opacity-100;
+}
 
-            & > .flb--modal-header {
-                @apply flex items-center justify-between px-4 py-3 rounded-t-lg;
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
+    @apply flex items-center justify-between px-4 py-3 rounded-t-lg;
+}
 
-                & .flb--modal-title {
-                    @apply text-lg font-medium leading-6 text-gray-900;
-                }
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header .flb--modal-title {
+    @apply text-lg font-medium leading-6 text-gray-900;
+}
 
-                & button.close {
-                    @apply text-2xl outline-none;
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close {
+    @apply text-2xl outline-none;
+}
 
-                    &:hover,
-                    &:active,
-                    &:focus {
-                        @apply outline-none;
-                    }
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close:hover,
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close:active,
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close:focus {
+    @apply outline-none;
+}
 
-                    &:hover {
-                        @apply opacity-50 cursor-pointer;
-                    }
-                }
-            }
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close:hover {
+    @apply opacity-50 cursor-pointer;
+}
 
-            & > .flb--modal-body > .modal-body-container {
-                @apply px-4 py-3;
-            }
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body > .modal-body-container {
+    @apply px-4 py-3;
+}
 
-            & > .flb--modal-footer {
-                @apply flex items-center justify-end px-4 py-3 rounded-b-lg bg-gray-50;
-            }
-        }
-    }
+.flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-footer {
+    @apply flex items-center justify-end px-4 py-3 rounded-b-lg bg-gray-50;
 }
 
 @media (max-width: 767px) {
@@ -408,41 +429,41 @@
 }
 
 .flb--default-modal + .flb--modal-backdrop {
-    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto transition-opacity ease-in-out bg-gray-500 opacity-50;
     z-index: 850;
-    &.show {
-        @apply opacity-50;
-    }
+    @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto transition-opacity ease-in-out bg-gray-500 opacity-50;
+}
+
+.flb--default-modal + .flb--modal-backdrop.show {
+    @apply opacity-50;
 }
 
 body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content {
     @apply bg-gray-900;
-
-    & > .flb--modal-header {
-        @apply text-gray-100;
-
-        & .flb--modal-title {
-            @apply text-gray-100;
-        }
-
-        & button.close {
-            @apply text-gray-100;
-        }
-    }
-
-    & > .flb--modal-header {
-        @apply bg-gray-900;
-    }
-
-    & > .flb--modal-footer {
-        @apply bg-gray-800;
-    }
 }
 
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header .flb--modal-title {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header button.close {
+    @apply text-gray-100;
+}
+
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-footer {
+    @apply bg-gray-800;
+}
 
 .flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header,
 .flb--alert-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
-    padding: .35rem;
+    padding: 0.35rem;
 }
 
 .flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header .close,

@@ -4,10 +4,10 @@
 
 .dropdown-menu-content {
     @apply bg-white border border-gray-300 rounded-md shadow-md;
+}
 
-    &.context-menu {
-        @apply py-2;
-    }
+.dropdown-menu-content.context-menu {
+    @apply py-2;
 }
 
 body[data-theme='dark'] .dropdown-menu-content {

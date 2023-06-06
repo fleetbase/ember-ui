@@ -12,26 +12,23 @@
     overflow: visible;
 
     @apply h-12 w-full bg-white fixed top-0 inset-x-0;
-
-    & > .electron-titlebar-menu,
-    & > .electron-titlebar-actions {
-        @apply flex flex-row items-center;
-    }
-
-    & > .electron-titlebar-actions {
-        @apply justify-end;
-    }
-
-    & .electron-titlebar-button,
-    & button,
-    & a
-    {
-        -webkit-app-region: no-drag;
-    }
 }
-  
-body[data-theme="dark"] {
-    & .electron-titlebar {
-        @apply bg-gray-900;
-    }
+
+.electron-titlebar > .electron-titlebar-menu,
+.electron-titlebar > .electron-titlebar-actions {
+    @apply flex flex-row items-center;
+}
+
+.electron-titlebar > .electron-titlebar-actions {
+    @apply justify-end;
+}
+
+.electron-titlebar .electron-titlebar-button,
+.electron-titlebar button,
+.electron-titlebar a {
+    -webkit-app-region: no-drag;
+}
+
+body[data-theme='dark'] .electron-titlebar {
+    @apply bg-gray-900;
 }

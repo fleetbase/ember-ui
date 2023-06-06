@@ -1,6 +1,6 @@
 .split {
     box-sizing: border-box;
-    overflow: hidden
+    overflow: hidden;
 }
 
 .gutter {
@@ -17,8 +17,6 @@
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
 }
 
-body[data-theme="dark"] {
-    & .gutter { 
-        @apply bg-gray-900;
-    }
+body[data-theme='dark'] .gutter {
+    @apply bg-gray-900;
 }

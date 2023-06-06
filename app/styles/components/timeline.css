@@ -12,7 +12,6 @@
 .timeline *,
 .timeline :after,
 .timeline :before {
-    -webkit-box-sizing: inherit;
     box-sizing: inherit;
 }
 
@@ -37,7 +36,7 @@
 .timeline-arrow-left[disabled],
 .timeline-arrow-right[disabled] {
     cursor: not-allowed;
-    opacity: .6;
+    opacity: 0.6;
 }
 
 .timeline-wrapper {
@@ -64,7 +63,7 @@
 
 .timeline-item.active::after {
     background-color: rgb(59, 130, 246);
-    border-color: rgb(37, 99, 235)
+    border-color: rgb(37, 99, 235);
 }
 
 .timeline-item::after {

@@ -4,7 +4,11 @@ body {
     font-size: 16px;
     line-height: 1.5;
     text-rendering: optimizeLegibility;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     user-select: none;
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
     text-size-adjust: none;
     cursor: default;
     overscroll-behavior: none;
@@ -102,7 +106,7 @@ a.navbar-logo {
 }
 
 .leaflet-container a {
-    color: unset;
+    color: inherit;
 }
 
 * {
@@ -128,6 +132,8 @@ h3 {
 
 a {
     cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     user-select: none;
     @apply text-gray-200 no-underline;
 }
@@ -136,6 +142,8 @@ a,
 div[role='button'],
 button {
     cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     user-select: none;
 }
 
@@ -156,9 +164,10 @@ address {
 
 .section-header {
     @apply flex justify-between;
-    & .section-header-actions {
-        @apply flex items-center;
-    }
+}
+
+.section-header .section-header-actions {
+    @apply flex items-center;
 }
 
 .section-content {
@@ -209,12 +218,14 @@ body[data-theme='dark'] .filter-row .filter-row-body {
 
 .datum-row {
     @apply flex items-center justify-between w-full px-3 py-2 mb-2 text-gray-800 bg-gray-300 rounded;
-    & .datum-key {
-        @apply flex-1 w-1/2 font-semibold truncate;
-    }
-    & .datum-value {
-        @apply w-1/2 font-light text-right truncate;
-    }
+}
+
+.datum-row .datum-key {
+    @apply flex-1 w-1/2 font-semibold truncate;
+}
+
+.datum-row .datum-value {
+    @apply w-1/2 font-light text-right truncate;
 }
 
 body[data-theme='dark'] .datum-row {
@@ -243,8 +254,11 @@ body[data-theme='dark'] .overlay-panel-section-title {
 }
 
 .click-to-reveal .click-to-reveal--button {
-    @apply absolute inset-0 flex items-center justify-center;
     box-shadow: none !important;
+}
+
+.click-to-reveal .click-to-reveal--button {
+    @apply absolute inset-0 flex items-center justify-center;
 }
 
 .click-to-reveal .click-to-reveal--button > button {
@@ -277,9 +291,10 @@ body[data-theme='dark'] .overlay-panel-section-title {
 
 .console-main-content {
     @apply w-full h-screen;
-    & .scrollable-content {
-        @apply pb-14;
-    }
+}
+
+.console-main-content .scrollable-content {
+    @apply pb-14;
 }
 
 .section-content .ember-scrollable .ember-light-table {
@@ -324,7 +339,7 @@ body[data-theme='dark'] .overlay-panel-section-title {
     @apply border border-gray-300 block w-full overflow-y-scroll;
     margin: 0.5rem 0;
     height: 250px;
-    padding-inline-start: 0px;
+    padding-left: 0px;
 }
 
 .list-scroll-box > li {
@@ -702,8 +717,12 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
 
 .ui-combo-box .options-list a.combo-box-option.selected:hover,
 .ui-combo-box .options-list a.combo-box-option.selected {
-    @apply bg-blue-400;
     background-color: #76a9fa !important;
+}
+
+.ui-combo-box .options-list a.combo-box-option.selected:hover,
+.ui-combo-box .options-list a.combo-box-option.selected {
+    @apply bg-blue-400;
 }
 
 body[data-theme='dark'] .ui-combo-box .selected-list a.combo-box-option,
@@ -743,6 +762,7 @@ body.fleetbase-console .container {
 }
 
 /** when hovering over a network folder **/
+
 .network-folder:hover,
 .network-folder.hovering {
     opacity: 0.5;

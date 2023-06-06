@@ -66,6 +66,22 @@ export default class LayoutHeaderComponent extends Component {
                 text: 'Explore extensions',
                 icon: 'puzzle-piece',
             },
+        ]);
+
+        if (this.user.is_admin) {
+            items.pushObjects([
+                {
+                    seperator: true,
+                },
+                {
+                    route: 'console.admin',
+                    text: 'Admin',
+                    icon: 'toolbox',
+                },
+            ]);
+        }
+
+        items.pushObjects([
             {
                 seperator: true,
             },
