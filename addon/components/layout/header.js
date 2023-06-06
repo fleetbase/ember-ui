@@ -68,7 +68,7 @@ export default class LayoutHeaderComponent extends Component {
             },
         ]);
 
-        if (this.user.is_admin) {
+        if (this.user.get('is_admin')) {
             items.pushObjects([
                 {
                     seperator: true,
