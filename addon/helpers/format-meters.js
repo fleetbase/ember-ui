@@ -1,5 +1,6 @@
 import { helper } from '@ember/component/helper';
+import formatMetersUtils from '../utils/format-meters';
 
 export default helper(function formatMeters([meters]) {
-    return `${Math.round(meters / 1000)}km`;
+    return formatMetersUtils(meters);
 });

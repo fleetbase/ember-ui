@@ -1093,6 +1093,20 @@ body[data-theme='dark'] .next-content-panel-wrapper .next-content-panel-containe
     user-select: auto;
 }
 
+.next-sidebar.sidebar-hide {
+    transition: all 500ms;
+    transform: translateX(-100%);
+}
+
+.next-sidebar.sidebar-hidden {
+    display: none;
+}
+
+.next-sidebar.sidebar-minimized {
+    transition: all 500ms;
+    transform: translateX(-65%);
+}
+
 .next-sidebar > .next-sidebar-content {
     display: flex;
     flex-direction: column;

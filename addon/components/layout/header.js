@@ -1,8 +1,8 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
+import { isArray } from '@ember/array';
 
 /**
  * Layout header component.
@@ -19,8 +19,12 @@ export default class LayoutHeaderComponent extends Component {
         return this.store.peekRecord('company', this.user.company_uuid);
     }
 
-    @computed('args.organizations', 'organizations.@each.id', 'user.{company_name,email}')
-    get orgNavigationItems() {
+    @computed('args.{organizations,organizationNavigationItems}', 'organizations.@each.id', 'user.{company_name,email}')
+    get organizationNavigationItems() {
+        if (isArray(this.args.organizationNavigationItems)) {
+            return this.args.organizationNavigationItems;
+        }
+
         const items = [
             {
                 text: [this.user.email, this.user.company_name],
@@ -96,64 +100,64 @@ export default class LayoutHeaderComponent extends Component {
         return items;
     }
 
-    @tracked userNavigationItems = [
-        {
-            route: 'console.account',
-            text: 'View Profile',
-        },
-        // {
-        //     href: 'javascript:;',
-        //     text: 'Download desktop app',
-        //     disabled: true,
-        //     action: 'downloadDesktopApp',
-        // },
-        {
-            href: 'javascript:;',
-            text: 'Show keyboard shortcuts',
-            disabled: true,
-            action: 'showKeyboardShortcuts',
-        },
-        {
-            seperator: true,
-        },
-        {
-            href: 'javascript:;',
-            text: 'Changelog',
-            disabled: true,
-            action: 'viewChangelog',
-        },
-        {
-            route: 'console.developers',
-            text: 'Developers',
-        },
-        {
-            href: 'https://discord.gg/fjP4sReEvH',
-            target: '_discord',
-            text: 'Join Discord Community',
-            icon: 'arrow-up-right-from-square',
-        },
-        {
-            href: 'https://github.com/fleetbase/fleetbase/issues',
-            target: '_support',
-            text: 'Help & Support',
-            icon: 'arrow-up-right-from-square',
-        },
-        {
-            href: 'https://fleetbase.dev/',
-            target: '_api',
-            text: 'API Reference',
-            icon: 'arrow-up-right-from-square',
-        },
-        {
-            component: 'layout/header/dark-mode-toggle',
-        },
-        {
-            seperator: true,
-        },
-        {
-            href: 'javascript:;',
-            text: 'Logout',
-            action: 'invalidateSession',
-        },
-    ];
+    @computed('args.userNavigationItems') get userNavigationItems() {
+        if (isArray(this.args.userNavigationItems)) {
+            return this.args.userNavigationItems;
+        }
+
+        return [
+            {
+                route: 'console.account',
+                text: 'View Profile',
+            },
+            {
+                href: 'javascript:;',
+                text: 'Show keyboard shortcuts',
+                disabled: true,
+                action: 'showKeyboardShortcuts',
+            },
+            {
+                seperator: true,
+            },
+            {
+                href: 'javascript:;',
+                text: 'Changelog',
+                disabled: true,
+                action: 'viewChangelog',
+            },
+            {
+                route: 'console.developers',
+                text: 'Developers',
+            },
+            {
+                href: 'https://discord.gg/MJQgxHwN',
+                target: '_discord',
+                text: 'Join Discord Community',
+                icon: 'arrow-up-right-from-square',
+            },
+            {
+                href: 'https://github.com/fleetbase/fleetbase/issues',
+                target: '_support',
+                text: 'Help & Support',
+                icon: 'arrow-up-right-from-square',
+            },
+            {
+                href: 'https://fleetbase.github.io/api-reference/',
+                target: '_api',
+                text: 'API Reference',
+                icon: 'arrow-up-right-from-square',
+            },
+            {
+                component: 'layout/header/dark-mode-toggle',
+            },
+            {
+                seperator: true,
+            },
+            {
+                href: 'javascript:;',
+                text: 'Logout',
+                action: 'invalidateSession',
+            },
+        ];
+    }
 }

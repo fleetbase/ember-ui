@@ -1,6 +1,17 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { later } from '@ember/runloop';
+import { capitalize } from '@ember/string';
+
+class SidebarContext {
+    constructor(component) {
+        this.hide = component.hide;
+        this.hideNow = component.hideNow;
+        this.show = component.show;
+        this.minimize = component.minimize;
+    }
+}
 
 export default class LayoutSidebarComponent extends Component {
     @tracked siderbarNode;
@@ -9,9 +20,33 @@ export default class LayoutSidebarComponent extends Component {
     @tracked mouseY = 0;
     @tracked sidebarWidth = 0;
     @tracked isResizing = false;
+    @tracked hidden = false;
+    @tracked minimized = false;
 
     @action setupNode(property, node) {
         this[`${property}Node`] = node;
+
+        const callbackName = `on${capitalize(property)}Setup`;
+
+        if (typeof this[callbackName] === 'function') {
+            this[callbackName](node);
+        }
+
+        if (typeof this.args[callbackName] === 'function') {
+            this.args[callbackName](node);
+        }
+    }
+
+    @action onSidebarSetup(sidebarNode) {
+        const { hide, onSetup } = this.args;
+
+        if (hide === true) {
+            this.hideNow(sidebarNode);
+        }
+
+        if (typeof onSetup === 'function') {
+            onSetup(new SidebarContext(this));
+        }
     }
 
     @action resize(event) {
@@ -98,5 +133,51 @@ export default class LayoutSidebarComponent extends Component {
         if (typeof onResizeEnd === 'function') {
             onResizeEnd({ event, sidebarNode });
         }
+    }
+
+    @action hideNow(sidebarNode) {
+        sidebarNode = sidebarNode ?? this.sidebarNode;
+        return this.hide(sidebarNode, true);
+    }
+
+    @action hide(sidebarNode, now = false) {
+        sidebarNode = sidebarNode ?? this.sidebarNode;
+
+        if (now === true) {
+            sidebarNode.classList.add('sidebar-hidden');
+
+            this.minimized = false;
+            this.hidden = true;
+            return;
+        }
+
+        sidebarNode.classList.add('sidebar-hide');
+
+        later(
+            this,
+            () => {
+                sidebarNode.classList.add('sidebar-hidden');
+                sidebarNode.classList.remove('sidebar-hide');
+
+                this.minimized = false;
+                this.hidden = true;
+            },
+            500
+        );
+    }
+
+    @action show(sidebarNode) {
+        sidebarNode = sidebarNode ?? this.sidebarNode;
+        sidebarNode.classList.remove('sidebar-hidden', 'sidebar-hide', 'sidebar-minimized');
+        this.minimized = false;
+        this.hidden = false;
+    }
+
+    @action minimize(sidebarNode) {
+        sidebarNode = sidebarNode ?? this.sidebarNode;
+        sidebarNode.classList.remove('sidebar-hidden', 'sidebar-hide');
+        sidebarNode.classList.add('sidebar-minimized');
+        this.hidden = false;
+        this.minimized = true;
     }
 }

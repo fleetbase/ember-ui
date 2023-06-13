@@ -7,6 +7,7 @@ import { assign } from '@ember/polyfills';
 import { tracked } from '@glimmer/tracking';
 import { timeout } from 'ember-concurrency';
 import { restartableTask, dropTask } from 'ember-concurrency-decorators';
+import generateUuid from '@fleetbase/ember-core/utils/generate-uuid';
 import config from 'ember-get-config';
 
 const getConfigOption = (key, defaultValue) => {
@@ -208,7 +209,40 @@ export default class ModelSelectComponent extends Component {
 
         let _options;
 
-        if (this.infiniteScroll) {
+        if (typeof this.args.customSearchEndpoint === 'string') {
+            const customQuery = (endpoint, query, options = {}) => {
+                return new Promise((resolve) => {
+                    this.fetch
+                        .get(endpoint, query, options)
+                        .then((results) => {
+                            let records = results.map((result) => {
+                                let modelName = this.args.modelName;
+                                let normalizedModel;
+
+                                // if no id set "imaginary" id
+                                if (!result.uuid) {
+                                    result.uuid = generateUuid();
+                                }
+
+                                try {
+                                    normalizedModel = this.store.push(this.store.normalize(modelName, result));
+                                } catch {
+                                    return null;
+                                }
+
+                                return normalizedModel;
+                            });
+
+                            resolve(records);
+                        })
+                        .catch(() => {
+                            resolve([]);
+                        });
+                });
+            };
+
+            _options = yield customQuery(this.args.customSearchEndpoint, query);
+        } else if (this.infiniteScroll) {
             // ember-infinity configuration
             query.perPage = this.pageSize;
             query.perPageParam = this.perPageParam;

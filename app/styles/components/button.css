@@ -202,6 +202,34 @@ a.btn.btn-magic:active,
     @apply bg-indigo-700;
 }
 
+.btn.btn-black,
+a.btn.btn-black,
+.fc-button.btn-black,
+.ui-full-calendar .fc-button.btn-black {
+    @apply text-white bg-black border-gray-900 shadow-sm;
+}
+
+.btn.btn-black:hover:not(:disabled),
+a.btn.btn-black:hover:not(:disabled),
+.fc-button.btn-black:hover:not(:disabled),
+.ui-full-calendar .fc-button.btn-black:hover:not(:disabled) {
+    @apply bg-black bg-opacity-75 text-white;
+}
+
+.btn.btn-black:focus,
+a.btn.btn-black:focus,
+.fc-button.btn-black:focus,
+.ui-full-calendar .fc-button.btn-black:focus {
+    @apply outline-0 border-gray-800;
+}
+
+.btn.btn-black:active,
+a.btn.btn-black:active,
+.fc-button.btn-black:active,
+.ui-full-calendar .fc-button.btn-black:active {
+    @apply bg-indigo-900;
+}
+
 .btn.btn-secondary,
 a.btn.btn-secondary,
 .fc-button.btn-secondary,
