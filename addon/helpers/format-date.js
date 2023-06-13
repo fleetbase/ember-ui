@@ -1,6 +1,6 @@
 import { helper } from '@ember/component/helper';
-import { format } from 'date-fns';
+import formatDateUtil from '../utils/format-date';
 
-export default helper(function formatDate([dateInstance, formatString]) {
-    return format(dateInstance, formatString);
+export default helper(function formatDate([dateInstance, formatString = 'PPP p']) {
+    return formatDateUtil(dateInstance, formatString);
 });

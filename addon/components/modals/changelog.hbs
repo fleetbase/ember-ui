@@ -1,0 +1,22 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}}>
+    <div class="px-5">
+        {{#if this.isLoading}}
+            <div class="p-4">
+                <Spinner />
+            </div>
+        {{else}}
+            {{#each this.releases as |release|}}
+                <div class="mb-3">
+                    <h2 class="font-mono text-black dark:text-gray-100 font-bold text-base mb-1">{{release.name}}</h2>
+                    <div class="pl-6">
+                        <ul class="list-disc">
+                            {{#each release.changes as |change|}}
+                                <li class="text-sm font-mono text-gray-800 dark:text-gray-300">{{change}}</li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+            {{/each}}
+        {{/if}}
+    </div>
+</Modal::Default>

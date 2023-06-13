@@ -32,8 +32,18 @@ export default class DatePickerComponent extends Component {
             options.container = this.nodeRef.parentNode;
         }
 
+        const onSelect = function () {
+            if (typeof this.args.onChange === 'function') {
+                this.args.onChange(...arguments);
+            }
+
+            if (typeof this.args.onSelect === 'function') {
+                this.args.onSelect(...arguments);
+            }
+        };
+
         Object.keys(this.args).forEach((key) => {
-            if (key === 'value') {
+            if (key === 'value' || key === 'onSelect') {
                 return;
             }
 
@@ -41,6 +51,8 @@ export default class DatePickerComponent extends Component {
                 options[key] = this.args[key];
             }
         });
+
+        options.onSelect = onSelect.bind(this);
 
         return options;
     }
