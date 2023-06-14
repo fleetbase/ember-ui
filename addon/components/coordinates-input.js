@@ -37,7 +37,7 @@ export default class CoordinatesInputComponent extends Component {
         if (this.isPoint(point)) {
             const [longitude, latitude] = point.coordinates;
 
-            this.updateCoordinates(latitude, longitude, false);
+            this.updateCoordinates(latitude, longitude, { fireCallback: false });
         }
     }
 
@@ -48,25 +48,38 @@ export default class CoordinatesInputComponent extends Component {
         this.mapLng = whois.longitude ?? DEFAULT_LONGITUDE;
     }
 
-    @action updateCoordinates(lat, lng, fireCallback = true) {
+    @action updateCoordinates(lat, lng, options = {}) {
         if (this.isPoint(lat)) {
             const [longitude, latitude] = lat.coordinates;
 
             return this.updateCoordinates(latitude, longitude);
         }
 
-        this.latitude = this.mapLat = lat;
-        this.longitude = this.mapLng = lng;
+        const fireCallback = options.fireCallback ?? true;
+        const updateMap = options.updateMap ?? true;
 
-        if (fireCallback && typeof this.args.onChange === 'function') {
+        this.latitude = lat;
+        this.longitude = lng;
+
+        if (updateMap === true) {
+            this.mapLat = lat;
+            this.mapLng = lng;
+        }
+
+        if (fireCallback === true && typeof this.args.onChange === 'function') {
             this.args.onChange({ latitude: lat, longitude: lng });
         }
     }
 
     @action setCoordinatesFromMap({ target }) {
+        const { onUpdatedFromMap } = this.args;
         const { lat, lng } = target.getCenter();
 
-        this.updateCoordinates(lat, lng);
+        this.updateCoordinates(lat, lng, { updateMap: false });
+
+        if (typeof onUpdatedFromMap === 'function') {
+            onUpdatedFromMap({ latitude: lat, longitude: lng });
+        }
     }
 
     @action async reverseLookup() {
