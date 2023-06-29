@@ -1,7 +1,7 @@
 <header class="next-view-header" ...attributes>
     <div class="next-view-header-left">
         <LinkToExternal @route="console" class="logo navbar-logo mr-4">
-            <Image src="/images/icon.png" width="20" height="20" class="w-8 h-8 shadow-sm" alt="Fleetbase" />
+            <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
         <ExtensionsList @extensions={{@extensions}} @onAction={{@onAction}} @itemClass="next-view-header-item" class="mr-4" />
         <div id="view-header-left-content-a"></div>
