@@ -13,16 +13,18 @@
                 {{#if action.separator}}
                     <div class="next-dd-menu-seperator"></div>
                 {{else}}
-                    <div role="group" class="px-1">
-                        <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action @row dd)}}>
-                            {{#if action.icon}}
-                                <span class="mr-1">
-                                    <FaIcon class={{action.iconClass}} @icon={{action.icon}} @prefix={{action.iconPrefix}} />
-                                </span>
-                            {{/if}}
-                            {{action.label}}
-                        </a>
-                    </div>
+                    {{#if (is-dd-item-visible @row action.isVisible)}}
+                        <div role="group" class="px-1">
+                            <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action @row dd)}}>
+                                {{#if action.icon}}
+                                    <span class="mr-1">
+                                        <FaIcon class={{action.iconClass}} @icon={{action.icon}} @prefix={{action.iconPrefix}} />
+                                    </span>
+                                {{/if}}
+                                {{action.label}}
+                            </a>
+                        </div>
+                    {{/if}}
                 {{/if}}
             {{/each}}
         </div>

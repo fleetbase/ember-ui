@@ -45,6 +45,7 @@
 
 .status-badge[class*='5'] > span,
 .status-badge.disabled-status-badge > span,
+.status-badge.inactive-status-badge > span,
 .status-badge.failed-status-badge > span,
 .status-badge.canceled-status-badge > span {
     @apply text-red-800 bg-red-100;
