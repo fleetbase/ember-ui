@@ -309,12 +309,14 @@ label.required:after {
     display: flex;
 }
 
+.country-selector .ember-power-select-trigger,
 .money-input-currency-selector .ember-power-select-trigger,
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-trigger,
 .ui-money-input .money-input-currency-selector .ember-power-select-trigger {
     @apply border-0 rounded-none bg-transparent m-0 p-0;
 }
 
+.country-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 .ui-money-input .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
@@ -324,12 +326,14 @@ label.required:after {
     min-width: 20rem;
 }
 
+.country-selector .ember-power-select-search-input,
 .money-input-currency-selector .ember-power-select-search-input,
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-power-select-search-input,
 .ui-money-input .money-input-currency-selector .ember-power-select-search-input {
     @apply text-sm rounded shadow-sm;
 }
 
+.country-selector.ember-basic-dropdown-trigger,
 .money-input-currency-selector.ember-basic-dropdown-trigger,
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
 .ui-money-input .money-input-currency-selector.ember-basic-dropdown-trigger,
@@ -340,6 +344,7 @@ label.required:after {
     padding: 0 !important;
 }
 
+.country-selector.ember-basic-dropdown-trigger,
 .money-input-currency-selector.ember-basic-dropdown-trigger,
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger.ember-basic-dropdown-trigger,
 .ui-money-input .money-input-currency-selector.ember-basic-dropdown-trigger,
@@ -349,23 +354,29 @@ label.required:after {
     @apply flex items-center justify-center text-center m-0 p-0;
 }
 
+.country-selector.ember-basic-dropdown-trigger,
 .money-input-currency-selector.ember-basic-dropdown-trigger {
     display: flex;
     align-items: center;
     justify-content: flex-start;
 }
 
+.country-selector .ember-power-select-status-icon,
 .money-input-currency-selector .ember-power-select-status-icon {
     display: none;
 }
 
+.country-selector-trigger:not(.form-input-sm),
 .money-input-currency-selector:not(.form-input-sm) {
     height: 38px;
 }
 
+body[data-theme='dark'] .country-selector .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
+body[data-theme='dark'] .country-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content,
 body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content,
+body[data-theme='dark'] .country-selector .ember-basic-dropdown-content,
 body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content {
     @apply bg-gray-800 rounded-md shadow text-gray-100 border border-gray-900;
 }
@@ -377,6 +388,14 @@ body[data-theme='dark']
     + .ember-basic-dropdown-content-wormhole-origin
     > .ember-basic-dropdown-content
     .ember-power-select-option[aria-selected='true'],
+body[data-theme='dark']
+    .country-selector
+    .ember-basic-dropdown
+    > .ember-basic-dropdown-trigger
+    + .ember-basic-dropdown-content-wormhole-origin
+    > .ember-basic-dropdown-content
+    .ember-power-select-option[aria-selected='true'],
+body[data-theme='dark'] .country-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'],
 body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'],
 body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'],
 body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content .ember-power-select-option[aria-selected='true'] {
@@ -390,7 +409,15 @@ body[data-theme='dark']
     + .ember-basic-dropdown-content-wormhole-origin
     > .ember-basic-dropdown-content
     .ember-power-select-search-input,
+body[data-theme='dark']
+    .country-selector
+    .ember-basic-dropdown
+    > .ember-basic-dropdown-trigger
+    + .ember-basic-dropdown-content-wormhole-origin
+    > .ember-basic-dropdown-content
+    .ember-power-select-search-input,
 body[data-theme='dark'] .money-input-currency-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-search-input,
+body[data-theme='dark'] .country-selector + .ember-basic-dropdown-content-wormhole-origin > .ember-basic-dropdown-content .ember-power-select-search-input,
 body[data-theme='dark'] .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger .ember-basic-dropdown-content .ember-power-select-search-input,
 body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-content .ember-power-select-search-input {
     @apply border border-blue-900 bg-gray-900 py-1;
