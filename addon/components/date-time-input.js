@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { computed, action } from '@ember/object';
-import { isValid, parse, format } from 'date-fns';
+import { action } from '@ember/object';
+import { parse, format } from 'date-fns';
 
 export default class DateTimeInputComponent extends Component {
     @tracked timeFormat = 'HH:mm';
