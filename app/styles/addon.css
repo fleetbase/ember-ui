@@ -1,6 +1,4 @@
-/**
- * Layout
- */
+/** Layout */
 @import 'layout/reset.css';
 @import 'layout/next.css';
 @import 'layout/legacy.css';
@@ -8,9 +6,7 @@
 @import 'layout/dark-theme.css';
 @import 'layout/light-theme.css';
 
-/**
- * Components
- */
+/** Components */
 @import 'components/modal.css';
 @import 'components/button.css';
 @import 'components/input.css';
@@ -40,7 +36,5 @@
 @import 'components/date-picker.css';
 @import 'components/dashboard.css';
 
-/**
- * 3p
- */
+/** Third party */
 @import 'air-datepicker/air-datepicker.css';
