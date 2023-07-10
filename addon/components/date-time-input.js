@@ -7,71 +7,14 @@ export default class DateTimeInputComponent extends Component {
     @tracked timeFormat = 'HH:mm';
     @tracked dateFormat = 'yyyy-MM-dd';
     @tracked dateTimeFormat = 'yyyy-MM-dd HH:mm';
-    @tracked _time;
-    @tracked _date;
+    @tracked date;
+    @tracked time;
 
-    /**
-     * Getter for time
-     *
-     * @readonly
-     * @memberof DateTimeInputComponent
-     */
-    @computed('args.value', '_time', 'timeFormat') get time() {
-        const { timeFormat, _time } = this;
-        const { value } = this.args;
-        const instance = parse(value, timeFormat, new Date());
-        let time;
+    constructor() {
+        super(...arguments);
 
-        if (isValid(instance)) {
-            time = format(instance, timeFormat);
-        }
-
-        if (_time) {
-            time = _time;
-        }
-
-        return time;
-    }
-
-    /**
-     * Setter for time
-     *
-     * @memberof DateTimeInputComponent
-     */
-    set time(time) {
-        this._time = time;
-    }
-
-    /**
-     * Getter for date
-     *
-     * @readonly
-     * @memberof DateTimeInputComponent
-     */
-    @computed('args.value', '_date', 'dateFormat') get date() {
-        const { dateFormat, _date } = this;
-        const { value } = this.args;
-        const instance = parse(value, dateFormat, new Date());
-        let date;
-
-        if (isValid(instance)) {
-            date = format(instance, dateFormat);
-        }
-
-        if (_date) {
-            date = _date;
-        }
-
-        return date;
-    }
-
-    /**
-     * Setter for date
-     *
-     * @memberof DateTimeInputComponent
-     */
-    set date(date) {
-        this._date = date;
+        this.date = this.args.value instanceof Date ? format(this.args.value, this.dateFormat) : null;
+        this.time = this.args.value instanceof Date ? format(this.args.value, this.timeFormat) : null;
     }
 
     /**
@@ -83,22 +26,30 @@ export default class DateTimeInputComponent extends Component {
      */
     @action update(prop, { target }) {
         const { onUpdate } = this.args;
-        const { dateTimeFormat, date, time } = this;
+        let { dateTimeFormat, date, time } = this;
         let { value } = target;
         let dateTime, dateTimeInstance;
 
         if (prop === 'time') {
-            dateTimeInstance = parse(`${date} ${value}`, dateTimeFormat, new Date());
+            if (date) {
+                dateTimeInstance = parse(`${date} ${value}`, dateTimeFormat, new Date());
+            } else {
+                dateTimeInstance = parse(`${value}`, this.timeFormat, new Date());
+            }
         }
 
         if (prop === 'date') {
-            dateTimeInstance = parse(`${value} ${time}`, dateTimeFormat, new Date());
+            if (time) {
+                dateTimeInstance = parse(`${value} ${time}`, dateTimeFormat, new Date());
+            } else {
+                dateTimeInstance = parse(`${value}`, this.dateFormat, new Date());
+            }
         }
 
         dateTime = format(dateTimeInstance, dateTimeFormat);
 
         if (typeof onUpdate === 'function') {
-            this.args.onUpdate(dateTimeInstance, dateTime);
+            onUpdate(dateTimeInstance, dateTime);
         }
     }
 }
