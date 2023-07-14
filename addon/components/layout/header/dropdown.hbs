@@ -6,7 +6,7 @@
         <dd.Content class={{@contentClass}}>
             <div class="next-dd-menu {{@dropdownMenuClass}} {{if dd.isOpen 'is-open'}}">
                 {{#each @items as |item|}}
-                    <Layout::Header::Dropdown::Item @item={{item}} @onAction={{fn this.onAction dd}} />
+                    <Layout::Header::Dropdown::Item @item={{item}} @onClick={{item.onClick}} @onAction={{fn this.onAction dd}} />
                 {{/each}}
             </div>
         </dd.Content>

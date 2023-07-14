@@ -3,12 +3,10 @@
     "version": "0.1.2",
     "description": "Fleetbase UI provides all the interface components, helpers, services and utilities for building a Fleetbase extension into the Console.",
     "keywords": [
-        "fleetbase-extension",
         "fleetbase-ui",
         "fleetbase-extension-ui",
         "fleetbase",
-        "ember-addon",
-        "ember-engine"
+        "ember-addon"
     ],
     "repository": "https://github.com/fleetbase/ember-ui",
     "license": "MIT",

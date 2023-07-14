@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
+import { computed, action } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { isArray } from '@ember/array';
 
@@ -13,16 +13,29 @@ import { isArray } from '@ember/array';
  */
 export default class LayoutHeaderComponent extends Component {
     @service store;
+    @service router;
+    @service hostRouter;
+    @service universe;
     @alias('args.user') user;
 
     @computed('store', 'user.company_uuid') get company() {
         return this.store.peekRecord('company', this.user.company_uuid);
     }
 
-    @computed('args.{organizations,organizationNavigationItems}', 'organizations.@each.id', 'user.{company_name,email}')
+    @computed('args.organizationNavigationItems', 'args.organizations.length', 'organizations.@each.id', 'universe.organizationMenuItems', 'user.{company_name,email}')
     get organizationNavigationItems() {
+        const universeOrganizationItems = this.universe.organizationMenuItems;
+
         if (isArray(this.args.organizationNavigationItems)) {
-            return this.args.organizationNavigationItems;
+            const items = this.args.organizationNavigationItems;
+
+            if (universeOrganizationItems) {
+                for (let i = 0; i < universeOrganizationItems.length; i++) {
+                    const menuItem = universeOrganizationItems[i];
+                    menuItem.text = menuItem.title;
+                    items.insertAt(menuItem.index, menuItem);
+                }
+            }
         }
 
         const items = [
@@ -55,7 +68,7 @@ export default class LayoutHeaderComponent extends Component {
                 icon: 'house',
             },
             {
-                route: 'console.settings',
+                route: 'console.settings.index',
                 text: 'Organization settings',
                 icon: 'gear',
             },
@@ -97,17 +110,38 @@ export default class LayoutHeaderComponent extends Component {
             },
         ]);
 
+        if (universeOrganizationItems) {
+            const preIndex = (this.args.organizations?.length ?? 0) + 3;
+            for (let i = 0; i < universeOrganizationItems.length; i++) {
+                const menuItem = universeOrganizationItems[i];
+                menuItem.text = menuItem.title;
+                items.insertAt(preIndex + menuItem.index, menuItem);
+            }
+        }
+
         return items;
     }
 
-    @computed('args.userNavigationItems') get userNavigationItems() {
+    @computed('args.userNavigationItems', 'universe.userMenuItems') get userNavigationItems() {
+        const universeUserMenuItems = this.universe.userMenuItems;
+
         if (isArray(this.args.userNavigationItems)) {
-            return this.args.userNavigationItems;
+            const items = this.args.userNavigationItems;
+
+            if (universeUserMenuItems) {
+                for (let i = 0; i < universeUserMenuItems.length; i++) {
+                    const menuItem = universeUserMenuItems[i];
+                    menuItem.text = menuItem.title;
+                    items.insertAt(menuItem.index, menuItem);
+                }
+            }
+
+            return items;
         }
 
-        return [
+        const items = [
             {
-                route: 'console.account',
+                route: 'console.account.index',
                 text: 'View Profile',
             },
             {
@@ -159,5 +193,21 @@ export default class LayoutHeaderComponent extends Component {
                 action: 'invalidateSession',
             },
         ];
+
+        if (universeUserMenuItems) {
+            for (let i = 0; i < universeUserMenuItems.length; i++) {
+                const menuItem = universeUserMenuItems[i];
+                menuItem.text = menuItem.title;
+                items.insertAt(menuItem.index, menuItem);
+            }
+        }
+
+        return items;
+    }
+
+    @action routeTo(route) {
+        const router = this.router ?? this.hostRouter;
+
+        return router.transitionTo(route);
     }
 }
