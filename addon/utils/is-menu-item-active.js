@@ -1,3 +1,5 @@
+import window from 'ember-window-mock';
+
 export default function isMenuItemActive(section, slug, view) {
     let path = window.location.pathname;
     let segments = path.replace(/^\/|\/$/g, '').split('/');
