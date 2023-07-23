@@ -72,9 +72,15 @@ export default class ModalsManagerService extends Service {
      * @return {RSVP.Promise}
      */
     @action confirm(options = {}) {
+        let modalClass = 'flb--confirm-modal modal-sm';
+
+        if (typeof options.modalClass === 'string') {
+            modalClass = `flb--confirm-modal ${options.modalClass}`;
+        }
+
         options = assign(options, {
             hideTitle: true,
-            modalClass: 'flb--confirm-modal modal-sm',
+            modalClass,
         });
         return this.show('modal/layouts/confirm', options);
     }
@@ -83,11 +89,17 @@ export default class ModalsManagerService extends Service {
      * Shows a alert dialog
      */
     @action alert(options = {}) {
+        let modalClass = 'flb--alert-modal modal-sm';
+
+        if (typeof options.modalClass === 'string') {
+            modalClass = `flb--alert-modal ${options.modalClass}`;
+        }
+
         options = assign(options, {
             hideTitle: true,
             hideAcceptButton: true,
             declineButtonText: 'OK',
-            modalClass: 'flb--alert-modal modal-sm',
+            modalClass,
         });
 
         return this.show('modal/layouts/alert', options);

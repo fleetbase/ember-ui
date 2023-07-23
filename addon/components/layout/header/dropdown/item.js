@@ -37,7 +37,7 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
 
         // if interactive use
         if (this.isInteractive && !isBlank(item)) {
-            return isMenuItemActive(item.slug, item.view);
+            return isMenuItemActive(item.section, item.slug, item.view);
         }
 
         return typeof route === 'string' && currentRoute.startsWith(route);

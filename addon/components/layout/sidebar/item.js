@@ -1,28 +1,47 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { isBlank } from '@ember/utils';
+import { addObserver, removeObserver } from '@ember/object/observers';
 import isMenuItemActive from '../../../utils/is-menu-item-active';
 
 export default class LayoutSidebarItemComponent extends Component {
     @service router;
     @service hostRouter;
+    @tracked active;
 
-    @computed('args.route', 'hostRouter.currentRouteName', 'router.currentRouteName')
-    get active() {
+    constructor() {
+        super(...arguments);
+        this.active = this.checkIfActive();
+        const router = this.getRouter();
+        router.on('routeDidChange', this.trackActiveFlag);
+    }
+
+    willDestroy() {
+        super.willDestroy(...arguments);
+        const router = this.getRouter();
+        router.off('routeDidChange', this.trackActiveFlag);
+    }
+
+    @action trackActiveFlag() {
+        this.active = this.checkIfActive();
+    }
+
+    @action checkIfActive() {
         const { route, onClick, item } = this.args;
         const router = this.getRouter();
         const currentRoute = router.currentRouteName;
         const isInteractive = isBlank(route) && typeof onClick === 'function';
 
         if (isInteractive && !isBlank(item)) {
-            return isMenuItemActive(item.slug, item.view);
+            return isMenuItemActive(item.section, item.slug, item.view);
         }
 
         return typeof route === 'string' && currentRoute.startsWith(route);
     }
 
-    @action onClick(event) {
+    @action onClick(event, ...params) {
         const { url, target, route, model, onClick, options } = this.args;
         const router = this.getRouter();
         const anchor = event.target?.closest('a');
