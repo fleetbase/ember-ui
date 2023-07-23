@@ -37,6 +37,17 @@
     </div>
 {{/if}}
 
+{{#if this.isInteractive}}
+    <div class="px-1 {{@item.wrapperClass}}">
+        <a href="javascript:;" class="next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" @item.onClick}} ...attributes>
+            {{#if @item.icon}}
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+            {{/if}}
+            <span>{{@item.text}}</span>
+        </a>
+    </div>
+{{/if}}
+
 {{#if this.isSeperator}}
     <div class="next-dd-menu-seperator"></div>
 {{/if}}

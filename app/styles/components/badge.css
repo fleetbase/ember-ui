@@ -62,6 +62,9 @@
 .status-badge.test-status-badge > span,
 .status-badge.warning-status-badge > span,
 .status-badge.preparing-status-badge > span,
+.status-badge.trial-status-badge > span,
+.status-badge.trialing-status-badge > span,
+.status-badge.grace-period-status-badge > span,
 .status-badge.pending-status-badge > span {
     @apply text-yellow-800 bg-yellow-100;
 }
@@ -70,6 +73,9 @@
 .status-badge.test-status-badge > span svg,
 .status-badge.warning-status-badge > span svg,
 .status-badge.preparing-status-badge > span svg,
+.status-badge.trial-status-badge > span svg,
+.status-badge.trialing-status-badge > span svg,
+.status-badge.grace-period-status-badge > span svg,
 .status-badge.pending-status-badge > span svg {
     @apply text-yellow-400;
 }
