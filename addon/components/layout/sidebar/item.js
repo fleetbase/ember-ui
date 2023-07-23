@@ -1,9 +1,8 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { computed, action } from '@ember/object';
+import { action } from '@ember/object';
 import { isBlank } from '@ember/utils';
-import { addObserver, removeObserver } from '@ember/object/observers';
 import isMenuItemActive from '../../../utils/is-menu-item-active';
 
 export default class LayoutSidebarItemComponent extends Component {
@@ -41,7 +40,7 @@ export default class LayoutSidebarItemComponent extends Component {
         return typeof route === 'string' && currentRoute.startsWith(route);
     }
 
-    @action onClick(event, ...params) {
+    @action onClick(event) {
         const { url, target, route, model, onClick, options } = this.args;
         const router = this.getRouter();
         const anchor = event.target?.closest('a');

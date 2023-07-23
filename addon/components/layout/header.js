@@ -22,7 +22,7 @@ export default class LayoutHeaderComponent extends Component {
         return this.store.peekRecord('company', this.user.company_uuid);
     }
 
-    @computed('args.organizationNavigationItems', 'args.organizations.length', 'organizations.@each.id', 'universe.organizationMenuItems', 'user.{company_name,email}')
+    @computed('args.{organizationNavigationItems,organizations.length}', 'organizations.@each.id', 'universe.organizationMenuItems', 'user.{company_name,email}')
     get organizationNavigationItems() {
         const universeOrganizationItems = this.universe.organizationMenuItems;
 

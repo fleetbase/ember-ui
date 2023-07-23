@@ -6,7 +6,7 @@ export default function isMenuItemActive(section, slug, view) {
     let viewMatch = segments.includes(view);
 
     if (section && view) {
-        return sectionMatch && slugMatch && viewMatch
+        return sectionMatch && slugMatch && viewMatch;
     }
 
     if (section) {
@@ -15,7 +15,7 @@ export default function isMenuItemActive(section, slug, view) {
 
     if (view) {
         return slugMatch && viewMatch;
-    }   
+    }
 
     return slugMatch;
 }
