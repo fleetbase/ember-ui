@@ -27,7 +27,9 @@
         "start": "ember serve",
         "test": "npm-run-all lint test:*",
         "test:ember": "ember test",
-        "test:ember-compatibility": "ember try:each"
+        "test:ember-compatibility": "ember try:each",
+        "publish:npm": "npm config set registry https://registry.npmjs.org/ && npm publish",
+        "publish:github": "npm config set '@fleetbase:registry' https://npm.pkg.github.com/ && npm publish"
     },
     "dependencies": {
         "@ember/render-modifiers": "^2.0.4",
