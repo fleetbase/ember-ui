@@ -153,6 +153,8 @@ body[data-theme='light'] .form-datalist:hover {
 #ember-basic-dropdown-wormhole .ember-power-select-trigger .ember-power-select-placeholder,
 .ember-model-select .ember-power-select-trigger .ember-power-select-placeholder {
     @apply w-full ml-0 truncate;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
     color: #9fa6b2;
 }
 
@@ -160,12 +162,20 @@ body[data-theme='light'] .form-datalist:hover {
 #ember-basic-dropdown-wormhole .ember-power-select-trigger .ember-power-select-selected-item,
 .ember-model-select .ember-power-select-trigger .ember-power-select-selected-item {
     @apply w-full ml-0 truncate;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
 }
 
 .fleetbase-power-select .ember-model-select__dropdown,
 #ember-basic-dropdown-wormhole .ember-model-select__dropdown,
 .ember-model-select .ember-model-select__dropdown {
     @apply bg-white border border-gray-300 shadow;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-model-select__dropdown,
+body[data-theme='dark'] #ember-basic-dropdown-wormhole .ember-model-select__dropdown,
+body[data-theme='dark'] .ember-model-select .ember-model-select__dropdown {
+    @apply bg-gray-700 border-gray-900 shadow;
 }
 
 .fleetbase-power-select .ember-power-select-option,
@@ -180,6 +190,12 @@ body[data-theme='light'] .form-datalist:hover {
     @apply px-2.5 py-1.5 text-xs border border-gray-300 leading-4;
 }
 
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-search > input,
+body[data-theme='dark'] #ember-basic-dropdown-wormhole .ember-power-select-search > input,
+body[data-theme='dark'] .ember-model-select .ember-power-select-search > input {
+    @apply text-white bg-gray-800 border-gray-900 shadow-sm;
+}
+
 body[data-theme='light'] .fleetbase-power-select[aria-current='true'],
 body[data-theme='light'] #ember-basic-dropdown-wormhole[aria-current='true'],
 body[data-theme='light'] .ember-model-select[aria-current='true'] {
@@ -190,6 +206,14 @@ body[data-theme='light'] .fleetbase-power-select[aria-selected='true'],
 body[data-theme='light'] #ember-basic-dropdown-wormhole[aria-selected='true'],
 body[data-theme='light'] .ember-model-select[aria-selected='true'] {
     @apply bg-gray-300;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-search {
+    @apply bg-gray-700 border-gray-800 border;
+}
+
+body[data-theme='dark'] .fleetbase-power-select .ember-power-select-dropdown {
+    @apply bg-gray-800 border-gray-800;
 }
 
 body[data-theme='dark'] .fleetbase-power-select .ember-power-select-trigger .ember-power-select-placeholder {
@@ -214,10 +238,6 @@ body[data-theme='dark'] .fleetbase-power-select .ember-power-select-option[aria-
 
 body[data-theme='dark'] .fleetbase-power-select .ember-power-select-option[aria-selected='true'] {
     @apply bg-gray-900;
-}
-
-body[data-theme='dark'] .fleetbase-power-select .ember-power-select-search > input {
-    @apply text-white bg-gray-700 border border-gray-900 shadow;
 }
 
 label.required:after {
@@ -522,4 +542,9 @@ body[data-theme='dark'] .iti__country-list {
 
 .fleetbase-checkbox {
     @apply w-4 h-4 transition duration-150 ease-in-out bg-gray-200 border-gray-200 dark:bg-gray-800 dark:border-gray-900;
+}
+
+body[data-theme="light"] .form-checkbox, 
+body[data-theme="light"] .form-radio {
+    @apply border-gray-200;
 }

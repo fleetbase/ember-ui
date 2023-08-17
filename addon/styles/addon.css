@@ -2,6 +2,7 @@
 @import 'layout/reset.css';
 @import 'layout/next.css';
 @import 'layout/legacy.css';
+@import 'layout/mobile.css';
 @import 'layout/utilities.css';
 @import 'layout/dark-theme.css';
 @import 'layout/light-theme.css';
@@ -35,6 +36,7 @@
 @import 'components/ember-power-select.css';
 @import 'components/date-picker.css';
 @import 'components/dashboard.css';
+@import 'components/kanban.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';

@@ -8,5 +8,6 @@ module.exports = {
         'no-down-event-binding': 'off',
         'table-groups': 'off',
         'link-href-attributes': 'off',
+        'simple-unless': 'off',
     },
 };
