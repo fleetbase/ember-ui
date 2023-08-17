@@ -3,26 +3,28 @@
         <LinkToExternal @route="console" class="logo navbar-logo mr-4">
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
-        <div role="menu" class="next-catalog-menu-items flex mr-4">
-            {{#each @menuItems as |menuItem|}}
-                <LinkToExternal @route={{menuItem.route}} class="next-view-header-item {{menuItem.class}}" role="menuitem">
+        {{#unless (media 'isMobile')}}
+            <div role="menu" class="next-catalog-menu-items flex mr-4">
+                {{#each @menuItems as |menuItem|}}
+                    <LinkToExternal @route={{menuItem.route}} class="next-view-header-item {{menuItem.class}}" role="menuitem">
+                        <div class="w-6">
+                            <FaIcon @icon={{menuItem.icon}} @size="sm" />
+                        </div>
+                        <div>
+                            <span>{{menuItem.title}}</span>
+                        </div>
+                    </LinkToExternal>
+                {{/each}}
+                <LinkToExternal @route="console.extensions" class="next-view-header-item" role="menuitem">
                     <div class="w-6">
-                        <FaIcon @icon={{menuItem.icon}} @size="sm" />
+                        <FaIcon @icon="shapes" @size="sm" />
                     </div>
                     <div>
-                        <span>{{menuItem.title}}</span>
+                        <span>Extensions</span>
                     </div>
                 </LinkToExternal>
-            {{/each}}
-            <LinkToExternal @route="console.extensions" class="next-view-header-item" role="menuitem">
-                <div class="w-6">
-                    <FaIcon @icon="shapes" @size="sm" />
-                </div>
-                <div>
-                    <span>Extensions</span>
-                </div>
-            </LinkToExternal>
-        </div>
+            </div>
+        {{/unless}}
         <div id="view-header-left-content-a"></div>
         {{yield}}
         <div id="view-header-left-content-b"></div>

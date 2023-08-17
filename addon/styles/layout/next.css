@@ -34,7 +34,7 @@ body, html, button, a, * {
     height: 100%;
 }
 
-.next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items > .next-mobile-navbar-tab-item.menu-toggle {
+.next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items + .next-mobile-navbar-tab-item.menu-toggle {
     @apply shadow-next-nav absolute right-0 top-0 bottom-0 border-l border-gray-300 bg-white;
 }
 
@@ -57,7 +57,7 @@ body[data-theme='dark'] .next-mobile-navbar .next-mobile-navbar-tabs > .next-mob
     @apply border-gray-700;
 }
 
-body[data-theme='dark'] .next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items > .next-mobile-navbar-tab-item.menu-toggle {
+body[data-theme='dark'] .next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items + .next-mobile-navbar-tab-item.menu-toggle {
     @apply border-gray-800 bg-gray-900;
 }
 

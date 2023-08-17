@@ -13,7 +13,7 @@ const postcssAtRulesVariables = require('postcss-at-rules-variables');
 const autoprefixer = require('autoprefixer');
 const tailwind = require('tailwindcss');
 
-function resolveTailwindConfig () {
+function resolveTailwindConfig() {
     // In the future we want to find the host app tailwind config first
     // Path to the host app's base directory
     // const hostAppTailwindPath = path.join(this.project.root, 'tailwind.js');
@@ -28,7 +28,7 @@ function resolveTailwindConfig () {
 
     // Fallback to the local tailwind.js in the addon base directory
     return addonTailwindPath;
-};
+}
 
 module.exports = {
     name,
@@ -59,13 +59,7 @@ module.exports = {
             },
             filter: {
                 enabled: true,
-                plugins: [
-                    postcssAtRulesVariables, 
-                    postcssMixins, 
-                    postcssEach, 
-                    postcssConditionals, 
-                    tailwind(resolveTailwindConfig())
-                ],
+                plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind(resolveTailwindConfig())],
             },
         },
     },
