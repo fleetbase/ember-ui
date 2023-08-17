@@ -1,7 +1,7 @@
 {{#if (media 'isMobile')}}
     <div class="next-mobile-navbar" {{did-insert this.setupMobileNavbar}} ...attributes>
         <div role="menubar" class="next-mobile-navbar-tabs">
-            <div class="scrollable-nav-items">
+            <div role="menu" class="scrollable-nav-items">
                 {{#each @menuItems as |menuItem|}}
                     <LinkToExternal @route={{menuItem.route}} class="next-mobile-navbar-tab-item {{menuItem.class}}" role="menuitem">
                         <div class="w-6">

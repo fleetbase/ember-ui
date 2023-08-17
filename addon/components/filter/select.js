@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
-import { action, get } from '@ember/object';
+import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 
 export default class FilterSelectComponent extends Component {
@@ -13,10 +13,10 @@ export default class FilterSelectComponent extends Component {
     constructor() {
         super(...arguments);
         this.value = this.args.value;
-        this.options = isArray(options) ? options : [];
+        this.options = isArray(this.args.options) ? this.args.options : [];
 
-        if (typeof filter?.filterFetchOptions === 'string') {
-            this.fetchOptions(filter?.filterFetchOptions);
+        if (typeof this.args.filter?.filterFetchOptions === 'string') {
+            this.fetchOptions(this.args.filter?.filterFetchOptions);
         }
     }
 
@@ -32,7 +32,7 @@ export default class FilterSelectComponent extends Component {
 
     @action fetchOptions(uri, params = {}) {
         const { fetchParams } = this.args;
-        const queryParams = assign(params, fetchParams ?? {});
+        const queryParams = Object.assign(params, fetchParams ?? {});
 
         this.isLoading = true;
         this.fetch

@@ -3,32 +3,6 @@ const { name } = require('./package');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
 const path = require('path');
-const fs = require('fs');
-const postcssImport = require('postcss-import');
-const postcssPresetEnv = require('postcss-preset-env');
-const postcssEach = require('postcss-each');
-const postcssMixins = require('postcss-mixins');
-const postcssConditionals = require('postcss-conditionals-renewed');
-const postcssAtRulesVariables = require('postcss-at-rules-variables');
-const autoprefixer = require('autoprefixer');
-const tailwind = require('tailwindcss');
-
-function resolveTailwindConfig() {
-    // In the future we want to find the host app tailwind config first
-    // Path to the host app's base directory
-    // const hostAppTailwindPath = path.join(this.project.root, 'tailwind.js');
-
-    // Path to the addon's base directory
-    const addonTailwindPath = path.join(__dirname, 'tailwind.js');
-
-    // Check if the file exists in the host app's base directory
-    // if (fs.existsSync(hostAppTailwindPath)) {
-    //     return hostAppTailwindPath;
-    // }
-
-    // Fallback to the local tailwind.js in the addon base directory
-    return addonTailwindPath;
-}
 
 module.exports = {
     name,
@@ -38,28 +12,6 @@ module.exports = {
             publicAssetsURL: '/assets',
             alias: {
                 libphonenumber: 'intl-tel-input/build/js/utils.js',
-            },
-        },
-        postcssOptions: {
-            compile: {
-                enabled: true,
-                cacheInclude: [/.*\.(css|scss|hbs)$/, /.*\/tailwind\/config\.js$/, /.*tailwind\.js$/],
-                plugins: [
-                    postcssAtRulesVariables,
-                    postcssImport({
-                        path: ['node_modules'],
-                        plugins: [postcssAtRulesVariables, postcssImport],
-                    }),
-                    tailwind(resolveTailwindConfig()),
-                    postcssPresetEnv({ stage: 1 }),
-                    postcssMixins,
-                    postcssEach,
-                    autoprefixer,
-                ],
-            },
-            filter: {
-                enabled: true,
-                plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind(resolveTailwindConfig())],
             },
         },
     },
