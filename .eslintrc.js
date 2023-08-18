@@ -37,6 +37,7 @@ module.exports = {
                     'postcss-at-rules-variables',
                     'autoprefixer',
                     'tailwindcss',
+                    '@tailwindcss/forms',
                 ],
             },
         ],

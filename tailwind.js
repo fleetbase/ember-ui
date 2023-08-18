@@ -3,6 +3,7 @@ module.exports = {
     darkMode: ['class', '[data-theme="dark"]'],
     content: [
         './app/**/*.{hbs,js}',
+        './addon/**/*.{hbs,js}',
         './node_modules/@fleetbase/ember-ui/addon/**/*.{hbs,js}',
         './node_modules/@fleetbase/ember-ui/addon/templates/*.{hbs,js}',
         './node_modules/@fleetbase/ember-ui/addon/templates/**/*.{hbs,js}',
