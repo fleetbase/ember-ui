@@ -25,6 +25,21 @@ module.exports = {
         'ember/no-computed-properties-in-native-classes': 'off',
         'ember/no-classic-classes': 'off',
         'ember/no-empty-glimmer-component-classes': 'off',
+        'node/no-unpublished-require': [
+            'error',
+            {
+                allowModules: [
+                    'postcss-import',
+                    'postcss-preset-env',
+                    'postcss-each',
+                    'postcss-mixins',
+                    'postcss-conditionals-renewed',
+                    'postcss-at-rules-variables',
+                    'autoprefixer',
+                    'tailwindcss',
+                ],
+            },
+        ],
     },
     overrides: [
         // node files

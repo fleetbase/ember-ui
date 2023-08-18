@@ -3,6 +3,37 @@ const { name } = require('./package');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
 const path = require('path');
+const postcssImport = require('postcss-import');
+const postcssPresetEnv = require('postcss-preset-env');
+const postcssEach = require('postcss-each');
+const postcssMixins = require('postcss-mixins');
+const postcssConditionals = require('postcss-conditionals-renewed');
+const postcssAtRulesVariables = require('postcss-at-rules-variables');
+const autoprefixer = require('autoprefixer');
+const tailwind = require('tailwindcss');
+
+const postcssOptions = {
+    compile: {
+        enabled: true,
+        cacheInclude: [/.*\.(css|scss|hbs)$/, /.*\/tailwind\/config\.js$/, /.*tailwind\.js$/],
+        plugins: [
+            postcssAtRulesVariables,
+            postcssImport({
+                path: ['node_modules'],
+                plugins: [postcssAtRulesVariables, postcssImport],
+            }),
+            postcssMixins,
+            postcssPresetEnv({ stage: 1 }),
+            postcssEach,
+            tailwind('./tailwind.js'),
+            autoprefixer,
+        ],
+    },
+    filter: {
+        enabled: true,
+        plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind('./tailwind.js')],
+    },
+};
 
 module.exports = {
     name,
@@ -14,10 +45,15 @@ module.exports = {
                 libphonenumber: 'intl-tel-input/build/js/utils.js',
             },
         },
+        postcssOptions,
     },
 
-    included: function () {
+    included: function (app) {
         this._super.included.apply(this, arguments);
+
+        // PostCSS
+        app.options = app.options || {};
+        app.options.postcssOptions = postcssOptions;
 
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
         this.import(`node_modules/intl-tel-input/build/css/intlTelInput.min.css`);
