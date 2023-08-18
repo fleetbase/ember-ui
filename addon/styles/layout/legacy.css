@@ -801,7 +801,7 @@ body[data-theme='dark'] li.iti__country > span {
 }
 
 .ui-input-info {
-    @apply bg-night-905 px-3 py-1.5 text-sm leading-5 rounded-md border border-night-905 shadow-sm;
+    @apply bg-night-905 px-3 py-1.5 text-sm leading-5 rounded-md border border-night-905 shadow-sm flex flex-row items-center justify-start;
 }
 
 .ui-input-info.danger {

@@ -122,7 +122,7 @@ export default class LayoutHeaderComponent extends Component {
         return items;
     }
 
-    @computed('args.userNavigationItems', 'universe.userMenuItems') get userNavigationItems() {
+    @computed('args.{userNavigationItems,extensions}', 'universe.userMenuItems') get userNavigationItems() {
         const universeUserMenuItems = this.universe.userMenuItems;
 
         if (isArray(this.args.userNavigationItems)) {
@@ -159,10 +159,16 @@ export default class LayoutHeaderComponent extends Component {
                 disabled: true,
                 action: 'viewChangelog',
             },
-            {
+        ];
+
+        if (this.hasExtension('@fleetbase/dev-engine')) {
+            items.pushObject({
                 route: 'console.developers',
                 text: 'Developers',
-            },
+            });
+        }
+
+        items.pushObjects([
             {
                 href: 'https://discord.gg/MJQgxHwN',
                 target: '_discord',
@@ -192,7 +198,7 @@ export default class LayoutHeaderComponent extends Component {
                 text: 'Logout',
                 action: 'invalidateSession',
             },
-        ];
+        ]);
 
         if (universeUserMenuItems) {
             for (let i = 0; i < universeUserMenuItems.length; i++) {
@@ -209,5 +215,10 @@ export default class LayoutHeaderComponent extends Component {
         const router = this.router ?? this.hostRouter;
 
         return router.transitionTo(route);
+    }
+
+    hasExtension(extensionName) {
+        const { extensions } = this.args;
+        return extensions.find(({ name }) => name === extensionName);
     }
 }

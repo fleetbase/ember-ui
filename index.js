@@ -3,6 +3,14 @@ const { name } = require('./package');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
 const path = require('path');
+const postcssImport = require('postcss-import');
+const postcssPresetEnv = require('postcss-preset-env');
+const postcssEach = require('postcss-each');
+const postcssMixins = require('postcss-mixins');
+const postcssConditionals = require('postcss-conditionals-renewed');
+const postcssAtRulesVariables = require('postcss-at-rules-variables');
+const autoprefixer = require('autoprefixer');
+const tailwind = require('tailwindcss');
 
 module.exports = {
     name,
@@ -12,6 +20,28 @@ module.exports = {
             publicAssetsURL: '/assets',
             alias: {
                 libphonenumber: 'intl-tel-input/build/js/utils.js',
+            },
+        },
+        postcssOptions: {
+            compile: {
+                enabled: true,
+                cacheInclude: [/.*\.(css|scss|hbs)$/, /.*\/tailwind\/config\.js$/, /.*tailwind\.js$/],
+                plugins: [
+                    postcssAtRulesVariables,
+                    postcssImport({
+                        path: ['node_modules'],
+                        plugins: [postcssAtRulesVariables, postcssImport],
+                    }),
+                    postcssMixins,
+                    postcssPresetEnv({ stage: 1 }),
+                    postcssEach,
+                    tailwind('./tailwind.js'),
+                    autoprefixer,
+                ],
+            },
+            filter: {
+                enabled: true,
+                plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind('./tailwind.js')],
             },
         },
     },
