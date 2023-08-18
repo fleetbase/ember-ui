@@ -1,6 +1,6 @@
 {
     "name": "@fleetbase/ember-ui",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "description": "Fleetbase UI provides all the interface components, helpers, services and utilities for building a Fleetbase extension into the Console.",
     "keywords": [
         "fleetbase-ui",
@@ -87,7 +87,8 @@
         "postcss-import": "^15.1.0",
         "postcss-mixins": "^9.0.4",
         "postcss-preset-env": "^9.1.1",
-        "tailwindcss": "^3.1.8"
+        "tailwindcss": "^3.1.8",
+        "@tailwindcss/forms": "^0.5.3"
     },
     "devDependencies": {
         "@ember/optional-features": "^2.0.0",
@@ -95,7 +96,6 @@
         "@embroider/test-setup": "^1.8.3",
         "@glimmer/component": "^1.1.2",
         "@glimmer/tracking": "^1.1.2",
-        "@tailwindcss/forms": "^0.5.3",
         "babel-eslint": "^10.1.0",
         "broccoli-asset-rev": "^3.0.0",
         "clean-css": "^5.3.2",
