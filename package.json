@@ -133,6 +133,9 @@
         "edition": "octane"
     },
     "ember-addon": {
+        "before": [
+            "ember-cli-postcss"
+        ],
         "configPath": "tests/dummy/config"
     },
     "prettier": {
