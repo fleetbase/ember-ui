@@ -12,6 +12,7 @@ const postcssAtRulesVariables = require('postcss-at-rules-variables');
 const autoprefixer = require('autoprefixer');
 const tailwind = require('tailwindcss');
 
+const tailwindConfigPath = path.resolve(__dirname, 'tailwind.js');
 const postcssOptions = {
     compile: {
         enabled: true,
@@ -25,13 +26,13 @@ const postcssOptions = {
             postcssMixins,
             postcssPresetEnv({ stage: 1 }),
             postcssEach,
-            tailwind('./tailwind.js'),
+            tailwind(tailwindConfigPath),
             autoprefixer,
         ],
     },
     filter: {
         enabled: true,
-        plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind('./tailwind.js')],
+        plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind(tailwindConfigPath)],
     },
 };
 
