@@ -443,10 +443,13 @@ body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-con
     @apply border border-blue-900 bg-gray-900 py-1;
 }
 
+.emberTagInput.form-input,
 .emberTagInput {
     height: 39px;
     display: flex;
     flex-direction: row;
+    padding: 0.25rem 0.5rem;
+    line-height: 1rem;
 }
 
 .emberTagInput li.emberTagInput-new {
@@ -459,7 +462,8 @@ body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-con
     @apply text-sm;
     background-color: transparent;
     margin: 0;
-    padding: 0;
+    line-height: 1.25rem;
+    padding: 0.25rem;
 }
 
 .emberTagInput .emberTagInput-tag {
