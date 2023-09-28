@@ -1,12 +1,12 @@
 <FileUpload @name={{@name}} @accept={{@accept}} @onFileAdded={{@onFileAdded}} as |queue|>
     <a tabindex={{0}} class="flex items-center px-0 mt-2 text-xs no-underline truncate cursor-pointer btn {{if @outline 'btn-outline'}} btn-{{or @type 'default'}} btn-{{or @size 'sm'}}" ...attributes>
         {{#if queue.files.length}}
-            <Spinner class="mr-1" />
+            <Spinner class="mr-2" />
             <span>
                 Uploading...
             </span>
         {{else}}
-            <FaIcon @icon={{or @uploadIcon "image"}} class="mr-1" />
+            <FaIcon @icon={{or @uploadIcon "image"}} class="mr-2" />
             <span>
                 {{or @buttonText "Upload new"}}
             </span>
