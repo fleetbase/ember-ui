@@ -37,6 +37,7 @@
 @import 'components/date-picker.css';
 @import 'components/dashboard.css';
 @import 'components/kanban.css';
+@import 'components/notification-tray.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';

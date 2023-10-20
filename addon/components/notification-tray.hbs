@@ -1,0 +1,32 @@
+<BasicDropdown @renderInPlace={{true}} @registerAPI={{this.registerAPI}} class="notification-tray" ...attributes as |dd|>
+    <dd.Trigger class="btn btn-default btn-xs">
+        <FaIcon @icon="inbox" />
+        {{#if this.notifications.length}}
+            <div class="notification-tray-unread-notifications-badge">{{this.notifications.length}}</div>
+        {{/if}}
+    </dd.Trigger>
+    <dd.Content class="notification-tray-panel-container">
+        <div class="notification-tray-panel">
+            <div class="px-4">
+                <h1 class="mb-2 text-black dark:text-gray-100 text-base font-semibold pt-2 px-1">Unread Notifications</h1>
+                <div class="h-48 overflow-y-scroll px-1">
+                    {{#each this.notifications as |notification|}}
+                        <a href="javascript:;" class="notification-item" {{on "click" (fn this.onClickNotification notification)}}>
+                            <h3 class="font-semibold text-small">{{notification.data.subject}}</h3>
+                            <p class="text-xs mb-1.5">{{notification.data.message}}</p>
+                            <span class="text-xs">Received: {{notification.createdAgo}}</span>
+                        </a>
+                    {{else}}
+                        <div class="flex flex-1 items-center justify-center w-full h-full">
+                            <span class="text-base text-gray-800 dark:text-gray-300 italic">No unread notifications</span>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+            <div class="px-2 py-1.5 border-t border-gray-200 dark:border-gray-700 flex flex-row space-x-4">
+                <a href="javascript:;" class="notification-tray-view-all-link" {{on "click" this.onPressViewAllNotifications}}>View all notification</a>
+            </div>
+        </div>
+
+    </dd.Content>
+</BasicDropdown>
