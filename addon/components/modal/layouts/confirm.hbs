@@ -1,5 +1,5 @@
 <Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}}>
-    <div class="modal-body-container flex {{if @options.body 'items-start' 'items-center'}}">
+    <div class="px-6 py-4 flex {{if @options.body 'items-start' 'items-center'}}">
         <div class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
             {{#if @options.icon}}
                 <FaIcon @icon={{@options.icon}} @size={{@options.iconSize}} @spin={{@options.iconSpin}} @flip={{@options.iconFlip}} class={{@options.iconClass}} />

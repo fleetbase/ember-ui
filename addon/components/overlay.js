@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { later } from '@ember/runloop';
 
 export default class OverlayComponent extends Component {
     @tracked overlayNode;
@@ -34,13 +35,17 @@ export default class OverlayComponent extends Component {
 
         const { isOpen } = this.args;
 
-        setTimeout(() => {
-            this.isOpen = isOpen ?? true;
+        later(
+            this,
+            () => {
+                this.isOpen = isOpen ?? true;
 
-            if (typeof this.args?.onLoad === 'function') {
-                this.args.onLoad(this.context);
-            }
-        }, 600);
+                if (typeof this.args?.onLoad === 'function') {
+                    this.args.onLoad(this.context);
+                }
+            },
+            600
+        );
     }
 
     @action setupNode(property, node) {
