@@ -2,12 +2,12 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
-import { action } from '@ember/object';
+import { action, set } from '@ember/object';
 import { isArray } from '@ember/array';
 import { assign } from '@ember/polyfills';
 import { assert } from '@ember/debug';
 import { timeout } from 'ember-concurrency';
-import { restartableTask, dropTask } from 'ember-concurrency-decorators';
+import { restartableTask } from 'ember-concurrency-decorators';
 
 /**
  * FetchSelectComponent is a Glimmer component responsible for rendering a
@@ -75,7 +75,7 @@ export default class FetchSelectComponent extends Component {
             yield timeout(this.debounceDuration);
         }
 
-        yield this.fetchOptions.perform(term, createOption);
+        yield this.fetchOptions.perform(term, options);
     };
 
     /**
@@ -88,7 +88,6 @@ export default class FetchSelectComponent extends Component {
     @restartableTask({ withTestWaiter: true }) fetchOptions = function* (term, options = {}) {
         // query might be an EmptyObject/{{hash}}, make it a normal Object
         const query = assign({}, this.args.query);
-        const endpoint = this.endpoint;
 
         if (term) {
             set(query, 'query', term);
