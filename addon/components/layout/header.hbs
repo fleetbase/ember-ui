@@ -34,7 +34,7 @@
         <div id="view-header-actions"></div>
         <div class="flex items-center justify-between">
             <div class="flex-1 flex items-center pr-1">
-                <NotificationTray />
+                <NotificationTray @registerAPI={{@registerNotificationTrayApi}} @onClickNotification={{@onClickNotification}} />
             </div>
             <div class="flex-1 flex items-center pr-1">
                 <Layout::Header::Dropdown @items={{this.organizationNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>

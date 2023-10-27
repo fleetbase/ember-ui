@@ -51,6 +51,12 @@ export default class NotificationTrayComponent extends Component {
      */
     @service universe;
 
+    /**
+     * Inject the `notification` service.
+     *
+     * @memberof NotificationTrayComponent
+     * @type {NotificationService}
+     */
     @service notification;
 
     /**
@@ -60,14 +66,6 @@ export default class NotificationTrayComponent extends Component {
      * @type {Array}
      */
     @tracked notifications = [];
-
-    /**
-     * A boolean to track whether the notification tray is open or closed.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {boolean}
-     */
-    @tracked isOpen = false;
 
     /**
      * A reference to the notification sound.
@@ -104,6 +102,50 @@ export default class NotificationTrayComponent extends Component {
         this.universe.on('notifications.all_read', () => {
             this.fetchNotificationsFromStore();
         });
+    }
+
+    /**
+     * Handles the click event on a notification.
+     *
+     * @param {NotificationModel} notification - The clicked notification.
+     * @returns {Promise} A promise that resolves after marking the notification as read.
+     * @memberof NotificationTrayComponent
+     */
+    @action onClickNotification(notification) {
+        notification.setProperties({
+            read_at: new Date(),
+            _isRemoving: true,
+        });
+
+        return notification.save().then(() => {
+            this.removeNotifications([notification]);
+        });
+    }
+
+    /**
+     * Registers the dropdown API.
+     *
+     * @param {DropdownApi} dropdownApi - The dropdown API instance.
+     * @memberof NotificationTrayComponent
+     */
+    @action registerAPI(dropdownApi) {
+        this.dropdownApi = dropdownApi;
+
+        if (typeof this.args.registerAPI === 'function') {
+            this.args.registerAPI(...arguments);
+        }
+    }
+
+    /**
+     * Handler for when "View all notifications" link is pressed in footer
+     *
+     * @returns {void}
+     * @memberof NotificationTrayComponent
+     */
+    @action onPressViewAllNotifications() {
+        if (typeof this.args.onPressViewAllNotifications === 'function') {
+            this.args.onPressViewAllNotifications();
+        }
     }
 
     /**
@@ -150,6 +192,9 @@ export default class NotificationTrayComponent extends Component {
             if (typeof this.args.onReceivedNotification === 'function') {
                 this.args.onReceivedNotification(notification);
             }
+
+            // trigger universe event
+            this.universe.trigger('notification.received', notification);
         });
     }
 
@@ -171,6 +216,12 @@ export default class NotificationTrayComponent extends Component {
         this.mutateNotifications(_notifications);
     }
 
+    /**
+     * Removes notifications from the tracked notifications array.
+     *
+     * @param {Array} notifications
+     * @memberof NotificationTrayComponent
+     */
     removeNotifications(notifications) {
         let _notifications = [...this.notifications];
 
@@ -183,6 +234,12 @@ export default class NotificationTrayComponent extends Component {
         this.mutateNotifications(_notifications);
     }
 
+    /**
+     * mutates the tracked property with a filtered notifications array.
+     *
+     * @param {Array} notifications
+     * @memberof NotificationTrayComponent
+     */
     mutateNotifications(notifications) {
         this.notifications = notifications.filter(({ read_at }) => !read_at).uniqBy('id');
     }
@@ -212,46 +269,6 @@ export default class NotificationTrayComponent extends Component {
                 this.args.onNotificationsLoaded(this.notifications);
             }
         });
-    }
-
-    /**
-     * Handles the click event on a notification.
-     *
-     * @param {NotificationModel} notification - The clicked notification.
-     * @returns {Promise} A promise that resolves after marking the notification as read.
-     * @memberof NotificationTrayComponent
-     */
-    @action onClickNotification(notification) {
-        notification.set('read_at', new Date());
-        return notification.save().then(() => {
-            this.notifications.removeObject(notification);
-        });
-    }
-
-    /**
-     * Registers the dropdown API.
-     *
-     * @param {DropdownApi} dropdownApi - The dropdown API instance.
-     * @memberof NotificationTrayComponent
-     */
-    @action registerAPI(dropdownApi) {
-        this.dropdownApi = dropdownApi;
-
-        if (typeof this.args.registerAPI === 'function') {
-            this.args.registerAPI(...arguments);
-        }
-    }
-
-    /**
-     * Handler for when "View all notifications" link is pressed in footer
-     *
-     * @returns {void}
-     * @memberof NotificationTrayComponent
-     */
-    @action onPressViewAllNotifications() {
-        if (typeof this.args.onPressViewAllNotifications === 'function') {
-            this.args.onPressViewAllNotifications();
-        }
     }
 
     /**

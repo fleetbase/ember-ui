@@ -3,21 +3,6 @@
     position: relative;
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Styling for the notification tray container when it's open in the light theme */
-[data-theme='light'] .notification-tray.is-open {
-    background-color: #ffffff;
-    color: #000000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Styling for the notification tray container when it's open in the dark theme */
-[data-theme='dark'] .notification-tray.is-open {
-    background-color: #333333;
-    color: #ffffff;
-    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* Customize for the dark theme */
 }
 
 /* Styling for the notification tray badge */
