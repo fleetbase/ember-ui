@@ -1,50 +1,12 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import PaginationItems from '@fleetbase/ember-ui/utils/pagination/items';
-import arrayRange from '@fleetbase/ember-ui/utils/array-range';
 import { action, computed, defineProperty } from '@ember/object';
 import { alias, gt, not } from '@ember/object/computed';
+import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
+import PaginationItems from '../utils/pagination/items';
+import arrayRange from '../utils/array-range';
 
 export default class PaginationComponent extends Component {
-    /**
-     * Increments the page
-     *
-     * @void
-     */
-    @action incrementPage(step = 1) {
-        const currentPage = Number(this.currentPage),
-            totalPages = Number(this.totalPages);
-
-        if (currentPage === totalPages && step === 1) {
-            return false;
-        }
-
-        if (currentPage <= 1 && step === -1) {
-            return false;
-        }
-
-        this.currentPage = this.currentPage + step;
-
-        if (typeof this.args.onPageChange === 'function') {
-            this.args.onPageChange(this.currentPage);
-        }
-    }
-
-    /**
-     * Increments the page
-     *
-     * @void
-     */
-    @action goToPage(page) {
-        if (page === this.currentPage) {
-            return;
-        }
-        this.currentPage = page;
-        if (typeof this.args.onPageChange === 'function') {
-            this.args.onPageChange(this.currentPage);
-        }
-    }
-
     /**
      * Whether to truncate pages items
      *
@@ -65,6 +27,13 @@ export default class PaginationComponent extends Component {
      * @var {Integer}
      */
     @tracked numPagesToShow = 10;
+
+    /**
+     * The current page of the pagination.
+     *
+     * @var {Integer}
+     */
+    @tracked currentPage = 1;
 
     /**
      * Get the page from, if none use a default of 1
@@ -177,5 +146,56 @@ export default class PaginationComponent extends Component {
             };
         });
         return pages.length < 12 ? pages : pages.slice(0, 12);
+    }
+
+    /**
+     * Create instance of PaginationComponent
+     */
+    constructor() {
+        super(...arguments);
+
+        this.numPagesToShow = getWithDefault(this.args, 'numPagesToShow', 10);
+        this.currentPage = getWithDefault(this.args, 'currentPage', 1);
+        this.showFL = getWithDefault(this.args, 'showFL', false);
+        this.truncatePages = getWithDefault(this.args, 'truncatePages', true);
+    }
+
+    /**
+     * Increments the page
+     *
+     * @void
+     */
+    @action incrementPage(step = 1) {
+        const currentPage = Number(this.currentPage);
+        const totalPages = Number(this.totalPages);
+
+        if (currentPage === totalPages && step === 1) {
+            return false;
+        }
+
+        if (currentPage <= 1 && step === -1) {
+            return false;
+        }
+
+        this.currentPage = this.currentPage + step;
+
+        if (typeof this.args.onPageChange === 'function') {
+            this.args.onPageChange(this.currentPage);
+        }
+    }
+
+    /**
+     * Increments the page
+     *
+     * @void
+     */
+    @action goToPage(page) {
+        if (page === this.currentPage) {
+            return;
+        }
+        this.currentPage = page;
+        if (typeof this.args.onPageChange === 'function') {
+            this.args.onPageChange(this.currentPage);
+        }
     }
 }

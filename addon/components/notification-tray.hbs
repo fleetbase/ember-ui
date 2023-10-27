@@ -7,8 +7,8 @@
     </dd.Trigger>
     <dd.Content class="notification-tray-panel-container">
         <div class="notification-tray-panel">
-            <div class="px-4">
-                <h1 class="mb-2 text-black dark:text-gray-100 text-base font-semibold pt-2 px-1">Unread Notifications</h1>
+            <div class="px-1">
+                <h1 class="mb-2 text-black dark:text-gray-100 text-base font-semibold pt-2 px-4">Unread Notifications</h1>
                 <div class="h-48 overflow-y-scroll px-1">
                     {{#each this.notifications as |notification|}}
                         <a href="javascript:;" class="notification-item" {{on "click" (fn this.onClickNotification notification)}}>
@@ -24,9 +24,10 @@
                 </div>
             </div>
             <div class="px-2 py-1.5 border-t border-gray-200 dark:border-gray-700 flex flex-row space-x-4">
-                <a href="javascript:;" class="notification-tray-view-all-link" {{on "click" this.onPressViewAllNotifications}}>View all notification</a>
+                <LinkTo @route="console.notifications" class="notification-tray-view-all-link">
+                    View all notifications
+                </LinkTo>
             </div>
         </div>
-
     </dd.Content>
 </BasicDropdown>

@@ -44,6 +44,16 @@ export default class NotificationTrayComponent extends Component {
     @service currentUser;
 
     /**
+     * Inject the `universe` service.
+     *
+     * @memberof NotificationTrayComponent
+     * @type {UniverseService}
+     */
+    @service universe;
+
+    @service notification;
+
+    /**
      * An array to store notifications.
      *
      * @memberof NotificationTrayComponent
@@ -79,6 +89,21 @@ export default class NotificationTrayComponent extends Component {
         if (typeof this.args.onInitialize === 'function') {
             this.args.onInitialize(this.context);
         }
+
+        // listen for notifications deleted
+        this.universe.on('notifications.deleted', (notifications) => {
+            this.removeNotifications(notifications);
+        });
+
+        // listen for notifications read
+        this.universe.on('notifications.read', (notifications) => {
+            this.fetchNotificationsFromStore();
+        });
+
+        // listen if all notifications read
+        this.universe.on('notifications.all_read', () => {
+            this.fetchNotificationsFromStore();
+        });
     }
 
     /**
@@ -143,7 +168,23 @@ export default class NotificationTrayComponent extends Component {
             _notifications.pushObject(notifications);
         }
 
-        this.notifications = _notifications.filter(({ read_at }) => !read_at).uniqBy('id');
+        this.mutateNotifications(_notifications);
+    }
+
+    removeNotifications(notifications) {
+        let _notifications = [...this.notifications];
+
+        if (isArray(notifications)) {
+            _notifications.removeObjects(notifications);
+        } else {
+            _notifications.removeObject(notifications);
+        }
+
+        this.mutateNotifications(_notifications);
+    }
+
+    mutateNotifications(notifications) {
+        this.notifications = notifications.filter(({ read_at }) => !read_at).uniqBy('id');
     }
 
     /**
@@ -164,10 +205,11 @@ export default class NotificationTrayComponent extends Component {
      */
     fetchNotificationsFromStore() {
         this.store.query('notification', { sort: '-created_at', limit: 20, unread: true }).then((notifications) => {
-            this.insertNotifications(notifications);
+            // this.insertNotifications(notifications);
+            this.notifications = notifications.filter(({ read_at }) => !read_at).uniqBy('id');
 
             if (typeof this.args.onNotificationsLoaded === 'function') {
-                this.args.onNotificationsLoaded(notifications);
+                this.args.onNotificationsLoaded(this.notifications);
             }
         });
     }
