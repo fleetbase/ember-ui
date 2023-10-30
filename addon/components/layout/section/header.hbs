@@ -1,5 +1,5 @@
-<div class="next-view-section-subheader {{if @hideActions 'actions-hidden'}}" ...attributes>
-    <div class="next-view-section-subheader-left {{@leftSubheaderClass}}">
+<div id="next-view-section-subheader" class="next-view-section-subheader {{if @hideActions 'actions-hidden'}}" ...attributes>
+    <div id="next-view-section-subheader-left" class="next-view-section-subheader-left {{@leftSubheaderClass}}">
         <div class="flex flex-row items-center">
             {{#if @badge}}
                 <span class="mr-2 {{@badgeContainerClass}}">
@@ -9,7 +9,7 @@
             {{#if @icon}}
                 <FaIcon @icon={{@icon}} @size={{@iconSize}} @prefix={{@iconPrefix}} class="{{@iconClass}} mr-2" />
             {{/if}}
-            <h2 class="next-view-section-subheader-title">{{@title}}</h2>
+            <h2 id="next-view-section-subheader-title" class="next-view-section-subheader-title">{{@title}}</h2>
             {{#if @subtitle}}
                 <div>
                     {{@subtitle}}
@@ -21,7 +21,7 @@
         {{/if}}
     </div>
     {{#unless @hideActions}}
-        <div class="next-view-section-subheader-actions {{@actionsWrapperClass}}">
+        <div id="next-view-section-subheader-actions" class="next-view-section-subheader-actions {{@actionsWrapperClass}}">
             {{yield}}
         </div>
     {{/unless}}
