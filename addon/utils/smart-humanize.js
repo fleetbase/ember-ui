@@ -7,7 +7,32 @@ export default function smartHumanize(string) {
         return string;
     }
 
-    const uppercase = ['api', 'vat', 'id', 'uuid', 'sku', 'ean', 'upc', 'erp', 'tms', 'wms', 'ltl', 'ftl', 'lcl', 'fcl', 'rfid', 'jot', 'roi', 'eta', 'pod', 'asn', 'oem', 'ddp', 'fob'];
+    const uppercase = [
+        'api',
+        'vat',
+        'id',
+        'uuid',
+        'sku',
+        'ean',
+        'upc',
+        'erp',
+        'tms',
+        'wms',
+        'ltl',
+        'ftl',
+        'lcl',
+        'fcl',
+        'rfid',
+        'jot',
+        'roi',
+        'eta',
+        'pod',
+        'asn',
+        'oem',
+        'ddp',
+        'fob',
+        'gsm',
+    ];
 
     return humanize([decamelize(string)])
         .toLowerCase()

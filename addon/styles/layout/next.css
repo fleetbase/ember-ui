@@ -1217,6 +1217,7 @@ body[data-theme='dark'] .next-sidebar .next-sidebar-panel-container > .next-side
 }
 
 .next-org-button-trigger:hover,
+.next-org-button-trigger[aria-expanded="true"],
 .next-org-button-trigger.is-open {
     @apply bg-gray-700 bg-opacity-75 cursor-default;
 }
