@@ -94,7 +94,7 @@ export default class NotificationTrayComponent extends Component {
         });
 
         // listen for notifications read
-        this.universe.on('notifications.read', (notifications) => {
+        this.universe.on('notifications.read', () => {
             this.fetchNotificationsFromStore();
         });
 
