@@ -1,42 +1,232 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { isBlank } from '@ember/utils';
-import { action, computed } from '@ember/object';
+import { isEmpty } from '@ember/utils';
+import { action, set } from '@ember/object';
+import { isArray } from '@ember/array';
+import { assign } from '@ember/polyfills';
+import { assert } from '@ember/debug';
+import { timeout } from 'ember-concurrency';
+import { restartableTask } from 'ember-concurrency-decorators';
 
+/**
+ * FetchSelectComponent is a Glimmer component responsible for rendering a
+ * select input and fetching options asynchronously based on user input.
+ *
+ * @class FetchSelectComponent
+ * @extends Component
+ * @memberof FleetbaseComponents
+ *
+ * @property {Service} fetch - The fetch service injected into the component.
+ * @property {Array} options - The list of selectable options.
+ * @property {Object} selected - The currently selected option.
+ * @property {number} debounceDuration - The duration to debounce the search input, in milliseconds.
+ */
 export default class FetchSelectComponent extends Component {
+    /**
+     * The fetch service is used to make network requests to fetch the options for the select input.
+     * @type {Service}
+     */
     @service fetch;
+
+    /**
+     * The list of selectable options.
+     * @type {Array}
+     */
     @tracked options = [];
-    @tracked isLoading = true;
 
-    @computed('args.placeholder', 'isLoading') get palceholder() {
-        const { placeholder } = this.args;
+    /**
+     * The currently selected option.
+     * @type {Object}
+     */
+    @tracked selected;
 
-        if (placeholder) {
-            return placeholder;
-        }
+    /**
+     * The duration to debounce the search input, in milliseconds.
+     * @type {number}
+     */
+    @tracked debounceDuration = 250;
 
-        if (this.isLoading) {
-            return 'Loading options...';
-        }
+    /**
+     * The constructor ensures that the endpoint argument is specified, and
+     * initializes the component's properties based on the arguments passed to it.
+     */
+    constructor() {
+        super(...arguments);
 
-        return null;
+        assert('<FetchSelect /> requires a valid `endpoint`.', !isEmpty(this.args.endpoint));
+
+        this.endpoint = this.args.endpoint;
+        this.selected = this.setSelectedOption(this.args.selected);
+        // this.debounceDuration = this.args.debounceDuration || this.debounceDuration;
     }
 
-    @action fetchOptions() {
-        const { path } = this.args;
-
-        if (isBlank(path)) {
-            return;
+    /**
+     * Searches for options based on the term provided. Debounces the search
+     * if it's not the initial load.
+     *
+     * @param {string} term - The search term.
+     * @param {Object} [options={}] - Additional options for the search.
+     * @param {boolean} [initialLoad=false] - Whether this is the initial load.
+     * @task
+     */
+    @restartableTask({ withTestWaiter: true }) searchOptions = function* (term, options = {}, initialLoad = false) {
+        if (!initialLoad) {
+            yield timeout(this.debounceDuration);
         }
 
-        this.fetch
-            .get(path)
-            .then((options) => {
-                this.options = options;
-            })
-            .finally(() => {
-                this.isLoading = false;
+        yield this.fetchOptions.perform(term, options);
+    };
+
+    /**
+     * Fetches options based on the term provided.
+     *
+     * @param {string} term - The search term.
+     * @param {Object} [options={}] - Additional options for the fetch.
+     * @task
+     */
+    @restartableTask({ withTestWaiter: true }) fetchOptions = function* (term, options = {}) {
+        // query might be an EmptyObject/{{hash}}, make it a normal Object
+        const query = assign({}, this.args.query);
+
+        if (term) {
+            set(query, 'query', term);
+        }
+
+        let _options = yield this.fetch.get(this.endpoint, query, options);
+
+        // if options returns is an object and not array
+        if (this.isFetchResponseObject(_options)) {
+            _options = this.convertOptionsObjectToArray(_options);
+        }
+
+        // set options
+        this.options = _options;
+        return _options;
+    };
+
+    convertOptionsObjectToArray(_options) {
+        const objectKeys = Object.keys(_options);
+        const _optionsFromObject = [];
+
+        objectKeys.forEach((key) => {
+            _optionsFromObject.pushObject({
+                key,
+                value: _options[key],
             });
+        });
+
+        return _optionsFromObject;
+    }
+
+    isFetchResponseObject(_options) {
+        return !isArray(_options) && typeof _options === 'object' && Object.keys(_options).length;
+    }
+
+    /**
+     * Set the selected option.
+     *
+     * @param {*} selected
+     * @memberof FetchSelectComponent
+     */
+    setSelectedOption(selected) {
+        const { optionValue } = this.args;
+
+        if (optionValue) {
+            this.fetchOptions.perform().then((options) => {
+                let foundSelected = null;
+
+                if (isArray(options)) {
+                    foundSelected = options.find((option) => option[optionValue] === selected);
+                }
+
+                if (foundSelected) {
+                    this.selected = foundSelected;
+                } else {
+                    this.selected = selected;
+                }
+            });
+        } else {
+            this.selected = selected;
+        }
+    }
+
+    /**
+     * Loads the default set of options.
+     */
+    loadDefaultOptions() {
+        const { loadDefaultOptions } = this.args;
+
+        if (loadDefaultOptions === undefined || loadDefaultOptions) {
+            this.fetchOptions.perform(null, {}, true);
+        }
+    }
+
+    /**
+     * Called when the select input is opened.
+     * @action
+     */
+    @action onOpen() {
+        const { onOpen } = this.args;
+
+        this.loadDefaultOptions();
+
+        if (typeof onOpen === 'function') {
+            onOpen(...arguments);
+        }
+    }
+
+    /**
+     * Called when the user inputs a search term.
+     *
+     * @param {string} term - The search term.
+     * @action
+     */
+    @action onInput(term) {
+        const { onInput } = this.args;
+
+        if (isEmpty(term)) {
+            this.loadDefaultOptions();
+        }
+
+        if (typeof onInput === 'function') {
+            onInput(...arguments);
+        }
+    }
+
+    /**
+     * Called when an option is selected.
+     *
+     * @param {Object} option - The selected option.
+     * @action
+     */
+    @action onChange(option, ...rest) {
+        const { onChange, optionValue } = this.args;
+
+        // set selected
+        this.selected = option;
+
+        // if option value supplied
+        if (optionValue && typeof option === 'object') {
+            option = option[optionValue];
+        }
+
+        if (typeof onChange === 'function') {
+            onChange(option, ...rest);
+        }
+    }
+
+    /**
+     * Called when the select input is closed.
+     * @action
+     */
+    @action onClose() {
+        const { onClose } = this.args;
+
+        this.fetchOptions.cancelAll();
+
+        if (typeof onClose === 'function') {
+            onClose(...arguments);
+        }
     }
 }

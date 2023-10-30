@@ -13,7 +13,7 @@ To use the ModelSelect component, you can simply import it into your Ember compo
 <ModelSelect 
   @modelName="my-model"
   @selectedModel={{this.selectedModel}}
-  @labelProperty="name"
+  @optionLabel="name"
   @searchProperty="name"
   @loadDefaultOptions={{true}}
   @infiniteScroll={{false}}
@@ -58,7 +58,7 @@ You can customize the ModelSelect component by passing in different props:
   <ModelSelect 
     @modelName="user"
     @selectedModel={{this.selectedUser}}
-    @labelProperty="name"
+    @optionLabel="name"
     @searchProperty="name"
     @loadDefaultOptions={{true}}
     @infiniteScroll={{false}}
