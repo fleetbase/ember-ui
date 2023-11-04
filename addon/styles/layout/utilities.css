@@ -703,3 +703,8 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .border-b-0i {
     border-bottom-width: 0px !important;
 }
+
+label.upload-avatar-label-overlay,
+.upload-avatar-label-overlay {
+    padding-left: 2rem;
+}

@@ -167,7 +167,9 @@ export default class NotificationTrayComponent extends Component {
         // get incoming data and console out
         (async () => {
             for await (let incomingNotification of channel) {
-                this.onReceivedNotification(incomingNotification);
+                if (typeof incomingNotification === 'object' && typeof incomingNotification.notification_id === 'string') {
+                    this.onReceivedNotification(incomingNotification);
+                }
             }
         })();
     }
