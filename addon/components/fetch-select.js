@@ -42,6 +42,12 @@ export default class FetchSelectComponent extends Component {
     @tracked selected;
 
     /**
+     * The power select API.
+     * @type {Object}
+     */
+    @tracked api;
+
+    /**
      * The duration to debounce the search input, in milliseconds.
      * @type {number}
      */
@@ -141,13 +147,22 @@ export default class FetchSelectComponent extends Component {
                 }
 
                 if (foundSelected) {
-                    this.selected = foundSelected;
+                    this.select(foundSelected);
                 } else {
-                    this.selected = selected;
+                    this.select(selected);
                 }
             });
         } else {
-            this.selected = selected;
+            this.select(selected);
+        }
+    }
+
+    select(option) {
+        this.selected = option;
+
+        // set via api
+        if (this.api && this.api.actions && typeof this.api.actions.select === 'function') {
+            this.api.actions.select(option);
         }
     }
 
@@ -227,6 +242,19 @@ export default class FetchSelectComponent extends Component {
 
         if (typeof onClose === 'function') {
             onClose(...arguments);
+        }
+    }
+
+    /**
+     * Register the power select API
+     *
+     * @memberof FetchSelectComponent
+     */
+    @action registerAPI(api) {
+        this.api = api;
+
+        if (typeof this.args.registerAPI === 'function') {
+            this.args.registerAPI(...arguments);
         }
     }
 }
