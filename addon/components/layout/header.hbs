@@ -6,7 +6,7 @@
         {{#unless (media "isMobile")}}
             <div role="menu" class="next-catalog-menu-items flex mr-4">
                 {{#each @menuItems as |menuItem|}}
-                    <LinkToExternal @route={{menuItem.route}} class="next-view-header-item truncate {{menuItem.class}}" role="menuitem">
+                    <LinkToExternal @route={{menuItem.route}} id={{concat (dasherize menuItem.route) "-header-button"}} class="next-view-header-item truncate {{menuItem.class}}" role="menuitem">
                         <div class="w-6">
                             <FaIcon @icon={{menuItem.icon}} @size="sm" />
                         </div>
@@ -15,7 +15,7 @@
                         </div>
                     </LinkToExternal>
                 {{/each}}
-                <LinkToExternal @route="console.extensions" class="next-view-header-item truncate" role="menuitem">
+                <LinkToExternal @route="console.extensions" id="console-extensions-header-button" class="next-view-header-item truncate" role="menuitem">
                     <div class="w-6">
                         <FaIcon @icon="shapes" @size="sm" />
                     </div>

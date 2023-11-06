@@ -38,6 +38,7 @@
 @import 'components/dashboard.css';
 @import 'components/kanban.css';
 @import 'components/notification-tray.css';
+@import 'components/fleet-listing.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';
