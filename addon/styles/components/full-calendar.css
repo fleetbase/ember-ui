@@ -1,0 +1,45 @@
+.fleetbase-full-calendar .fc-toolbar-title {
+    @apply text-base text-gray-900;
+}
+
+body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-toolbar-title {
+    @apply text-gray-200;
+}
+
+.fleetbase-full-calendar.fc td,
+.fleetbase-full-calendar.fc th {
+    @apply border-gray-400;
+}
+
+body[data-theme='dark'] .fleetbase-full-calendar.fc td,
+body[data-theme='dark'] .fleetbase-full-calendar.fc th {
+    @apply border-gray-700;
+}
+
+.fleetbase-full-calendar.fc table.fc-scrollgrid {
+    @apply border-gray-400;
+}
+
+body[data-theme='dark'] .fleetbase-full-calendar.fc table.fc-scrollgrid {
+    @apply border-gray-700;
+}
+
+.fleetbase-full-calendar.fc .fc-button {
+    @apply inline-flex items-center px-3 py-2 text-sm font-medium leading-4 transition duration-150 ease-in-out border border-transparent rounded-md;
+}
+
+.fleetbase-full-calendar.fc .fc-button .fc-icon {
+    font-size: 1rem;
+}
+
+.fleetbase-full-calendar.fc .fc-toolbar {
+    justify-content: start;
+}
+
+.fleetbase-full-calendar.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1rem;
+}
+
+.fleetbase-full-calendar.fc .fc-toolbar > .fc-toolbar-chunk {
+    margin-right: 1.25rem;
+}
