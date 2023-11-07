@@ -44,6 +44,7 @@
 }
 
 .status-badge[class*='5'] > span,
+.status-badge.critical-status-badge > span,
 .status-badge.disabled-status-badge > span,
 .status-badge.inactive-status-badge > span,
 .status-badge.failed-status-badge > span,
@@ -52,13 +53,24 @@
 }
 
 .status-badge[class*='5'] > span svg,
+.status-badge.urgent-status-badge > span svg,
+.status-badge.high-status-badge > span svg,
 .status-badge.disabled-status-badge > span svg,
 .status-badge.failed-status-badge > span svg,
 .status-badge.canceled-status-badge > span svg {
     @apply text-red-400;
 }
 
+.status-badge.low-status-badge > span svg {
+    @apply text-blue-400;
+}
+
+.status-badge.medium-status-badge > span svg {
+    @apply text-orange-400;
+}
+
 .status-badge[class*='4'] > span,
+.status-badge.scheduled-maintenance-badge > span,
 .status-badge.test-status-badge > span,
 .status-badge.warning-status-badge > span,
 .status-badge.preparing-status-badge > span,
@@ -88,6 +100,7 @@
     @apply text-gray-700;
 }
 
+.status-badge.operational-suggestion-status-badge > span,
 .status-badge.dispatched-status-badge > span,
 .status-badge.assigned-status-badge > span {
     @apply text-indigo-800 bg-indigo-100;

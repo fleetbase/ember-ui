@@ -1,8 +1,8 @@
 <a href="javascript:;" class="next-nav-item {{if this.active 'active'}}" {{on "click" this.onClick}} ...attributes>
-    <div class="next-nav-item-icon-container">
+    <div class="next-nav-item-icon-container {{@iconWrapperClass}}">
         {{#if @icon}}
             <FaIcon @prefix={{@iconPrefix}} @icon={{@icon}} @size={{or @iconSize "xs"}} class={{@iconClass}} />
         {{/if}}
     </div>
-    <div class="truncate w-10/12">{{yield}}</div>
+    <div class="truncate w-10/12 {{@itemWrapperClass}}">{{yield}}</div>
 </a>
