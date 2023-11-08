@@ -55,8 +55,6 @@ export default class FullCalendarComponent extends Component {
             },
         });
 
-        console.log('[calender]', this.calendar);
-
         // trigger callback on initialize
         if (typeof this.args.onInit === 'function') {
             this.args.onInit(this.calendar);
