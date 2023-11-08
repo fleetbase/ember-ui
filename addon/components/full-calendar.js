@@ -47,7 +47,7 @@ export default class FullCalendarComponent extends Component {
             events,
             plugins: [dayGridPlugin, interactionPlugin],
             initialView: 'dayGridMonth',
-            editable:true,
+            editable: true,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
