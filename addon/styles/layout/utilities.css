@@ -703,3 +703,16 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .border-b-0i {
     border-bottom-width: 0px !important;
 }
+
+.upload-avatar-overlay {
+    @apply relative hover:bg-gray-100 transition-all overflow-hidden;
+}
+
+.upload-avatar-overlay .upload-avatar-button-wrapper {
+    @apply absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-gray-600 bg-opacity-50;
+}
+
+.upload-avatar-overlay label.upload-avatar-label-overlay,
+.upload-avatar-overlay .upload-avatar-label-overlay {
+    padding-left: 2rem;
+}

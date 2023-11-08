@@ -12,10 +12,10 @@
                     </h2>
                     <div class="flex flex-row space-x-2">
                         {{#if @status}}
-                            <Badge @hideStatusDot={{@hideStatusDot}} @status={{@status}} class="ml-2" />
+                            <Badge @hideStatusDot={{@hideStatusDot}} @disableHumanize={{@disableBadgeHumanize}} @status={{@status}} class="ml-2" />
                         {{/if}}
                         {{#if (and @dispatched (eq @status "created"))}}
-                            <Badge @hideStatusDot={{true}} @status="Dispatched" class="ml-2" />
+                            <Badge @hideStatusDot={{true}} @disableHumanize={{@disableBadgeHumanize}} @status="Dispatched" class="ml-2" />
                         {{/if}}
                     </div>
                 </div>

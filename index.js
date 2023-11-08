@@ -57,7 +57,7 @@ module.exports = {
         app.options.postcssOptions = postcssOptions;
 
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
-        this.import(`node_modules/intl-tel-input/build/css/intlTelInput.min.css`);
+        this.import('node_modules/intl-tel-input/build/css/intlTelInput.min.css');
     },
 
     treeForPublic: function () {
