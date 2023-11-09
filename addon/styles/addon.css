@@ -40,6 +40,7 @@
 @import 'components/notification-tray.css';
 @import 'components/fleet-listing.css';
 @import 'components/drawer.css';
+@import 'components/full-calendar.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';
