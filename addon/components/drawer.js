@@ -68,7 +68,7 @@ export default class DrawerComponent extends Component {
     }
 
     @action toggleMinimize() {
-        this.isMinimized = !this.isMaximized;
+        this.isMinimized = !this.isMinimized;
     }
 
     @action minimize() {
