@@ -32,7 +32,7 @@ export default class TableCellPointComponent extends Component {
                     }
                 }
             },
-            300
+            50
         );
     }
 
