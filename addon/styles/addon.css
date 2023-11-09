@@ -39,6 +39,7 @@
 @import 'components/kanban.css';
 @import 'components/notification-tray.css';
 @import 'components/fleet-listing.css';
+@import 'components/drawer.css';
 @import 'components/full-calendar.css';
 
 /** Third party */
