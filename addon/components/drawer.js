@@ -125,21 +125,19 @@ export default class DrawerComponent extends Component {
             return;
         }
 
-        const dx = event.clientX - this.mouseX;
         const dy = event.clientY - this.mouseY;
         const multiplier = -1;
-        const width = dx * multiplier + this.overlayWidth;
         const height = dy * multiplier + this.overlayHeight;
         const minResizeHeight = getWithDefault(this.args, 'minResizeHeight', 0);
         const maxResizeHeight = getWithDefault(this.args, 'maxResizeHeight', 600);
 
-        // Min resize width
+        // Min resize height
         if (height <= minResizeHeight) {
             drawerPanelNode.style.height = `${minResizeHeight}px`;
             return;
         }
 
-        // Max resize width
+        // Max resize height
         if (height >= maxResizeHeight) {
             drawerPanelNode.style.height = `${maxResizeHeight}px`;
             return;

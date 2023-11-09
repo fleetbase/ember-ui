@@ -37,15 +37,18 @@ export default class TableCellPointComponent extends Component {
     }
 
     @action onClick() {
-        const { column } = this.args;
-        const { onClick, action } = column;
+        const column = this.args.column;
 
-        if (typeof onClick === 'funciton') {
-            onClick(this.args.row, ...arguments);
-        }
+        if (column) {
+            const { onClick, action } = column;
 
-        if (typeof action === 'funciton') {
-            action(this.args.row);
+            if (typeof onClick === 'function') {
+                onClick(this.args.row, ...arguments);
+            }
+
+            if (typeof action === 'function') {
+                action(this.args.row);
+            }
         }
     }
 }
