@@ -857,8 +857,9 @@ body[data-theme='dark'] .next-map-container-table-container {
     @apply outline-none;
 }
 
+body[data-theme='dark'] .next-map-container-view-switch > button.active,
 .next-map-container-view-switch > button.active {
-    @apply bg-blue-500 text-white font-semibold;
+    @apply bg-sky-500 text-white font-semibold;
 }
 
 body[data-theme='dark'] .next-map-container-view-switch > button {
@@ -869,10 +870,6 @@ body[data-theme='dark'] .next-map-container-view-switch > button:hover,
 body[data-theme='dark'] .next-map-container-view-switch > button:focus,
 body[data-theme='dark'] .next-map-container-view-switch > button:active {
     @apply outline-none;
-}
-
-body[data-theme='dark'] .next-map-container-view-switch > button.active {
-    @apply bg-blue-500 text-white font-semibold;
 }
 
 .next-view-container {
