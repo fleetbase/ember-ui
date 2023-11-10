@@ -1,5 +1,5 @@
 <div class="fleetbase-power-select {{@wrapperClass}}">
-    <PowerSelect @renderInPlace={{true}} @searchEnabled={{true}} @selected={{this.selected}} @searchField="name" @options={{this.countries}} @onChange={{this.selectCountry}} @triggerClass="form-select form-input {{@triggerClass}}" @dropdownClass={{or @dropdownClass "ember-model-select__dropdown"}} @placeholder={{or @placeholder "Select country..."}} @disabled={{this.isLoading}} ...attributes as |country|>
+    <PowerSelect @renderInPlace={{true}} @searchEnabled={{true}} @selected={{this.selected}} @searchField="name" @options={{this.countries}} @onChange={{this.selectCountry}} @triggerClass="form-select form-input {{@triggerClass}}" @dropdownClass={{or @dropdownClass "ember-model-select__dropdown"}} @placeholder={{or @placeholder "Select country..."}} @disabled={{this.isLoading}} @allowClear={{@allowClear}} ...attributes as |country|>
         <span class="mr-1">{{country.emoji}}</span>
         <span>{{country.name}}</span>
     </PowerSelect>
