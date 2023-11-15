@@ -552,3 +552,73 @@ body[data-theme="light"] .form-checkbox,
 body[data-theme="light"] .form-radio {
     @apply border-gray-200;
 }
+
+.coordinates-input-map-container {
+    @apply rounded shadow-md relative my-2;
+    height: 240px;
+    width: 290px;
+}
+
+.coordinates-input-map-container > .leaflet-container {
+    @apply rounded shadow-sm;
+    height: 240px;
+    width: 290px;
+}
+
+.coordinates-input-zoom-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.5rem;
+    z-index: 999;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container {
+    @apply bg-white rounded-full mb-3 flex flex-col items-center justify-center p-1 shadow-next-nav;
+}
+
+body[data-theme='dark'] .coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container {
+    @apply bg-gray-900;
+}
+
+.next-map-container.next-map-container-layout-map .next-map-container-toolbar-container.toolbar-container-horizontal .toolbar-button {
+    @apply mb-0;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container > div:last-child .toolbar-button {
+    @apply mb-0;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button {
+    @apply flex items-center justify-center rounded-full w-5 h-5 m-auto mb-2;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container.toolbar-button.is-action:hover {
+    @apply bg-blue-500;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button:focus,
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button:active,
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button:hover {
+    @apply outline-none;
+}
+
+.coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button:hover {
+    @apply bg-gray-600;
+}
+
+body[data-theme='light'] .coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button svg {
+    @apply text-gray-800;
+}
+
+body[data-theme='light'] .coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button.is-action:hover {
+    @apply bg-blue-500;
+}
+
+body[data-theme='light'] .coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button.is-action:hover svg {
+    @apply text-white;
+}
+
+body[data-theme='light'] .coordinates-input-zoom-controls > .coordinates-input-zoom-controls-container .toolbar-button:hover {
+    @apply bg-gray-200;
+}
