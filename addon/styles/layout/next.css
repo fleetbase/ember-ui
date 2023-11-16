@@ -363,7 +363,7 @@ body[data-theme='dark'] .next-content-overlay .next-content-overlay-panel-contai
 }
 
 .next-map-container .leaflet-tooltip {
-    @apply rounded-md bg-gray-900 text-gray-100 shadow-next-nav border border-gray-900 px-6;
+    @apply rounded-md bg-gray-900 text-gray-100 shadow-next-nav border border-gray-900 px-3 py-0.5 text-xs;
 }
 
 .next-map-container .leaflet-tooltip.leaflet-tooltip-right:before {

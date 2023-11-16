@@ -57,18 +57,21 @@ export default class DrawerComponent extends Component {
         minimize: this.minimize,
         maximize: this.maximize,
         isOpen: this.isOpen,
+        isMinimized: this.isMinimized,
     };
 
-    /** Context object providing drawer control functions and state. */
-    context = {
-        toggle: this.toggle,
-        open: this.open,
-        close: this.close,
-        toggleMinimize: this.toggleMinimize,
-        minimize: this.minimize,
-        maximize: this.maximize,
-        isOpen: this.isOpen,
-    };
+    getContext() {
+        return {
+            toggle: this.toggle,
+            open: this.open,
+            close: this.close,
+            toggleMinimize: this.toggleMinimize,
+            minimize: this.minimize,
+            maximize: this.maximize,
+            isOpen: this.isOpen,
+            isMinimized: this.isMinimized,
+        };
+    }
 
     /**
      * Sets up the component, establishes default properties, and calls the onLoad callback if provided.
@@ -87,7 +90,7 @@ export default class DrawerComponent extends Component {
                 this.noBackdrop = getWithDefault(this.args, 'noBackdrop', this.noBackdrop);
 
                 if (typeof this.args.onLoad === 'function') {
-                    this.args.onLoad(this.context);
+                    this.args.onLoad(this.getContext());
                 }
 
                 this._rendered = true;
@@ -113,26 +116,50 @@ export default class DrawerComponent extends Component {
     /** Opens the drawer. */
     @action open() {
         this.isOpen = true;
+
+        if (typeof this.args.onOpen === 'function') {
+            this.args.onOpen(this.getContext());
+        }
     }
 
     /** Closes the drawer. */
     @action close() {
         this.isOpen = false;
+
+        if (typeof this.args.onClose === 'function') {
+            this.args.onClose(this.getContext());
+        }
     }
 
     /** Toggles the minimized state of the drawer. */
-    @action toggleMinimize() {
-        this.isMinimized = !this.isMinimized;
+    @action toggleMinimize(options = {}) {
+        if (this.isMinimized) {
+            this.maximize();
+        } else {
+            this.minimize();
+        }
+
+        if (typeof options.onToggle === 'function') {
+            options.onToggle(this.getContext());
+        }
     }
 
     /** Minimizes the drawer. */
-    @action minimize() {
+    @action minimize(options = {}) {
         this.isMinimized = true;
+
+        if (typeof options.onMinimize === 'function') {
+            options.onMinimize(this.getContext());
+        }
     }
 
     /** Maximizes the drawer. */
-    @action maximize() {
+    @action maximize(options = {}) {
         this.isMinimized = false;
+
+        if (typeof options.onMaximize === 'function') {
+            options.onMaximize(this.getContext());
+        }
     }
 
     /**
@@ -142,7 +169,7 @@ export default class DrawerComponent extends Component {
     @action startResize(event) {
         const disableResize = getWithDefault(this.args, 'disableResize', false);
         const onResizeStart = getWithDefault(this.args, 'onResizeStart', null);
-        const { drawerPanelNode, isResizable } = this;
+        const { drawerPanelNode, drawerNode, isResizable } = this;
 
         if (disableResize === true || !isResizable || !drawerPanelNode) {
             return;
@@ -172,7 +199,7 @@ export default class DrawerComponent extends Component {
 
         // Send up event
         if (typeof onResizeStart === 'function') {
-            onResizeStart({ event, drawerPanelNode });
+            onResizeStart({ event, drawerNode, drawerPanelNode, context: this.getContext() });
         }
     }
 
@@ -183,7 +210,7 @@ export default class DrawerComponent extends Component {
     @action resize(event) {
         const disableResize = getWithDefault(this.args, 'disableResize', false);
         const onResize = getWithDefault(this.args, 'onResize', null);
-        const { drawerPanelNode, isResizable } = this;
+        const { drawerPanelNode, drawerNode, isResizable } = this;
 
         if (disableResize === true || !isResizable || !drawerPanelNode) {
             return;
@@ -214,7 +241,7 @@ export default class DrawerComponent extends Component {
 
         // Send callback
         if (typeof onResize === 'function') {
-            onResize({ event, drawerPanelNode });
+            onResize({ event, drawerNode, drawerPanelNode, context: this.getContext() });
         }
     }
 
@@ -224,7 +251,7 @@ export default class DrawerComponent extends Component {
      */
     @action stopResize(event) {
         const onResizeEnd = getWithDefault(this.args, 'onResizeEnd', null);
-        const { drawerPanelNode } = this;
+        const { drawerPanelNode, drawerNode } = this;
 
         // End resizing
         this.isResizing = false;
@@ -238,7 +265,7 @@ export default class DrawerComponent extends Component {
         document.removeEventListener('mouseup', this.stopResize);
 
         if (typeof onResizeEnd === 'function') {
-            onResizeEnd({ event, drawerPanelNode });
+            onResizeEnd({ event, drawerNode, drawerPanelNode, context: this.getContext() });
         }
     }
 }
