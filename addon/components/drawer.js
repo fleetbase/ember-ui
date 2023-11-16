@@ -2,7 +2,6 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { later } from '@ember/runloop';
-import { isBlank } from '@ember/utils';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 
 /**
@@ -110,7 +109,7 @@ export default class DrawerComponent extends Component {
     }
 
     /** Toggles the open state of the drawer. */
-    @action toggle(options = {}) {
+    @action toggle() {
         this.isOpen = !this.isOpen;
     }
 
