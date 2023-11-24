@@ -53,3 +53,38 @@
 #serviceContainer.developers-console-service .content-panel > .content-panel-header:not(.min-h-0) {
     min-height: 75px;
 }
+
+.next-content-panel > .next-content-panel-header > .next-content-panel-header-right .next-content-panel-status-badge {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.next-content-panel > .next-content-panel-header > .next-content-panel-header-right .next-content-panel-status-badge > span {
+    font-size: 10px;
+    padding: 0.25rem;
+    line-height: 1;
+    font-weight: 600;
+    border-radius: 0.35rem;
+    @apply shadow-sm;
+}
+
+.next-content-panel a.next-nav-item.next-nav-item-with-dropdown .next-nav-item-dropdown-button,
+.next-content-panel a.next-nav-item.next-nav-item-with-dropdown .next-nav-item-dropdown-button button {
+    cursor: default;
+}
+
+.next-content-panel a.next-nav-item.next-nav-item-with-dropdown .next-nav-item-dropdown-button button:hover {
+    background-color: initial;
+}
+
+.next-content-panel a.next-nav-item.next-nav-item-with-dropdown .next-nav-item-dropdown-button button.btn {
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+    font-size: 10px;
+    margin-right: -0.5rem;
+    line-height: 0.5;
+}
+.next-content-panel a.next-nav-item.next-nav-item-with-dropdown {
+    overflow: visible;
+}

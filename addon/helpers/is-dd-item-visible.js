@@ -1,7 +1,8 @@
 import { helper } from '@ember/component/helper';
+import { isNone } from '@ember/utils';
 
-export default helper(function isDdItemVisible([row, isVisible]) {
-    if (!isVisible) {
+export default helper(function isDdItemVisible([context, isVisible]) {
+    if (isNone(context) || !isVisible) {
         return true;
     }
 
@@ -10,7 +11,7 @@ export default helper(function isDdItemVisible([row, isVisible]) {
     }
 
     if (typeof isVisible === 'function') {
-        return isVisible(row);
+        return isVisible(context);
     }
 
     return true;
