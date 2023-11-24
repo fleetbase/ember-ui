@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { computed } from '@ember/object';
+import { computed, action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 
 export default class DropdownButtonComponent extends Component {
@@ -31,5 +31,16 @@ export default class DropdownButtonComponent extends Component {
         const { buttonComponentArgs } = this.args;
 
         return isBlank(buttonComponentArgs) || typeof buttonComponentArgs !== 'object' ? {} : buttonComponentArgs;
+    }
+
+    /**
+     * Trigger callback when dropdown button node is inserted to dom.
+     *
+     * @memberof DropdownButtonComponent
+     */
+    @action onInsert() {
+        if (typeof this.args.onInsert === 'function') {
+            this.args.onInsert(...arguments);
+        }
     }
 }

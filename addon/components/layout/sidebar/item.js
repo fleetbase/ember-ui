@@ -9,6 +9,7 @@ export default class LayoutSidebarItemComponent extends Component {
     @service router;
     @service hostRouter;
     @tracked active;
+    @tracked dropdownButtonNode;
 
     constructor() {
         super(...arguments);
@@ -41,6 +42,11 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     @action onClick(event) {
+        if (this.isPointerWithinDropdownButton(event)) {
+            event.preventDefault();
+            return;
+        }
+
         const { url, target, route, model, onClick, options } = this.args;
         const router = this.getRouter();
         const anchor = event.target?.closest('a');
@@ -76,6 +82,36 @@ export default class LayoutSidebarItemComponent extends Component {
         if (route) {
             return router.transitionTo(route);
         }
+    }
+
+    @action onDropdownItemClick(action, dd) {
+        if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
+            dd.actions.close();
+        }
+
+        if (typeof action.fn === 'function') {
+            action.fn(action.context);
+        }
+
+        if (typeof action.onClick === 'function') {
+            action.onClick(action.context);
+        }
+    }
+
+    @action onInsert(dropdownButtonNode) {
+        this.dropdownButtonNode = dropdownButtonNode;
+
+        if (typeof this.args.onDropdownButtonInsert === 'function') {
+            this.args.onDropdownButtonInsert(...arguments);
+        }
+    }
+
+    isPointerWithinDropdownButton({ target }) {
+        if (this.dropdownButtonNode) {
+            return this.dropdownButtonNode.contains(target);
+        }
+
+        return false;
     }
 
     getRouter() {
