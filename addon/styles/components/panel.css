@@ -53,3 +53,18 @@
 #serviceContainer.developers-console-service .content-panel > .content-panel-header:not(.min-h-0) {
     min-height: 75px;
 }
+
+.next-content-panel > .next-content-panel-header > .next-content-panel-header-right .next-content-panel-status-badge {
+    display:flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.next-content-panel > .next-content-panel-header > .next-content-panel-header-right .next-content-panel-status-badge > span {
+    font-size: 10px;
+    padding: 0.25rem;
+    line-height: 1;
+    font-weight: 600;
+    border-radius: 0.35rem;
+    @apply shadow-sm
+}
