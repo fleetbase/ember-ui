@@ -1049,7 +1049,7 @@ body[data-theme='dark'] .next-content-panel-wrapper .next-content-panel-containe
 
 .next-view-section-footer,
 .next-view-section-subheader {
-    @apply flex items-center justify-between min-w-full max-w-full flex-shrink-0 border-b border-gray-200 dark:border-gray-700;
+    @apply grid grid-cols-2 min-w-full max-w-full border-b border-gray-200 dark:border-gray-700;
     box-align: center;
     padding: 0px 24px 0px 36px;
     height: 57px;
@@ -1335,7 +1335,7 @@ section.next-view-section {
 .next-table-wrapper {
     overflow: scroll;
     height: 100vh;
-    @apply inline-block w-full min-w-full align-middle;
+    @apply grid grid-cols-1;
 }
 
 .next-table-wrapper > table {
@@ -1396,11 +1396,19 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 }
 
 .next-table-wrapper .tfoot-wrapper {
+    @apply grid grid-cols-1;
     padding: 0px 24px 0px 36px;
     height: 53px;
     min-width: 100%;
     max-width: 100%;
-    @apply flex flex-1 flex-row items-center justify-between flex-shrink-0;
+}
+
+.next-table-wrapper .tfoot-wrapper > .fleetbase-pagination > .fleetbase-pagination-meta-info-wrapper > .fleetbase-pagination-meta-info-paging-wrapper > .fleetbase-pagination-meta-info-paging-inner {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding-bottom: 8px;
+    padding-right: 24px;
 }
 
 .next-table-wrapper .lt-body-wrap > .lt-scrollable .tse-scroll-content .tse-content table {
