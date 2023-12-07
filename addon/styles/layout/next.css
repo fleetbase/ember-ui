@@ -1848,3 +1848,11 @@ input.order-list-overlay-search:hover,
 input.order-list-overlay-search:focus {
     box-shadow: none;
 }
+
+.console-home-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    max-width: 1200px;
+}
