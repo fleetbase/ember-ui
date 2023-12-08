@@ -4,6 +4,8 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 
+const { assign } = Object;
+
 export default class FilterSelectComponent extends Component {
     @service fetch;
     @tracked value;
@@ -32,7 +34,7 @@ export default class FilterSelectComponent extends Component {
 
     @action fetchOptions(uri, params = {}) {
         const { fetchParams } = this.args;
-        const queryParams = Object.assign(params, fetchParams ?? {});
+        const queryParams = assign(params, fetchParams ?? {});
 
         this.isLoading = true;
         this.fetch

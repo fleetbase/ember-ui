@@ -59,8 +59,8 @@
     "date-fns": "^2.30.0",
     "ember-animated": "^1.1.2",
     "ember-auto-import": "^2.6.3",
-    "ember-basic-dropdown": "^7.0.1",
-    "ember-cli-accounting": "^2.1.0",
+    "ember-basic-dropdown": "^7.3.0",
+    "ember-cli-accounting": "file:./lib/ember-cli-accounting",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-postcss": "^8.2.0",
@@ -72,7 +72,6 @@
     "ember-file-upload": "8.4.0",
     "ember-focus-trap": "^1.0.1",
     "ember-get-config": "^2.1.1",
-    "ember-infinity": "^2.3.0",
     "ember-inflector": "^4.0.2",
     "ember-loading": "^2.0.0",
     "ember-math-helpers": "^4.0.0",
@@ -135,9 +134,6 @@
     "stylelint-config-standard": "^34.0.0",
     "stylelint-prettier": "^4.0.2",
     "webpack": "^5.89.0"
-  },
-  "peerDependencies": {
-    "ember-source": ">= 4.0.0"
   },
   "engines": {
     "node": ">= 18"
