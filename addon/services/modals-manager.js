@@ -194,6 +194,7 @@ export default class ModalsManagerService extends Service {
                     resolve(selected);
                 },
                 decline: () => {
+                    this.done();
                     resolve(null);
                 },
                 ...modalOptions,
