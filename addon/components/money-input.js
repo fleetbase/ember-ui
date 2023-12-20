@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { later } from '@ember/runloop';
+import { isNone } from '@ember/utils';
 import numbersOnly from '../utils/numbers-only';
 import getCurrency from '../utils/get-currency';
 import AutoNumeric from 'autonumeric';
@@ -78,11 +79,11 @@ export default class MoneyInputComponent extends Component {
 
     @action getCurrencyFormatOptions(currency) {
         let options = {
-            currencySymbol: currency.symbol || '$',
+            currencySymbol: isNone(currency.symbol) ? '$' : currency.symbol,
             currencySymbolPlacement: currency.symbolPlacement === 'before' ? 'p' : 's',
-            decimalCharacter: currency.decimalSeperator || '.',
-            decimalPlaces: currency.precision || 2,
-            digitGroupSeparator: currency.thousandSeparator || ',',
+            decimalCharacter: isNone(currency.decimalSeperator) ? '.' : currency.decimalSeparator,
+            decimalPlaces: isNone(currency.precision) ? 2 : currency.precision,
+            digitGroupSeparator: isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator,
         };
 
         // decimal and thousand seperator cannot be the same, if they are revert the thousand seperator

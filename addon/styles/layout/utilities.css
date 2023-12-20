@@ -300,6 +300,7 @@ body[data-theme='dark'] .dimensions-box:before {
     height: 19.53rem;
 }
 
+.w-99pr,
 .w-almost-full {
     width: 99%;
 }

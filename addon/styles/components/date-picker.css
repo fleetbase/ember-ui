@@ -10,7 +10,6 @@
 
 body[data-theme='dark'].fleetbase-console .air-datepicker {
     --adp-background-color: rgb(55, 65, 81);
-    --adp-border-color: rgb(17, 24, 39);
     --adp-background-color-hover: rgba(17, 24, 39, 0.75);
     --adp-background-color-active: rgb(31, 41, 55);
     --adp-accent-color: rgba(96, 165, 250, 1);

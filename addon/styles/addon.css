@@ -41,6 +41,7 @@
 @import 'components/fleet-listing.css';
 @import 'components/drawer.css';
 @import 'components/full-calendar.css';
+@import 'components/sidebar-toggle.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';

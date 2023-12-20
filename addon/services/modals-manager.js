@@ -3,8 +3,9 @@ import { tracked } from '@glimmer/tracking';
 import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
-import { assign } from '@ember/polyfills';
 import { defer } from 'rsvp';
+
+const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
     @tracked modalIsOpened = false;
@@ -55,7 +56,7 @@ export default class ModalsManagerService extends Service {
     @action show(componentToRender, options) {
         assert('Only one modal may be opened in the same time!', !this.modalIsOpened);
         const component = componentToRender;
-        const opts = Object.assign({}, this.defaultOptions, options);
+        const opts = assign({}, this.defaultOptions, options);
         this.componentToRender = component;
         this.modalIsOpened = true;
         this.options = opts;
@@ -193,6 +194,7 @@ export default class ModalsManagerService extends Service {
                     resolve(selected);
                 },
                 decline: () => {
+                    this.done();
                     resolve(null);
                 },
                 ...modalOptions,

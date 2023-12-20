@@ -1,5 +1,5 @@
 import getCurrency from './get-currency';
-import formatMoney from 'accounting/format-money';
+import formatMoney from '@fleetbase/ember-accounting/utils/format-money';
 
 export default function formatCurrency(amount = 0, currencyCode = 'USD') {
     let currency = getCurrency(currencyCode);

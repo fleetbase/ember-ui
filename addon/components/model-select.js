@@ -3,7 +3,6 @@ import { isEmpty } from '@ember/utils';
 import { action, get, set } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
-import { assign } from '@ember/polyfills';
 import { tracked } from '@glimmer/tracking';
 import { timeout } from 'ember-concurrency';
 import { restartableTask, dropTask } from 'ember-concurrency-decorators';
@@ -35,7 +34,6 @@ const getConfigOption = (key, defaultValue) => {
 export default class ModelSelectComponent extends Component {
     @service store;
     @service fetch;
-    @service infinity;
 
     /**
      * Source to query, either an ember data model or the store
@@ -83,10 +81,6 @@ export default class ModelSelectComponent extends Component {
     }
 
     /**
-     * Ember-infinity argument.
-     *
-     * See: https://github.com/ember-infinity/ember-infinity#json-requestresponse-customization
-     *
      * @argument perPageParam
      * @type {String}
      * @default 'page[size]'
@@ -96,10 +90,6 @@ export default class ModelSelectComponent extends Component {
     }
 
     /**
-     * Ember-infinity argument.
-     *
-     * See: https://github.com/ember-infinity/ember-infinity#json-requestresponse-customization
-     *
      * @argument pageParam
      * @type {String}
      * @default 'page[number]'
@@ -109,10 +99,6 @@ export default class ModelSelectComponent extends Component {
     }
 
     /**
-     * Ember-infinity argument.
-     *
-     * See: https://github.com/ember-infinity/ember-infinity#json-requestresponse-customization
-     *
      * @argument totalPagesParam
      * @type {String}
      * @default 'meta.total'
@@ -193,7 +179,7 @@ export default class ModelSelectComponent extends Component {
 
     @restartableTask({ withTestWaiter: true }) loadModels = function* (term, createOption) {
         // query might be an EmptyObject/{{hash}}, make it a normal Object
-        const query = assign({}, this.args.query);
+        const query = Object.assign({}, this.args.query);
 
         if (term) {
             set(query, 'query', term);
@@ -234,16 +220,6 @@ export default class ModelSelectComponent extends Component {
             };
 
             _options = yield customQuery(this.args.customSearchEndpoint, query);
-        } else if (this.infiniteScroll) {
-            // ember-infinity configuration
-            query.perPage = this.pageSize;
-            query.perPageParam = this.perPageParam;
-            query.pageParam = this.pageParam;
-            query.totalPagesParam = this.totalPagesParam;
-
-            this.model = this.infinity.model(this.args.modelName, query);
-
-            _options = yield this.model;
         } else {
             set(query, this.pageParam, 1);
             set(query, this.perPageParam, this.pageSize);

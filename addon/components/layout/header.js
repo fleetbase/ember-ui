@@ -16,6 +16,7 @@ export default class LayoutHeaderComponent extends Component {
     @service router;
     @service hostRouter;
     @service universe;
+
     @alias('args.user') user;
 
     @computed('store', 'user.company_uuid') get company() {
