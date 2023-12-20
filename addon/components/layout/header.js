@@ -3,7 +3,6 @@ import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { isArray } from '@ember/array';
-import { tracked } from '@glimmer/tracking';
 
 /**
  * Layout header component.
