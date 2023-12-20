@@ -9,7 +9,7 @@ export default class FileIconComponent extends Component {
 
     constructor(owner, { file }) {
         super(...arguments);
-        
+
         this.file = file;
         this.extension = this.getExtension(file);
         this.icon = this.getIcon(file);

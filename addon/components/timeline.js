@@ -2,7 +2,6 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import { htmlSafe } from '@ember/template';
 
 export default class TimelineComponent extends Component {
     @tracked startIndex = 0;

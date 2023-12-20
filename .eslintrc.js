@@ -18,6 +18,7 @@ module.exports = {
     },
     globals: {
         module: 'readonly',
+        require: 'readonly',
         socketClusterClient: 'readonly',
     },
     rules: {
@@ -25,7 +26,7 @@ module.exports = {
         'ember/no-computed-properties-in-native-classes': 'off',
         'ember/no-classic-classes': 'off',
         'ember/no-empty-glimmer-component-classes': 'off',
-        'node/no-unpublished-require': [
+        'n/no-unpublished-require': [
             'error',
             {
                 allowModules: [

@@ -6,12 +6,12 @@ import { action } from '@ember/object';
 
 function uniqBy(arr, key) {
     return arr.reduce((unique, item) => {
-      if (!unique.some(existingItem => existingItem[key] === item[key])) {
-        unique.push(item);
-      }
-      return unique;
+        if (!unique.some((existingItem) => existingItem[key] === item[key])) {
+            unique.push(item);
+        }
+        return unique;
     }, []);
-  }
+}
 
 /**
  * NotificationTrayComponent is a Glimmer component for handling notifications.
@@ -252,7 +252,10 @@ export default class NotificationTrayComponent extends Component {
      * @memberof NotificationTrayComponent
      */
     mutateNotifications(notifications) {
-        this.notifications = uniqBy(notifications.filter(({ read_at }) => !read_at), 'id');
+        this.notifications = uniqBy(
+            notifications.filter(({ read_at }) => !read_at),
+            'id'
+        );
     }
 
     /**
@@ -274,7 +277,10 @@ export default class NotificationTrayComponent extends Component {
     fetchNotificationsFromStore() {
         this.store.query('notification', { sort: '-created_at', limit: 20, unread: true }).then((notifications) => {
             // this.insertNotifications(notifications);
-            this.notifications = uniqBy(notifications.filter(({ read_at }) => !read_at), 'id');
+            this.notifications = uniqBy(
+                notifications.filter(({ read_at }) => !read_at),
+                'id'
+            );
 
             if (typeof this.args.onNotificationsLoaded === 'function') {
                 this.args.onNotificationsLoaded(this.notifications);
