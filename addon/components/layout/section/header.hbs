@@ -9,9 +9,9 @@
             {{#if @icon}}
                 <FaIcon @icon={{@icon}} @size={{@iconSize}} @prefix={{@iconPrefix}} class="{{@iconClass}} mr-2" />
             {{/if}}
-            <h2 id="next-view-section-subheader-title" class="next-view-section-subheader-title">{{@title}}</h2>
+            <h2 id="next-view-section-subheader-title" class="next-view-section-subheader-title {{@titleClass}}">{{@title}}</h2>
             {{#if @subtitle}}
-                <div>
+                <div class={{@subtitleClass}}>
                     {{@subtitle}}
                 </div>
             {{/if}}
