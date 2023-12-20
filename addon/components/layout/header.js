@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { isArray } from '@ember/array';
+import { tracked } from '@glimmer/tracking';
 
 /**
  * Layout header component.
@@ -16,6 +17,7 @@ export default class LayoutHeaderComponent extends Component {
     @service router;
     @service hostRouter;
     @service universe;
+
     @alias('args.user') user;
 
     @computed('store', 'user.company_uuid') get company() {
