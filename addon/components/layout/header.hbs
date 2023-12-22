@@ -4,7 +4,7 @@
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
         {{#if @sidebarToggleEnabled}}
-            <Layout::Header::SidebarToggle class="mr-2" />
+            <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} />
         {{/if}}
         {{#unless (media "isMobile")}}
             <div role="menu" class="next-catalog-menu-items flex mr-4">

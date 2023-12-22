@@ -17,5 +17,9 @@ export default class LayoutHeaderSidebarToggleComponent extends Component {
         }
 
         this.isSidebarVisible = !this.isSidebarVisible;
+
+        if (typeof this.args.onToggle === 'function') {
+            this.args.onToggle(sidebar, this.isSidebarVisible);
+        }
     }
 }
