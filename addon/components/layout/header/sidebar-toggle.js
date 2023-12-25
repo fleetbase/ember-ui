@@ -11,7 +11,7 @@ export default class LayoutHeaderSidebarToggleComponent extends Component {
         if (this.args.disabled === true) {
             return;
         }
-        
+
         const sidebar = this.universe.sidebarContext;
 
         if (this.isSidebarVisible) {
