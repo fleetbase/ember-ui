@@ -3,8 +3,8 @@
         <LinkToExternal @route="console" class="logo navbar-logo mr-4">
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
-        {{#if @sidebarToggleEnabled}}
-            <Layout::Header::SidebarToggle class="mr-2" />
+        {{#if @showSidebarToggle}}
+            <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{not @sidebarToggleEnabled}} />
         {{/if}}
         {{#unless (media "isMobile")}}
             <div role="menu" class="next-catalog-menu-items flex mr-4">
