@@ -7,20 +7,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem 0.25rem;
+    padding: 0.25rem 0.5rem;
 }
 
 .sidebar-toggle-button-wrapper > .sidebar-toggle-button > svg {
     enable-background: new 0 0 50 50;
     fill: rgb(249, 250, 251);
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 }
 
 .sidebar-toggle-button-wrapper:hover > .sidebar-toggle-button > svg {
     fill: #fff;
 }
 
-.sidebar-toggle-button-wrapper.sidebar-is-visible > .sidebar-toggle-button > svg {
-    /* fill: blue; */
-}
+/* .sidebar-toggle-button-wrapper.sidebar-is-visible > .sidebar-toggle-button > svg {} */
