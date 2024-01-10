@@ -148,6 +148,7 @@ export default class CountdownComponent extends Component {
      * @method willDestroy
      */
     willDestroy() {
+        super.willDestroy(...arguments);
         clearInterval(this.interval);
     }
 }
