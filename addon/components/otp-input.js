@@ -1,99 +1,139 @@
+// app/components/otp-input.js
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 
 /**
- * Glimmer component for OTP (One-Time Password) input.
+ * Glimmer component for handling OTP (One-Time Password) input.
  *
+ * @class OtpInputComponent
  * @extends Component
  */
 export default class OtpInputComponent extends Component {
-    /**
-     * An array to store individual digit values of the OTP.
-     *
-     * @type {string[]}
-     */
-    @tracked digits = Array(6).fill('');
+    numberOfDigits = 6;
 
     /**
-     * Flag indicating whether there is an error in the OTP input.
+     * Array to track individual digit values of the OTP.
      *
-     * @type {boolean}
+     * @property {Array} otpValues
+     * @default ['', '', '', '', '', '']
+     * @tracked
      */
-    @tracked isError = false;
+    @tracked otpValues;
 
     /**
-     * ID for the OTP input element.
+     * Tracked property for handling the OTP value passed from the parent.
      *
-     * @type {string}
+     * @property {String} value
+     * @tracked
      */
-    inputId = 'otp-input';
+    @tracked value;
 
     /**
-     * Handles the input event for a specific digit of the OTP.
+     * Constructor for the OTP input component.
      *
-     * @param {number} index - The index of the digit being input.
-     * @param {Event} event - The input event.
+     * @constructor
      */
-    handleInput(index, event) {
-        let value = event.target.value;
-        if (!/^\d*$/.test(value) || value.length > 1) {
-            event.preventDefault();
-            return;
-        }
+    constructor() {
+        super(...arguments);
+        this.otpValues = Array.from({ length: this.numberOfDigits }, () => '');
+        this.handleInput = this.handleInput.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+    }
 
-        this.digits[index] = value;
-        this.isError = false;
+    /**
+     * Getter for the complete OTP value obtained by joining individual digits.
+     *
+     * @property {String} otpValue
+     */
+    get otpValue() {
+        return this.otpValues.join('');
+    }
 
-        if (value && index < this.digits.length - 1) {
-            this.moveFocus(index + 1);
+    /**
+     * Setter for updating the OTP value based on user input.
+     *
+     * @property {String} otpValue
+     */
+    set otpValue(newValue) {
+        if (typeof newValue === 'string') {
+            this.otpValues = newValue.split('').slice(0, this.numberOfDigits);
         }
     }
 
     /**
-     * Handles the focus event for a specific digit of the OTP.
+     * Handles focus on the input field at a specified index.
      *
-     * @param {number} index - The index of the digit gaining focus.
+     * @method handleFocus
+     * @param {Number} index - The index of the input field to focus on.
      */
     handleFocus(index) {
-        this.isError = false;
-        this.moveFocus(index);
-    }
+        const inputId = `otp-input-${index}`;
+        const inputElement = document.getElementById(inputId);
 
-    /**
-     * Handles the key down event for a specific digit of the OTP.
-     *
-     * @param {number} index - The index of the digit for the key event.
-     * @param {KeyboardEvent} event - The key down event.
-     */
-    handleKeyDown(index, event) {
-        if (event.key === 'Backspace' && index > 0 && !this.digits[index]) {
-            this.moveFocus(index - 1);
-        }
-    }
-
-    /**
-     * Moves focus to the input element of the specified digit.
-     *
-     * @param {number} index - The index of the digit whose input element should receive focus.
-     */
-    moveFocus(index) {
-        const inputSelector = `.otp-box:nth-child(${index + 1})`;
-        const inputElement = this.element.querySelector(inputSelector);
         if (inputElement) {
             inputElement.focus();
         }
     }
 
     /**
-     * Sets the OTP digits based on the provided OTP string.
+     * Handles input events on the input field at a specified index.
      *
-     * @param {string} otp - The OTP string to set.
+     * @method handleInput
+     * @param {Number} index - The index of the input field being edited.
+     * @param {Event} event - The input event object.
      */
-    setOtp(otp) {
-        if (otp.length === this.digits.length) {
-            this.digits = otp.split('');
-        } else {
-            this.isError = true;
+    handleInput(index, event) {
+        if (!event || !event.target) {
+            console.error('Invalid event object in handleInput');
+            return;
+        }
+
+        const inputValue = event.target.value;
+
+        this.otpValues[index] = inputValue;
+
+        if (inputValue === '' && index > 0) {
+            this.handleFocus(index - 1);
+        } else if (index < this.numberOfDigits - 1) {
+            this.handleFocus(index + 1);
+        }
+
+        if (this.otpValues.every(value => value !== '')) {
+            const completeOtpValue = this.otpValues.join('');
+            this.args.onInput(completeOtpValue);
+        }
+    }
+
+    /**
+     * Handles keydown events on the input field at a specified index.
+     *
+     * @method handleKeyDown
+     * @param {Number} index - The index of the input field.
+     * @param {Event} event - The keydown event object.
+     */
+    handleKeyDown(index, event) {
+        switch (event.key) {
+            case 'ArrowLeft':
+                if (index > 0) {
+                    this.handleFocus(index - 1);
+                }
+                break;
+            case 'ArrowRight':
+                if (index < this.numberOfDigits - 1) {
+                    this.handleFocus(index + 1);
+                }
+                break;
+            case 'Backspace':
+                if (this.otpValues[index] !== '') {
+                    this.otpValues[index] = '';
+                } else if (index > 0) {
+                    this.handleFocus(index - 1);
+                }
+                break;
+            default:
+                break;
         }
     }
 }

@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import { isArray } from '@ember/array';
 import { run } from '@ember/runloop';
-
+import { computed } from '@ember/object';
 export default class CountdownComponent extends Component {
     /**
      * An array that defines the units to display in the countdown.
@@ -76,6 +76,16 @@ export default class CountdownComponent extends Component {
         }
 
         this.startCountdown();
+    }
+
+    @computed('remaining')
+    get remainingClass() {
+        // Customize the threshold and class names as needed
+        if (this.remaining && this.durationToSeconds(this.duration) <= 5) {
+            return 'remaining-low'; // Add a CSS class for low time
+        } else {
+            return 'remaining-normal'; // Add a default CSS class
+        }
     }
 
     /**

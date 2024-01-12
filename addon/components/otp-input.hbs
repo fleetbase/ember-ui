@@ -1,11 +1,10 @@
-<div class="flex space-x-2">
-    {{#each this.digits as |digit index|}}
-        <label class="sr-only" for={{concat this.inputId "-" index}}>Verification Code</label>
+<div class="otp-input-container flex space-x-2">
+    {{#each this.otpValues as |value index|}}
         <input
             type="text"
-            id={{concat this.inputId "-" index}}
-            class="otp-box w-12 h-12 text-2xl text-center border rounded focus:outline-none focus:border-blue-500 {{if this.isError 'border-red-500'}}"
-            value={{digit}}
+            id={{concat "otp-input-" index}}
+            value={{value}}
+            maxlength="1"
             {{on "input" (fn this.handleInput index)}}
             {{on "focus" (fn this.handleFocus index)}}
             {{on "keydown" (fn this.handleKeyDown index)}}

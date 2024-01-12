@@ -42,6 +42,8 @@
 @import 'components/drawer.css';
 @import 'components/full-calendar.css';
 @import 'components/sidebar-toggle.css';
+@import 'components/countdown.css';
+@import 'components/otp-input.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';
