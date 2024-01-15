@@ -1,7 +1,7 @@
 // app/components/otp-input.js
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { action } from '@ember/object';
+import { isBlank } from '@ember/utils';
 
 /**
  * Glimmer component for handling OTP (One-Time Password) input.
@@ -34,7 +34,7 @@ export default class OtpInputComponent extends Component {
      *
      * @constructor
      */
-    constructor() {
+    constructor(owner, { numberOfDigits }) {
         super(...arguments);
         this.otpValues = Array.from({ length: this.numberOfDigits }, () => '');
         this.handleInput = this.handleInput.bind(this);
@@ -100,9 +100,17 @@ export default class OtpInputComponent extends Component {
             this.handleFocus(index + 1);
         }
 
-        if (this.otpValues.every(value => value !== '')) {
+        // on every input
+        if (typeof this.args.onInput === 'function') {
+            this.args.onInput(inputValue);
+        }
+
+        if (this.otpValues.every((value) => !isBlank(value))) {
             const completeOtpValue = this.otpValues.join('');
-            this.args.onInput(completeOtpValue);
+
+            if (typeof this.args.onInputCompleted === 'function') {
+                this.args.onInputCompleted(completeOtpValue);
+            }
         }
     }
 

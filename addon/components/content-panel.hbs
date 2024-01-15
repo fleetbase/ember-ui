@@ -3,9 +3,11 @@
         <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
             <div class="next-content-panel-header next-content-panel-toggle {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelHeaderClass}} {{if @isLoading 'is-loading'}}">
                 <a href="javascript:;" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{@panelHeaderLeftClass}}" {{on "click" this.toggle}}>
-                    <span class="icon-container">
-                        <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
-                    </span>
+                    {{#unless @hideCaret}}
+                        <span class="icon-container">
+                            <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
+                        </span>
+                    {{/unless}}
                     {{#if @isLoading}}
                         <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
                     {{/if}}
