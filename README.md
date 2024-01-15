@@ -1,12 +1,12 @@
-# 🛠️ Fleetbase Components
+# 🛠️ Fleetbase Ember UI
 
 This library contains a collection of reusable UI components that you can use in your application and extensions to create a consistent and cohesive user interface.
 
 ## Installation
 
-To install the Fleetbase Components library, simply run the following command:
+To install the Fleetbase Ember UI library, simply run the following command:
 
-<code>git clone git@github.com:fleetbase/ember-ui</code>
+<code>npm install @fleetbase/ember-ui</code>
 
 ## Usage
 

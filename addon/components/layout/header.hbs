@@ -3,16 +3,13 @@
         <LinkToExternal @route="console" class="logo navbar-logo mr-4">
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
-        <Layout::Header::SidebarToggle class="mr-2" />
+        {{#if @showSidebarToggle}}
+            <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{not @sidebarToggleEnabled}} />
+        {{/if}}
         {{#unless (media "isMobile")}}
             <div role="menu" class="next-catalog-menu-items flex mr-4">
                 {{#each @menuItems as |menuItem|}}
-                    <LinkToExternal
-                        @route={{menuItem.route}}
-                        id={{concat (dasherize menuItem.route) "-header-button"}}
-                        class="next-view-header-item truncate {{menuItem.class}}"
-                        role="menuitem"
-                    >
+                    <LinkToExternal @route={{menuItem.route}} id={{concat (dasherize menuItem.route) "-header-button"}} class="next-view-header-item truncate {{menuItem.class}}" role="menuitem">
                         <div class="w-6">
                             <FaIcon @icon={{menuItem.icon}} @size="sm" />
                         </div>
@@ -56,14 +53,7 @@
             <div class="flex-1 flex items-center justify-end">
                 <Layout::Header::Dropdown @items={{this.userNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
                     <div class="next-user-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
-                        <Image
-                            class="rounded-full h-5 w-5 shadow-sm flex-shrink-0"
-                            height="20"
-                            width="20"
-                            src={{@user.avatar_url}}
-                            @fallbackSrc="https://s3.ap-southeast-1.amazonaws.com/flb-assets/static/no-avatar.png"
-                            alt={{@user.name}}
-                        />
+                        <Image class="rounded-full h-5 w-5 shadow-sm flex-shrink-0" height="20" width="20" src={{@user.avatar_url}} @fallbackSrc="https://s3.ap-southeast-1.amazonaws.com/flb-assets/static/no-avatar.png" alt={{@user.name}} />
                     </div>
                 </Layout::Header::Dropdown>
             </div>

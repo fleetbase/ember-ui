@@ -3,7 +3,6 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, get } from '@ember/object';
 import { isArray } from '@ember/array';
-import { assign } from '@ember/polyfills';
 
 export default class FilterMultiOptionComponent extends Component {
     @service fetch;
@@ -65,7 +64,7 @@ export default class FilterMultiOptionComponent extends Component {
 
     @action fetchOptions(uri, params = {}) {
         const { fetchParams } = this.args;
-        const queryParams = assign(params, fetchParams ?? {});
+        const queryParams = Object.assign(params, fetchParams ?? {});
 
         this.isLoading = true;
         this.fetch

@@ -4,7 +4,6 @@ import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
 import { action, set } from '@ember/object';
 import { isArray } from '@ember/array';
-import { assign } from '@ember/polyfills';
 import { assert } from '@ember/debug';
 import { timeout } from 'ember-concurrency';
 import { restartableTask } from 'ember-concurrency-decorators';
@@ -93,7 +92,7 @@ export default class FetchSelectComponent extends Component {
      */
     @restartableTask({ withTestWaiter: true }) fetchOptions = function* (term, options = {}) {
         // query might be an EmptyObject/{{hash}}, make it a normal Object
-        const query = assign({}, this.args.query);
+        const query = Object.assign({}, this.args.query);
 
         if (term) {
             set(query, 'query', term);

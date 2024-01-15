@@ -1,0 +1,9 @@
+<div class="file-icon file-icon-{{this.extension}}">
+    <FaIcon @icon={{this.icon}} class={{@iconClass}} @size={{@iconSize}} />
+    <span class="file-extension truncate">
+        {{this.extension}}
+    </span>
+    <div>
+        {{yield}}
+    </div>
+</div>
