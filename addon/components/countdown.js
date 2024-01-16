@@ -54,17 +54,15 @@ export default class CountdownComponent extends Component {
     constructor(owner, { expiry, hours, minutes, seconds, days, display }) {
         super(...arguments);
 
-        this.duration = {
-            days,
-            hours,
-            minutes,
-            seconds,
-        };
-
-        if (expiry instanceof Date) {
-            // use the date provided to set the hours minutes seconds
-            this.duration = intervalToDuration({ start: new Date(), end: expiry });
-        }
+        this.setDuration(
+            {
+                days,
+                hours,
+                minutes,
+                seconds,
+            },
+            expiry
+        );
 
         if (display) {
             if (typeof display === 'string' && display.includes(',')) {
@@ -86,6 +84,24 @@ export default class CountdownComponent extends Component {
         } else {
             return 'remaining-normal'; // Add a default CSS class
         }
+    }
+
+    setDuration(duration = {}, expiry) {
+        if (expiry instanceof Date) {
+            // use the date provided to set the hours minutes seconds
+            duration = intervalToDuration({ start: new Date(), end: expiry });
+        }
+
+        // handle when only 2 minutes
+        if (duration && duration.minutes < 3) {
+            duration = {
+                ...duration,
+                seconds: duration.seconds + duration.minutes * 60,
+                minutes: 0,
+            };
+        }
+
+        this.duration = duration;
     }
 
     /**
@@ -115,6 +131,14 @@ export default class CountdownComponent extends Component {
                 if (duration.seconds < 0) {
                     duration.seconds = 0; // Stop the countdown at 0
                     clearInterval(this.interval);
+
+                    if (typeof this.args.onCountdownEnd === 'function') {
+                        this.args.onCountdownEnd();
+                    }
+
+                    if (typeof this.args.onEnd === 'function') {
+                        this.args.onEnd();
+                    }
                 }
             });
         }, 1000);
