@@ -2,6 +2,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { isBlank } from '@ember/utils';
+import { notifyPropertyChange } from '@ember/object';
 
 /**
  * Glimmer component for handling OTP (One-Time Password) input.
@@ -122,18 +123,18 @@ export default class OtpInputComponent extends Component {
      * @param {Event} event - The keydown event object.
      */
     handleKeyDown(index, event) {
-        switch (event.key) {
-            case 'ArrowLeft':
+        switch (event.keyCode) {
+            case 37:
                 if (index > 0) {
                     this.handleFocus(index - 1);
                 }
                 break;
-            case 'ArrowRight':
+            case 39:
                 if (index < this.numberOfDigits - 1) {
                     this.handleFocus(index + 1);
                 }
                 break;
-            case 'Backspace':
+            case 8:
                 if (this.otpValues[index] !== '') {
                     this.otpValues[index] = '';
                 } else if (index > 0) {
@@ -142,6 +143,31 @@ export default class OtpInputComponent extends Component {
                 break;
             default:
                 break;
+        }
+    }
+
+    handlePaste = (index, event) => {
+        event.preventDefault();
+        const pastedData = event.clipboardData.getData('text/plain');
+
+        if (/^\d{6}$/.test(pastedData)) {
+            const pastedValues = pastedData.split('');
+
+            for (let i = 0; i < this.numberOfDigits; i++) {
+                this.otpValues[index + i] = pastedValues[i] || '';
+            }
+            const completeOtpValue = this.otpValues.join('');
+
+            if (typeof this.args.onInputCompleted === 'function') {
+                this.args.onInputCompleted(completeOtpValue);
+            }
+        }
+        notifyPropertyChange(this, 'otpValues');
+    };
+
+    handleDidInsert(index, element) {
+        if (index === 0) {
+            element.focus();
         }
     }
 }
