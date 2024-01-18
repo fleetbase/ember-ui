@@ -1,0 +1,17 @@
+<Gridstack
+    @options={{this.options}}
+    @onDragstart={{this.dragStart}}
+    @onDragstop={{this.dragStop}}
+    @onResizestart={{this.resizeStart}}
+    @onResizestop={{this.resizeStop}}
+    @onAdded={{this.added}}
+    @onChange={{this.change}}
+    @onEnable={{this.enable}}
+    @onRemoved={{this.remove}}
+    as |grid|
+>
+    Test
+    {{yield}}
+</Gridstack>
+
+{{yield}}
