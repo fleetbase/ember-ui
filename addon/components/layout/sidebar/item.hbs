@@ -21,7 +21,7 @@
                 </span>
             {{/if}}
             {{#if @dropdownButton}}
-                <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{or @dropdownButtonRenderInPlace true}} @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}} @triggerClass={{@dropdownButtonTriggerClass}} @registerAPI={{@registerAPI}} @onInsert={{this.onInsert}} as |dd|>
+                <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{or @dropdownButtonRenderInPlace true}} @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}} @triggerClass={{@dropdownButtonTriggerClass}} @registerAPI={{@registerAPI}} @onInsert={{this.onDropdownButtonInsert}} as |dd|>
                     <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                         {{#if @dropdownButtonMenuLabel}}
                             <div class="px-1">

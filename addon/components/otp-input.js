@@ -34,7 +34,7 @@ export default class OtpInputComponent extends Component {
      *
      * @constructor
      */
-    constructor(owner, { numberOfDigits }) {
+    constructor() {
         super(...arguments);
         this.otpValues = Array.from({ length: this.numberOfDigits }, () => '');
         this.handleInput = this.handleInput.bind(this);

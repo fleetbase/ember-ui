@@ -33,14 +33,15 @@ export default class OverlayComponent extends Component {
     @action setupComponent(element) {
         this.overlayNode = element;
 
-        const { isOpen } = this.args;
-
         later(
             this,
             () => {
-                this.isOpen = isOpen ?? true;
+                const open = this.args.isOpen !== false;
+                if (open) {
+                    this.open();
+                }
 
-                if (typeof this.args?.onLoad === 'function') {
+                if (typeof this.args.onLoad === 'function') {
                     this.args.onLoad(this.context);
                 }
             },
@@ -54,14 +55,26 @@ export default class OverlayComponent extends Component {
 
     @action toggle() {
         this.isOpen = !this.isOpen;
+
+        if (typeof this.args.onToggle === 'function') {
+            this.args.onToggle(this.context);
+        }
     }
 
     @action open() {
         this.isOpen = true;
+
+        if (typeof this.args.onOpen === 'function') {
+            this.args.onOpen(this.context);
+        }
     }
 
     @action close() {
         this.isOpen = false;
+
+        if (typeof this.args.onClose === 'function') {
+            this.args.onClose(this.context);
+        }
     }
 
     @action undoMinimize() {
