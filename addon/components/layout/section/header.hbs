@@ -17,7 +17,7 @@
             {{/if}}
         </div>
         {{#if @onSearch}}
-            <Input @type="text" @value={{@searchQuery}} aria-label={{t "phrases.search-input"}} placeholder={{or @searchPlaceholder (concat (t "terms.search") " " (pluralize @title))}} class="w-64 ml-3 form-input form-input-sm {{@searchInputClass}}" {{on "keyup" @onSearch}} />
+            <Input @type="text" @value={{@searchQuery}} aria-label={{t "common.search-input"}} placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}} class="w-64 ml-3 form-input form-input-sm {{@searchInputClass}}" {{on "keyup" @onSearch}} />
         {{/if}}
     </div>
     {{#unless @hideActions}}

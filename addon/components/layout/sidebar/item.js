@@ -85,20 +85,36 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     @action onDropdownItemClick(action, dd) {
+        const context = this.getDropdownContext(action);
+
         if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
             dd.actions.close();
         }
 
         if (typeof action.fn === 'function') {
-            action.fn(action.context);
+            action.fn(context);
         }
 
         if (typeof action.onClick === 'function') {
-            action.onClick(action.context);
+            action.onClick(context);
         }
     }
 
-    @action onInsert(dropdownButtonNode) {
+    getDropdownContext(action) {
+        let context = null;
+
+        if (action && action.context) {
+            context = action.context;
+        }
+
+        if (this.args.dropdownContext) {
+            context = this.args.dropdownContext;
+        }
+
+        return context;
+    }
+
+    @action onDropdownButtonInsert(dropdownButtonNode) {
         this.dropdownButtonNode = dropdownButtonNode;
 
         if (typeof this.args.onDropdownButtonInsert === 'function') {
@@ -107,8 +123,15 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     isPointerWithinDropdownButton({ target }) {
+        const isTargetDropdownItem = target.classList.contains('next-dd-item');
+
         if (this.dropdownButtonNode) {
-            return this.dropdownButtonNode.contains(target);
+            return this.dropdownButtonNode.contains(target) || isTargetDropdownItem;
+        }
+
+        // if dropdown menu item
+        if (isTargetDropdownItem) {
+            return true;
         }
 
         return false;
