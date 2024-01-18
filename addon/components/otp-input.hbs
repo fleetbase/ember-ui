@@ -8,6 +8,8 @@
             {{on "input" (fn this.handleInput index)}}
             {{on "focus" (fn this.handleFocus index)}}
             {{on "keydown" (fn this.handleKeyDown index)}}
+            {{on "paste" (fn this.handlePaste index)}}
+            {{did-insert (fn this.handleDidInsert index)}}
         />
     {{/each}}
 </div>
