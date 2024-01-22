@@ -154,6 +154,9 @@ dependencies:
   ember-wormhole:
     specifier: ^0.6.0
     version: 0.6.0
+  gridstack:
+    specifier: ^10.0.1
+    version: 10.0.1
   imask:
     specifier: ^6.4.3
     version: 6.4.3
@@ -8972,6 +8975,10 @@ packages:
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
+
+  /gridstack@10.0.1:
+    resolution: {integrity: sha512-0NeRtQ6LLENN+xdJnjneOhQw60I5NHJKgW1KWz/hau046KGlJUza0V2FcxvylzKNc8EXZbWc08tsw9T4ohs+Wg==}
+    dev: false
 
   /gridstack@7.3.0:
     resolution: {integrity: sha512-JKZgsHzm1ljkn1NnBZpf8j4NDOBCXTuw0m1ZC0sr6NKUh0BFWzXAONIxtX1hWGUVeKLj5l1VcmnTwCXw5ypDNw==}

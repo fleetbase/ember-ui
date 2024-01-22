@@ -30,6 +30,13 @@ export default class OverlayComponent extends Component {
         isMaximized: this.isMaximized,
     };
 
+    didReceiveArguments() {
+        if (this.args.isOpen !== undefined && this.args.isOpen !== this.isOpen) {
+            this.isOpen = this.args.isOpen;
+            console.log('Parent isOpen changed:', this.isOpen);
+        }
+    }
+
     @action setupComponent(element) {
         this.overlayNode = element;
 

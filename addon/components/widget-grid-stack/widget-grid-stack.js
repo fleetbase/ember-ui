@@ -5,10 +5,6 @@ export default class WidgetGridStackComponent extends GridStackComponent {
     @action
     setup(elm) {
         super.setup(elm);
-    }
-
-    @action
-    customAction() {
-        // Your custom action logic
+        console.log('This: ', this, super.options());
     }
 }
