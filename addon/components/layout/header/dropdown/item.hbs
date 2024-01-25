@@ -1,9 +1,9 @@
 {{#if this.isTextOnly}}
-    <div class="px-1 flex flex-row {{@item.wrapperClass}}">
+    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1 flex flex-row")}}>
         {{#if @item.icon}}
-            <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+            <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
         {{/if}}
-        <div class="inline-flex flex-col">
+        <div class="inline-flex flex-col {{@item.inlineClass}}">
             {{#if (is-array @item.text)}}
                 {{#each @item.text as |line|}}
                     <div class="{{@item.class}}">{{line}}</div>
@@ -16,10 +16,10 @@
 {{/if}}
 
 {{#if this.isLink}}
-    <div class="px-1 {{@item.wrapperClass}}">
+    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
         <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-dd-item {{@item.class}}">
             {{#if @item.icon}}
-                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
             <span>{{@item.text}}</span>
         </LinkTo>
@@ -27,10 +27,10 @@
 {{/if}}
 
 {{#if this.isAnchor}}
-    <div class="px-1 {{@item.wrapperClass}}">
+    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
         <a href={{@item.href}} class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}" target={{@item.target}} disabled={{@item.disabled}} {{on "click" (fn @onAction @item.action @item.params)}}>
             {{#if @item.icon}}
-                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
             <span>{{@item.text}}</span>
         </a>
@@ -38,10 +38,10 @@
 {{/if}}
 
 {{#if this.isInteractive}}
-    <div class="px-1 {{@item.wrapperClass}}">
+    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
         <a href="javascript:;" class="next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" @item.onClick}} ...attributes>
             {{#if @item.icon}}
-                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class="mr-2" />
+                <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
             <span>{{@item.text}}</span>
         </a>
