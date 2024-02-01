@@ -16,24 +16,14 @@ export default class FileIconComponent extends Component {
     }
 
     getExtension(file) {
-        return getWithDefault(
-            {
-                'application/vnd.ms-excel': 'xls',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xls',
-                'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xls',
-                'vnd.ms-excel': 'xls',
-                'text/csv': 'csv',
-                'text/tsv': 'tsv',
-                xlsx: 'xls',
-                xls: 'xls',
-                xlsb: 'xls',
-                xlsm: 'xls',
-                docx: 'doc',
-                docm: 'doc',
-            },
-            getWithDefault(file, 'extension', 'xls'),
-            'xls'
-        );
+        if (!file || (!file.original_filename && !file.url && !file.path)) {
+            return null;
+        }
+
+        // Prefer to use the original filename if available, then URL, then path
+        const filename = file.original_filename || file.url || file.path;
+        const extensionMatch = filename.match(/\.(.+)$/);
+        return extensionMatch ? extensionMatch[1] : null;
     }
 
     getIcon(file) {
