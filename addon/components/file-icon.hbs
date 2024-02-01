@@ -1,8 +1,10 @@
-<div class="file-icon file-icon-{{this.extension}}">
+<div class="file-icon file-icon-{{this.extension}}" ...attributes>
     <FaIcon @icon={{this.icon}} class={{@iconClass}} @size={{@iconSize}} />
-    <span class="file-extension truncate">
-        {{this.extension}}
-    </span>
+    {{#unless @hideExtension}}
+        <span class="file-extension truncate {{@fileExtensionClass}}">
+            {{this.extension}}
+        </span>
+    {{/unless}}
     <div>
         {{yield}}
     </div>
