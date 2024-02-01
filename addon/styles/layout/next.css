@@ -1724,10 +1724,16 @@ body[data-theme='light'] .next-dd-menu-seperator {
     height: 57px;
 }
 
+.text-danger,
+span.text-danger,
 a.text-danger {
     @apply text-red-500;
 }
 
+.text-danger:active,
+.text-danger:hover,
+span.text-danger:active,
+span.text-danger:hover,
 a.text-danger:active,
 a.text-danger:hover {
     @apply text-red-400;
@@ -1855,4 +1861,8 @@ input.order-list-overlay-search:focus {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     max-width: 1200px;
+}
+
+.thread-comment-conent-paragraph-wrapper {
+    min-height: 1.75rem;
 }
