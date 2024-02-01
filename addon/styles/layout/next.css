@@ -211,10 +211,15 @@ body[data-theme='dark'] .fleetbase-next-container {
 
 .next-content-overlay.full-height > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-body {
     height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+    padding-bottom: 300px;
 }
 
 .next-content-overlay.full-height > .next-content-overlay-panel-container > .next-content-overlay-panel .next-content-overlay-panel-body .next-content-overlay-panel-body-inner-wrapper {
     height: 100%;
+    min-height: 100%;
+    max-height: 100%;
     box-sizing: border-box;
 }
 
@@ -253,6 +258,9 @@ body[data-theme='dark'] .fleetbase-next-container {
 
 .next-content-overlay > .next-content-overlay-panel-container {
     @apply absolute transform transition ease-in-out duration-500 pointer-events-auto;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
 }
 
 .next-content-overlay > .next-content-overlay-panel-container > .next-content-overlay-panel {

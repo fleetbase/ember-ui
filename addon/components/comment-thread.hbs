@@ -7,9 +7,9 @@
 <div>
     {{#each this.comments as |comment|}}
         {{#if (has-block)}}
-            {{yield (component "comment-thread/comment" comment=comment) comment}}
+            {{yield (component "comment-thread/comment" comment=comment contextApi=this.context) comment}}
         {{else}}
-            <CommentThread::Comment @comment={{comment}} />
+            <CommentThread::Comment @comment={{comment}} @contextApi={{this.context}} />
         {{/if}}
     {{/each}}
 </div>
