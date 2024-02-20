@@ -10,10 +10,14 @@ export default class LayoutSidebarItemComponent extends Component {
     @service hostRouter;
     @tracked active;
     @tracked dropdownButtonNode;
+    @tracked dropdownButtonRenderInPlace;
 
     constructor() {
-        super(...arguments);
+        super(...arguments, { dropdownButtonRenderInPlace = true });
+
         this.active = this.checkIfActive();
+        this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace;
+
         const router = this.getRouter();
         router.on('routeDidChange', this.trackActiveFlag);
     }
