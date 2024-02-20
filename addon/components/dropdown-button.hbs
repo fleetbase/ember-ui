@@ -1,9 +1,9 @@
-<BasicDropdown id={{@dropdownId}} class={{@wrapperClass}} @renderInPlace={{@renderInPlace}} @registerAPI={{@registerAPI}} @horizontalPosition={{@horizontalPosition}} @verticalPosition={{@verticalPosition}} @calculatePosition={{@calculatePosition}} @defaultClass={{@defaultClass}} @matchTriggerWidth={{@matchTriggerWidth}} @onOpen={{@onOpen}} @onClose={{@onClose}} {{did-insert this.onInsert}} as |dd|>
-    <dd.Trigger class={{@triggerClass}}>
+<BasicDropdown id={{@dropdownId}} class={{@wrapperClass}} @renderInPlace={{@renderInPlace}} @registerAPI={{this.onRegisterAPI}} @horizontalPosition={{@horizontalPosition}} @verticalPosition={{@verticalPosition}} @calculatePosition={{@calculatePosition}} @defaultClass={{@defaultClass}} @matchTriggerWidth={{@matchTriggerWidth}} @onOpen={{@onOpen}} @onClose={{@onClose}} {{did-insert this.onInsert}} as |dd|>
+    <dd.Trigger class={{@triggerClass}} {{did-insert this.onTriggerInsert}}>
         {{#if @buttonComponent}}
             {{component @buttonComponent buttonComponentArgs=this.buttonComponentArgs text=@text class=(concat @buttonClass (if dd.isOpen ' dd-is-open')) wrapperClass=@buttonWrapperClass type=this.type active=@active size=this.buttonSize isLoading=@isLoading disabled=@disabled textClass=@textClass helpText=@helpText tooltipPlacement=@tooltipPlacement img=@img imgClass=@imgClass alt=@alt}}
         {{else}}
-            <Button title={{@text}} class="{{@buttonClass}} {{if dd.isOpen 'dd-is-open'}}" @wrapperClass={{@buttonWrapperClass}} @type={{this.type}} @active={{@active}} @size={{this.buttonSize}} @isLoading={{@isLoading}} disabled={{@disabled}} ...attributes>
+            <Button title={{@text}} class="{{@buttonClass}} {{if dd.isOpen 'dd-is-open'}}" @wrapperClass={{@buttonWrapperClass}} @type={{this.type}} @active={{@active}} @size={{this.buttonSize}} @isLoading={{@isLoading}} disabled={{@disabled}} {{did-insert this.onButtonInsert}} ...attributes>
                 {{#if @icon}}
                     <FaIcon @icon={{@icon}} @prefix={{@iconPrefix}} @size={{@iconSize}} class="{{@iconClass}} {{if @text 'mr-2'}}" />
                 {{/if}}

@@ -118,11 +118,19 @@ export default class LayoutSidebarItemComponent extends Component {
         return context;
     }
 
-    @action onDropdownButtonInsert(dropdownButtonNode) {
-        this.dropdownButtonNode = dropdownButtonNode;
+    @action onRegisterAPI() {
+        if (typeof this.args.registerAPI === 'function') {
+            this.args.registerAPI(...arguments);
+        }
+    }
 
-        if (typeof this.args.onDropdownButtonInsert === 'function') {
-            this.args.onDropdownButtonInsert(...arguments);
+    @action onDropdownButtonInsert(dropdownButtonNode) {
+        if (dropdownButtonNode) {
+            this.dropdownButtonNode = dropdownButtonNode;
+
+            if (typeof this.args.onDropdownButtonInsert === 'function') {
+                this.args.onDropdownButtonInsert(...arguments);
+            }
         }
     }
 
