@@ -297,3 +297,32 @@ body[data-theme='dark'] .table-wrapper.table-fluid > .next-table-wrapper > table
 .next-table-wrapper table.is-expandable > tbody > tr.expandable-row.is-expanded > td a.next-dd-item {
     @apply text-white;
 }
+
+body[data-theme='light'] .next-table-wrapper.auto-height,
+body[data-theme='dark'] .next-table-wrapper.auto-height,
+.next-table-wrapper.auto-height {
+    height: auto;
+}
+
+body[data-theme='light'] .next-table-wrapper.auto-height > table,
+body[data-theme='dark'] .next-table-wrapper.auto-height > table,
+.next-table-wrapper.auto-height > table {
+    height: auto;
+}
+body[data-theme='light'] .next-table-wrapper.auto-height > table > tbody:after,
+body[data-theme='dark'] .next-table-wrapper.auto-height > table > tbody:after,
+.next-table-wrapper.auto-height > table > tbody:after {
+    height: 0;
+}
+
+body[data-theme='light'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:first-child,
+body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:first-child,
+.next-table-wrapper.auto-height > table > tbody > tr:last-child > td:first-child {
+    border-bottom-left-radius: .25rem;
+}
+
+body[data-theme='light'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:last-child,
+body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:last-child,
+.next-table-wrapper.auto-height > table > tbody > tr:last-child > td:last-child {
+    border-bottom-right-radius: .25rem;
+}
