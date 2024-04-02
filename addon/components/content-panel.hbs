@@ -69,7 +69,7 @@
                             <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @size={{button.size}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} />
                         {{/each}}
                         {{#if @dropdownButton}}
-                            <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{or @dropdownButtonRenderInPlace true}} as |dd|>
+                            <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{this.dropdownButtonRenderInPlace}} as |dd|>
                                 <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                                     {{#if @dropdownButtonMenuLabel}}
                                         <div class="px-1">

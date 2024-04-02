@@ -156,3 +156,37 @@ body[data-theme='dark'] .ui-tabs > nav .ui-tab.active {
 .tab-pane.active {
     @apply block;
 }
+
+.fleetbase-pill-tabs > nav {
+    display: flex;
+    flex-direction: row;
+}
+
+.fleetbase-pill-tabs > nav > a.ui-tab {
+    border-radius: 1rem;
+    border: 1px solid #374151;
+    background-color: #1f2937;
+    margin-right: 0.75rem;
+    padding: 0.15rem 1rem;
+    font-size: 0.85rem;
+}
+
+.fleetbase-pill-tabs > nav > a.ui-tab.active {
+    background-color: #3b82f6;
+    border: 1px solid #2563eb;
+}
+
+.fleetbase-pill-tabs > nav > a.ui-tab:hover {
+    opacity: 0.75;
+}
+
+body[data-theme='light'] .fleetbase-pill-tabs > nav > a.ui-tab {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+}
+
+body[data-theme='light'] .fleetbase-pill-tabs > nav > a.ui-tab.active {
+    background-color: #3b82f6;
+    border: 1px solid #2563eb;
+    color: #fff;
+}
