@@ -28,6 +28,15 @@ export default class ContentPanelComponent extends Component {
     @tracked toggleOnCaretOnly = false;
 
     /**
+     * Determines if the dropdown button should render in place.
+     *
+     * @property {boolean} dropdownButtonRenderInPlace - Whether the dropdown button should render in place..
+     * @default false
+     * @public
+     */
+    @tracked dropdownButtonRenderInPlace = false;
+
+    /**
      * Array of icon containers used for checking if the user clicked on or within a caret.
      *
      * @property {HTMLElement[]} iconContainers - Array of icon containers.
@@ -42,14 +51,15 @@ export default class ContentPanelComponent extends Component {
      * @constructor
      * @public
      */
-    constructor() {
+    constructor(owner, { open = false, toggleOnCaretOnly = false, dropdownButtonRenderInPlace = true, onInsert }) {
         super(...arguments);
 
-        this.isOpen = this.args.open === true;
-        this.toggleOnCaretOnly = this.args.toggleOnCaretOnly === true;
+        this.isOpen = open === true;
+        this.toggleOnCaretOnly = toggleOnCaretOnly === true;
+        this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace === true;
 
-        if (typeof this.args.onInsert === 'function') {
-            this.args.onInsert(...arguments);
+        if (typeof onInsert === 'function') {
+            onInsert(...arguments);
         }
     }
 
