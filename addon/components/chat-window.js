@@ -1,6 +1,8 @@
 import Component from '@glimmer/component';
+import { inject as service } from '@ember/service';
+import { tracked } from '@glimmer/tracking';
 
-export class ChatWindowComponent extends Component {
+export default class ChatWindowComponent extends Component {
     @service socket;
     @service chat;
     @tracked channel;

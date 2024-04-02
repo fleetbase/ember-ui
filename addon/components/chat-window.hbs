@@ -1,16 +1,3 @@
-<div class="click-to-copy" {{on "click" (fn this.copyToClipboard @value)}} ...attributes>
-    <span class="click-to-copy--value">
-        {{#if (has-block)}}
-            {{yield}}
-        {{else}}
-            {{n-a @value}}
-        {{/if}}
-    </span>
-    <span class="click-to-copy--tooltip">
-        {{#if this.isCopied}}
-            Copied!
-        {{else}}
-            Click to copy
-        {{/if}}
-    </span>
+<div class="absolute bottom-0 right-0">
+    
 </div>
