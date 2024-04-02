@@ -1,0 +1,6 @@
+<div class="absolute">
+    <a>Chat</a>
+{{#each this.chatChannels as |chatChannel|}}
+    <ChatWindow @channel={{chatChannel}} />
+{{/each}}
+</div>
