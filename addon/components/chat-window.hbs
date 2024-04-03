@@ -1,7 +1,15 @@
 {{! template-lint-disable no-inline-styles }}
 <div class="bg-gray-400 absolute right-0 bottom-0" style="right: 54px;">
-    <div class="flex justify-center h-64 w-80" style="height: 400px; right: 54px; bottom:8px">Lanna</div>
-    <div class="inset-x-2.5">
-        <InputGroup />
+    <div class="flex justify-center h-64 w-80 mt-2" style="height: 400px; right: 54px; bottom:8px">Lanna</div>
+    <div class="ml-4 mb-4">
+        hi,how are you?
+    </div>
+    <div class="flex space-x-4 ml-2">
+        <div class="flex-1">
+            <InputGroup />
+        </div>
+        <div class="mr-4">
+            <Button @type="primary" @buttonType="button" @icon="save" @size="xs" @iconSize="xs" />
+        </div>
     </div>
 </div>
