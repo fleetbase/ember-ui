@@ -29,7 +29,7 @@
 }
 
 .notification-tray-panel {
-    @apply mt-5 bg-white border border-gray-200 shadow-md rounded-lg dark:bg-gray-900 dark:border-gray-700 space-y-2 truncate;
+    @apply mt-3 bg-white border border-gray-200 shadow-md rounded-lg dark:bg-gray-900 dark:border-gray-700 space-y-2 truncate;
     width: 300px;
 }
 

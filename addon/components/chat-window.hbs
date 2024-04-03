@@ -1,15 +1,46 @@
-{{! template-lint-disable no-inline-styles }}
-<div class="bg-gray-400 absolute right-0 bottom-0" style="right: 54px;">
-    <div class="flex justify-center h-64 w-80 mt-2" style="height: 400px; right: 54px; bottom:8px">Lanna</div>
-    <div class="ml-4 mb-4">
-        hi,how are you?
-    </div>
-    <div class="flex space-x-4 ml-2">
-        <div class="flex-1">
-            <InputGroup />
+<div class="chat-window-container" ...attributes>
+    <div class="chat-window-controls-container">
+        <div class="chat-window-name">
+            {{n-a this.channel.name "Untitled Chat"}}
         </div>
-        <div class="mr-4">
-            <Button @type="primary" @buttonType="button" @icon="save" @size="xs" @iconSize="xs" />
+        <div class="chat-window-controls">
+            <button type="button" class="chat-window-button" {{on "click" this.addParticipant}}>
+                <FaIcon @icon="user-plus" @size="sm" />
+            </button>
+            <button type="button" class="chat-window-button chat-window-close-button" {{on "click" this.closeChannel}}>
+                <FaIcon @icon="times" @size="sm" />
+            </button>
+        </div>
+    </div>
+    <div class="chat-window-participants-container">
+        {{#each this.channel.participants as |chatParticipant|}}
+            <div class="chat-window-participant-name">{{chatParticipant.name}}</div>
+        {{/each}}
+    </div>
+    <div class="chat-window-messages-container">
+        <div class="chat-window-messages">
+            {{#each this.channel.messages as |chatMessage|}}
+                <div class="chat-message-container">
+                    <div class="chat-message-sender-bubble">
+                        <Image src={{chatMessage.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{this.user.name}} />
+                        <div class="chat-message-sender-name">{{chatMessage.sender.name}}</div>
+                    </div>
+                    <div class="chat-message-content-bubble-container">
+                        <div class="chat-message-content-bubble {{if (eq chatMessage.sender_uuid this.currentUser.id) "sender-bubble"}}">
+                            {{chatMessage.content}}
+                        </div>
+                        <div class="chat-message-created-at">{{chatMessage.createdAgo}}</div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+    <div class="chat-window-input-container">
+        <div class="chat-window-input-box">
+            <Textarea @value={{this.pendingMessageContent}} placeholder="Type your message here" class="chat-window-input" rows="3" />
+        </div>
+        <div class="chat-window-submit-container">
+            <Button @type="primary" @icon="paper-plane" @text="Send" @onClick={{this.sendMessage}} />
         </div>
     </div>
 </div>

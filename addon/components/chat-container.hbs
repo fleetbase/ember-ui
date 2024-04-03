@@ -1,6 +1,5 @@
-<div class="absolute fixed right-0 bottom-0 bg-gray-900 w-12 h-12 rounded-full cursor-pointer border-white border-2 border-gray-600 p-2">
-    <a>Chat</a>
-    {{#each this.chatChannels as |chatChannel|}}
+<div class="chat-container" ...attributes>
+    {{#each this.chat.openChannels as |chatChannel|}}
         <ChatWindow @channel={{chatChannel}} />
     {{/each}}
 </div>

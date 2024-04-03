@@ -1,0 +1,27 @@
+<div class="next-user-button" ...attributes>
+    <BasicDropdown @registerAPI={{this.registerAPI}} @defaultClass={{@wrapperClass}} @onOpen={{@onOpen}} @onClose={{@onClose}} @verticalPosition={{@verticalPosition}} @horizontalPosition={{@horizontalPosition}} @renderInPlace={{true}} @initiallyOpened={{@initiallyOpened}} as |dd|>
+        <dd.Trigger class={{@triggerClass}}>
+            <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
+                <FaIcon @icon="message" />
+                {{!-- {{#if this.notifications.length}}
+                    <div class="chat-tray-unread-notifications-badge">{{this.notifications.length}}</div>
+                {{/if}} --}}
+            </div>
+        </dd.Trigger>
+        <dd.Content class="chat-tray-panel-container">
+            <div class="chat-tray-panel">
+                <div class="p-4">
+                    <Button @type="primary" @text="Start Chat" @onClick={{this.startChat}} />
+                </div>
+                <div class="flex flex-col space-y-2 px-4 py-2">
+                    {{#each this.channels as |channel|}}
+                        <button type="button" class="rounded-lg border border-black text-white bg-gray-700 px-4 py-2 shadow-sm w-full" {{on "click" (fn this.openChannel channel)}}>
+                            <div class="font-bold">{{n-a channel.name "Untitled Chat"}}</div>
+                            {{!-- <div class="text-sm truncate">{{channel.lastMessage.content}}</div> --}}
+                        </button>
+                    {{/each}}
+                </div>
+            </div>
+        </dd.Content>
+    </BasicDropdown>
+</div>

@@ -134,7 +134,9 @@ body.sandbox-console .fleetbase-console-navbar::after {
     font-weight: 700;
     border-bottom-left-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     z-index: 12;
 }
 
@@ -174,7 +176,9 @@ body[data-theme='dark'] .dropdown-menu-panel.ember-basic-dropdown-content a.nav-
 #extensionsNav {
     z-index: 999999;
     transform: translateX(0);
-    transition: transform 0.3s ease, width 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        width 0.3s ease;
     @apply fixed top-0 left-0 w-10/12 h-screen bg-gray-900 border-r border-gray-900 shadow-lg;
 }
 
