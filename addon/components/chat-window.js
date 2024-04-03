@@ -32,6 +32,11 @@ export default class ChatWindowComponent extends Component {
         const multiplier = this.chat.openChannels.length - 1;
         const marginRight = (chatWindowWidth + 20) * multiplier;
         chatWindowElement.style.marginRight = `${marginRight}px`;
+
+        // reposition when chat is closed
+        this.chat.on('chat.closed', () => {
+            this.positionWindow(chatWindowElement);
+        });
     }
 
     @action autoScrollMessagesWindow(messagesWindowContainerElement) {
@@ -43,7 +48,6 @@ export default class ChatWindowComponent extends Component {
 
     getSenderFromParticipants(channel) {
         const participants = channel.participants ?? [];
-        console.log('#participants', participants);
         const sender = participants.find((chatParticipant) => {
             return chatParticipant.user_uuid === this.currentUser.id;
         });
