@@ -27,6 +27,20 @@ export default class ChatWindowComponent extends Component {
 
     @action addParticipant() {}
 
+    @action positionWindow(chatWindowElement) {
+        const chatWindowWidth = chatWindowElement.offsetWidth;
+        const multiplier = this.chat.openChannels.length - 1;
+        const marginRight = (chatWindowWidth + 20) * multiplier;
+        chatWindowElement.style.marginRight = `${marginRight}px`;
+    }
+
+    @action autoScrollMessagesWindow(messagesWindowContainerElement) {
+        messagesWindowContainerElement.scrollTop = messagesWindowContainerElement.scrollHeight;
+        setInterval(() => {
+            messagesWindowContainerElement.scrollTop = messagesWindowContainerElement.scrollHeight;
+        }, 1000);
+    }
+
     getSenderFromParticipants(channel) {
         const participants = channel.participants ?? [];
         console.log('#participants', participants);

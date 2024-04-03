@@ -1,4 +1,4 @@
-<div class="chat-window-container" ...attributes>
+<div class="chat-window-container" {{did-insert this.positionWindow}} ...attributes>
     <div class="chat-window-controls-container">
         <div class="chat-window-name">
             {{n-a this.channel.name "Untitled Chat"}}
@@ -14,16 +14,24 @@
     </div>
     <div class="chat-window-participants-container">
         {{#each this.channel.participants as |chatParticipant|}}
-            <div class="chat-window-participant-name">{{chatParticipant.name}}</div>
+            <div class="chat-window-participant-bubble-container">
+                <Image src={{chatParticipant.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{chatParticipant.name}} class="chat-window-participant-bubble" />
+                <Attach::Tooltip @class="clean" @animation="scale" @placement="top">
+                    <InputInfo @text={{chatParticipant.name}} />
+                </Attach::Tooltip>
+            </div>
         {{/each}}
     </div>
-    <div class="chat-window-messages-container">
+    <div class="chat-window-messages-container" {{did-insert this.autoScrollMessagesWindow}}>
         <div class="chat-window-messages">
             {{#each this.channel.messages as |chatMessage|}}
                 <div class="chat-message-container">
                     <div class="chat-message-sender-bubble">
-                        <Image src={{chatMessage.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{this.user.name}} />
+                        <Image src={{chatMessage.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{this.sender.name}} />
                         <div class="chat-message-sender-name">{{chatMessage.sender.name}}</div>
+                        <Attach::Tooltip @class="clean" @animation="scale" @placement="top">
+                            <InputInfo @text={{chatMessage.sender.name}} />
+                        </Attach::Tooltip>
                     </div>
                     <div class="chat-message-content-bubble-container">
                         <div class="chat-message-content-bubble {{if (eq chatMessage.sender_uuid this.currentUser.id) "sender-bubble"}}">
