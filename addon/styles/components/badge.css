@@ -16,6 +16,7 @@
 }
 
 .status-badge[class*='2'] > span,
+.status-badge.published-status-badge > span,
 .status-badge.live-status-badge > span,
 .status-badge.online-status-badge > span,
 .status-badge.created-status-badge > span,
@@ -30,6 +31,7 @@
 }
 
 .status-badge[class*='2'] > span svg,
+.status-badge.published-status-badge > span svg,
 .status-badge.live-status-badge > span svg,
 .status-badge.online-status-badge > span svg,
 .status-badge.created-status-badge > span svg,
@@ -44,6 +46,7 @@
 }
 
 .status-badge[class*='5'] > span,
+.status-badge.rejected-status-badge > span,
 .status-badge.critical-status-badge > span,
 .status-badge.disabled-status-badge > span,
 .status-badge.inactive-status-badge > span,
@@ -53,6 +56,8 @@
 }
 
 .status-badge[class*='5'] > span svg,
+.status-badge.rejected-status-badge > span svg,
+.status-badge.critical-status-badge > span svg,
 .status-badge.urgent-status-badge > span svg,
 .status-badge.high-status-badge > span svg,
 .status-badge.disabled-status-badge > span svg,
@@ -70,6 +75,8 @@
 }
 
 .status-badge[class*='4'] > span,
+.status-badge.pending-review-badge > span,
+.status-badge.awaiting-review-badge > span,
 .status-badge.scheduled-maintenance-badge > span,
 .status-badge.test-status-badge > span,
 .status-badge.warning-status-badge > span,
@@ -82,6 +89,9 @@
 }
 
 .status-badge[class*='4'] > span svg,
+.status-badge.pending-review-badge > span svg,
+.status-badge.awaiting-review-badge > span svg,
+.status-badge.scheduled-maintenance-badge > span svg,
 .status-badge.test-status-badge > span svg,
 .status-badge.warning-status-badge > span svg,
 .status-badge.preparing-status-badge > span svg,
@@ -112,20 +122,24 @@
 }
 
 .status-badge.driver-enroute-badge > span,
+.status-badge.enroute-status-badge > span,
 .status-badge.driver-enroute-status-badge > span {
     @apply text-orange-900 bg-orange-100;
 }
 
 .status-badge.driver-enroute-badge > span svg,
+.status-badge.enroute-status-badge > span svg,
 .status-badge.driver-enroute-status-badge > span svg {
     @apply text-orange-400;
 }
 
+.status-badge.approved-status-badge > span,
 .status-badge.info-status-badge > span,
 .status-badge.in-progress-status-badge > span {
     @apply text-blue-900 bg-blue-300;
 }
 
+.status-badge.approved-status-badge > span svg,
 .status-badge.info-status-badge > span svg,
 .status-badge.in-progress-status-badge > span svg {
     @apply text-blue-900;
@@ -147,6 +161,7 @@ body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply text-orange-900 bg-orange-100;
 }
 
+.status-element.published-status-element,
 .status-element.live-status-element,
 .status-element.created-status-element,
 .status-element.enabled-status-element,
@@ -187,6 +202,7 @@ body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply border-blue-300;
 }
 
+.status-element.published-status-element,
 .status-element.live-status-element,
 .status-element.created-status-element,
 .status-element.enabled-status-element,
@@ -199,6 +215,7 @@ body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply text-green-800 bg-green-100;
 }
 
+.status-element.rejected-status-element,
 .status-element.disabled-status-element,
 .status-element.failed-status-element,
 .status-element.canceled-status-element {
@@ -222,6 +239,7 @@ body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply text-orange-900 bg-orange-100;
 }
 
+.status-element.approved-status-element,
 .status-element.info-status-element,
 .status-element.in-progress-status-element {
     @apply text-blue-900 bg-blue-300;
