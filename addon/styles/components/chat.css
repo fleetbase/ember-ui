@@ -14,12 +14,12 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    margin-left: 2rem;
+    margin-left: calc(360px + 2rem);
     margin-bottom: 1rem;
     z-index: 999;
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 360px;
     height: 400px;
     box-shadow:
         0 4px 6px -1px rgb(0 0 0 / 0.1),
