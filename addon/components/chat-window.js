@@ -6,9 +6,12 @@ import { action } from '@ember/object';
 export default class ChatWindowComponent extends Component {
     @service chat;
     @service currentUser;
+    @service fetch;
+    @service store;
     @tracked channel;
     @tracked sender;
     @tracked senderIsCreator;
+    @tracked participants;
     @tracked pendingMessageContent = '';
 
     constructor(owner, { channel }) {
@@ -16,6 +19,7 @@ export default class ChatWindowComponent extends Component {
         this.channel = channel;
         this.sender = this.getSenderFromParticipants(channel);
         this.senderIsCreator = this.sender ? this.sender.id === channel.created_by_uuid : false;
+        this.participants = this.loadUsers()
     }
 
     @action sendMessage() {
@@ -27,7 +31,18 @@ export default class ChatWindowComponent extends Component {
         this.chat.closeChannel(this.channel);
     }
 
-    @action addParticipant() {}
+    @action loadUsers() {
+        return this.store.query('driver', { limit: 25});
+    }
+
+    @action addParticipant(participant){
+        console.log("Channels : ", this.channel, participant)
+        this.chat.addParticipant(this.channel, participant)
+    }
+
+    @action removeParticipant(participant) {
+        this.chat.removeParticipant(this.channel, participant);
+    }
 
     @action positionWindow(chatWindowElement) {
         const chatWindowWidth = chatWindowElement.offsetWidth;
