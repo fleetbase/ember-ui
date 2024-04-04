@@ -8,12 +8,14 @@ export default class ChatWindowComponent extends Component {
     @service currentUser;
     @tracked channel;
     @tracked sender;
+    @tracked senderIsCreator;
     @tracked pendingMessageContent = '';
 
     constructor(owner, { channel }) {
         super(...arguments);
         this.channel = channel;
         this.sender = this.getSenderFromParticipants(channel);
+        this.senderIsCreator = this.sender ? this.sender.id === channel.created_by_uuid : false;
     }
 
     @action sendMessage() {
