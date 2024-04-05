@@ -1,5 +1,15 @@
 <div class="next-user-button" ...attributes>
-    <BasicDropdown @registerAPI={{this.registerAPI}} @defaultClass={{@wrapperClass}} @onOpen={{@onOpen}} @onClose={{@onClose}} @verticalPosition={{@verticalPosition}} @horizontalPosition={{@horizontalPosition}} @renderInPlace={{true}} @initiallyOpened={{@initiallyOpened}} as |dd|>
+    <BasicDropdown
+        @registerAPI={{this.registerAPI}}
+        @defaultClass={{@wrapperClass}}
+        @onOpen={{@onOpen}}
+        @onClose={{@onClose}}
+        @verticalPosition={{@verticalPosition}}
+        @horizontalPosition={{@horizontalPosition}}
+        @renderInPlace={{true}}
+        @initiallyOpened={{@initiallyOpened}}
+        as |dd|
+    >
         <dd.Trigger class={{@triggerClass}}>
             <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                 <FaIcon @icon="message" />
@@ -17,7 +27,10 @@
                     {{#each this.channels as |channel|}}
                         <button type="button" class="rounded-lg border border-black text-white bg-gray-700 px-4 py-2 shadow-sm w-full" {{on "click" (fn this.openChannel channel)}}>
                             <div class="font-bold">{{n-a channel.name "Untitled Chat"}}</div>
-                            {{!-- <div class="text-sm truncate">{{channel.lastMessage.content}}</div> --}}
+                            <div class="text-sm truncate">{{channel.lastMessage.content}}</div>
+                        </button>
+                        <button type="button" {{on "click" (fn this.removeChannel channel)}}>
+                            <FaIcon @icon="times" @size="sm" />
                         </button>
                     {{/each}}
                 </div>

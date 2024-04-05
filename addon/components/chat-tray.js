@@ -1,8 +1,7 @@
+import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { inject as service } from '@ember/service';
-import { action } from '@ember/object';
-import { task } from 'ember-concurrency';
 
 export default class ChatTrayComponent extends Component {
     @service chat;
@@ -23,7 +22,16 @@ export default class ChatTrayComponent extends Component {
     }
 
     @action startChat() {
-        const chatChannelRecord = this.chat.createChatChannel();
         this.openChannel(chatChannelRecord);
+    }
+
+    @action removeChannel(chatChannelRecord) {
+        this.chat.deleteChatChannel(chatChannelRecord);
+        this.chat.loadChannels();
+    }
+
+    @action updateChatChannel(chatChannelRecord) {
+        this.chat.deleteChatChannel(chatChannelRecord);
+        this.chat.loadChannels();
     }
 }
