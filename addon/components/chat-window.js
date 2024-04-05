@@ -2,24 +2,43 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { task } from 'ember-concurrency';
 
 export default class ChatWindowComponent extends Component {
     @service chat;
+    @service socket;
     @service currentUser;
+    @service modalsManager;
     @service fetch;
     @service store;
     @tracked channel;
     @tracked sender;
     @tracked senderIsCreator;
-    @tracked participants;
+    @tracked availableUsers = [];
     @tracked pendingMessageContent = '';
 
     constructor(owner, { channel }) {
         super(...arguments);
         this.channel = channel;
         this.sender = this.getSenderFromParticipants(channel);
-        this.senderIsCreator = this.sender ? this.sender.id === channel.created_by_uuid : false;
-        this.participants = this.loadUsers()
+        this.listenChatChannel(channel);
+        this.loadAvailableUsers.perform();
+    }
+
+    async listenChatChannel(chatChannelRecord) {
+        this.socket.listen(`chat.${chatChannelRecord.public_id}`, (socketEvent) => {
+            console.log('[chat event]', socketEvent);
+            switch (socketEvent.event) {
+                case 'chat.added_participant':
+                case 'chat.removed_participant':
+                    this.channel.reloadParticipants();
+                    break;
+                case 'chat_message.created':
+                    // this.channel.reloadParticipants();
+                    this.chat.insertMessageFromSocket(this.channel, socketEvent.data);
+                    break;
+            }
+        });
     }
 
     @action sendMessage() {
@@ -31,17 +50,20 @@ export default class ChatWindowComponent extends Component {
         this.chat.closeChannel(this.channel);
     }
 
-    @action loadUsers() {
-        return this.store.query('driver', { limit: 25});
-    }
-
-    @action addParticipant(participant){
-        console.log("Channels : ", this.channel, participant)
-        this.chat.addParticipant(this.channel, participant)
+    @action addParticipant(user) {
+        this.chat.addParticipant(this.channel, user);
     }
 
     @action removeParticipant(participant) {
-        this.chat.removeParticipant(this.channel, participant);
+        this.modalsManager.confirm({
+            title: `Are you sure you wish to remove this participant (${participant.name}) from the chat?`,
+            body: 'Proceeding remove this participant from the chat.',
+            confirm: (modal) => {
+                modal.startLoading();
+
+                return this.chat.removeParticipant(this.channel, participant);
+            },
+        });
     }
 
     @action positionWindow(chatWindowElement) {
@@ -63,12 +85,19 @@ export default class ChatWindowComponent extends Component {
         }, 1000);
     }
 
+    @task *loadAvailableUsers(params = {}) {
+        const users = yield this.store.query('user', params);
+        this.availableUsers = users;
+        return users;
+    }
+
     getSenderFromParticipants(channel) {
         const participants = channel.participants ?? [];
         const sender = participants.find((chatParticipant) => {
             return chatParticipant.user_uuid === this.currentUser.id;
         });
 
+        this.senderIsCreator = sender ? sender.id === channel.created_by_uuid : false;
         return sender;
     }
 }

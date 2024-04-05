@@ -7,14 +7,13 @@
             <DropdownButton class="chat-window-button" @icon="user-plus" @size="sm" @iconPrefix="fas" @triggerClass="hidden md:flex" as |dd|>
                 <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
                     <div class="p-1">
-
-                        {{#each this.participants as |participant|}}
-                            <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.addParticipant participant)}}>
+                        {{#each this.availableUsers as |user|}}
+                            <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.addParticipant user)}}>
                                 <div class="flex-1 flex flex-row items-center">
                                     <div class="w-6">
-                                        <FaIcon @icon="desktop" />
+                                        <FaIcon @icon="user" />
                                     </div>
-                                    <span>{{participant.name}}</span>
+                                    <span>{{user.name}}</span>
                                 </div>
                             </a>
                         {{/each}}
@@ -25,9 +24,6 @@
             <button type="button" class="chat-window-button chat-window-close-button" {{on "click" this.closeChannel}}>
                 <FaIcon @icon="times" @size="sm" />
             </button>
-            <button type="button" class="chat-window-button chat-window-close-button" {{on "click" this.removeParticipant}}>
-                <FaIcon @icon="trash" @size="sm" />
-            </button>
         </div>
     </div>
     <div class="chat-window-participants-container">
@@ -37,6 +33,9 @@
                 <Attach::Tooltip @class="clean" @animation="scale" @placement="top">
                     <InputInfo @text={{chatParticipant.name}} />
                 </Attach::Tooltip>
+                <button type="button" class="chat-window-remove-participant" {{on "click" (fn this.removeParticipant chatParticipant)}}>
+                    <FaIcon @icon="times" @size="sm" />
+                </button>
             </div>
         {{/each}}
     </div>

@@ -25,13 +25,15 @@
                 </div>
                 <div class="flex flex-col space-y-2 px-4 py-2">
                     {{#each this.channels as |channel|}}
-                        <button type="button" class="rounded-lg border border-black text-white bg-gray-700 px-4 py-2 shadow-sm w-full" {{on "click" (fn this.openChannel channel)}}>
-                            <div class="font-bold">{{n-a channel.name "Untitled Chat"}}</div>
-                            <div class="text-sm truncate">{{channel.lastMessage.content}}</div>
-                        </button>
-                        <button type="button" {{on "click" (fn this.removeChannel channel)}}>
-                            <FaIcon @icon="times" @size="sm" />
-                        </button>
+                        <div class="flex items-center">
+                            <button type="button" class="rounded-lg border border-black text-white bg-gray-700 px-4 py-2 shadow-sm w-full" {{on "click" (fn this.openChannel channel)}}>
+                                <div class="font-bold">{{n-a channel.name "Untitled Chat"}}</div>
+                                <div class="text-sm truncate">{{channel.lastMessage.content}}</div>
+                            </button>
+                            <button type="button" {{on "click" (fn this.removeChannel channel)}}>
+                                <FaIcon @icon="times" @size="sm" />
+                            </button>
+                        </div>
                     {{/each}}
                 </div>
             </div>
