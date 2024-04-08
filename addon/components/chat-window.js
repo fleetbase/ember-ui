@@ -16,6 +16,29 @@ export default class ChatWindowComponent extends Component {
     @tracked senderIsCreator;
     @tracked availableUsers = [];
     @tracked pendingMessageContent = '';
+    @tracked pendingAttachmentFile;
+    @tracked pendingAttachmentFiles = [];
+    acceptedFileTypes = [
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/msword',
+        'application/pdf',
+        'application/x-pdf',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'video/mp4',
+        'video/quicktime',
+        'video/x-msvideo',
+        'video/x-flv',
+        'video/x-ms-wmv',
+        'audio/mpeg',
+        'video/x-msvideo',
+        'application/zip',
+        'application/x-tar',
+    ];
 
     constructor(owner, { channel }) {
         super(...arguments);
@@ -34,11 +57,47 @@ export default class ChatWindowComponent extends Component {
                     this.channel.reloadParticipants();
                     break;
                 case 'chat_message.created':
-                    // this.channel.reloadParticipants();
                     this.chat.insertMessageFromSocket(this.channel, socketEvent.data);
                     break;
             }
         });
+    }
+
+    @action onFileAddedHandler(file) {
+        // since we have dropzone and upload button within dropzone validate the file state first
+        // as this method can be called twice from both functions
+        if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) {
+            return;
+        }
+
+        // set file for progress state
+        this.pendingAttachmentFile = file;
+
+        // Queue and upload immediatley
+        this.fetch.uploadFile.perform(
+            file,
+            {
+                path: `uploads/chat/${this.channel.id}/attachments`,
+                type: 'chat_attachment',
+                subject_uuid: this.channel.id,
+                subject_type: 'chat_channel',
+            },
+            (uploadedFile) => {
+                this.pendingAttachmentFiles.pushObject(uploadedFile);
+                this.pendingAttachmentFile = undefined;
+            },
+            () => {
+                // remove file from queue
+                if (file.queue && typeof file.queue.remove === 'function') {
+                    file.queue.remove(file);
+                }
+                this.pendingAttachmentFile = undefined;
+            }
+        );
+    }
+
+    @action removePendingAttachmentFile(pendingFile) {
+        this.pendingAttachmentFiles.removeObject(pendingFile);
     }
 
     @action sendMessage() {

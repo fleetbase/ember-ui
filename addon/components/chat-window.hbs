@@ -61,11 +61,30 @@
         </div>
     </div>
     <div class="chat-window-input-container">
+        <div class="chat-window-attachments-container">
+            <div class="chat-window-attachment-input">
+                <FileUpload @name={{this.customField.name}} @for={{this.customField.name}} @accept={{join "," this.acceptedFileTypes}} @multiple={{true}} @onFileAdded={{this.onFileAddedHandler}}>
+                    <a tabindex={{0}} class="btn btn-default btn-xs cursor-pointer">
+                        <FaIcon @icon="paperclip" @size="sm" class="mr-2" />
+                        <span>Add Attachment</span>
+                    </a>
+                </FileUpload>
+                {{#if this.pendingAttachmentFile}}
+                    <div class="ml-2 flex items-center text-sm">
+                        <Spinner class="dark:text-blue-400 text-blue-900" />
+                        <span class="ml-2 text-xs dark:text-blue-400 text-blue-900">{{round this.pendingAttachmentFile.progress}}%</span>
+                    </div>
+                {{/if}}
+            </div>
+            {{#each this.pendingAttachmentFiles as |pendingFile|}}
+                <ChatWindow::PendingAttachment @file={{pendingFile}} @onRemove={{fn this.removePendingAttachmentFile pendingFile}} />
+            {{/each}}
+        </div>
         <div class="chat-window-input-box">
             <Textarea @value={{this.pendingMessageContent}} placeholder="Type your message here" class="chat-window-input" rows="3" />
         </div>
         <div class="chat-window-submit-container">
-            <Button @type="primary" @icon="paper-plane" @text="Send" @onClick={{this.sendMessage}} />
+            <Button @type="primary" @icon="paper-plane" @text="Send" @size="xs" @onClick={{this.sendMessage}} />
         </div>
     </div>
 </div>
