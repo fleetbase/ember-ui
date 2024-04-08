@@ -50,6 +50,25 @@
                             <InputInfo @text={{chatMessage.sender.name}} />
                         </Attach::Tooltip>
                     </div>
+                    <div class="file-attachment">
+                        {{#if chatMessage.chat_channels.feed.data.file_uuid}}
+                            <a href="{{chatMessage.file_uuid}}" target="_blank" class="text-blue-500 hover:underline" rel="noopener noreferrer">{{chatMessage.fileName}}</a>
+                            <div class="file-icon">
+                                {{#if (startsWith chatMessage.fileType "image/")}}
+                                    <img src="{{chatMessage.url}}" alt="Attachment" class="max-w-xs max-h-xs" />
+                                {{else if (startsWith chatMessage.fileType "video/")}}
+                                    {{! template-lint-disable require-media-caption }}
+                                    <video controls class="max-w-xs max-h-xs">
+                                        <source src="{{chatMessage.url}}" type="{{chatMessage.fileType}}" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                {{else}}
+                                    <i class="fas fa-file text-gray-500"></i>
+                                {{/if}}
+                            </div>
+
+                        {{/if}}
+                    </div>
                     <div class="chat-message-content-bubble-container">
                         <div class="chat-message-content-bubble {{if (eq chatMessage.sender_uuid this.currentUser.id) 'sender-bubble'}}">
                             {{chatMessage.content}}
@@ -63,7 +82,13 @@
     <div class="chat-window-input-container">
         <div class="chat-window-attachments-container">
             <div class="chat-window-attachment-input">
-                <FileUpload @name={{this.customField.name}} @for={{this.customField.name}} @accept={{join "," this.acceptedFileTypes}} @multiple={{true}} @onFileAdded={{this.onFileAddedHandler}}>
+                <FileUpload
+                    @name={{this.customField.name}}
+                    @for={{this.customField.name}}
+                    @accept={{join "," this.acceptedFileTypes}}
+                    @multiple={{true}}
+                    @onFileAdded={{this.onFileAddedHandler}}
+                >
                     <a tabindex={{0}} class="btn btn-default btn-xs cursor-pointer">
                         <FaIcon @icon="paperclip" @size="sm" class="mr-2" />
                         <span>Add Attachment</span>

@@ -252,6 +252,31 @@
     padding: 0 0.35rem;
 }
 
+.chat-message-container .file-attachment{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: #144ac7;
+
+}
+
+  .file-attachment a {
+    color: #1a73e8; 
+    text-decoration: none;
+    margin-right: 10px;
+  }
+  
+  .file-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .file-icon i {
+    color: #999; 
+    font-size: 20px;
+    margin-right: 5px;
+  }
+  
 .chat-message-container .chat-message-content-bubble {
     border-radius: 0.25rem;
     padding: 0.5rem 0.5rem 1rem 0.5rem;
