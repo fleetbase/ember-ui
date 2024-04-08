@@ -15,19 +15,19 @@
                 </div>
                 <div class="flex flex-col">
                     {{#each this.channels as |channel|}}
-                        <div class="flex items-start px-4 py-3 border-t dark:border-gray-700 border-gray-200">
-                            <button type="button" class="flex flex-col flex-1 cursor-default" {{on "click" (fn this.openChannel channel)}}>
-                                <div class="font-bold mb-1">{{n-a channel.title "Untitled Chat"}}</div>
+                        <div class="chat-tray-channel-preview flex items-start px-4 py-3 border-t dark:border-gray-700 border-gray-200">
+                            <button type="button" class="chat-tray-channel-preview-btn flex flex-col flex-1 cursor-default" {{on "click" (fn this.openChannel channel)}}>
+                                <div class="chat-tray-channel-preview-title font-bold mb-1">{{n-a channel.title "Untitled Chat"}}</div>
                                 <div class="flex flex-row">
                                     <div class="w-10">
-                                        <Image src={{channel.last_message.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{channel.last_message.sender.name}} class="rounded-full shadow-sm w-8 h-8" />
+                                        <Image src={{channel.last_message.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{channel.last_message.sender.name}} class="chat-tray-channel-preview-avatar rounded-full shadow-sm w-8 h-8" />
                                     </div>
-                                    <div class="text-sm truncate dark:text-gray-200 text-gray-900">{{channel.last_message.content}}</div>
+                                    <div class="chat-tray-channel-preview-last-message text-sm truncate dark:text-gray-200 text-gray-900">{{channel.last_message.content}}</div>
                                 </div>
                             </button>
                             <div class="flex">
                                 <div class="btn-wrapper">
-                                    <button type="button" class="btn btn-danger btn-xs cursor-default" {{on "click" (fn this.removeChannel channel)}}>
+                                    <button type="button" class="chat-tray-channel-preview-close-channel-btn btn btn-danger btn-xs cursor-default" {{on "click" (fn this.removeChannel channel)}}>
                                         <FaIcon @icon="times" @size="sm" />
                                     </button>
                                 </div>

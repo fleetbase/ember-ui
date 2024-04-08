@@ -128,7 +128,9 @@ export default class ChatWindowComponent extends Component {
         this.pendingAttachmentFiles = [];
 
         // save attachments
-        return all(attachments.map((_) => _.save()));
+        return all(attachments.map((_) => _.save())).then((response) => {
+            console.log(response);
+        });
     }
 
     @action closeChannel() {
