@@ -223,6 +223,16 @@
     overflow-y: scroll;
 }
 
+.chat-window-pending-attachment {
+    display: flex;
+    margin-top: 8px;
+}
+
+.chat-window-pending-attachment .chat-window-pending-attachment-name {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
 .chat-window-messages {
     height: 100%;
     width: 100%;
@@ -302,7 +312,7 @@
 }
 
 .chat-tray-channel-preview:hover {
-    opacity: .5;
+    opacity: 0.5;
 }
 
 .chat-tray-channel-preview .chat-tray-channel-preview-last-message {
