@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { task } from 'ember-concurrency';
+import { all } from 'rsvp';
 
 export default class ChatWindowComponent extends Component {
     @service chat;
@@ -101,8 +102,33 @@ export default class ChatWindowComponent extends Component {
     }
 
     @action sendMessage() {
-        this.chat.sendMessage(this.channel, this.sender, this.pendingMessageContent);
+        this.chat.sendMessage(this.channel, this.sender, this.pendingMessageContent).then((chatMessageRecord) => {
+            this.sendAttachments(chatMessageRecord);
+        });
         this.pendingMessageContent = '';
+    }
+
+    @action sendAttachments(chatMessageRecord) {
+        // create file attachments
+        const attachments = this.pendingAttachmentFiles.map((file) => {
+            const attachment = this.store.createRecord('chat-attachment', {
+                chat_channel_uuid: this.channel.id,
+                file_uuid: file.id,
+                sender_uuid: this.sender.id,
+            });
+
+            if (chatMessageRecord) {
+                attachment.set('chat_message_uuid', chatMessageRecord.id);
+            }
+
+            return attachment;
+        });
+
+        // clear pending attachments
+        this.pendingAttachmentFiles = [];
+
+        // save attachments
+        return all(attachments.map((_) => _.save()));
     }
 
     @action closeChannel() {
