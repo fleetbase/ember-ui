@@ -1,7 +1,7 @@
 <div class="chat-window-pending-attachment">
     <div class="chat-window-pending-attachment-preview">
         {{#if this.isImage}}
-            <Image src={{@file.url}} alt={{@file.original_filename}} class="x-fleetbase-file-preview rounded-md shadow-sm" />
+            <Image src={{@file.url}} @fallbackSrc={{config "defaultValues.placeholderImage"}} alt={{@file.original_filename}} class="x-fleetbase-file-preview rounded-md shadow-sm" />
         {{else}}
             <div class="x-fleetbase-file-preview">
                 <FileIcon @file={{@file}} @hideExtension={{true}} @iconSize="2xl" />
@@ -12,24 +12,10 @@
         {{truncate-filename @file.original_filename}}
     </div>
     <div class="chat-window-pending-attachment-actions">
-        <DropdownButton @dropdownId="x-fleetbase-file-actions-dropdown" @icon="ellipsis" @iconSize="xs" @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{or @dropdownButtonRenderInPlace true}} @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}} @triggerClass={{@dropdownButtonTriggerClass}} @registerAPI={{@registerAPI}} @onInsert={{this.onDropdownButtonInsert}} as |dd|>
-            <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
-                <div class="px-1">
-                    <div class="text-sm flex flex-row items-center px-3 py-1 rounded-md my-1 text-gray-800 dark:text-gray-300">
-                        {{t "component.file.dropdown-label"}}
-                    </div>
-                </div>
-                <div class="next-dd-menu-seperator"></div>
-                <div role="group" class="px-1">
-                    {{!-- template-lint-disable no-nested-interactive --}}
-                    <a href="javascript:;" role="menuitem" class="next-dd-item text-danger" {{on "click" (fn this.onDropdownItemClick "onRemove" dd)}}>
-                        <span class="mr-1">
-                            <FaIcon @icon="trash" @prefix={{@dropdownButtonIconPrefix}} />
-                        </span>
-                        {{t "common.delete"}}
-                    </a>
-                </div>
-            </div>
-        </DropdownButton>
+        <a href="javascript:;" {{on "click" this.remove}}>
+            <span class="mr-1">
+                <FaIcon @icon="trash" class="text-red-500" />
+            </span>
+        </a>
     </div>
 </div>

@@ -1,4 +1,4 @@
-<div class="chat-window-container" {{did-insert this.positionWindow}} ...attributes>
+<div class="chat-window-container {{if this.pendingAttachmentFiles "has-attachments"}}" {{did-insert this.positionWindow}} ...attributes>
     <div class="chat-window-controls-container">
         <div class="chat-window-name">
             {{n-a this.channel.name "Untitled Chat"}}
@@ -11,7 +11,7 @@
                             <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.addParticipant user)}}>
                                 <div class="flex-1 flex flex-row items-center">
                                     <div class="w-6">
-                                        <FaIcon @icon="user" />
+                                        <FaIcon @icon="user" @size="xs" />
                                     </div>
                                     <span>{{user.name}}</span>
                                 </div>
@@ -39,31 +39,15 @@
             </div>
         {{/each}}
     </div>
-    <div class="chat-window-messages-container" {{did-insert this.autoScrollMessagesWindow}}>
+    <div class="chat-window-messages-container" {{did-insert this.scrollMessageWindowBottom}}>
         <div class="chat-window-messages">
-            {{#each this.channel.messages as |chatMessage|}}
-                <div class="chat-message-container">
-                    <div class="chat-message-sender-bubble">
-                        <Image src={{chatMessage.sender.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{this.sender.name}} />
-                        <div class="chat-message-sender-name">{{chatMessage.sender.name}}</div>
-                        <Attach::Tooltip @class="clean" @animation="scale" @placement="top">
-                            <InputInfo @text={{chatMessage.sender.name}} />
-                        </Attach::Tooltip>
-                    </div>
-                    <div class="chat-message-content-bubble-container">
-                        <div class="chat-message-content-bubble {{if (eq chatMessage.sender_uuid this.currentUser.id) 'sender-bubble'}}">
-                            {{chatMessage.content}}
-                        </div>
-                        <div class="chat-message-created-at">{{chatMessage.createdAgo}}</div>
-                    </div>
-                </div>
-            {{/each}}
+            <ChatWindow::Feed @channel={{this.channel}} />
         </div>
     </div>
-    <div class="chat-window-input-container">
+    <div class="chat-window-input-container {{if this.pendingAttachmentFiles "has-attachments"}}">
         <div class="chat-window-attachments-container">
             <div class="chat-window-attachment-input">
-                <FileUpload @name={{this.customField.name}} @for={{this.customField.name}} @accept={{join "," this.acceptedFileTypes}} @multiple={{true}} @onFileAdded={{this.onFileAddedHandler}}>
+                <FileUpload @name={{this.customField.name}} @for={{this.customField.name}} @accept={{join "," this.acceptedFileTypes}} @multiple={{true}} @onFileAdded={{perform this.uploadAttachmentFile}}>
                     <a tabindex={{0}} class="btn btn-default btn-xs cursor-pointer">
                         <FaIcon @icon="paperclip" @size="sm" class="mr-2" />
                         <span>Add Attachment</span>
@@ -76,15 +60,19 @@
                     </div>
                 {{/if}}
             </div>
-            {{#each this.pendingAttachmentFiles as |pendingFile|}}
-                <ChatWindow::PendingAttachment @file={{pendingFile}} @onRemove={{fn this.removePendingAttachmentFile pendingFile}} />
-            {{/each}}
+            {{#if this.pendingAttachmentFiles}}
+                <div class="chat-window-pending-attachments-container">
+                    {{#each this.pendingAttachmentFiles as |pendingFile|}}
+                        <ChatWindow::PendingAttachment @file={{pendingFile}} @onRemove={{fn this.removePendingAttachmentFile pendingFile}} />
+                    {{/each}}
+                </div>
+            {{/if}}
         </div>
         <div class="chat-window-input-box">
             <Textarea @value={{this.pendingMessageContent}} placeholder="Type your message here" class="chat-window-input" rows="3" />
         </div>
         <div class="chat-window-submit-container">
-            <Button @type="primary" @icon="paper-plane" @text="Send" @size="xs" @onClick={{this.sendMessage}} />
+            <Button @type="primary" @icon="paper-plane" @text="Send" @size="xs" @onClick={{perform this.sendMessage}} @disabled={{not this.pendingMessageContent}} @isLoading={{and (not this.sendMessage.isIdle) (not this.uploadAttachmentFile.isIdle)}} />
         </div>
     </div>
 </div>

@@ -13,13 +13,9 @@ export default class ChatWindowPendingAttachmentComponent extends Component {
         this.isImage = this.isImageFile(file);
     }
 
-    @action onDropdownItemClick(action, dd) {
-        if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
-            dd.actions.close();
-        }
-
-        if (typeof this.args[action] === 'function') {
-            this.args[action](this.file);
+    @action remove() {
+        if (typeof this.args.onRemove === 'function') {
+            this.args.onRemove(this.file);
         }
     }
 

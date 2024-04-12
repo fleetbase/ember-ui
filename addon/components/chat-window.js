@@ -58,13 +58,19 @@ export default class ChatWindowComponent extends Component {
                     this.channel.reloadParticipants();
                     break;
                 case 'chat_message.created':
-                    this.chat.insertMessageFromSocket(this.channel, socketEvent.data);
+                    this.chat.insertChatMessageFromSocket(this.channel, socketEvent.data);
+                    break;
+                case 'chat_log.created':
+                    this.chat.insertChatLogFromSocket(this.channel, socketEvent.data);
+                    break;
+                case 'chat_attachment.created':
+                    this.chat.insertChatAttachmentFromSocket(this.channel, socketEvent.data);
                     break;
             }
         });
     }
 
-    @action onFileAddedHandler(file) {
+    @task *uploadAttachmentFile(file) {
         // since we have dropzone and upload button within dropzone validate the file state first
         // as this method can be called twice from both functions
         if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) {
@@ -75,7 +81,7 @@ export default class ChatWindowComponent extends Component {
         this.pendingAttachmentFile = file;
 
         // Queue and upload immediatley
-        this.fetch.uploadFile.perform(
+        yield this.fetch.uploadFile.perform(
             file,
             {
                 path: `uploads/chat/${this.channel.id}/attachments`,
@@ -101,36 +107,11 @@ export default class ChatWindowComponent extends Component {
         this.pendingAttachmentFiles.removeObject(pendingFile);
     }
 
-    @action sendMessage() {
-        this.chat.sendMessage(this.channel, this.sender, this.pendingMessageContent).then((chatMessageRecord) => {
-            this.sendAttachments(chatMessageRecord);
-        });
+    @task *sendMessage() {
+        const attachments = this.pendingAttachmentFiles.map((file) => file.id);
+        yield this.chat.sendMessage(this.channel, this.sender, this.pendingMessageContent, attachments);
         this.pendingMessageContent = '';
-    }
-
-    @action sendAttachments(chatMessageRecord) {
-        // create file attachments
-        const attachments = this.pendingAttachmentFiles.map((file) => {
-            const attachment = this.store.createRecord('chat-attachment', {
-                chat_channel_uuid: this.channel.id,
-                file_uuid: file.id,
-                sender_uuid: this.sender.id,
-            });
-
-            if (chatMessageRecord) {
-                attachment.set('chat_message_uuid', chatMessageRecord.id);
-            }
-
-            return attachment;
-        });
-
-        // clear pending attachments
         this.pendingAttachmentFiles = [];
-
-        // save attachments
-        return all(attachments.map((_) => _.save())).then((response) => {
-            console.log(response);
-        });
     }
 
     @action closeChannel() {
@@ -156,7 +137,7 @@ export default class ChatWindowComponent extends Component {
     @action positionWindow(chatWindowElement) {
         const chatWindowWidth = chatWindowElement.offsetWidth;
         const multiplier = this.chat.openChannels.length - 1;
-        const marginRight = (chatWindowWidth + 20) * multiplier;
+        const marginRight = multiplier === 0 ? 16 : (chatWindowWidth + 16) * multiplier;
         chatWindowElement.style.marginRight = `${marginRight}px`;
 
         // reposition when chat is closed
@@ -165,11 +146,8 @@ export default class ChatWindowComponent extends Component {
         });
     }
 
-    @action autoScrollMessagesWindow(messagesWindowContainerElement) {
+    @action scrollMessageWindowBottom(messagesWindowContainerElement) {
         messagesWindowContainerElement.scrollTop = messagesWindowContainerElement.scrollHeight;
-        setInterval(() => {
-            messagesWindowContainerElement.scrollTop = messagesWindowContainerElement.scrollHeight;
-        }, 1000);
     }
 
     @task *loadAvailableUsers(params = {}) {

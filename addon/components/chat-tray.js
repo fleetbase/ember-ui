@@ -29,6 +29,7 @@ export default class ChatTrayComponent extends Component {
     }
 
     @action removeChannel(chatChannelRecord) {
+        this.chat.closeChannel(chatChannelRecord);
         this.chat.deleteChatChannel(chatChannelRecord);
         this.reloadChannels();
     }
