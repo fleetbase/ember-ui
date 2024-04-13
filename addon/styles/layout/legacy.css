@@ -212,8 +212,9 @@ body[data-theme='dark'] .filter-row .filter-row-body {
     box-sizing: border-box;
 }
 
+.ember-basic-dropdown-content,
 #ember-basic-dropdown-wormhole .ember-basic-dropdown-content {
-    z-index: 99999;
+    z-index: 9999;
 }
 
 .datum-row {
@@ -555,8 +556,18 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
     @apply px-3 py-2;
 }
 
+.ui-input-info-block.sm,
+.ui-input-info-block.sm span {
+    @apply text-sm;
+}
+
 .ui-input-info-block.xs {
     @apply px-2 py-1;
+}
+
+.ui-input-info-block.xs,
+.ui-input-info-block.xs span {
+    @apply text-xs;
 }
 
 .ui-input-info-block .ui-input-info-block-text,
@@ -805,7 +816,7 @@ body[data-theme='dark'] li.iti__country > span {
 }
 
 .ui-input-info > svg {
-    margin-right: .5rem;
+    margin-right: 0.5rem;
 }
 
 .ui-input-info.danger {

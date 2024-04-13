@@ -1,4 +1,4 @@
-.kanban-container { 
+.kanban-container {
     display: flex;
     width: 100%;
     max-width: 100%;
@@ -17,7 +17,7 @@
 .kanban-container .kanban-inner-container .kanban-column {
     width: 300px;
     height: 100%;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     margin-right: 1.25rem;
     @apply bg-gray-300 dark:bg-gray-800 shadow-sm;
 }
@@ -25,8 +25,8 @@
 .kanban-container .kanban-inner-container .kanban-column > .kanban-column-header {
     display: flex;
     flex-direction: row;
-    border-top-left-radius: .5rem;
-    border-top-right-radius: .5rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
     border-bottom-width: 2px;
     @apply px-4 py-2 border-gray-200 dark:border-gray-500;
 }
