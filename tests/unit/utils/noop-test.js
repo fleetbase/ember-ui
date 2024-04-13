@@ -5,6 +5,6 @@ module('Unit | Utility | noop', function () {
     // TODO: Replace this with your real tests.
     test('it works', function (assert) {
         let result = noop();
-        assert.ok(result);
+        assert.equal(result, undefined);
     });
 });
