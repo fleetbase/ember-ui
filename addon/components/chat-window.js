@@ -2,8 +2,8 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { later } from '@ember/runloop';
 import { task } from 'ember-concurrency';
-import { all } from 'rsvp';
 
 export default class ChatWindowComponent extends Component {
     @service chat;
@@ -12,6 +12,8 @@ export default class ChatWindowComponent extends Component {
     @service modalsManager;
     @service fetch;
     @service store;
+    @tracked chatWindowElement;
+    @tracked channelFeedContainerElement;
     @tracked channel;
     @tracked sender;
     @tracked senderIsCreator;
@@ -19,6 +21,7 @@ export default class ChatWindowComponent extends Component {
     @tracked pendingMessageContent = '';
     @tracked pendingAttachmentFile;
     @tracked pendingAttachmentFiles = [];
+    @tracked isVisible = false;
     acceptedFileTypes = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -45,28 +48,53 @@ export default class ChatWindowComponent extends Component {
         super(...arguments);
         this.channel = channel;
         this.sender = this.getSenderFromParticipants(channel);
+        // if not participant close window
+        if (!this.sender) {
+            later(
+                this,
+                () => {
+                    this.chat.closeChannel(channel);
+                },
+                300
+            );
+            return;
+        }
         this.listenChatChannel(channel);
         this.loadAvailableUsers.perform();
+        this.chat.on('chat.closed', this.handleChatClosed.bind(this));
+        this.isVisible = true;
+    }
+
+    willDestroy() {
+        // this.chat.off('chat.closed', this.handleChatClosed.bind(this));
+        super.willDestroy(...arguments);
     }
 
     async listenChatChannel(chatChannelRecord) {
         this.socket.listen(`chat.${chatChannelRecord.public_id}`, (socketEvent) => {
-            console.log('[chat event]', socketEvent);
-            switch (socketEvent.event) {
+            const { event, data } = socketEvent;
+            switch (event) {
                 case 'chat.added_participant':
                 case 'chat.removed_participant':
+                case 'chat_participant.created':
+                case 'chat_participant.deleted':
                     this.channel.reloadParticipants();
+                    this.loadAvailableUsers.perform();
                     break;
                 case 'chat_message.created':
-                    this.chat.insertChatMessageFromSocket(this.channel, socketEvent.data);
+                    this.chat.insertChatMessageFromSocket(this.channel, data);
                     break;
                 case 'chat_log.created':
-                    this.chat.insertChatLogFromSocket(this.channel, socketEvent.data);
+                    this.chat.insertChatLogFromSocket(this.channel, data);
                     break;
                 case 'chat_attachment.created':
-                    this.chat.insertChatAttachmentFromSocket(this.channel, socketEvent.data);
+                    this.chat.insertChatAttachmentFromSocket(this.channel, data);
+                    break;
+                case 'chat_receipt.created':
+                    this.chat.insertChatReceiptFromSocket(this.channel, data);
                     break;
             }
+            this.handleChatFeedScroll();
         });
     }
 
@@ -114,6 +142,13 @@ export default class ChatWindowComponent extends Component {
         this.pendingAttachmentFiles = [];
     }
 
+    @action handleKeyPress(event) {
+        if (event.keyCode === 13 && !event.shiftKey) {
+            event.preventDefault();
+            return this.sendMessage.perform();
+        }
+    }
+
     @action closeChannel() {
         this.chat.closeChannel(this.channel);
     }
@@ -123,37 +158,94 @@ export default class ChatWindowComponent extends Component {
     }
 
     @action removeParticipant(participant) {
+        const isRemovingSelf = participant.id === this.sender.id;
         this.modalsManager.confirm({
-            title: `Are you sure you wish to remove this participant (${participant.name}) from the chat?`,
-            body: 'Proceeding remove this participant from the chat.',
+            title: isRemovingSelf ? 'Are you sure you would like to leave this chat?' : `Are you sure you wish to remove this participant (${participant.name}) from the chat?`,
+            body: isRemovingSelf
+                ? 'Once you leave this chat you will not be able to access this chat unless you are added as a participant again'
+                : 'Proceeding remove this participant from the chat.',
             confirm: (modal) => {
                 modal.startLoading();
+                if (isRemovingSelf) {
+                    this.closeChannel();
+                }
 
                 return this.chat.removeParticipant(this.channel, participant);
             },
         });
     }
 
-    @action positionWindow(chatWindowElement) {
-        const chatWindowWidth = chatWindowElement.offsetWidth;
-        const multiplier = this.chat.openChannels.length - 1;
-        const marginRight = multiplier === 0 ? 16 : (chatWindowWidth + 16) * multiplier;
-        chatWindowElement.style.marginRight = `${marginRight}px`;
+    @action editChatName() {
+        this.modalsManager.show('modals/edit-chat-name', {
+            title: 'Edit chat channel name',
+            acceptButtonText: 'Save Changes',
+            acceptButtonIcon: 'save',
+            channelName: this.channel.name,
+            confirm: (modal) => {
+                modal.startLoading();
+                if (modal.getOption('channelName')) {
+                    return this.chat.updateChatChannel(this.channel, { name: modal.getOption('channelName') });
+                }
 
-        // reposition when chat is closed
-        this.chat.on('chat.closed', () => {
-            this.positionWindow(chatWindowElement);
+                this.notifications.warning('Name required to save changes.');
+            },
         });
     }
 
-    @action scrollMessageWindowBottom(messagesWindowContainerElement) {
-        messagesWindowContainerElement.scrollTop = messagesWindowContainerElement.scrollHeight;
+    @action positionWindow(chatWindowElement) {
+        this.chatWindowElement = chatWindowElement;
+        requestAnimationFrame(() => {
+            const shiftX = (chatWindowElement.offsetWidth + 20) * this.getChatWindowIndex();
+            chatWindowElement.style.transform = `translateX(-${shiftX}px)`;
+        });
+    }
+
+    @action scrollMessageWindowBottom(channelFeedContainerElement) {
+        channelFeedContainerElement.scrollTop = channelFeedContainerElement.scrollHeight;
+
+        // Change scroll behavior to smooth after the initial scroll
+        requestAnimationFrame(() => {
+            channelFeedContainerElement.style.scrollBehavior = 'smooth';
+        });
+
+        // Set the channel feed container element
+        this.channelFeedContainerElement = channelFeedContainerElement;
     }
 
     @task *loadAvailableUsers(params = {}) {
         const users = yield this.store.query('user', params);
-        this.availableUsers = users;
-        return users;
+        const availableUsers = users.filter((user) => {
+            const isNotSender = user.id !== this.sender.user_uuid;
+            const isNotParticipant = !this.getParticipantByUserId(user.id);
+
+            return isNotSender && isNotParticipant;
+        });
+
+        this.availableUsers = availableUsers;
+        return availableUsers;
+    }
+
+    handleChatFeedScroll() {
+        if (this.channelFeedContainerElement) {
+            this.channelFeedContainerElement.scrollTop = this.channelFeedContainerElement.scrollHeight;
+            later(
+                this,
+                () => {
+                    this.channelFeedContainerElement.scrollTop = this.channelFeedContainerElement.scrollHeight;
+                },
+                800
+            );
+        }
+    }
+
+    handleChatClosed() {
+        if (this.chatWindowElement) {
+            this.positionWindow(this.chatWindowElement);
+        }
+    }
+
+    getChatWindowIndex() {
+        return this.chat.openChannels.indexOf(this.channel);
     }
 
     getSenderFromParticipants(channel) {
@@ -164,5 +256,12 @@ export default class ChatWindowComponent extends Component {
 
         this.senderIsCreator = sender ? sender.id === channel.created_by_uuid : false;
         return sender;
+    }
+
+    getParticipantByUserId(userId) {
+        const participants = this.channel.participants ?? [];
+        return participants.find((chatParticipant) => {
+            return chatParticipant.user_uuid === userId;
+        });
     }
 }

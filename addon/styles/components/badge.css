@@ -3,6 +3,16 @@
     width: fit-content;
 }
 
+.status-badge > span.badge-rounded-full {
+    width: 0.5rem;
+    height: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 100%;
+}
+
 .status-badge > span {
     @apply text-gray-800 bg-gray-100;
 }
@@ -75,6 +85,7 @@
 }
 
 .status-badge[class*='4'] > span,
+.status-badge.offline-status-badge > span,
 .status-badge.pending-review-badge > span,
 .status-badge.awaiting-review-badge > span,
 .status-badge.scheduled-maintenance-badge > span,
@@ -89,6 +100,7 @@
 }
 
 .status-badge[class*='4'] > span svg,
+.status-badge.offline-status-badge > span svg,
 .status-badge.pending-review-badge > span svg,
 .status-badge.awaiting-review-badge > span svg,
 .status-badge.scheduled-maintenance-badge > span svg,
@@ -100,14 +112,6 @@
 .status-badge.grace-period-status-badge > span svg,
 .status-badge.pending-status-badge > span svg {
     @apply text-yellow-400;
-}
-
-.status-badge.offline-status-badge > span {
-    @apply text-gray-700 bg-gray-300;
-}
-
-.status-badge.offline-status-badge > span svg {
-    @apply text-gray-700;
 }
 
 .status-badge.operational-suggestion-status-badge > span,

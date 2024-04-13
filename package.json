@@ -34,12 +34,12 @@
         "publish:github": "npm config set '@fleetbase:registry' https://npm.pkg.github.com/ && npm publish"
     },
     "dependencies": {
-        "@fleetbase/ember-accounting": "^0.0.1",
         "@babel/core": "^7.23.2",
         "@ember/render-modifiers": "^2.0.4",
         "@ember/string": "^3.0.1",
         "@embroider/addon": "^0.30.0",
         "@embroider/macros": "^1.8.3",
+        "@fleetbase/ember-accounting": "^0.0.1",
         "@floating-ui/dom": "^1.0.1",
         "@fortawesome/ember-fontawesome": "^1.0.0",
         "@fortawesome/fontawesome-svg-core": "^6.4.0",

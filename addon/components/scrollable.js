@@ -36,6 +36,6 @@ export default class ScrollableComponent extends Component {
     }
 
     @action onResize([entry]) {
-        console.log('elemen has been resized! #entry', entry);
+        // console.log('elemen has been resized! #entry', entry);
     }
 }
