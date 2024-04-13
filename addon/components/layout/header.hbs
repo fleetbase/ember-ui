@@ -11,7 +11,11 @@
                 {{#each @menuItems as |menuItem|}}
                     <LinkToExternal @route={{menuItem.route}} id={{concat (dasherize menuItem.route) "-header-button"}} class="next-view-header-item truncate {{menuItem.class}}" role="menuitem">
                         <div class="w-6">
-                            <FaIcon @icon={{menuItem.icon}} @size="sm" />
+                            {{#if menuItem.iconComponent}}
+                                {{component menuItem.iconComponent options=menuItem.iconComponentOptions}}
+                            {{else}}
+                                <FaIcon @icon={{menuItem.icon}} @prefix={{menuItem.iconPrefix}} @size="sm" />
+                            {{/if}}
                         </div>
                         <div>
                             <span>{{menuItem.title}}</span>
@@ -20,8 +24,7 @@
                 {{/each}}
             </div>
         {{/unless}}
-        <div id="view-header-left-content-a">
-        </div>
+        <div id="view-header-left-content-a"></div>
         {{yield}}
         <div id="view-header-left-content-b"></div>
     </div>
@@ -29,8 +32,10 @@
         <Layout::Header::LoadingIndicator />
         <div id="view-header-actions"></div>
         <div class="flex items-center justify-between">
-            <div class="flex-1 flex items-center pr-1">
+            <div class="flex-1 flex items-center pr-1 space-x-1">
+                <LocaleSelectorTray />
                 <NotificationTray @registerAPI={{@registerNotificationTrayApi}} @onClickNotification={{@onClickNotification}} />
+                <ChatTray />
             </div>
             <div class="flex-1 flex items-center pr-1">
                 <Layout::Header::Dropdown @items={{this.organizationNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
