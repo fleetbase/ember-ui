@@ -525,7 +525,10 @@ body[data-theme='dark'] .iti__country-list {
 .fleetbase-console .form-checkbox:focus-visible,
 .fleetbase-console .form-checkbox:focus-within,
 .fleetbase-console .form-radio:focus {
-    box-shadow: 0 0 rgba(0, 0, 0, 0), 0 0 rgba(0, 0, 0, 0), var(--tw-shadow) !important;
+    box-shadow:
+        0 0 rgba(0, 0, 0, 0),
+        0 0 rgba(0, 0, 0, 0),
+        var(--tw-shadow) !important;
     box-shadow: var(--tw-ring-offset-shadow, 0 0 rgba(0, 0, 0, 0)), var(--tw-ring-shadow, 0 0 rgba(0, 0, 0, 0)), var(--tw-shadow) !important;
 }
 
@@ -548,8 +551,8 @@ body[data-theme='dark'] .iti__country-list {
     @apply w-4 h-4 transition duration-150 ease-in-out bg-gray-200 border-gray-200 dark:bg-gray-800 dark:border-gray-900;
 }
 
-body[data-theme="light"] .form-checkbox, 
-body[data-theme="light"] .form-radio {
+body[data-theme='light'] .form-checkbox,
+body[data-theme='light'] .form-radio {
     @apply border-gray-200;
 }
 

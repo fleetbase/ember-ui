@@ -3,24 +3,24 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
-module('Integration | Component | scrollable', function (hooks) {
+module('Integration | Component | chat-window', function (hooks) {
     setupRenderingTest(hooks);
 
     test('it renders', async function (assert) {
         // Set any properties with this.set('myProperty', 'value');
         // Handle any actions with this.set('myAction', function(val) { ... });
 
-        await render(hbs`<Scrollable />`);
+        await render(hbs`<ChatWindow />`);
 
-        assert.dom(this.element).hasText('');
+        assert.dom().hasText('');
 
         // Template block usage:
         await render(hbs`
-      <Scrollable>
+      <ChatWindow>
         template block text
-      </Scrollable>
+      </ChatWindow>
     `);
 
-        assert.dom(this.element).hasText('template block text');
+        assert.dom().hasText('template block text');
     });
 });

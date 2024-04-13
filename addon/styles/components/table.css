@@ -318,11 +318,11 @@ body[data-theme='dark'] .next-table-wrapper.auto-height > table > tbody:after,
 body[data-theme='light'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:first-child,
 body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:first-child,
 .next-table-wrapper.auto-height > table > tbody > tr:last-child > td:first-child {
-    border-bottom-left-radius: .25rem;
+    border-bottom-left-radius: 0.25rem;
 }
 
 body[data-theme='light'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:last-child,
 body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-child > td:last-child,
 .next-table-wrapper.auto-height > table > tbody > tr:last-child > td:last-child {
-    border-bottom-right-radius: .25rem;
+    border-bottom-right-radius: 0.25rem;
 }

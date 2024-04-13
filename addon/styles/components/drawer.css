@@ -71,14 +71,14 @@ body[data-theme='dark'] .next-drawer > .next-drawer-panel-container > .next-draw
     @apply border-2 border-gray-200 border-solid;
 }
 
-body[data-theme="dark"] .next-drawer > .next-drawer-panel-container > .gutter {
+body[data-theme='dark'] .next-drawer > .next-drawer-panel-container > .gutter {
     @apply border-gray-500;
 }
 
 .next-drawer > .next-drawer-panel-container > .gutter:hover,
 .next-drawer.drawer-is-resizing > .next-drawer-panel-container > .gutter,
-body[data-theme="dark"] .next-drawer > .next-drawer-panel-container > .gutter:hover,
-body[data-theme="dark"] .next-drawer.drawer-is-resizing > .next-drawer-panel-container > .gutter {
+body[data-theme='dark'] .next-drawer > .next-drawer-panel-container > .gutter:hover,
+body[data-theme='dark'] .next-drawer.drawer-is-resizing > .next-drawer-panel-container > .gutter {
     @apply border-sky-500 bg-opacity-75;
 }
 
@@ -102,7 +102,7 @@ body[data-theme="dark"] .next-drawer.drawer-is-resizing > .next-drawer-panel-con
     @apply bg-gray-200 border-2 border-white shadow-md drop-shadow-md rounded-lg;
 }
 
-body[data-theme="dark"] .next-drawer > .next-drawer-panel-container > .gutter > .notch {
+body[data-theme='dark'] .next-drawer > .next-drawer-panel-container > .gutter > .notch {
     @apply bg-gray-600 border-gray-600;
 }
 

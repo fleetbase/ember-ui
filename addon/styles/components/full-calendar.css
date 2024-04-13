@@ -31,7 +31,7 @@ body[data-theme='dark'] .fleetbase-full-calendar.fc table.fc-scrollgrid {
 
 .fleetbase-full-calendar.fc .fc-button:disabled,
 .fleetbase-full-calendar.fc .fc-button-primary:disabled,
-body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:disabled  {
+body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:disabled {
     @apply opacity-50 cursor-not-allowed;
 }
 
@@ -71,12 +71,12 @@ body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button .fc-icon {
     @apply text-gray-300;
 }
 
-.fleetbase-full-calendar.fc .fc-button-primary  {
+.fleetbase-full-calendar.fc .fc-button-primary {
     @apply bg-white border-gray-300 shadow-sm text-gray-800;
 }
 
 .fleetbase-full-calendar.fc .fc-button-primary:hover:not(:disabled) {
-    @apply text-gray-500
+    @apply text-gray-500;
 }
 
 .fleetbase-full-calendar.fc .fc-button-primary:focus {
@@ -91,9 +91,9 @@ body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button .fc-icon {
     @apply text-gray-900;
 }
 
-.fleetbase-full-calendar.fc .fc-button-primary:not(:disabled).fc-button-active:focus, 
+.fleetbase-full-calendar.fc .fc-button-primary:not(:disabled).fc-button-active:focus,
 .fleetbase-full-calendar.fc .fc-button-primary:not(:disabled):active:focus,
-body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:not(:disabled).fc-button-active:focus, 
+body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:not(:disabled).fc-button-active:focus,
 body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:not(:disabled):active:focus {
     box-shadow: none;
 }

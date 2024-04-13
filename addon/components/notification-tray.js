@@ -82,7 +82,7 @@ export default class NotificationTrayComponent extends Component {
      * @memberof NotificationTrayComponent
      * @type {Audio}
      */
-    notificationSound = new Audio('/sounds/notification-sound.mp3');
+    @tracked notificationSound = new Audio('/sounds/notification-sound.mp3');
 
     /**
      * Creates an instance of the NotificationTrayComponent
