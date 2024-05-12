@@ -647,6 +647,18 @@ const currencies = [
         symbolPlacement: 'before',
     },
     {
+        iso2: 'NG',
+        name: 'Nigeria',
+        emoji: '🇳🇬',
+        code: 'NGN',
+        title: 'Nigerian Naira',
+        symbol: '₦',
+        precision: 2,
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+        symbolPlacement: 'before',
+    },
+    {
         iso2: 'NO',
         name: 'Norway',
         emoji: '🇳🇴',
