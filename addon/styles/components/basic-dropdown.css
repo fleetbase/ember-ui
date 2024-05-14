@@ -4,6 +4,12 @@
     padding-left: 0.5rem;
 }
 
+.ember-basic-dropdown-trigger[aria-disabled='true'],
+.ember-power-select-trigger[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .ember-power-select-multiple-option {
     margin: 0 0 0 3px;
     line-height: 1.45;

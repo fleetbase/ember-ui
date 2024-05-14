@@ -12,6 +12,14 @@ a,
     cursor: default;
 }
 
+a[disabled='true'],
+button[disabled='true'],
+input[disabled='true'],
+select[disabled='true'],
+textarea[disabled='true'] {
+    cursor: not-allowed;
+}
+
 .next-content-overlay .new-order-overlay-body {
     @apply px-4 pt-4 space-y-4;
 }

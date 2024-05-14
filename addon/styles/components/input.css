@@ -485,8 +485,32 @@ body[data-theme='dark'] .emberTagInput-tag {
     @apply bg-gray-900 shadow-sm;
 }
 
-body[data-theme='dark'] .iti__country-list {
+body[data-theme='dark'] .iti__dropdown-content {
     @apply bg-gray-900 rounded-md shadow-sm border-gray-700 mt-1;
+}
+
+.iti__search-input {
+    border: 0px;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+}
+
+.iti__selected-dial-code {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+body[data-theme="dark"] .iti__selected-dial-code {
+    color: #fff;
+}
+
+body[data-theme='dark'] .iti__search-input {
+    background-color: #111827;
+    border-bottom: 1px #374151 solid;
+}
+
+body[data-theme='dark'] .iti__divider {
+    border-bottom: 1px solid #374151;
 }
 
 .ui-money-input .ember-basic-dropdown > .ember-basic-dropdown-trigger {

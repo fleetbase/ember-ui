@@ -10,20 +10,33 @@ export default class PhoneInputComponent extends Component {
 
     @action setupIntlTelInput(element) {
         this.iti = intlTelInput(element, {
-            customContainer: `w-full ${this.args.wrapperClass ?? ''}`,
+            containerClass: `w-full ${this.args.wrapperClass ?? ''}`,
             initialCountry: 'auto',
-            geoIpLookup: (success) => {
-                this.fetch.get('lookup/whois').then((response) => {
-                    success(response.country_code);
-                });
+            separateDialCode: true,
+            formatAsYouType: true,
+            geoIpLookup: (success, failure) => {
+                this.fetch
+                    .get('lookup/whois')
+                    .then((response) => {
+                        success(response.country_code);
+                    })
+                    .catch(failure);
             },
             utilsScript: '/assets/libphonenumber/utils.js',
         });
+
+        if (typeof this.args.onInit === 'function') {
+            this.args.onInit(this.iti);
+        }
+
+        element.addEventListener('countrychange', this.args.onCountryChange);
     }
 
     @action onInput() {
         const { onInput } = this.args;
-        const number = this.iti.getNumber();
+        const number = this.iti.getNumber(intlTelInput.utils.numberFormat.E164);
+
+        console.log(number);
 
         if (typeof onInput === 'function') {
             onInput(number, ...arguments);
