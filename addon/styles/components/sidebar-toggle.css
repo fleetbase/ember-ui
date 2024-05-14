@@ -31,10 +31,12 @@
 .sidebar-toggle-button .cls-1 {
     fill: #fff;
 }
+
 .sidebar-toggle-button .cls-2 {
     fill: none;
     stroke-width: 18px;
 }
+
 .sidebar-toggle-button .cls-2,
 .sidebar-toggle-button .cls-3 {
     stroke: #fff;
@@ -43,4 +45,19 @@
 
 .sidebar-toggle-button .cls-3 {
     stroke-width: 13px;
+}
+
+body[data-theme="dark"] .sidebar-toggle-button-wrapper > .sidebar-toggle-button > svg > rect.cls-3 {
+    stroke: #111827;
+}
+
+body[data-theme="light"] .sidebar-toggle-button-wrapper > .sidebar-toggle-button > svg,
+body[data-theme="light"] .sidebar-toggle-button-wrapper > .sidebar-toggle-button > svg > rect {
+    fill: #374151;
+}
+
+body[data-theme="light"] .sidebar-toggle-button .cls-1,
+body[data-theme="light"] .sidebar-toggle-button .cls-2,
+body[data-theme="light"] .sidebar-toggle-button .cls-3 {
+    fill: #374151;
 }
