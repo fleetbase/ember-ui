@@ -36,8 +36,6 @@ export default class PhoneInputComponent extends Component {
         const { onInput } = this.args;
         const number = this.iti.getNumber(intlTelInput.utils.numberFormat.E164);
 
-        console.log(number);
-
         if (typeof onInput === 'function') {
             onInput(number, ...arguments);
         }
