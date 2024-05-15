@@ -1,10 +1,10 @@
-<select ...attributes class="form-select {{if this.hasPlaceholder 'has--placeholder' 'has--selection'}}" {{on "change" this.select}}>
-    {{#if @placeholder}}
+<select ...attributes class="form-select {{if this.value 'has--selection' 'has--placeholder'}}" {{on "change" this.select}} {{did-update this.changed @value @placeholder}}>
+    {{#if this.placeholder}}
         <option selected disabled>
-            {{@placeholder}}
+            {{this.placeholder}}
         </option>
     {{/if}}
-    
+
     {{#if (has-block)}}
         {{#if @fetched}}
             {{#if (is-object @options)}}

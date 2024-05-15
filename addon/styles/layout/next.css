@@ -12,6 +12,14 @@ a,
     cursor: default;
 }
 
+a[disabled='true'],
+button[disabled='true'],
+input[disabled='true'],
+select[disabled='true'],
+textarea[disabled='true'] {
+    cursor: not-allowed;
+}
+
 .next-content-overlay .new-order-overlay-body {
     @apply px-4 pt-4 space-y-4;
 }
@@ -1227,6 +1235,18 @@ body[data-theme='dark'] .next-sidebar .next-sidebar-panel-container > .next-side
     @apply pl-8;
 }
 
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item.next-nav-item-with-dropdown:hover .ember-basic-dropdown-trigger > span.btn-wrapper > button.btn:hover {
+    background-color: #ffffff;
+}
+
+.next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item.next-nav-item-with-dropdown:hover .ember-basic-dropdown-trigger > span.btn-wrapper > button.btn {
+    color: #000000;
+}
+
+body[data-theme="dark"] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item.next-nav-item-with-dropdown:hover .ember-basic-dropdown-trigger > span.btn-wrapper > button.btn {
+    color: #ffffff;
+}
+
 .next-org-button-trigger {
     @apply flex flex-row items-center px-3 py-1.5 rounded-md cursor-default truncate;
     max-height: 31px;
@@ -1748,12 +1768,21 @@ body[data-theme='light'] .next-dd-menu-seperator {
     height: 57px;
 }
 
+body[data-theme="light"] .text-danger,
+body[data-theme="light"] span.text-danger,
+body[data-theme="light"] a.text-danger,
 .text-danger,
 span.text-danger,
 a.text-danger {
     @apply text-red-500;
 }
 
+body[data-theme="light"] .text-danger:active,
+body[data-theme="light"] .text-danger:hover,
+body[data-theme="light"] span.text-danger:active,
+body[data-theme="light"] span.text-danger:hover,
+body[data-theme="light"] a.text-danger:active,
+body[data-theme="light"] a.text-danger:hover,
 .text-danger:active,
 .text-danger:hover,
 span.text-danger:active,

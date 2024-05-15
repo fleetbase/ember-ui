@@ -1,28 +1,26 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { computed, action } from '@ember/object';
+import { action } from '@ember/object';
 
 export default class SelectComponent extends Component {
-    @tracked selected;
+    @tracked value;
+    @tracked placeholder;
 
-    @computed('selected', 'args.value') get value() {
-        if (this.selected) {
-            return this.selected;
-        }
-
-        return this.args.value;
+    constructor(owner, { value, placeholder }) {
+        super(...arguments);
+        this.value = value;
+        this.placeholder = placeholder;
     }
 
-    @computed('value', 'args.placeholder') get hasPlaceholder() {
-        return !this.value && this.args.placeholder;
+    @action changed(el, [value, placeholder]) {
+        this.value = value;
+        this.placeholder = placeholder;
     }
 
     @action select(event) {
-        const {
-            target: { value },
-        } = event;
+        const { value } = event.target;
 
-        this.selected = value;
+        this.value = value;
 
         if (typeof this.args.onSelect === 'function') {
             this.args.onSelect(value);

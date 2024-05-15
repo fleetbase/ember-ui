@@ -50,15 +50,15 @@ export default class ChatWindowComponent extends Component {
         this.sender = this.getSenderFromParticipants(channel);
         // if not participant close window
         if (!this.sender) {
-            later(
+            return later(
                 this,
                 () => {
                     this.chat.closeChannel(channel);
                 },
                 300
             );
-            return;
         }
+
         this.listenChatChannel(channel);
         this.loadAvailableUsers.perform();
         this.chat.on('chat.closed', this.handleChatClosed.bind(this));
@@ -140,6 +140,7 @@ export default class ChatWindowComponent extends Component {
         yield this.chat.sendMessage(this.channel, this.sender, this.pendingMessageContent, attachments);
         this.pendingMessageContent = '';
         this.pendingAttachmentFiles = [];
+        this.handleChatFeedScroll();
     }
 
     @action handleKeyPress(event) {
@@ -233,7 +234,7 @@ export default class ChatWindowComponent extends Component {
                 () => {
                     this.channelFeedContainerElement.scrollTop = this.channelFeedContainerElement.scrollHeight;
                 },
-                800
+                300
             );
         }
     }

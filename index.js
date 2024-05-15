@@ -64,7 +64,7 @@ module.exports = {
         const publicTree = this._super.treeForPublic.apply(this, arguments);
 
         // Use a Funnel to copy the `utils.js` file to `assets/libphonenumber`
-        const intlTelInputPath = path.dirname(require.resolve('intl-tel-input'));
+        const intlTelInputPath = path.dirname(require.resolve('intl-tel-input')).replace(/build\/js$/, '');
         const addonTree = [
             new Funnel(`${intlTelInputPath}/build/js`, {
                 include: ['utils.js'],

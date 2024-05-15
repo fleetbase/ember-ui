@@ -146,6 +146,10 @@ export default class ModelSelectComponent extends Component {
         this.selectedModel = selectedModel;
     }
 
+    @action selectedModelChanged(el, [selectedModel]) {
+        this.selectedModel = selectedModel;
+    }
+
     @dropTask({ withTestWaiter: true }) findRecord = function* (modelName, id) {
         // this wrapper task is requried to avoid the following error upon fast changes
         // of selectedModel:
