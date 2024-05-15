@@ -73,7 +73,6 @@ export default class ChatWindowComponent extends Component {
     async listenChatChannel(chatChannelRecord) {
         this.socket.listen(`chat.${chatChannelRecord.public_id}`, (socketEvent) => {
             const { event, data } = socketEvent;
-            console.log(event);
             switch (event) {
                 case 'chat.added_participant':
                 case 'chat.removed_participant':
