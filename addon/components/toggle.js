@@ -33,14 +33,11 @@ export default class ToggleComponent extends Component {
      *
      * @memberof ToggleComponent
      */
-    constructor() {
+    constructor(owner, { isToggled, activeColor }) {
         super(...arguments);
 
-        this.isToggled = this.args.isToggled === true;
-
-        if (typeof this.args.activeColor === 'string' && this.args.activeColor.length) {
-            this.activeColor = this.args.activeColor;
-        }
+        this.isToggled = isToggled === true;
+        this.activeColor = typeof activeColor === 'string' ? activeColor : 'green';
     }
 
     /**
@@ -50,7 +47,6 @@ export default class ToggleComponent extends Component {
      */
     @action toggle(isToggled) {
         const { disabled, onToggle } = this.args;
-
         if (disabled) {
             return;
         }
@@ -60,5 +56,16 @@ export default class ToggleComponent extends Component {
         if (typeof onToggle === 'function') {
             onToggle(this.isToggled);
         }
+    }
+
+    /**
+     * Handle toggle argument change.
+     *
+     * @param {HTMLElement} el
+     * @param {Array} [isToggled]
+     * @memberof ToggleComponent
+     */
+    @action onChange(el, [isToggled]) {
+        this.isToggled = isToggled === true;
     }
 }
