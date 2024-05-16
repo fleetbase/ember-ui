@@ -369,7 +369,7 @@ body[data-theme='dark'] .overlay-panel-section-title {
 
 #console-loader,
 .overloader {
-    @apply absolute inset-0 w-full h-full bg-gray-100 text-gray-800 flex items-center justify-center bg-opacity-10;
+    @apply absolute inset-0 w-full h-full text-gray-800 flex items-center justify-center bg-opacity-10;
     z-index: 9999999999;
 }
 

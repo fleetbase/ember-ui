@@ -1894,6 +1894,19 @@ a.text-danger:hover {
     animation: rotation 1s linear infinite;
 }
 
+.overloader > .loader-container {
+    background: rgba(243, 244, 246, .25);
+    border: 1px solid #d1d5db;
+    backdrop-filter: blur(3.5px);
+    border-radius: .5rem;
+    padding: .25rem .85rem;
+}
+
+body[data-theme="dark"] .overloader > .loader-container {
+    background: rgb(31, 41, 55, .25);
+    border: 1px solid rgba(15, 23, 42, .25);
+}
+
 @keyframes rotation {
     0% {
         transform: rotate(0deg);
