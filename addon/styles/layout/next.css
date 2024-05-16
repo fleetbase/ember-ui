@@ -1239,6 +1239,10 @@ body[data-theme='dark'] .next-sidebar .next-sidebar-panel-container > .next-side
     background-color: #ffffff;
 }
 
+body[data-theme="dark"] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item.next-nav-item-with-dropdown:hover .ember-basic-dropdown-trigger > span.btn-wrapper > button.btn:hover {
+    background-color: #374151;
+}
+
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-content-panel-body .next-nav-item.next-nav-item-with-dropdown:hover .ember-basic-dropdown-trigger > span.btn-wrapper > button.btn {
     color: #000000;
 }
