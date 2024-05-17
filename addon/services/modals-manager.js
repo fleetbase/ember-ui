@@ -288,14 +288,20 @@ export default class ModalsManagerService extends Service {
      * Retrieves an option
      *
      * @param {String} key
+     * @param {Mixed} defaultValue
      * @return {Mixed}
      */
-    @action getOption(key) {
+    @action getOption(key, defaultValue = null) {
         if (isArray(key)) {
             return this.getOptions(key);
         }
 
-        return get(this.options, key);
+        const value = get(this.options, key);
+        if (value === undefined) {
+            return defaultValue;
+        }
+
+        return value;
     }
 
     /**

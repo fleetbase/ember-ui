@@ -1,6 +1,8 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
+import isModel from '@fleetbase/ember-core/utils/is-model';
+import isUploadFile from '../utils/is-upload-file';
 
 export default class FileIconComponent extends Component {
     @tracked file;
@@ -16,18 +18,29 @@ export default class FileIconComponent extends Component {
     }
 
     getExtension(file) {
-        if (!file || (!file.original_filename && !file.url && !file.path)) {
+        let filename;
+
+        if (isModel(file)) {
+            filename = file.original_filename ?? file.url ?? file.path;
+        }
+
+        if (isUploadFile(file)) {
+            filename = file.file ? file.file.name : null;
+        }
+
+        if (typeof filename !== 'string') {
             return null;
         }
 
-        // Prefer to use the original filename if available, then URL, then path
-        const filename = file.original_filename || file.url || file.path;
         const extensionMatch = filename.match(/\.(.+)$/);
         return extensionMatch ? extensionMatch[1] : null;
     }
 
     getIcon(file) {
         const extension = this.getExtension(file);
+        if (!extension) {
+            return 'file-alt';
+        }
 
         return getWithDefault(
             {
