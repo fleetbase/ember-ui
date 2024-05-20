@@ -1,7 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import IMask from 'imask';
 
 /**
  * Glimmer component for handling OTP (One-Time Password) input.
@@ -25,6 +24,13 @@ export default class OtpInputComponent extends Component {
      * @type {String}
      */
     @tracked value;
+
+    /**
+     * The placeholder for the OTP input.
+     *
+     * @type {String}
+     * @memberof OtpInputComponent
+     */
     @tracked placeholder;
 
     /**
@@ -35,11 +41,11 @@ export default class OtpInputComponent extends Component {
      * @param owner The owner object of this component instance.
      * @param {Object} args Component arguments.
      */
-    constructor(owner, { size, value }) {
+    constructor(owner, { size, value, placeholder }) {
         super(...arguments);
         this.value = value;
         this.size = size;
-        this.placeholder = '0'.repeat(size);
+        this.placeholder = placeholder ?? '0'.repeat(size);
     }
 
     /**
