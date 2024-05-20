@@ -500,7 +500,7 @@ body[data-theme='dark'] .iti__dropdown-content {
     line-height: 1.25rem;
 }
 
-body[data-theme="dark"] .iti__selected-dial-code {
+body[data-theme='dark'] .iti__selected-dial-code {
     color: #fff;
 }
 
