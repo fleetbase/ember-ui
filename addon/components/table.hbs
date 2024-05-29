@@ -1,13 +1,24 @@
 <div class="next-table-wrapper {{@wrapperClass}}">
     <table class="{{if @canExpand 'is-expandable'}}" ...attributes {{did-insert this.setupComponent}}>
         {{#if (has-block)}}
-            {{yield (hash 
-                columns=this.visibleColumns 
-                rows=@rows 
-                pagination=@pagination
-                body=(component "table/body" selectable=@selectable rows=@rows columns=this.visibleColumns canExpand=@canExpand onRowClick=@onRowClick)
-                head=(component "table/head" canSelectAll=@canSelectAll canExpand=@canExpand rows=@rows columns=this.visibleColumns allRowsToggled=this.allRowsToggled selectAllRows=this.selectAllRows selectAllColumnWidth=@selectAllColumnWidth)
-            )}}
+            {{yield
+                (hash
+                    columns=this.visibleColumns
+                    rows=@rows
+                    pagination=@pagination
+                    body=(component "table/body" selectable=@selectable rows=@rows columns=this.visibleColumns canExpand=@canExpand onRowClick=@onRowClick)
+                    head=(component
+                        "table/head"
+                        canSelectAll=@canSelectAll
+                        canExpand=@canExpand
+                        rows=@rows
+                        columns=this.visibleColumns
+                        allRowsToggled=this.allRowsToggled
+                        selectAllRows=this.selectAllRows
+                        selectAllColumnWidth=@selectAllColumnWidth
+                    )
+                )
+            }}
             {{#if @insertPagination}}
                 <Table::Foot @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
                     <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
@@ -36,10 +47,10 @@
             </Table::Head>
             <Table::Body @selectable={{@selectable}} @rows={{@rows}} @columns={{this.visibleColumns}} @canExpand={{@canExpand}} @onRowClick={{@onRowClick}}>
                 {{#each @rows as |row|}}
-                    <Table::Row @selected={{get row 'checked'}} @onRowClick={{@onRowClick}} @row={{row}}>
+                    <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
                         {{#if @selectable}}
                             <Table::Td>
-                                <Table::Cell::Checkbox @row={{row}} @value={{get row 'checked'}} />
+                                <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
                             </Table::Td>
                         {{/if}}
                         {{#each this.visibleColumns as |column|}}

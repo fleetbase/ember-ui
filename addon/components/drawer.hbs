@@ -1,4 +1,15 @@
-<div role="dialog" aria-modal="true" class="next-drawer {{if this.isMinimized 'drawer-is-minimized'}} {{if this.isResizing 'drawer-is-resizing'}} {{if this.isOpen 'drawer-is-open'}} {{if this.noBackdrop 'drawer-no-backdrop'}} {{if @fullHeight 'drawer-full-height'}} {{@overlayClass}}" {{did-insert this.setupComponent}}>
+<div
+    role="dialog"
+    aria-modal="true"
+    class="next-drawer
+        {{if this.isMinimized 'drawer-is-minimized'}}
+        {{if this.isResizing 'drawer-is-resizing'}}
+        {{if this.isOpen 'drawer-is-open'}}
+        {{if this.noBackdrop 'drawer-no-backdrop'}}
+        {{if @fullHeight 'drawer-full-height'}}
+        {{@overlayClass}}"
+    {{did-insert this.setupComponent}}
+>
     {{#if this._rendered}}
         <div class="next-drawer-panel-container {{@containerClass}}" {{did-insert (fn this.setupNode "drawerContainer")}}>
             {{#if this.isResizable}}

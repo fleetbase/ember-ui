@@ -10,7 +10,10 @@
             {{#if (is-object @options)}}
                 {{#each-in @options as |key selectable|}}
                     {{#if @optionLabel}}
-                        <option value={{if @optionValue (get selectable @optionValue) selectable}} selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}>
+                        <option
+                            value={{if @optionValue (get selectable @optionValue) selectable}}
+                            selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                        >
                             {{yield (get selectable @optionLabel) key}}
                         </option>
                     {{else}}
@@ -22,7 +25,10 @@
             {{else}}
                 {{#each @options as |selectable|}}
                     {{#if @optionLabel}}
-                        <option value={{if @optionValue (get selectable @optionValue) selectable}} selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}>
+                        <option
+                            value={{if @optionValue (get selectable @optionValue) selectable}}
+                            selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                        >
                             {{yield (get selectable @optionLabel) selectable}}
                         </option>
                     {{else}}
@@ -35,7 +41,10 @@
         {{else}}
             {{#each @options as |selectable|}}
                 {{#if @optionLabel}}
-                    <option value={{if @optionValue (get selectable @optionValue) selectable}} selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}>
+                    <option
+                        value={{if @optionValue (get selectable @optionValue) selectable}}
+                        selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                    >
                         {{yield (get selectable @optionLabel) selectable}}
                     </option>
                 {{else}}
@@ -49,7 +58,10 @@
         {{#each @options as |selectable|}}
             {{#if @optionLabel}}
                 {{#let (get selectable @optionLabel) as |label|}}
-                    <option value={{if @optionValue (get selectable @optionValue) selectable}} selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}>
+                    <option
+                        value={{if @optionValue (get selectable @optionValue) selectable}}
+                        selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                    >
                         {{#if @humanize}}
                             {{or (humanize label) (humanize (get selectable @optionValue))}}
                         {{else}}

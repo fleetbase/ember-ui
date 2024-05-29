@@ -1,4 +1,18 @@
-<PowerSelect class="money-input-currency-selector" @placeholder={{@placeholder}} @triggerClass={{@triggerClass}} @matcher={{this.searchCurrencies}} @searchEnabled={{true}} @searchField="code" @searchPlaceholder="Search by currency code" @renderInPlace={{true}} @options={{this.currencies}} @selected={{this.currencyData}} @onChange={{this.onChange}} @triggerComponent={{@triggerComponent}} as |currency|>
+<PowerSelect
+    class="money-input-currency-selector"
+    @placeholder={{@placeholder}}
+    @triggerClass={{@triggerClass}}
+    @matcher={{this.searchCurrencies}}
+    @searchEnabled={{true}}
+    @searchField="code"
+    @searchPlaceholder="Search by currency code"
+    @renderInPlace={{true}}
+    @options={{this.currencies}}
+    @selected={{this.currencyData}}
+    @onChange={{this.onChange}}
+    @triggerComponent={{@triggerComponent}}
+    as |currency|
+>
     {{#if (has-block)}}
         <div class="truncate flex items-center">{{yield currency}}</div>
     {{else}}

@@ -40,7 +40,7 @@
                 results
             </p>
         </div>
-       
+
         <div class="fleetbase-pagination-meta-info-paging-wrapper flex items-center justify-end {{@paginationClass}} ">
             {{#if @isLoading}}
                 <div class="flex items-center justify-center mr-2 {{@loadingWrapperClass}}">
@@ -65,7 +65,12 @@
                 </button>
 
                 {{#each this.pageItems as |item|}}
-                    <button type="button" class="fleetbase-pagination-page-item page-item {{if item.current 'active'}} {{@pageItemClass}}" disabled={{or item.active item.dots}} {{on "click" (fn this.goToPage item.page)}}>
+                    <button
+                        type="button"
+                        class="fleetbase-pagination-page-item page-item {{if item.current 'active'}} {{@pageItemClass}}"
+                        disabled={{or item.active item.dots}}
+                        {{on "click" (fn this.goToPage item.page)}}
+                    >
                         {{#if item.dots}}
                             <span>
                                 ...

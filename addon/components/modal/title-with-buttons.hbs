@@ -13,7 +13,17 @@
         {{#if @options.headerButtons}}
             {{#each @options.headerButtons as |button|}}
                 {{#if button.options}}
-                    <DropdownButton @buttonWrapperClass="btn-flex" @text={{button.title}} @icon={{button.icon}} @iconPrefix={{button.iconPrefix}} @type={{button.type}} @size={{or button.size "xs"}} @horizontalPosition="left" @renderInPlace={{true}} as |dd|>
+                    <DropdownButton
+                        @buttonWrapperClass="btn-flex"
+                        @text={{button.title}}
+                        @icon={{button.icon}}
+                        @iconPrefix={{button.iconPrefix}}
+                        @type={{button.type}}
+                        @size={{or button.size "xs"}}
+                        @horizontalPosition="left"
+                        @renderInPlace={{true}}
+                        as |dd|
+                    >
                         <div class="next-dd-menu" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                             {{#if button.ddMenuLabel}}
                                 <div class="px-1">

@@ -1,5 +1,14 @@
 <div class="next-user-button" ...attributes>
-    <BasicDropdown @defaultClass={{@wrapperClass}} @onOpen={{@onOpen}} @onClose={{@onClose}} @verticalPosition={{@verticalPosition}} @horizontalPosition={{@horizontalPosition}} @renderInPlace={{or @renderInPlace true}} @initiallyOpened={{@initiallyOpened}} as |dd|>
+    <BasicDropdown
+        @defaultClass={{@wrapperClass}}
+        @onOpen={{@onOpen}}
+        @onClose={{@onClose}}
+        @verticalPosition={{@verticalPosition}}
+        @horizontalPosition={{@horizontalPosition}}
+        @renderInPlace={{or @renderInPlace true}}
+        @initiallyOpened={{@initiallyOpened}}
+        as |dd|
+    >
         <dd.Trigger class={{@triggerClass}}>
             <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                 <FaIcon @icon="globe" @size="sm" />

@@ -28,7 +28,13 @@
 
 {{#if this.isAnchor}}
     <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
-        <a href={{@item.href}} class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}" target={{@item.target}} disabled={{@item.disabled}} {{on "click" (fn @onAction @item.action @item.params)}}>
+        <a
+            href={{@item.href}}
+            class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}"
+            target={{@item.target}}
+            disabled={{@item.disabled}}
+            {{on "click" (fn @onAction @item.action @item.params)}}
+        >
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}

@@ -76,4 +76,12 @@ export default class TableComponent extends Component {
             set(row, 'checked', this.allRowsToggled);
         }
     }
+
+    @action untoggleSelectAll() {
+        this.allRowsToggled = false;
+    }
+
+    @action toggleSelectAll() {
+        this.allRowsToggled = true;
+    }
 }

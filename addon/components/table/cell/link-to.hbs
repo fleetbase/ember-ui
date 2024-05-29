@@ -1,7 +1,15 @@
 <LinkTo @route={{@column.route}} @model={{@row}} class={{@column.linkClass}} ...attributes>
     {{#if @column.linkIcon}}
         <span class="btn-icon-wrapper" data-icon-prefix={{@column.linkIconPrefix}}>
-            <FaIcon @prefix={{@column.linkIconPrefix}} @icon={{@column.linkIcon}} @size={{@column.linkIconSize}} @rotation={{@column.linkIconRotation}} @flip={{@column.linkIconFlip}} @spin={{@column.linkIconSpin}} class={{@column.linkIconClass}} />
+            <FaIcon
+                @prefix={{@column.linkIconPrefix}}
+                @icon={{@column.linkIcon}}
+                @size={{@column.linkIconSize}}
+                @rotation={{@column.linkIconRotation}}
+                @flip={{@column.linkIconFlip}}
+                @spin={{@column.linkIconSpin}}
+                class={{@column.linkIconClass}}
+            />
         </span>
     {{/if}}
     {{#if (has-block)}}
