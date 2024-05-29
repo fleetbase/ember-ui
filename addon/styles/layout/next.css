@@ -1097,6 +1097,10 @@ body[data-theme='dark'] .next-content-panel-wrapper .next-content-panel-containe
     align-items: center;
 }
 
+.next-view-section-subheader .next-view-section-subheader-left .next-view-section-subheader-left-inner-wrapper {
+    min-width: 100px;
+}
+
 .next-view-section-subheader .next-view-section-subheader-actions {
     flex: 1;
     display: flex;

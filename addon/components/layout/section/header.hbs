@@ -6,7 +6,7 @@
             {{#if @headerTitleComponent}}
                 {{component @headerTitleComponent}}
             {{else}}
-                <div class="flex flex-row items-center">
+                <div class="next-view-section-subheader-left-inner-wrapper flex flex-row items-center">
                     {{#if @badge}}
                         <span class="mr-2 {{@badgeContainerClass}}">
                             <Badge @status={{@badge}} @hideStatusDot={{@hideStatusDot}} class={{@badgeClass}} @disableHumanize={{@disableBadgeHumanize}} />
