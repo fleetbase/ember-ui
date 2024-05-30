@@ -23,8 +23,27 @@
         {{else}}
             {{#unless @options.hideFooterActions}}
                 <div class="modal-footer-actions {{@options.modalFooterActionsClass}}">
-                    <Button class="mr-2 {{if @options.hideDeclineButton "hidden"}}" @type={{or @options.declineButtonScheme "default"}} @size={{or @options.buttonSize "md"}} @icon={{or @options.declineButtonIcon "times"}} @iconPrefix={{@options.declineButtonIconPrefix}} @text={{or @options.declineButtonText "Cancel"}} @onClick={{modal.close}} @disabled={{or @options.declineButtonDisabled @options.isLoading}} />
-                    <Button class="{{if @options.hideAcceptButton "hidden"}}" @type={{or @options.acceptButtonScheme "primary"}} @size={{or @options.buttonSize "md"}} @icon={{or @options.acceptButtonIcon "check"}} @iconPrefix={{@options.acceptButtonIconPrefix}} @isLoading={{@options.isLoading}} @text={{or @options.acceptButtonText "Confirm"}} @onClick={{modal.submit}} @disabled={{or @options.acceptButtonDisabled @options.isLoading}} />
+                    <Button
+                        class="mr-2 {{if @options.hideDeclineButton 'hidden'}}"
+                        @type={{or @options.declineButtonScheme "default"}}
+                        @size={{or @options.buttonSize "md"}}
+                        @icon={{or @options.declineButtonIcon "times"}}
+                        @iconPrefix={{@options.declineButtonIconPrefix}}
+                        @text={{or @options.declineButtonText "Cancel"}}
+                        @onClick={{modal.close}}
+                        @disabled={{or @options.declineButtonDisabled @options.isLoading}}
+                    />
+                    <Button
+                        class="{{if @options.hideAcceptButton 'hidden'}}"
+                        @type={{or @options.acceptButtonScheme "primary"}}
+                        @size={{or @options.buttonSize "md"}}
+                        @icon={{or @options.acceptButtonIcon "check"}}
+                        @iconPrefix={{@options.acceptButtonIconPrefix}}
+                        @isLoading={{@options.isLoading}}
+                        @text={{or @options.acceptButtonText "Confirm"}}
+                        @onClick={{modal.submit}}
+                        @disabled={{or @options.acceptButtonDisabled @options.isLoading}}
+                    />
                 </div>
             {{/unless}}
         {{/if}}

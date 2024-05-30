@@ -4,7 +4,7 @@ import { isBlank } from '@ember/utils';
 import { later } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 
-function calculateOffset(offset, elements) {
+function calculateOffset(offset = 0, elements) {
     let calculatedOffset = 0;
 
     if (offset) {
@@ -16,14 +16,14 @@ function calculateOffset(offset, elements) {
             const element = elements.objectAt(i);
 
             if (element instanceof HTMLElement) {
-                calculatedOffset += parseInt(numbersOnly(element.offsetHeight));
+                calculatedOffset += element.offsetHeight;
             }
 
             if (typeof element === 'string') {
                 const foundElement = document.querySelector(element);
 
                 if (foundElement instanceof HTMLElement) {
-                    calculatedOffset += parseInt(numbersOnly(foundElement.offsetHeight));
+                    calculatedOffset += foundElement.offsetHeight;
                 }
             }
         }
@@ -61,6 +61,6 @@ export default modifier(function verticalOffsetBy(element, [direction = 'bottom'
         () => {
             element.style[direction] = `${calculatedOffset}px`;
         },
-        100
+        0
     );
 });

@@ -9,6 +9,9 @@ const { assign } = Object;
 export default class FilterSelectComponent extends Component {
     @service fetch;
     @tracked value;
+    @tracked optionLabel;
+    @tracked optionValue;
+    @tracked placeholder;
     @tracked options = [];
     @tracked isLoading = false;
 
@@ -16,6 +19,9 @@ export default class FilterSelectComponent extends Component {
         super(...arguments);
         this.value = this.args.value;
         this.options = isArray(this.args.options) ? this.args.options : [];
+        this.optionLabel = this.args.optionLabel ?? this.args.filterOptionLabel;
+        this.optionValue = this.args.optionValue ?? this.args.filterOptionValue;
+        this.placeholder = this.args.placeholder ?? this.args.filterPlaceholder;
 
         if (typeof this.args.filter?.filterFetchOptions === 'string') {
             this.fetchOptions(this.args.filter?.filterFetchOptions);

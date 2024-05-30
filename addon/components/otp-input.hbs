@@ -1,5 +1,12 @@
-<div class="otp-input-container flex space-x-2">
-    {{#each this.otpValues as |value index|}}
-        <input type="text" id={{concat "otp-input-" index}} value={{value}} maxlength="1" {{on "input" (fn this.handleInput index)}} {{on "focus" (fn this.handleFocus index)}} {{on "keydown" (fn this.handleKeyDown index)}} {{on "paste" (fn this.handlePaste index)}} {{did-insert (fn this.handleDidInsert index)}} />
-    {{/each}}
+<div class="otp-input-container">
+    <Input
+        @value={{this.value}}
+        @type="tel"
+        class="form-input form-input-lg otp-input"
+        autocomplete="off"
+        {{did-insert this.setup}}
+        placeholder={{this.placeholder}}
+        {{on "input" this.validate}}
+        ...attributes
+    />
 </div>

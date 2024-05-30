@@ -15,7 +15,12 @@
 
     <div class="timeline-controls {{@controlsClass}}">
         <div class="timeline-controls-button-wrapper">
-            <button class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}" disabled={{eq this.endIndex (sub @activity.length 1)}} type="button" {{on "click" this.next}}>&rarr;</button>
+            <button
+                class="timeline-arrow-right {{@arrowClass}} {{@arrowRightClass}}"
+                disabled={{eq this.endIndex (sub @activity.length 1)}}
+                type="button"
+                {{on "click" this.next}}
+            >&rarr;</button>
         </div>
     </div>
 </div>

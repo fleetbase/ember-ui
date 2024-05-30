@@ -1,8 +1,17 @@
-<div class="relative flex items-{{or @alignItems "start"}} {{if @disabled 'disabled opacity-75'}}" ...attributes>
+<div class="relative flex items-{{or @alignItems 'start'}} {{if @disabled 'disabled opacity-75'}}" ...attributes>
     <div class="flex items-center h-4">
-        <Input @type="checkbox" id={{this.id}} data-value={{@value}} @checked={{@value}} data-checked={{@value}} disabled={{@disabled}} class="fleetbase-checkbox form-checkbox {{this.colorClass}} {{@inputClass}}" {{on "change" this.toggle}} />
+        <Input
+            @type="checkbox"
+            id={{this.id}}
+            data-value={{@value}}
+            @checked={{@value}}
+            data-checked={{@value}}
+            disabled={{@disabled}}
+            class="fleetbase-checkbox form-checkbox {{this.colorClass}} {{@inputClass}}"
+            {{on "change" this.toggle}}
+        />
         {{#if @helpText}}
-            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top" }}>
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
                 <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
             </Attach::Tooltip>
         {{/if}}

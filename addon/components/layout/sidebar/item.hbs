@@ -21,7 +21,20 @@
                 </span>
             {{/if}}
             {{#if @dropdownButton}}
-                <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition={{or @dropdownHorizontalPosition "left"}} @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{this.dropdownButtonRenderInPlace}} @wrapperClass="{{@dropdownButtonWrapperClass}} next-nav-item-dropdown-button" @triggerClass="next-nav-item-dropdown-button {{@dropdownButtonTriggerClass}}" @registerAPI={{this.onRegisterAPI}} @onInsert={{this.onDropdownButtonInsert}} as |dd|>
+                <DropdownButton
+                    @icon={{or @dropdownButtonIcon "ellipsis"}}
+                    @iconPrefix={{@dropdownButtonIconPrefix}}
+                    @text={{@dropdownButtonText}}
+                    @size="xs"
+                    @horizontalPosition={{or @dropdownHorizontalPosition "left"}}
+                    @calculatePosition={{@dropdownButtonCalculatePosition}}
+                    @renderInPlace={{this.dropdownButtonRenderInPlace}}
+                    @wrapperClass="{{@dropdownButtonWrapperClass}} next-nav-item-dropdown-button"
+                    @triggerClass="next-nav-item-dropdown-button {{@dropdownButtonTriggerClass}}"
+                    @registerAPI={{this.onRegisterAPI}}
+                    @onInsert={{this.onDropdownButtonInsert}}
+                    as |dd|
+                >
                     <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                         {{#if @dropdownButtonMenuLabel}}
                             <div class="px-1">
@@ -37,7 +50,7 @@
                             {{else}}
                                 {{#if (is-dd-item-visible action.context action.isVisible)}}
                                     <div role="group" class="px-1">
-                                        {{!-- template-lint-disable no-nested-interactive --}}
+                                        {{! template-lint-disable no-nested-interactive }}
                                         <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action dd)}}>
                                             {{#if action.icon}}
                                                 <span class="mr-1">

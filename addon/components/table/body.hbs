@@ -2,13 +2,13 @@
     {{#if (has-block)}}
         {{#if @canExpand}}
             {{#each @rows as |row|}}
-                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}}>
+                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row "checked"}} @onRowClick={{@onRowClick}}>
                     <Table::Td>
-                        <Table::Cell::ExpandArrow @isExpanded={{get row 'expanded'}} />
+                        <Table::Cell::ExpandArrow @isExpanded={{get row "expanded"}} />
                     </Table::Td>
                     {{#if @selectable}}
                         <Table::Td>
-                            <Table::Cell::Checkbox @row={{row}} @value={{get row 'checked'}} />
+                            <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
                         </Table::Td>
                     {{/if}}
                     {{#each @columns as |column|}}
@@ -23,13 +23,13 @@
     {{else}}
         {{#if @canExpand}}
             {{#each @rows as |row|}}
-                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row 'checked'}} @onRowClick={{@onRowClick}}>
+                <Table::ExpandableRow @colspan={{@columns.length}} @row={{row}} @selected={{get row "checked"}} @onRowClick={{@onRowClick}}>
                     <Table::Td>
-                        <Table::Cell::ExpandArrow @isExpanded={{get row 'expanded'}} />
+                        <Table::Cell::ExpandArrow @isExpanded={{get row "expanded"}} />
                     </Table::Td>
                     {{#if @selectable}}
                         <Table::Td>
-                            <Table::Cell::Checkbox @row={{row}} @value={{get row 'checked'}} />
+                            <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
                         </Table::Td>
                     {{/if}}
                     {{#each @columns as |column|}}
@@ -40,10 +40,10 @@
             {{/each}}
         {{else}}
             {{#each @rows as |row|}}
-                <Table::Row @selected={{get row 'checked'}} @onRowClick={{@onRowClick}} @row={{row}}>
+                <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
                     {{#if @selectable}}
                         <Table::Td>
-                            <Table::Cell::Checkbox @row={{row}} @value={{get row 'checked'}} />
+                            <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
                         </Table::Td>
                     {{/if}}
                     {{#each @columns as |column|}}

@@ -1,5 +1,5 @@
 <div class="relative flex items-center">
-    <img src={{this.mediaUrl}} alt={{this.altText}} class="w-6 h-6 rounded-md {{if @column.hasOnline "mx-2" "mr-2"}}" />
+    <img src={{this.mediaUrl}} alt={{this.altText}} class="w-6 h-6 rounded-md {{if @column.hasOnline 'mx-2' 'mr-2'}}" />
     <span class="relative block">
         <a href="javascript:;" class="relative block" {{on "click" this.onClick}}>
             {{#if (has-block)}}
@@ -12,6 +12,6 @@
         </a>
     </span>
     {{#if @column.showOnlineIndicator}}
-        <FaIcon @icon="circle" class="absolute left-0 top-0 {{if @row.online "text-green-500" "text-yellow-200"}}" />
+        <FaIcon @icon="circle" class="absolute left-0 top-0 {{if @row.online 'text-green-500' 'text-yellow-200'}}" />
     {{/if}}
 </div>

@@ -1,7 +1,12 @@
 <div class="next-content-panel-wrapper {{@wrapperClass}} {{if @isLoading 'is-loading'}}">
     <div class="next-content-panel-container {{@containerClass}}">
         <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
-            <div class="next-content-panel-header next-content-panel-toggle {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelHeaderClass}} {{if @isLoading 'is-loading'}}">
+            <div
+                class="next-content-panel-header next-content-panel-toggle
+                    {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}}
+                    {{@panelHeaderClass}}
+                    {{if @isLoading 'is-loading'}}"
+            >
                 <a href="javascript:;" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{@panelHeaderLeftClass}}" {{on "click" this.toggle}}>
                     {{#unless @hideCaret}}
                         <span class="icon-container" {{did-insert this.trackIconContainer}}>
@@ -57,11 +62,21 @@
                         {{#if @titleStatusRight}}
                             <span class="ml-2 {{@titleStatusRightContainerClass}}">
                                 {{#if @titleStatusRightText}}
-                                    <Badge @status={{@titleStatusRight}} @hideStatusDot={{@hideRightTitleStatusDot}} class={{@titleStatusRightClass}} @disableHumanize={{@disableTitleStatusRightHumanize}}>
+                                    <Badge
+                                        @status={{@titleStatusRight}}
+                                        @hideStatusDot={{@hideRightTitleStatusDot}}
+                                        class={{@titleStatusRightClass}}
+                                        @disableHumanize={{@disableTitleStatusRightHumanize}}
+                                    >
                                         {{@titleStatusRightText}}
                                     </Badge>
                                 {{else}}
-                                    <Badge @status={{@titleStatusRight}} @hideStatusDot={{@hideRightTitleStatusDot}} class={{@titleStatusRightClass}} @disableHumanize={{@disableTitleStatusRightHumanize}} />
+                                    <Badge
+                                        @status={{@titleStatusRight}}
+                                        @hideStatusDot={{@hideRightTitleStatusDot}}
+                                        class={{@titleStatusRightClass}}
+                                        @disableHumanize={{@disableTitleStatusRightHumanize}}
+                                    />
                                 {{/if}}
                             </span>
                         {{/if}}
@@ -69,7 +84,16 @@
                             <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @size={{button.size}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} />
                         {{/each}}
                         {{#if @dropdownButton}}
-                            <DropdownButton @icon={{or @dropdownButtonIcon "ellipsis"}} @iconPrefix={{@dropdownButtonIconPrefix}} @text={{@dropdownButtonText}} @size="xs" @horizontalPosition="left" @calculatePosition={{@dropdownButtonCalculatePosition}} @renderInPlace={{this.dropdownButtonRenderInPlace}} as |dd|>
+                            <DropdownButton
+                                @icon={{or @dropdownButtonIcon "ellipsis"}}
+                                @iconPrefix={{@dropdownButtonIconPrefix}}
+                                @text={{@dropdownButtonText}}
+                                @size="xs"
+                                @horizontalPosition="left"
+                                @calculatePosition={{@dropdownButtonCalculatePosition}}
+                                @renderInPlace={{this.dropdownButtonRenderInPlace}}
+                                as |dd|
+                            >
                                 <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                                     {{#if @dropdownButtonMenuLabel}}
                                         <div class="px-1">
@@ -105,7 +129,13 @@
             </div>
             <div class="next-content-panel-body {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelBodyClass}} {{if @isLoading 'is-loading'}}">
                 {{#if this.isOpen}}
-                    <div class="next-content-panel-body-inner next-content-panel-body-wrapper relative {{@panelBodyWrapperClass}} {{if @pad 'p-4'}} {{if @isLoading 'opacity-50'}} {{if @isLoading 'is-loading'}}">
+                    <div
+                        class="next-content-panel-body-inner next-content-panel-body-wrapper relative
+                            {{@panelBodyWrapperClass}}
+                            {{if @pad 'p-4'}}
+                            {{if @isLoading 'opacity-50'}}
+                            {{if @isLoading 'is-loading'}}"
+                    >
                         {{#if @isLoading}}
                             <div class="absolute w-full h-full inset-0 bg-opacity-50 bg-gray-900 flex items-center justify-center">
                                 <div class="flex flex-row items-center">

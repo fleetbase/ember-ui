@@ -1,4 +1,26 @@
-<DropdownButton @buttonComponent="filters-picker/button" @buttonComponentArgs={{hash activeFilters=this.activeFilters}} @text={{or @text "Filter"}} @icon={{or @icon "filter"}} @type={{@type}} @size={{or @size "xs"}} @buttonClass={{@buttonClass}} @buttonWrapperClass={{@buttonWrapperClass}} @triggerClass={{@triggerClass}} @wrapperClass={{@wrapperClass}} @renderInPlace={{@renderInPlace}} @registerAPI={{@registerAPI}} @horizontalPosition={{@horizontalPosition}} @verticalPosition={{@verticalPosition}} @calculatePosition={{@calculatePosition}} @defaultClass={{@defaultClass}} @matchTriggerWidth={{@matchTriggerWidth}} @onOpen={{this.updateFilters}} @onClose={{this.updateFilters}} ...attributes as |dd|>
+<DropdownButton
+    @buttonComponent="filters-picker/button"
+    @buttonComponentArgs={{hash activeFilters=this.activeFilters}}
+    @text={{or @text "Filter"}}
+    @icon={{or @icon "filter"}}
+    @type={{@type}}
+    @size={{or @size "xs"}}
+    @buttonClass={{@buttonClass}}
+    @buttonWrapperClass={{@buttonWrapperClass}}
+    @triggerClass={{@triggerClass}}
+    @wrapperClass={{@wrapperClass}}
+    @renderInPlace={{@renderInPlace}}
+    @registerAPI={{@registerAPI}}
+    @horizontalPosition={{@horizontalPosition}}
+    @verticalPosition={{@verticalPosition}}
+    @calculatePosition={{@calculatePosition}}
+    @defaultClass={{@defaultClass}}
+    @matchTriggerWidth={{@matchTriggerWidth}}
+    @onOpen={{this.updateFilters}}
+    @onClose={{this.updateFilters}}
+    ...attributes
+    as |dd|
+>
     <div class="filters-dropdown-container">
         <div class="filters-dropdown-header">
             <h4>{{or @dropdownHeaderText "Filters"}}</h4>
@@ -9,19 +31,19 @@
                     <div class="filter-component">
                         <label class="filter-component-label">{{or filter.filterLabel filter.label}}</label>
                         {{component
-                                        filter.filterComponent
-                                        value=filter.filterValue
-                                        filter=filter
-                                        param=(or filter.filterParam filter.valuePath)
-                                        options=filter.filterOptions
-                                        optionLabel=filter.filterOptionLabel
-                                        optionValue=filter.filterOptionValue
-                                        optionFormats=filter.filterOptionFormats
-                                        fetchParams=filter.filterFetchParams
-                                        placeholder=(or filter.filterComponentPlaceholder filter.filterLabel filter.label)
-                                        onChange=this.updateFilterValue
-                                        onClear=this.clearFilterValue
-                                    }}
+                            filter.filterComponent
+                            value=filter.filterValue
+                            filter=filter
+                            param=(or filter.filterParam filter.valuePath)
+                            options=filter.filterOptions
+                            optionLabel=filter.filterOptionLabel
+                            optionValue=filter.filterOptionValue
+                            optionFormats=filter.filterOptionFormats
+                            fetchParams=filter.filterFetchParams
+                            placeholder=(or filter.filterComponentPlaceholder filter.filterLabel filter.label)
+                            onChange=this.updateFilterValue
+                            onClear=this.clearFilterValue
+                        }}
                     </div>
                 {{/each}}
             </div>

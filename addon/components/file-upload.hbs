@@ -1,6 +1,9 @@
-{{#let (file-queue name=@name onFileAdded=@onFileAdded onFileRemoved=@onFileRemoved onUploadStarted=@onUploadStarted onUploadSucceeded=@onUploadSucceeded onUploadFailed=@onUploadFailed) as |queue|}}
+{{#let
+    (file-queue name=@name onFileAdded=@onFileAdded onFileRemoved=@onFileRemoved onUploadStarted=@onUploadStarted onUploadSucceeded=@onUploadSucceeded onUploadFailed=@onUploadFailed)
+    as |queue|
+}}
     <label class="file-upload {{@labelClass}}">
-        <input type="file" accept={{@accept}} hidden={{or @hidden true}} class={{@inputClass}} {{queue.selectFile}}>
+        <input type="file" accept={{@accept}} hidden={{or @hidden true}} class={{@inputClass}} {{queue.selectFile}} />
         {{yield queue}}
     </label>
 {{/let}}

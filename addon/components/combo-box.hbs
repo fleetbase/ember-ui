@@ -20,10 +20,18 @@
         </div>
         <div class="controls h-48 flex items-center justify-center">
             <div>
-                <button {{on "click" this.confirmPending}} type="button" class="rounded-t-md px-3 py-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700 hover:bg-opacity:50 w-full border-b border-gray-200 dark:border-gray-900">
+                <button
+                    {{on "click" this.confirmPending}}
+                    type="button"
+                    class="rounded-t-md px-3 py-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700 hover:bg-opacity:50 w-full border-b border-gray-200 dark:border-gray-900"
+                >
                     <FaIcon @icon="arrow-right" class="text-sky-400" />
                 </button>
-                <button {{on "click" this.confirmUnpending}} type="button" class="rounded-b-md px-3 py-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700 hover:bg-opacity:50 w-full">
+                <button
+                    {{on "click" this.confirmUnpending}}
+                    type="button"
+                    class="rounded-b-md px-3 py-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700 hover:bg-opacity:50 w-full"
+                >
                     <FaIcon @icon="arrow-left" class="text-sky-400" />
                 </button>
             </div>

@@ -1,5 +1,11 @@
 <span class="btn-wrapper {{@wrapperClass}} inline-flex rounded-md {{if this.isNotSecondary 'shadow-sm'}} {{if @isLoading 'is-loading'}}" {{did-insert this.setupComponent}}>
-    <button class="btn {{if @isLoading 'btn-is-loading'}} {{if @outline 'btn-outline'}} btn-{{or @type 'default'}} btn-{{or @size 'sm'}}" disabled={{this.isDisabled}} ...attributes type={{or @buttonType "button"}} {{on "click" this.onClick}}>
+    <button
+        class="btn {{if @isLoading 'btn-is-loading'}} {{if @outline 'btn-outline'}} btn-{{or @type 'default'}} btn-{{or @size 'sm'}}"
+        disabled={{this.isDisabled}}
+        ...attributes
+        type={{or @buttonType "button"}}
+        {{on "click" this.onClick}}
+    >
         {{#if @isLoading}}
             <span class="btn-icon-wrapper btn-loading-icon-wrapper" data-icon-prefix={{@iconPrefix}}>
                 <Spinner @width={{or @loaderWidth 14}} @height={{or @loaderHeight 14}} />
@@ -7,7 +13,15 @@
         {{/if}}
         {{#if this.showIcon}}
             <span class="btn-icon-wrapper" data-icon-prefix={{@iconPrefix}}>
-                <FaIcon @prefix={{@iconPrefix}} @icon={{@icon}} @size={{@iconSize}} @rotation={{@iconRotation}} @flip={{@iconFlip}} @spin={{@iconSpin}} class="{{if @text 'mr-2'}} {{@iconClass}}" />
+                <FaIcon
+                    @prefix={{@iconPrefix}}
+                    @icon={{@icon}}
+                    @size={{@iconSize}}
+                    @rotation={{@iconRotation}}
+                    @flip={{@iconFlip}}
+                    @spin={{@iconSpin}}
+                    class="{{if @text 'mr-2'}} {{@iconClass}}"
+                />
             </span>
         {{/if}}
         {{#if @text}}

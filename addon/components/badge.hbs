@@ -1,6 +1,6 @@
 <div class="status-badge {{safe-dasherize (or @type @status)}}-status-badge" ...attributes>
-    <span class="inline-flex items-center {{unless @roundedFull "px-2 py-0.5 rounded" "badge-rounded-full"}} text-xs font-medium leading-4 whitespace-no-wrap {{@spanClass}}">
-        <svg class="{{unless @hideText "mr-1.5"}} h-2 w-2 {{if @hideStatusDot "hidden"}}" fill="currentColor" viewBox="0 0 8 8">
+    <span class="inline-flex items-center {{unless @roundedFull 'px-2 py-0.5 rounded' 'badge-rounded-full'}} text-xs font-medium leading-4 whitespace-no-wrap {{@spanClass}}">
+        <svg class="{{unless @hideText 'mr-1.5'}} h-2 w-2 {{if @hideStatusDot 'hidden'}}" fill="currentColor" viewBox="0 0 8 8">
             <circle cx="4" cy="4" r="3"></circle>
         </svg>
         {{#if (has-block)}}
@@ -15,7 +15,7 @@
             {{/unless}}
         {{/if}}
         {{#if @helpText}}
-            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top" }}>
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
                 <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
             </Attach::Tooltip>
         {{/if}}
