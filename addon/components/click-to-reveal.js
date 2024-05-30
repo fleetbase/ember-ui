@@ -39,7 +39,7 @@ export default class ClickToRevealComponent extends ClickToCopyComponent {
      * @param {...Arguments} { column, clickToCopy,  }
      * @memberof ClickToRevealComponent
      */
-    constructor(owner, { column, clickToCopy  }) {
+    constructor(owner, { column, clickToCopy }) {
         super(...arguments);
 
         this.clickToCopy = clickToCopy ?? false;
