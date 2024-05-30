@@ -26,14 +26,27 @@ export default class ClickToRevealComponent extends ClickToCopyComponent {
     @tracked timeout = 600;
 
     /**
-     * The loading state of the reveal process
+     * If click to copy should be enabled.
      *
      * @var {Boolean}
      */
-    @computed('args.clickToCopy') get clickToCopy() {
-        const { clickToCopy } = this.args;
+    @tracked clickToCopy = false;
 
-        return clickToCopy ?? false;
+    /**
+     * Setup the component
+     *
+     * @param {EngineInstance} owner
+     * @param {...Arguments} { column, clickToCopy,  }
+     * @memberof ClickToRevealComponent
+     */
+    constructor(owner, { column, clickToCopy  }) {
+        super(...arguments);
+
+        this.clickToCopy = clickToCopy ?? false;
+
+        if (column && column.cellComponentArgs) {
+            this.clickToCopy = column.cellComponentArgs.clickToCopy ?? false;
+        }
     }
 
     /**
