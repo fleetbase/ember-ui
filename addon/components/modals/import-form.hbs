@@ -98,5 +98,11 @@
             {{/if}}
         {{/if}}
 
+        {{#if @options.onExportTemplate}}
+            <div class="pt-4">
+                <a onClick={{@options.onExportTemplate}} download="true" class="text-blue-500 hover:text-blue-400">Download Import Template (XLSX)</a>
+            </div>
+        {{/if}}
+
     </div>
 </Modal::Default>
