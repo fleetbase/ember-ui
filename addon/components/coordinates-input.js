@@ -158,7 +158,7 @@ export default class CoordinatesInputComponent extends Component {
      * @memberof CoordinatesInputComponent
      */
     setInitialMapCoordinates() {
-        const whois = this.currentUser.getOption('whois');
+        const whois = this.currentUser.getOption('whois', {});
 
         this.mapLat = getWithDefault(whois, 'latitude', DEFAULT_LATITUDE);
         this.mapLng = getWithDefault(whois, 'longitude', DEFAULT_LONGITUDE);
