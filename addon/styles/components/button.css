@@ -138,7 +138,7 @@ a.btn.fb-button-success,
 a.btn.btn-success,
 .fc-button.btn-success,
 .ui-full-calendar .fc-button.btn-success {
-    @apply text-white bg-green-500 border-green-600 shadow-sm;
+    @apply text-white bg-green-700 border-green-600 shadow-sm;
 }
 
 .btn.fb-button-success:hover:not(:disabled),
