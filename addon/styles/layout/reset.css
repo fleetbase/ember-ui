@@ -6,10 +6,16 @@
 }
 
 body {
+    --sb-track-color: #e2e8f0;
+    --sb-thumb-color: rgba(148, 163, 184, 0.75);
+    --sb-thumb-hover-color: #64748b;
+    --sb-size: 7px;
+}
+
+body[data-theme="dark"] {
     --sb-track-color: #111827;
     --sb-thumb-color: #374151;
     --sb-thumb-hover-color: rgba(55, 65, 81, .5);
-    --sb-size: 7px;
 }
 
 ::-webkit-scrollbar {
@@ -18,12 +24,11 @@ body {
 
 ::-webkit-scrollbar-track {
     background: var(--sb-track-color);
-    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--sb-thumb-color);
-    border-radius: 5px;
+    border-radius: .15rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {

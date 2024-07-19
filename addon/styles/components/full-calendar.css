@@ -40,7 +40,7 @@ body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:disabled 
 }
 
 .fleetbase-full-calendar.fc .fc-toolbar {
-    justify-content: start;
+    justify-content: flex-start;
 }
 
 .fleetbase-full-calendar.fc .fc-toolbar.fc-header-toolbar {
