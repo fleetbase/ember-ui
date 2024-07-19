@@ -26,13 +26,13 @@ dependencies:
     specifier: ^2.0.0
     version: 2.0.0(ember-source@5.4.0)(webpack@5.89.0)
   '@fortawesome/fontawesome-svg-core':
-    specifier: ^6.4.0
+    specifier: 6.4.0
     version: 6.4.0
   '@fortawesome/free-brands-svg-icons':
-    specifier: ^6.4.0
+    specifier: 6.4.0
     version: 6.4.0
   '@fortawesome/free-solid-svg-icons':
-    specifier: ^6.4.0
+    specifier: 6.4.0
     version: 6.4.0
   '@fullcalendar/core':
     specifier: ^6.1.9
