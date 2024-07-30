@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { isBlank } from '@ember/utils';
+import { task } from 'ember-concurrency';
 
 export default class LogoIconComponent extends Component {
     @service store;
@@ -29,7 +30,7 @@ export default class LogoIconComponent extends Component {
         this.size = this.getSize();
 
         if (isBlank(this.args.brand)) {
-            this.loadIcon();
+            this.loadIcon.perform();
         } else {
             this.brand = this.args.brand;
             this.ready = true;
@@ -46,14 +47,12 @@ export default class LogoIconComponent extends Component {
         return this.size;
     }
 
-    loadIcon() {
-        this.store
-            .findRecord('brand', 1)
-            .then((brand) => {
-                this.brand = brand;
-            })
-            .finally(() => {
-                this.ready = true;
-            });
+    @task *loadIcon() {
+        try {
+            this.brand = yield this.store.findRecord('brand', 1);
+            this.ready = true;
+        } catch {
+            this.ready = true;
+        }
     }
 }
