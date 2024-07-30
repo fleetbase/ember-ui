@@ -1342,7 +1342,7 @@ body[data-theme="dark"] .next-sidebar .next-sidebar-panel-container > .next-side
     width: 250px;
     z-index: 600;
     max-width: 100vw;
-    padding: 0 0 0.25rem 0;
+    padding: 0;
 }
 
 .next-dd-menu.overflow-visible {

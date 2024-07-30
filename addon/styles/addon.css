@@ -45,6 +45,7 @@
 @import 'components/countdown.css';
 @import 'components/otp-input.css';
 @import 'components/chat.css';
+@import 'components/tip-tap-editor.css';
 
 /** Third party */
 @import 'air-datepicker/air-datepicker.css';
