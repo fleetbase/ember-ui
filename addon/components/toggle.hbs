@@ -21,7 +21,7 @@
         {{/if}}
         {{#if @helpText}}
             <div class={{if @label "ml-2"}}>
-                <FaIcon @icon={{or @icon "info-circle"}} class="text-gray-300 dark:text-gray-100 {{@iconClass}}" />
+                <FaIcon @icon={{or @icon "info-circle"}} @size="xs" class="text-gray-300 dark:text-gray-100 text-xs {{@iconClass}}" />
                 <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
                     <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
                 </Attach::Tooltip>
