@@ -145,6 +145,7 @@ body[data-theme='dark'] .tip-tap-editor > div.tiptap[contenteditable='true'] pre
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: flex-start;
     gap: 0.25rem;
     padding: 0.25rem;
     border-bottom: 1px #e2e8f0 solid;
@@ -189,6 +190,7 @@ body[data-theme='dark'] .tip-tap-editor > .tip-tap-editor-controls {
 .tip-tap-editor > .tip-tap-editor-controls > .tip-tap-editor-control-group {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     padding: 0.15rem 0.2rem;
     border-radius: 0.25rem;
     background-color: #e2e8f0;
@@ -249,10 +251,16 @@ body[data-theme='dark'] .tip-tap-editor > .tip-tap-editor-controls > .tip-tap-ed
 
 .tip-tap-editor > .tip-tap-editor-controls > .tip-tap-editor-control-group > .btn-wrapper {
     box-shadow: none;
+    margin-bottom: 0;
+}
+
+.tip-tap-editor > .tip-tap-editor-controls > .tip-tap-editor-control-group > label.file-upload.btn-wrapper {
+    height: 22.8px;
 }
 
 .tip-tap-editor > .tip-tap-editor-controls > .btn-wrapper {
     box-shadow: none;
+    margin-bottom: 0;
 }
 
 .tip-tap-editor > .tip-tap-editor-controls > .btn-wrapper > a.tip-tap-control-button,
