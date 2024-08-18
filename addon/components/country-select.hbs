@@ -9,7 +9,7 @@
         @triggerClass="form-select form-input {{@triggerClass}}"
         @dropdownClass={{or @dropdownClass "ember-model-select__dropdown"}}
         @placeholder={{or @placeholder "Select country..."}}
-        @disabled={{this.isLoading}}
+        @disabled={{or this.disabled this.fetchCountries.isRunning}}
         @allowClear={{@allowClear}}
         ...attributes
         as |country|

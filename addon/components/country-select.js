@@ -3,30 +3,32 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
+import { task } from 'ember-concurrency';
 
 export default class CountrySelectComponent extends Component {
     @service fetch;
     @tracked countries = [];
     @tracked selected;
-    @tracked isLoading = true;
+    @tracked disabled = false;
     @tracked value;
     @tracked id = guidFor(this);
 
-    constructor() {
+    constructor(owner, { value = null, disabled = false }) {
         super(...arguments);
+        this.disabled = disabled;
+        this.value = value;
+        this.fetchCountries.perform(value);
+    }
 
-        this.fetch
-            .get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji'] })
-            .then((countries) => {
-                this.countries = countries;
-
-                if (this.args.value) {
-                    this.selected = this.findCountry(this.args.value);
-                }
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+    @task *fetchCountries(value = null) {
+        try {
+            this.countries = yield this.fetch.get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji'] });
+            if (value) {
+                this.selected = this.findCountry(value);
+            }
+        } catch (error) {
+            this.countries = [];
+        }
     }
 
     @action changed(value) {

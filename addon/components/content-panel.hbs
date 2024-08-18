@@ -81,7 +81,16 @@
                             </span>
                         {{/if}}
                         {{#each @actionButtons as |button|}}
-                            <Button @type={{button.type}} @text={{button.text}} @icon={{button.icon}} @size={{button.size}} @iconPrefix={{button.iconPrefix}} @onClick={{button.onClick}} @wrapperClass={{button.wrapperClass}} class={{button.class}} />
+                            <Button
+                                @type={{button.type}}
+                                @text={{button.text}}
+                                @icon={{button.icon}}
+                                @size={{button.size}}
+                                @iconPrefix={{button.iconPrefix}}
+                                @onClick={{button.onClick}}
+                                @wrapperClass={{button.wrapperClass}}
+                                class={{button.class}}
+                            />
                         {{/each}}
                         {{#if @dropdownButton}}
                             <DropdownButton

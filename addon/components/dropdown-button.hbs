@@ -10,6 +10,7 @@
     @matchTriggerWidth={{@matchTriggerWidth}}
     @onOpen={{@onOpen}}
     @onClose={{@onClose}}
+    @disabled={{this.disabled}}
     {{did-insert this.onInsert}}
     as |dd|
 >
@@ -25,7 +26,7 @@
                 active=@active
                 size=this.buttonSize
                 isLoading=@isLoading
-                disabled=@disabled
+                disabled=this.disabled
                 textClass=@textClass
                 helpText=@helpText
                 tooltipPlacement=@tooltipPlacement
@@ -42,7 +43,7 @@
                 @active={{@active}}
                 @size={{this.buttonSize}}
                 @isLoading={{@isLoading}}
-                disabled={{@disabled}}
+                disabled={{this.disabled}}
                 {{did-insert this.onButtonInsert}}
                 ...attributes
             >
@@ -52,7 +53,7 @@
                 {{#if @img}}
                     <img src={{@img}} class={{@imgClass}} alt={{or @alt "image"}} />
                 {{/if}}
-                {{#if @helpText}}
+                {{#if (and (not this.doesntHavePermissions) @helpText)}}
                     <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
                         <InputInfo @text={{@helpText}} />
                     </Attach::Tooltip>
@@ -61,6 +62,11 @@
                     {{@text}}
                 </div>
             </Button>
+        {{/if}}
+        {{#if this.doesntHavePermissions}}
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
+                <InputInfo @text={{t "common.unauthorized"}} />
+            </Attach::Tooltip>
         {{/if}}
     </dd.Trigger>
     <dd.Content class={{@contentClass}} @overlay={{@overlay}}>

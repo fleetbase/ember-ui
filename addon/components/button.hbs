@@ -31,7 +31,11 @@
         {{/if}}
         {{yield}}
     </button>
-    {{#if @helpText}}
+    {{#if this.disabledByPermission}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
+            <InputInfo @text={{t "common.unauthorized"}} />
+        </Attach::Tooltip>
+    {{else if @helpText}}
         <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
             <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
         </Attach::Tooltip>

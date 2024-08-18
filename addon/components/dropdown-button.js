@@ -1,14 +1,19 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 
 export default class DropdownButtonComponent extends Component {
+    @service abilities;
     @tracked type = 'default';
     @tracked buttonSize = 'md';
     @tracked buttonComponentArgs = {};
     @tracked _onInsertFired = false;
     @tracked _onTriggerInsertFired = false;
     @tracked _onButtonInsertFired = false;
+    @tracked disabled = false;
+    @tracked permissionRequired = false;
+    @tracked doesntHavePermissions = false;
 
     /**
      * Creates an instance of DropdownButtonComponent.
@@ -16,12 +21,18 @@ export default class DropdownButtonComponent extends Component {
      * @param {Object} { type = 'default', size = 'md', buttonComponentArgs = {}}
      * @memberof DropdownButtonComponent
      */
-    constructor(owner, { type = 'default', size = 'md', buttonComponentArgs = {} }) {
+    constructor(owner, { type = 'default', size = 'md', buttonComponentArgs = {}, permission = null, disabled = false }) {
         super(...arguments);
 
         this.type = type;
         this.buttonSize = size;
         this.buttonComponentArgs = buttonComponentArgs;
+        this.permissionRequired = permission;
+        this.disabled = disabled;
+        // If no permissions disable
+        if (!disabled) {
+            this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
+        }
     }
 
     @action onRegisterAPI() {

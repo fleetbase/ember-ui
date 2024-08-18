@@ -1,17 +1,26 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { not, equal } from '@ember/object/computed';
 
 export default class ButtonComponent extends Component {
     /**
+     * Inject abilities service.
+     *
+     * @memberof ButtonComponent
+     */
+    @service abilities;
+
+    /**
      * Determines if the button should be disabled
      *
      * @var {Boolean}
      */
-    @computed('args.{isLoading,disabled}') get isDisabled() {
+    @computed('args.{disabled,disabledByPermission,isLoading}', 'disabledByPermission') get isDisabled() {
         const { isLoading, disabled } = this.args;
 
-        return disabled || isLoading;
+        return this.disabledByPermission || disabled || isLoading;
     }
 
     /**
@@ -37,6 +46,27 @@ export default class ButtonComponent extends Component {
         const { icon, isLoading } = this.args;
 
         return icon && !isLoading;
+    }
+
+    /**
+     * If the button is disabled by permissions.
+     *
+     * @memberof ButtonComponent
+     */
+    @tracked disabledByPermission = false;
+
+    /**
+     * Creates an instance of ButtonComponent.
+     * @param {*} owner
+     * @param {*} { permission = null }
+     * @memberof ButtonComponent
+     */
+    constructor(owner, { permission = null, disabled = false }) {
+        super(...arguments);
+        this.permissionRequired = permission;
+        if (!disabled) {
+            this.disabledByPermission = permission && this.abilities.cannot(permission);
+        }
     }
 
     /**

@@ -8,15 +8,25 @@ import isMenuItemActive from '../../../utils/is-menu-item-active';
 export default class LayoutSidebarItemComponent extends Component {
     @service router;
     @service hostRouter;
+    @service abilities;
     @tracked active;
     @tracked dropdownButtonNode;
     @tracked dropdownButtonRenderInPlace = true;
+    @tracked permissionRequired = null;
+    @tracked disabled = false;
+    @tracked doesntHavePermissions = false;
 
-    constructor(owner, { dropdownButtonRenderInPlace = true }) {
+    constructor(owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false }) {
         super(...arguments);
 
         this.active = this.checkIfActive();
         this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace;
+        this.permissionRequired = permission;
+        this.disabled = disabled;
+        // If no permissions disable
+        if (!disabled) {
+            this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
+        }
 
         const router = this.getRouter();
         router.on('routeDidChange', this.trackActiveFlag);
@@ -47,6 +57,12 @@ export default class LayoutSidebarItemComponent extends Component {
 
     @action onClick(event) {
         if (this.isPointerWithinDropdownButton(event)) {
+            event.preventDefault();
+            return;
+        }
+
+        const doesntHavePermissions = this.permissionRequired && this.abilities.cannot(this.permissionRequired);
+        if (doesntHavePermissions) {
             event.preventDefault();
             return;
         }

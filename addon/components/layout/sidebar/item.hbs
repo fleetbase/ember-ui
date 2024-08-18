@@ -1,4 +1,10 @@
-<a href="javascript:;" class="next-nav-item {{if this.active 'active'}} {{if @dropdownButton 'next-nav-item-with-dropdown'}}" {{on "click" this.onClick}} ...attributes>
+<a
+    href="javascript:;"
+    class="next-nav-item {{if this.active 'active'}} {{if @dropdownButton 'next-nav-item-with-dropdown'}}"
+    disabled={{this.disabled}}
+    {{on "click" this.onClick}}
+    ...attributes
+>
     <div class="next-nav-item-icon-container {{@iconWrapperClass}}">
         {{#if @icon}}
             <FaIcon @prefix={{@iconPrefix}} @icon={{@icon}} @size={{or @iconSize "xs"}} class={{@iconClass}} />
@@ -33,6 +39,7 @@
                     @triggerClass="next-nav-item-dropdown-button {{@dropdownButtonTriggerClass}}"
                     @registerAPI={{this.onRegisterAPI}}
                     @onInsert={{this.onDropdownButtonInsert}}
+                    @disabled={{this.disabled}}
                     as |dd|
                 >
                     <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
@@ -68,4 +75,13 @@
             {{/if}}
         {{/if}}
     </div>
+    {{#if this.doesntHavePermissions}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
+            <InputInfo @text={{t "common.unauthorized"}} />
+        </Attach::Tooltip>
+    {{else if @helpText}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
+            <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+        </Attach::Tooltip>
+    {{/if}}
 </a>

@@ -1,4 +1,4 @@
-<a href="#" {{on "click" this.onClick}} class={{@column.anchorClass}} disabled={{not @value}} ...attributes>
+<a href="#" {{on "click" this.onClick}} class={{@column.anchorClass}} disabled={{and @column.permission (cannot @column.permission)}} ...attributes>
     {{#if @column.anchorIcon}}
         <span class="btn-icon-wrapper" data-icon-prefix={{@column.anchorIconPrefix}}>
             <FaIcon
