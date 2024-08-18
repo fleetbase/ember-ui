@@ -74,7 +74,7 @@
         "chartjs-adapter-date-fns": "^3.0.0",
         "date-fns": "^2.30.0",
         "ember-animated": "^1.1.2",
-        "ember-auto-import": "^2.6.3",
+        "ember-auto-import": "^2.7.4",
         "ember-basic-dropdown": "^7.3.0",
         "ember-can": "^6.0.0",
         "ember-cli-babel": "^8.2.0",
