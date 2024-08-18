@@ -53,6 +53,9 @@ importers:
       '@makepanic/ember-power-calendar-date-fns':
         specifier: ^0.4.2
         version: 0.4.2
+      '@tailwindcss/forms':
+        specifier: ^0.5.3
+        version: 0.5.3(tailwindcss@3.1.8(postcss@8.4.39))
       '@tiptap/core':
         specifier: ^2.5.7
         version: 2.5.7(@tiptap/pm@2.5.7)
@@ -215,6 +218,27 @@ importers:
       intl-tel-input:
         specifier: ^22.0.2
         version: 22.0.2
+      postcss-at-rules-variables:
+        specifier: ^0.3.0
+        version: 0.3.0(postcss@8.4.39)
+      postcss-conditionals-renewed:
+        specifier: ^1.0.0
+        version: 1.0.0(postcss@8.4.39)
+      postcss-each:
+        specifier: ^1.1.0
+        version: 1.1.0(postcss@8.4.39)
+      postcss-import:
+        specifier: ^15.1.0
+        version: 15.1.0(postcss@8.4.39)
+      postcss-mixins:
+        specifier: ^9.0.4
+        version: 9.0.4(postcss@8.4.39)
+      postcss-preset-env:
+        specifier: ^9.1.1
+        version: 9.1.1(postcss@8.4.39)
+      tailwindcss:
+        specifier: ^3.1.8
+        version: 3.1.8(postcss@8.4.39)
     devDependencies:
       '@babel/eslint-parser':
         specifier: ^7.22.15
@@ -237,9 +261,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@tailwindcss/forms':
-        specifier: ^0.5.3
-        version: 0.5.3(tailwindcss@3.1.8(postcss@8.4.39))
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
@@ -318,24 +339,6 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
-      postcss-at-rules-variables:
-        specifier: ^0.3.0
-        version: 0.3.0(postcss@8.4.39)
-      postcss-conditionals-renewed:
-        specifier: ^1.0.0
-        version: 1.0.0(postcss@8.4.39)
-      postcss-each:
-        specifier: ^1.1.0
-        version: 1.1.0(postcss@8.4.39)
-      postcss-import:
-        specifier: ^15.1.0
-        version: 15.1.0(postcss@8.4.39)
-      postcss-mixins:
-        specifier: ^9.0.4
-        version: 9.0.4(postcss@8.4.39)
-      postcss-preset-env:
-        specifier: ^9.1.1
-        version: 9.1.1(postcss@8.4.39)
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -354,9 +357,6 @@ importers:
       stylelint-prettier:
         specifier: ^4.0.2
         version: 4.0.2(prettier@3.0.3)(stylelint@15.11.0)
-      tailwindcss:
-        specifier: ^3.1.8
-        version: 3.1.8(postcss@8.4.39)
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
