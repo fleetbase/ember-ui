@@ -53,9 +53,6 @@ importers:
       '@makepanic/ember-power-calendar-date-fns':
         specifier: ^0.4.2
         version: 0.4.2
-      '@tailwindcss/forms':
-        specifier: ^0.5.3
-        version: 0.5.3(tailwindcss@3.1.8(postcss@8.4.39))
       '@tiptap/core':
         specifier: ^2.5.7
         version: 2.5.7(@tiptap/pm@2.5.7)
@@ -119,12 +116,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.15
         version: 10.4.15(postcss@8.4.39)
-      broccoli-funnel:
-        specifier: ^3.0.8
-        version: 3.0.8
-      broccoli-merge-trees:
-        specifier: ^4.2.0
-        version: 4.2.0
       chart.js:
         specifier: ^4.2.1
         version: 4.2.1
@@ -143,6 +134,9 @@ importers:
       ember-basic-dropdown:
         specifier: ^7.3.0
         version: 7.3.0(@babel/core@7.23.2)(@ember/string@3.0.1)(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))(webpack@5.89.0)
+      ember-can:
+        specifier: ^6.0.0
+        version: 6.0.0(@babel/core@7.23.2)(@ember/string@3.0.1)(ember-inflector@4.0.2)(ember-resolver@11.0.1(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0)))(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))
       ember-cli-babel:
         specifier: ^8.2.0
         version: 8.2.0(@babel/core@7.23.2)
@@ -221,27 +215,6 @@ importers:
       intl-tel-input:
         specifier: ^22.0.2
         version: 22.0.2
-      postcss-at-rules-variables:
-        specifier: ^0.3.0
-        version: 0.3.0(postcss@8.4.39)
-      postcss-conditionals-renewed:
-        specifier: ^1.0.0
-        version: 1.0.0(postcss@8.4.39)
-      postcss-each:
-        specifier: ^1.1.0
-        version: 1.1.0(postcss@8.4.39)
-      postcss-import:
-        specifier: ^15.1.0
-        version: 15.1.0(postcss@8.4.39)
-      postcss-mixins:
-        specifier: ^9.0.4
-        version: 9.0.4(postcss@8.4.39)
-      postcss-preset-env:
-        specifier: ^9.1.1
-        version: 9.1.1(postcss@8.4.39)
-      tailwindcss:
-        specifier: ^3.1.8
-        version: 3.1.8(postcss@8.4.39)
     devDependencies:
       '@babel/eslint-parser':
         specifier: ^7.22.15
@@ -264,9 +237,18 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
+      '@tailwindcss/forms':
+        specifier: ^0.5.3
+        version: 0.5.3(tailwindcss@3.1.8(postcss@8.4.39))
       broccoli-asset-rev:
         specifier: ^3.0.0
         version: 3.0.0
+      broccoli-funnel:
+        specifier: ^3.0.8
+        version: 3.0.8
+      broccoli-merge-trees:
+        specifier: ^4.2.0
+        version: 4.2.0
       clean-css:
         specifier: ^5.3.2
         version: 5.3.2
@@ -336,6 +318,24 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
+      postcss-at-rules-variables:
+        specifier: ^0.3.0
+        version: 0.3.0(postcss@8.4.39)
+      postcss-conditionals-renewed:
+        specifier: ^1.0.0
+        version: 1.0.0(postcss@8.4.39)
+      postcss-each:
+        specifier: ^1.1.0
+        version: 1.1.0(postcss@8.4.39)
+      postcss-import:
+        specifier: ^15.1.0
+        version: 15.1.0(postcss@8.4.39)
+      postcss-mixins:
+        specifier: ^9.0.4
+        version: 9.0.4(postcss@8.4.39)
+      postcss-preset-env:
+        specifier: ^9.1.1
+        version: 9.1.1(postcss@8.4.39)
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -354,6 +354,9 @@ importers:
       stylelint-prettier:
         specifier: ^4.0.2
         version: 4.0.2(prettier@3.0.3)(stylelint@15.11.0)
+      tailwindcss:
+        specifier: ^3.1.8
+        version: 3.1.8(postcss@8.4.39)
       webpack:
         specifier: ^5.89.0
         version: 5.89.0
@@ -3388,6 +3391,9 @@ packages:
     resolution: {integrity: sha512-BzRPQuY1ip+qDonAOz42gRm/pg9F768C+npV/4JOsxRC2sq+Rlk+Q4ZCAsOhnIaMrgarILY+RMUIvMmmX1qAEA==}
     engines: {node: '>=4'}
 
+  decorator-transforms@2.0.0:
+    resolution: {integrity: sha512-ETfQccGcotK01YJsoB0AGTdUp7kS9jI93mBzrRY5Oyo+bOJfa2UKTSjCNf+iRNwAWBmBKlbiCcyL4tkY4C4dZQ==}
+
   deep-extend@0.6.0:
     resolution: {integrity: sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==}
     engines: {node: '>=4.0.0'}
@@ -3561,6 +3567,14 @@ packages:
     resolution: {integrity: sha512-XzLd1noCrHjG7O35HpZ+ljj7VwPPqon7svbvNJ2U7421e00eXBUVcCioGJFo1NnnPkjc14FTDc5UwktbGSbJdQ==}
     engines: {node: 16.* || >= 18}
     peerDependencies:
+      ember-source: ^3.28.0 || ^4.0.0 || >=5.0.0
+
+  ember-can@6.0.0:
+    resolution: {integrity: sha512-/8TnWxU9Yu0HXCk04qCHK3nnjrNMe3j6wrJJjW9ffLsnBBHKTT8yNP1f54EsHaHoNtWd73JGSSTmtcpBHhWAyw==}
+    peerDependencies:
+      '@ember/string': ^3.1.1 || ^4.0.0
+      ember-inflector: ^4.0.2 || ^5.0.1
+      ember-resolver: '>= 8.0.0'
       ember-source: ^3.28.0 || ^4.0.0 || >=5.0.0
 
   ember-cli-babel-plugin-helpers@1.1.1:
@@ -11785,6 +11799,13 @@ snapshots:
     dependencies:
       mimic-response: 1.0.1
 
+  decorator-transforms@2.0.0(@babel/core@7.23.2):
+    dependencies:
+      '@babel/plugin-syntax-decorators': 7.24.7(@babel/core@7.23.2)
+      babel-import-util: 3.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+
   deep-extend@0.6.0: {}
 
   deep-is@0.1.4: {}
@@ -12065,6 +12086,18 @@ snapshots:
       - '@glint/template'
       - supports-color
       - webpack
+
+  ember-can@6.0.0(@babel/core@7.23.2)(@ember/string@3.0.1)(ember-inflector@4.0.2)(ember-resolver@11.0.1(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0)))(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0)):
+    dependencies:
+      '@ember/string': 3.0.1
+      '@embroider/addon-shim': 1.8.9
+      decorator-transforms: 2.0.0(@babel/core@7.23.2)
+      ember-inflector: 4.0.2
+      ember-resolver: 11.0.1(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))
+      ember-source: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
 
   ember-cli-babel-plugin-helpers@1.1.1: {}
 

@@ -36,6 +36,8 @@ module.exports = {
                     'postcss-mixins',
                     'postcss-conditionals-renewed',
                     'postcss-at-rules-variables',
+                    'broccoli-funnel',
+                    'broccoli-merge-trees',
                     'autoprefixer',
                     'tailwindcss',
                     '@tailwindcss/forms',

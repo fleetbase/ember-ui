@@ -1,7 +1,9 @@
+.widget-title,
 .fleetbase-dashboard-grid .dashboard-title {
     @apply flex flex-col lg:flex-row lg:items-center lg:justify-between rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 shadow-sm px-4 py-2 mb-4;
 }
 
+.widget-count,
 .fleetbase-dashboard-grid .dashboard-component-count {
     @apply flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 shadow-sm py-4;
 }

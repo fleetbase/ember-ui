@@ -69,13 +69,16 @@ module.exports = {
             new Funnel(`${intlTelInputPath}/build/js`, {
                 include: ['utils.js'],
                 destDir: 'assets/libphonenumber',
+                allowEmpty: true,
             }),
             new Funnel(`${intlTelInputPath}/build/img`, {
                 destDir: 'img',
                 overwrite: false,
+                allowEmpty: true,
             }),
             new Funnel(path.join(__dirname, 'assets'), {
                 destDir: '/',
+                allowEmpty: true,
             }),
         ];
 

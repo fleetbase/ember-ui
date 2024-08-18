@@ -30,6 +30,7 @@
                     aria-label={{t "common.search-input"}}
                     placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}}
                     class="w-64 ml-3 form-input form-input-sm {{@searchInputClass}}"
+                    disabled={{@searchDisabled}}
                     {{on "keyup" @onSearch}}
                 />
             {{/if}}
