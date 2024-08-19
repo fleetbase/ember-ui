@@ -12,6 +12,7 @@ export default class DropdownButtonComponent extends Component {
     @tracked _onTriggerInsertFired = false;
     @tracked _onButtonInsertFired = false;
     @tracked disabled = false;
+    @tracked visible = true;
     @tracked permissionRequired = false;
     @tracked doesntHavePermissions = false;
 
@@ -21,7 +22,7 @@ export default class DropdownButtonComponent extends Component {
      * @param {Object} { type = 'default', size = 'md', buttonComponentArgs = {}}
      * @memberof DropdownButtonComponent
      */
-    constructor(owner, { type = 'default', size = 'md', buttonComponentArgs = {}, permission = null, disabled = false }) {
+    constructor(owner, { type = 'default', size = 'md', buttonComponentArgs = {}, permission = null, disabled = false, visible = true }) {
         super(...arguments);
 
         this.type = type;
@@ -29,6 +30,7 @@ export default class DropdownButtonComponent extends Component {
         this.buttonComponentArgs = buttonComponentArgs;
         this.permissionRequired = permission;
         this.disabled = disabled;
+        this.visible = true;
         // If no permissions disable
         if (!disabled) {
             this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);

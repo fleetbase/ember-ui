@@ -1424,6 +1424,13 @@ body[data-theme='dark'] .next-dd-menu .next-dd-item:disabled,
     box-shadow: none;
 }
 
+body[data-theme='dark'] .next-dd-menu .next-header-dd-menu-item.next-dd-item.disabled,
+.next-dd-menu .next-header-dd-menu-item.next-dd-item.disabled,
+body[data-theme='dark'] .next-dd-menu .next-header-dd-menu-item.next-dd-item:disabled,
+.next-dd-menu .next-header-dd-menu-item.next-dd-item:disabled {
+    opacity: 1;
+}
+
 .next-dd-menu-seperator {
     @apply flex h-px my-2 bg-gray-700;
 }
