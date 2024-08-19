@@ -157,7 +157,6 @@ export default class LayoutHeaderComponent extends Component {
             {
                 href: 'javascript:;',
                 text: 'Changelog',
-                disabled: true,
                 action: 'viewChangelog',
             },
         ];

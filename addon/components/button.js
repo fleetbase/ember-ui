@@ -56,14 +56,22 @@ export default class ButtonComponent extends Component {
     @tracked disabledByPermission = false;
 
     /**
+     * Determines the visibility of the button
+     *
+     * @memberof ButtonComponent
+     */
+    @tracked visible = true;
+
+    /**
      * Creates an instance of ButtonComponent.
      * @param {*} owner
      * @param {*} { permission = null }
      * @memberof ButtonComponent
      */
-    constructor(owner, { permission = null, disabled = false }) {
+    constructor(owner, { permission = null, disabled = false, visible = true }) {
         super(...arguments);
         this.permissionRequired = permission;
+        this.visible = visible;
         if (!disabled) {
             this.disabledByPermission = permission && this.abilities.cannot(permission);
         }

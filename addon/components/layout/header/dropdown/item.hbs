@@ -1,5 +1,5 @@
 {{#if this.isTextOnly}}
-    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1 flex flex-row")}}>
+    <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " next-header-dd-menu-item px-1 flex flex-row")}}>
         {{#if @item.icon}}
             <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
         {{/if}}
@@ -17,7 +17,7 @@
 
 {{#if this.isLink}}
     <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
-        <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-dd-item {{@item.class}}">
+        <LinkTo @route={{@item.route}} disabled={{@item.disabled}} class="next-header-dd-menu-item next-dd-item {{@item.class}}">
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
@@ -30,7 +30,7 @@
     <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
         <a
             href={{@item.href}}
-            class="next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}"
+            class="next-header-dd-menu-item next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}"
             target={{@item.target}}
             disabled={{@item.disabled}}
             {{on "click" (fn @onAction @item.action @item.params)}}
@@ -45,7 +45,7 @@
 
 {{#if this.isInteractive}}
     <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
-        <a href="javascript:;" class="next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" @item.onClick}} ...attributes>
+        <a href="javascript:;" class="next-header-dd-menu-item next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" @item.onClick}} ...attributes>
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}

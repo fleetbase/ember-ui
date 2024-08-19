@@ -10,12 +10,14 @@ export default class TableCellDropdownActionItemComponent extends Component {
     @tracked doesntHavePermissions = false;
     @tracked disabled = false;
     @tracked isVisible = true;
+    @tracked visible = true;
 
     constructor(owner, { columnAction = {}, row = {}, disabled = false, permission = null }) {
         super(...arguments);
         this.permissionRequired = columnAction.permission ?? permission;
         this.disabled = this.disabledCheck(columnAction, this.permissionRequired, disabled);
         this.isVisible = this.visibilityCheck(columnAction, row);
+        this.visible = columnAction.visible ?? true;
     }
 
     @action onClick(columnAction, row, dd) {

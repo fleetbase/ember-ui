@@ -15,14 +15,16 @@ export default class LayoutSidebarItemComponent extends Component {
     @tracked permissionRequired = null;
     @tracked disabled = false;
     @tracked doesntHavePermissions = false;
+    @tracked visible = true;
 
-    constructor(owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false }) {
+    constructor(owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false, visible = true }) {
         super(...arguments);
 
         this.active = this.checkIfActive();
         this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace;
         this.permissionRequired = permission;
         this.disabled = disabled;
+        this.visible = visible;
         // If no permissions disable
         if (!disabled) {
             this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
