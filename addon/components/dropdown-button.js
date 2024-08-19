@@ -30,7 +30,7 @@ export default class DropdownButtonComponent extends Component {
         this.buttonComponentArgs = buttonComponentArgs;
         this.permissionRequired = permission;
         this.disabled = disabled;
-        this.visible = true;
+        this.visible = visible;
         // If no permissions disable
         if (!disabled) {
             this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);

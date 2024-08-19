@@ -71,7 +71,7 @@ export default class ButtonComponent extends Component {
     constructor(owner, { permission = null, disabled = false, visible = true }) {
         super(...arguments);
         this.permissionRequired = permission;
-        this.visible = true;
+        this.visible = visible;
         if (!disabled) {
             this.disabledByPermission = permission && this.abilities.cannot(permission);
         }
