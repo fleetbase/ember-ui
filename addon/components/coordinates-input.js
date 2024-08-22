@@ -110,6 +110,13 @@ export default class CoordinatesInputComponent extends Component {
     @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
 
     /**
+     * Disable input.
+     *
+     * @memberof CoordinatesInputComponent
+     */
+    @tracked disabled = false;
+
+    /**
      * Constructor for CoordinatesInputComponent. Sets initial map coordinates and values.
      * @memberof CoordinatesInputComponent
      */
@@ -120,6 +127,7 @@ export default class CoordinatesInputComponent extends Component {
         this.setInitialValueFromPoint(this.args.value);
         this.zoom = getWithDefault(this.args, 'zoom', 9);
         this.zoomControl = getWithDefault(this.args, 'zoomControl', false);
+        this.disabled = getWithDefault(this.args, 'disabled', false);
 
         if (typeof this.args.onInit === 'function') {
             this.args.onInit(this);

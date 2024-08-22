@@ -7,7 +7,7 @@
                     {{@panelHeaderClass}}
                     {{if @isLoading 'is-loading'}}"
             >
-                <a href="javascript:;" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{@panelHeaderLeftClass}}" {{on "click" this.toggle}}>
+                <a href="javascript:;" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{if this.disabled 'opacity-50'}} {{@panelHeaderLeftClass}}" disabled={{this.disabled}} {{on "click" this.toggle}}>
                     {{#unless @hideCaret}}
                         <span class="icon-container" {{did-insert this.trackIconContainer}}>
                             <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
@@ -49,6 +49,15 @@
                             </div>
                         {{/if}}
                     </div>
+                    {{#if this.doesntHavePermissions}}
+                        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
+                            <InputInfo @text={{t "common.unauthorized"}} />
+                        </Attach::Tooltip>
+                    {{else if @helpText}}
+                        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "right"}}>
+                            <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+                        </Attach::Tooltip>
+                    {{/if}}
                 </a>
                 <div class="next-content-panel-header-right {{@panelHeaderRightClass}}">
                     {{#if @titleRightSideComponent}}
@@ -89,24 +98,31 @@
                                 @iconPrefix={{button.iconPrefix}}
                                 @onClick={{button.onClick}}
                                 @wrapperClass={{button.wrapperClass}}
+                                @permission={{button.permission}}
+                                @disabled={{button.disabled}}
                                 class={{button.class}}
                             />
                         {{/each}}
                         {{#if @dropdownButton}}
                             <DropdownButton
+                                class={{@dropdownButtonWrapperClass}}
+                                @defaultClass={{@dropdownButtonDefaultClass}}
                                 @icon={{or @dropdownButtonIcon "ellipsis"}}
                                 @iconPrefix={{@dropdownButtonIconPrefix}}
                                 @text={{@dropdownButtonText}}
                                 @size="xs"
-                                @horizontalPosition="left"
+                                @horizontalPosition={{or @dropdownButtonHorizontalPosition "right"}}
+                                @verticalPosition={{@verticalPosition}}
                                 @calculatePosition={{@dropdownButtonCalculatePosition}}
                                 @renderInPlace={{this.dropdownButtonRenderInPlace}}
+                                @permission={{@dropdownButtonPermission}}
+                                @disabled={{@dropdownButtonDisabled}}
                                 as |dd|
                             >
-                                <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                                <div class="next-dd-menu mt-0i {{@dropdownMenuWrapperClass}}" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                                     {{#if @dropdownButtonMenuLabel}}
-                                        <div class="px-1">
-                                            <div class="text-sm flex flex-row items-center px-3 py-1 rounded-md my-1 text-gray-800 dark:text-gray-300">
+                                        <div class="next-dd-menu-label-container px-1">
+                                            <div class="next-dd-menu-label {{@dropdownButtonMenuLabelClass}}">
                                                 {{@dropdownButtonMenuLabel}}
                                             </div>
                                         </div>

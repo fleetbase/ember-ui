@@ -13,7 +13,7 @@
         @closeOnSelect={{@closeOnSelect}}
         @defaultHighlighted={{@defaultHighlighted}}
         @destination={{@destination}}
-        @disabled={{@disabled}}
+        @disabled={{this.disabled}}
         @dropdownClass={{or @dropdownClass "ember-model-select__dropdown"}}
         @extra={{@extra}}
         @groupComponent={{@groupComponent}}
@@ -63,6 +63,16 @@
             {{get model @optionLabel}}
         {{/if}}
     </PowerSelect>
+
+    {{#if this.doesntHavePermissions}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
+            <InputInfo @text={{t "common.unauthorized"}} />
+        </Attach::Tooltip>
+    {{else if @helpText}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
+            <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+        </Attach::Tooltip>
+    {{/if}}
 
     {{#if this.loadModels.isRunning}}
         <div class="ember-model-select__loading">

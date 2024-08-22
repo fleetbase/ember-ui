@@ -53,10 +53,10 @@
                         @disabled={{this.disabled}}
                         as |dd|
                     >
-                        <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                        <div class="next-dd-menu mt-0i {{@dropdownMenuWrapperClass}}" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                             {{#if @dropdownButtonMenuLabel}}
-                                <div class="px-1">
-                                    <div class="text-sm flex flex-row items-center px-3 py-1 rounded-md my-1 text-gray-800 dark:text-gray-300">
+                                <div class="next-dd-menu-label-container px-1">
+                                    <div class="next-dd-menu-label {{@dropdownMenuLabelClass}}">
                                         {{@dropdownButtonMenuLabel}}
                                     </div>
                                 </div>
@@ -71,9 +71,9 @@
                                             {{! template-lint-disable no-nested-interactive }}
                                             <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action dd)}}>
                                                 {{#if action.icon}}
-                                                    <span class="mr-1">
+                                                    <div class="w-6">
                                                         <FaIcon class={{action.iconClass}} @icon={{action.icon}} @prefix={{action.iconPrefix}} />
-                                                    </span>
+                                                    </div>
                                                 {{/if}}
                                                 {{action.label}}
                                             </a>

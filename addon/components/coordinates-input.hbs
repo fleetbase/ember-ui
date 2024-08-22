@@ -1,10 +1,10 @@
 <div class="grid grid-cols-2 gap-2 coordinates-input" ...attributes>
-    <Input class="w-full form-input" @type="text" placeholder="Latitude" aria-label="Latitude" @value={{this.latitude}} />
-    <Input class="w-full form-input" @type="text" placeholder="Longitude" aria-label="Longitude" @value={{this.longitude}} />
+    <Input class="w-full form-input" @type="text" placeholder="Latitude" aria-label="Latitude" @value={{this.latitude}} disabled={{this.disabled}} />
+    <Input class="w-full form-input" @type="text" placeholder="Longitude" aria-label="Longitude" @value={{this.longitude}} disabled={{this.disabled}} />
 </div>
 <div class="my-1">
-    <BasicDropdown ...attributes @verticalPosition="top" @horizontalPosition="left" @onClose={{this.onClose}} @renderInPlace={{or @renderInPlace true}} as |dd|>
-        <dd.Trigger class={{@triggerClass}}>
+    <BasicDropdown ...attributes @verticalPosition="top" @horizontalPosition="left" @onClose={{this.onClose}} @renderInPlace={{or @renderInPlace true}} @disabled={{this.disabled}} as |dd|>
+        <dd.Trigger class="{{@triggerClass}} {{if this.disabled 'disabled'}}" disabled={{this.disabled}}>
             <span class="text-sky-500 hover:text-sky-600">Select from map</span>
         </dd.Trigger>
         <dd.Content class="bg-transparent min-w-500px">
@@ -42,7 +42,7 @@
             </div>
             <div class="flex flex-col">
                 <div class="flex flex-row items-center pb-4">
-                    <Input @type="text" class="form-input mr-2" @value={{this.lookupQuery}} aria-label="Address Search" disabled={{this.isLoading}} placeholder="Enter address" />
+                    <Input @type="text" class="form-input mr-2" @value={{this.lookupQuery}} aria-label="Address Search" disabled={{or this.disabled this.isLoading}} placeholder="Enter address" />
                     <Button @wrapperClass="mr-2" @icon="search-location" @type="primary" @size="sm" @text="Lookup" @onClick={{this.reverseLookup}} @isLoading={{this.isLoading}} />
                     <Button @type="default" @iconPrefix="fas" @icon="times" @size="sm" @text="Done" @onClick={{dd.actions.close}} />
                 </div>

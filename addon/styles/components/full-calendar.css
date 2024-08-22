@@ -97,3 +97,9 @@ body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:not(:disa
 body[data-theme='dark'] .fleetbase-full-calendar.fc .fc-button-primary:not(:disabled):active:focus {
     box-shadow: none;
 }
+
+.draggable-disabled {
+    opacity: 0.9;
+    pointer-events: none;
+    cursor: not-allowed;
+}

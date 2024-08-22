@@ -1,4 +1,10 @@
-<select ...attributes class="form-select {{if this.value 'has--selection' 'has--placeholder'}}" {{on "change" this.select}} {{did-update this.changed @value @placeholder}}>
+<select
+    ...attributes
+    class="form-select {{if this.value 'has--selection' 'has--placeholder'}} {{if this.disabled 'disabled'}}"
+    disabled={{this.disabled}}
+    {{on "change" this.select}}
+    {{did-update this.changed @value @placeholder}}
+>
     {{#if this.placeholder}}
         <option selected disabled>
             {{this.placeholder}}

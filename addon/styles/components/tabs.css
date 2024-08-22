@@ -143,6 +143,27 @@ body[data-theme='dark'] .ui-tabs > nav .ui-tab.active {
     @apply text-gray-300;
 }
 
+.ui-tabs > ul .nav-item.disabled,
+.ui-tabs > ul .nav-item:disabled,
+.ui-tabs > nav .nav-item.disabled,
+.ui-tabs > nav .nav-item:disabled,
+.ui-tabs > ul .ui-tab.disabled,
+.ui-tabs > ul .ui-tab:disabled,
+.ui-tabs > nav .ui-tab.disabled,
+.ui-tabs > nav .ui-tab:disabled,
+body[data-theme='dark'] .ui-tabs > ul .nav-item.disabled,
+body[data-theme='dark'] .ui-tabs > ul .nav-item:disabled,
+body[data-theme='dark'] .ui-tabs > nav .nav-item.disabled,
+body[data-theme='dark'] .ui-tabs > nav .nav-item:disabled,
+body[data-theme='dark'] .ui-tabs > ul .ui-tab.disabled,
+body[data-theme='dark'] .ui-tabs > ul .ui-tab:disabled,
+body[data-theme='dark'] .ui-tabs > nav .ui-tab.disabled,
+body[data-theme='dark'] .ui-tabs > nav .ui-tab:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 @media (max-width: 767px) {
     .ui-tabs .ui-tab.active {
         min-width: 6rem;
