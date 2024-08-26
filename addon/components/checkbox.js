@@ -1,9 +1,12 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { computed, action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 
 export default class CheckboxComponent extends Component {
+    @service abilities;
+
     /**
      * Generates a unique ID for this checkbox instance
      *
@@ -32,6 +35,44 @@ export default class CheckboxComponent extends Component {
      * @param {String} colorClass
      */
     @tracked colorClass = 'text-sky-500';
+
+    /**
+     * The permission required.
+     *
+     * @memberof CheckboxComponent
+     */
+    @tracked permissionRequired;
+
+    /**
+     * If the button is disabled by permissions.
+     *
+     * @memberof CheckboxComponent
+     */
+    @tracked disabledByPermission = false;
+
+    /**
+     * Determines the visibility of the button
+     *
+     * @memberof CheckboxComponent
+     */
+    @tracked visible = true;
+
+    /**
+     * Creates an instance of ButtonComponent.
+     * @param {*} owner
+     * @param {*} { permission = null }
+     * @memberof ButtonComponent
+     */
+    constructor(owner, { value = false, permission = null, disabled = false, visible = true }) {
+        super(...arguments);
+        this.checked = value;
+        this.permissionRequired = permission;
+        this.visible = visible;
+        this.disabled = disabled;
+        if (!disabled) {
+            this.disabled = this.disabledByPermission = permission && this.abilities.cannot(permission);
+        }
+    }
 
     /**
      * Toggles the checkbox and sends up an action

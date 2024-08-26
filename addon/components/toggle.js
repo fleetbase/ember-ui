@@ -1,8 +1,11 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 import { action, computed } from '@ember/object';
 
 export default class ToggleComponent extends Component {
+    @service abilities;
+
     /**
      * The active color of the toggle
      *
@@ -16,6 +19,27 @@ export default class ToggleComponent extends Component {
      * @var {String}
      */
     @tracked activeColor = 'green';
+
+    /**
+     * The permission required.
+     *
+     * @memberof ToggleComponent
+     */
+    @tracked permissionRequired;
+
+    /**
+     * If the button is disabled by permissions.
+     *
+     * @memberof ToggleComponent
+     */
+    @tracked disabledByPermission = false;
+
+    /**
+     * Determines the visibility of the button
+     *
+     * @memberof ToggleComponent
+     */
+    @tracked visible = true;
 
     /**
      * The active color class.
@@ -33,11 +57,18 @@ export default class ToggleComponent extends Component {
      *
      * @memberof ToggleComponent
      */
-    constructor(owner, { isToggled, activeColor }) {
+    constructor(owner, { value = false, isToggled = false, activeColor = 'green', permission = null, disabled = false, visible = true }) {
         super(...arguments);
 
-        this.isToggled = isToggled === true;
-        this.activeColor = typeof activeColor === 'string' ? activeColor : 'green';
+        this.isToggled = isToggled;
+        this.activeColor = activeColor;
+        this.checked = value;
+        this.permissionRequired = permission;
+        this.visible = visible;
+        this.disabled = disabled;
+        if (!disabled) {
+            this.disabled = this.disabledByPermission = permission && this.abilities.cannot(permission);
+        }
     }
 
     /**
@@ -46,15 +77,14 @@ export default class ToggleComponent extends Component {
      * @void
      */
     @action toggle(isToggled) {
-        const { disabled, onToggle } = this.args;
-        if (disabled) {
+        if (this.disabled) {
             return;
         }
 
         this.isToggled = !isToggled;
 
-        if (typeof onToggle === 'function') {
-            onToggle(this.isToggled);
+        if (typeof this.args.onToggle === 'function') {
+            this.args.onToggle(this.isToggled);
         }
     }
 

@@ -1,8 +1,16 @@
-<div class="array-input" ...attributes>
+<div class="array-input {{if this.disabled 'disabled'}}" ...attributes>
     <div class="flex items-center justify-between {{@headerClass}}">
         <div class={{@yieldWrapperClass}}>{{yield this.data}}</div>
         <div class="flex justify-end items-center mb-4">
-            <Button @type={{@addButtonType}} @text={{or @addButtonText "Add"}} @icon={{or @addIcon "plus"}} @iconPrefix={{or @addIconPrefix "fas"}} @onClick={{this.addData}} />
+            <Button
+                @type={{@addButtonType}}
+                @text={{or @addButtonText "Add"}}
+                @icon={{or @addIcon "plus"}}
+                @iconPrefix={{or @addIconPrefix "fas"}}
+                @onClick={{this.addData}}
+                @disabled={{this.disabled}}
+                @permission={{@permission}}
+            />
         </div>
     </div>
     <div class="bg-white border border-gray-200 rounded shadow-sm dark:bg-gray-800 dark:border-gray-900 text-xs">
@@ -14,13 +22,19 @@
                         @value={{datum}}
                         aria-label="Data Input"
                         placeholder={{@placeholder}}
+                        disabled={{this.disabled}}
+                        class="form-input w-full flex-1 border-none shadow-none rounded-none pr-24"
                         {{on "change" (fn this.onChange index)}}
                         {{on "paste" (fn this.onPaste index)}}
-                        class="form-input w-full flex-1 border-none shadow-none rounded-none pr-24"
                         {{on "keyup" (fn this.inputDatum index)}}
                     />
                     <div class="absolute right-0 py-2.5 px-4">
-                        <button type="button" class="rounded-none border-none bg-transparent shadow-none outline-none text-red-500" {{on "click" (fn this.removeData index)}}>Remove</button>
+                        <button
+                            type="button"
+                            class="rounded-none border-none bg-transparent shadow-none outline-none text-red-500"
+                            disabled={{this.disabled}}
+                            {{on "click" (fn this.removeData index)}}
+                        >Remove</button>
                     </div>
                 </div>
             {{/each}}
