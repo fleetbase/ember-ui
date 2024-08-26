@@ -117,7 +117,7 @@ export default class LayoutHeaderComponent extends Component {
         ];
 
         // If registry bridge is booted add to static items
-        if (this.hasExtension('@fleetbase/registry-bridge')) {
+        if (this.hasExtension('@fleetbase/registry-bridge-engine')) {
             staticMenuItems.pushObject({
                 id: 'explore-extensions',
                 route: 'console.extensions',
@@ -292,6 +292,6 @@ export default class LayoutHeaderComponent extends Component {
     }
 
     hasExtension(extensionName) {
-        return this.extensions.find(({ name }) => name === extensionName);
+        return this.extensions.find(({ name }) => name === extensionName) !== undefined;
     }
 }

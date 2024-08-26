@@ -17,7 +17,7 @@ export default class LayoutSidebarItemComponent extends Component {
     @tracked doesntHavePermissions = false;
     @tracked visible = true;
 
-    constructor(owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false, visible = true }) {
+    constructor (owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false, visible = true }) {
         super(...arguments);
 
         this.active = this.checkIfActive();
@@ -34,30 +34,46 @@ export default class LayoutSidebarItemComponent extends Component {
         router.on('routeDidChange', this.trackActiveFlag);
     }
 
-    willDestroy() {
+    willDestroy () {
         super.willDestroy(...arguments);
         const router = this.getRouter();
         router.off('routeDidChange', this.trackActiveFlag);
     }
 
-    @action trackActiveFlag() {
+    @action trackActiveFlag () {
         this.active = this.checkIfActive();
     }
 
-    @action checkIfActive() {
-        const { route, onClick, item } = this.args;
+    @action checkIfActive () {
+        const { route, onClick, item, model } = this.args;
         const router = this.getRouter();
         const currentRoute = router.currentRouteName;
+        const currentURL = router.currentURL;
         const isInteractive = isBlank(route) && typeof onClick === 'function';
+        const isCurrentRoute = typeof route === 'string' && currentRoute.startsWith(route);
+        const isCurrentURL = currentURL === window.location.pathname;
 
         if (isInteractive && !isBlank(item)) {
             return isMenuItemActive(item.section, item.slug, item.view);
         }
 
-        return typeof route === 'string' && currentRoute.startsWith(route);
+        // If model provided use the pathname to determine in addition
+        if (model) {
+            const routeHasModelParam = router.currentRoute.paramNames.length > 0;
+            if (routeHasModelParam) {
+                const routeModelParam = router.currentRoute.paramNames[0];
+                const routeModelParamValue = model[routeModelParam] ?? '';
+
+                return isCurrentRoute && isCurrentURL && currentURL.includes(routeModelParamValue);
+            }
+
+            return isCurrentRoute && isCurrentURL;
+        }
+
+        return isCurrentRoute;
     }
 
-    @action onClick(event) {
+    @action onClick (event) {
         if (this.isPointerWithinDropdownButton(event)) {
             event.preventDefault();
             return;
@@ -106,7 +122,7 @@ export default class LayoutSidebarItemComponent extends Component {
         }
     }
 
-    @action onDropdownItemClick(action, dd) {
+    @action onDropdownItemClick (action, dd) {
         const context = this.getDropdownContext(action);
 
         if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
@@ -122,7 +138,7 @@ export default class LayoutSidebarItemComponent extends Component {
         }
     }
 
-    getDropdownContext(action) {
+    getDropdownContext (action) {
         let context = null;
 
         if (action && action.context) {
@@ -136,13 +152,13 @@ export default class LayoutSidebarItemComponent extends Component {
         return context;
     }
 
-    @action onRegisterAPI() {
+    @action onRegisterAPI () {
         if (typeof this.args.registerAPI === 'function') {
             this.args.registerAPI(...arguments);
         }
     }
 
-    @action onDropdownButtonInsert(dropdownButtonNode) {
+    @action onDropdownButtonInsert (dropdownButtonNode) {
         if (dropdownButtonNode) {
             this.dropdownButtonNode = dropdownButtonNode;
 
@@ -152,7 +168,7 @@ export default class LayoutSidebarItemComponent extends Component {
         }
     }
 
-    isPointerWithinDropdownButton({ target }) {
+    isPointerWithinDropdownButton ({ target }) {
         const isTargetDropdownItem = target.classList.contains('next-dd-item');
 
         if (this.dropdownButtonNode) {
@@ -167,7 +183,7 @@ export default class LayoutSidebarItemComponent extends Component {
         return false;
     }
 
-    getRouter() {
+    getRouter () {
         return this.router ?? this.hostRouter;
     }
 }
