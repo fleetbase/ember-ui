@@ -5,11 +5,13 @@ import { action } from '@ember/object';
 export default class SelectComponent extends Component {
     @tracked value;
     @tracked placeholder;
+    @tracked disabled = false;
 
-    constructor(owner, { value, placeholder }) {
+    constructor(owner, { value, placeholder, disabled = false }) {
         super(...arguments);
         this.value = value;
         this.placeholder = placeholder;
+        this.disabled = disabled;
     }
 
     @action changed(el, [value, placeholder]) {

@@ -34,6 +34,7 @@ const getConfigOption = (key, defaultValue) => {
 export default class ModelSelectComponent extends Component {
     @service store;
     @service fetch;
+    @service abilities;
 
     /**
      * Source to query, either an ember data model or the store
@@ -130,9 +131,18 @@ export default class ModelSelectComponent extends Component {
     @tracked _options;
     @tracked model;
     @tracked selectedModel;
+    @tracked permissionRequired = null;
+    @tracked disabled = false;
+    @tracked doesntHavePermissions = false;
 
-    constructor() {
+    constructor(owner, { permission = null, disabled = false }) {
         super(...arguments);
+        this.permissionRequired = permission;
+        this.disabled = disabled;
+        if (!disabled) {
+            this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
+        }
+
         this.loadSelectedModel();
     }
 
@@ -163,6 +173,10 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask({ withTestWaiter: true }) searchModels = function* (term, options, initialLoad = false) {
+        if (this.doesntHavePermissions || this.disabled) {
+            return;
+        }
+
         let createOption;
 
         if (this.args.withCreate && term) {
@@ -182,6 +196,10 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask({ withTestWaiter: true }) loadModels = function* (term, createOption) {
+        if (this.doesntHavePermissions || this.disabled) {
+            return;
+        }
+
         // query might be an EmptyObject/{{hash}}, make it a normal Object
         const query = Object.assign({}, this.args.query);
 

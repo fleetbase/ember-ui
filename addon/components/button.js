@@ -49,6 +49,13 @@ export default class ButtonComponent extends Component {
     }
 
     /**
+     * The permission required.
+     *
+     * @memberof ButtonComponent
+     */
+    @tracked permissionRequired;
+
+    /**
      * If the button is disabled by permissions.
      *
      * @memberof ButtonComponent

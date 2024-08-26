@@ -45,16 +45,32 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     @action checkIfActive() {
-        const { route, onClick, item } = this.args;
+        const { route, onClick, item, model } = this.args;
         const router = this.getRouter();
         const currentRoute = router.currentRouteName;
+        const currentURL = router.currentURL;
         const isInteractive = isBlank(route) && typeof onClick === 'function';
+        const isCurrentRoute = typeof route === 'string' && currentRoute.startsWith(route);
+        const isCurrentURL = currentURL === window.location.pathname;
 
         if (isInteractive && !isBlank(item)) {
             return isMenuItemActive(item.section, item.slug, item.view);
         }
 
-        return typeof route === 'string' && currentRoute.startsWith(route);
+        // If model provided use the pathname to determine in addition
+        if (model) {
+            const routeHasModelParam = router.currentRoute.paramNames.length > 0;
+            if (routeHasModelParam) {
+                const routeModelParam = router.currentRoute.paramNames[0];
+                const routeModelParamValue = model[routeModelParam] ?? '';
+
+                return isCurrentRoute && isCurrentURL && currentURL.includes(routeModelParamValue);
+            }
+
+            return isCurrentRoute && isCurrentURL;
+        }
+
+        return isCurrentRoute;
     }
 
     @action onClick(event) {

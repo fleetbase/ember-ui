@@ -9,10 +9,10 @@
         @renderInPlace={{true}}
         as |dd|
     >
-        <div class="next-dd-menu mt-0i" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+        <div class="next-dd-menu next-dd-menu-table-dd mt-0i {{@column.ddMenuWrapperClass}}" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
             {{#if @column.ddMenuLabel}}
-                <div class="px-1">
-                    <div class="text-sm flex flex-row items-center px-3 py-1 rounded-md my-1 text-gray-800 dark:text-gray-300">
+                <div class="next-dd-menu-label-container px-1">
+                    <div class="next-dd-menu-label {{@column.ddMenuLabelClass}}">
                         {{@column.ddMenuLabel}}
                     </div>
                 </div>

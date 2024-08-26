@@ -205,6 +205,13 @@ export default class UnitInputComponent extends Component {
     @tracked unit;
 
     /**
+     * If the input is disabled.
+     *
+     * @memberof UnitInputComponent
+     */
+    @tracked disabled = false;
+
+    /**
      * Name of unit selection
      *
      * @readonly
@@ -238,10 +245,11 @@ export default class UnitInputComponent extends Component {
         return null;
     }
 
-    constructor() {
+    constructor(owner, { unit, disabled = false }) {
         super(...arguments);
 
-        this.unit = this.args.unit;
+        this.unit = unit;
+        this.disabled = disabled;
     }
 
     /**

@@ -1,4 +1,5 @@
 import Component from '@glimmer/component';
+import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
@@ -9,6 +10,8 @@ import { action } from '@ember/object';
  * @extends Component
  */
 export default class ContentPanelComponent extends Component {
+    @service abilities;
+
     /**
      * Indicates whether the content panel is currently open.
      *
@@ -45,15 +48,25 @@ export default class ContentPanelComponent extends Component {
      */
     @tracked iconContainers = [];
 
+    @tracked permissionRequired = null;
+    @tracked disabled = false;
+    @tracked doesntHavePermissions = false;
+
     /**
      * Initializes the content panel component.
      *
      * @constructor
      * @public
      */
-    constructor(owner, { open = false, toggleOnCaretOnly = false, dropdownButtonRenderInPlace = true, onInsert }) {
+    constructor(owner, { open = false, toggleOnCaretOnly = false, dropdownButtonRenderInPlace = true, disabled = false, permission = null, onInsert }) {
         super(...arguments);
 
+        this.disabled = false;
+        this.permissionRequired = permission;
+        this.disabled = disabled;
+        if (!disabled) {
+            this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
+        }
         this.isOpen = open === true;
         this.toggleOnCaretOnly = toggleOnCaretOnly === true;
         this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace === true;

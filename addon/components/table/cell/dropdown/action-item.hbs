@@ -12,9 +12,9 @@
                     {{on "click" (fn this.onClick @columnAction @row @dd)}}
                 >
                     {{#if @columnAction.icon}}
-                        <span class="mr-1">
+                        <div class="w-6">
                             <FaIcon class={{@columnAction.iconClass}} @icon={{@columnAction.icon}} @prefix={{@columnAction.iconPrefix}} />
-                        </span>
+                        </div>
                     {{/if}}
                     {{@columnAction.label}}
                     {{#if this.doesntHavePermissions}}

@@ -8,7 +8,7 @@
         {{/if}}
         {{#unless (media "isMobile")}}
             <div role="menu" class="next-catalog-menu-items flex mr-4">
-                {{#each @menuItems as |menuItem|}}
+                {{#each this.menuItems as |menuItem|}}
                     <LinkToExternal
                         @route={{menuItem.route}}
                         id={{concat (dasherize menuItem.route) "-header-button"}}
@@ -43,25 +43,25 @@
                 <ChatTray />
             </div>
             <div class="flex-1 flex items-center pr-1">
-                <Layout::Header::Dropdown @items={{this.organizationNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
+                <Layout::Header::Dropdown @items={{this.organizationMenuItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
                     <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                         <div class="org-badge">
-                            {{first-char @user.company_name}}
+                            {{first-char this.currentUser.companyName}}
                         </div>
-                        <div class="text-sm w-10 md:w-14 lg:w-10/12 truncate flex-shrink-0 text-gray-800 dark:text-white">{{@user.company_name}}</div>
+                        <div class="text-sm w-10 md:w-14 lg:w-10/12 truncate flex-shrink-0 text-gray-800 dark:text-white">{{this.currentUser.companyName}}</div>
                     </div>
                 </Layout::Header::Dropdown>
             </div>
             <div class="flex-1 flex items-center justify-end">
-                <Layout::Header::Dropdown @items={{this.userNavigationItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
+                <Layout::Header::Dropdown @items={{this.userMenuItems}} @onAction={{@onAction}} class="flex-shrink-0" @triggerClass="flex-shrink-0" as |dd|>
                     <div class="next-user-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                         <Image
                             class="rounded-full h-5 w-5 shadow-sm flex-shrink-0"
                             height="20"
                             width="20"
-                            src={{@user.avatar_url}}
+                            src={{this.currentUser.avatarUrl}}
                             @fallbackSrc="https://s3.ap-southeast-1.amazonaws.com/flb-assets/static/no-avatar.png"
-                            alt={{@user.name}}
+                            alt={{this.currentUser.name}}
                         />
                     </div>
                 </Layout::Header::Dropdown>

@@ -4,11 +4,13 @@ import { action } from '@ember/object';
 
 export default class ArrayInputComponent extends Component {
     @tracked data = [];
+    @tracked disabled = false;
 
-    constructor() {
+    constructor(owner, { data = [], disabled = false }) {
         super(...arguments);
 
-        this.data = this.args.data ?? [];
+        this.data = data;
+        this.disabled = disabled;
     }
 
     @action onChange(index, event) {
