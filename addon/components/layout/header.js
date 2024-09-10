@@ -40,7 +40,7 @@ export default class LayoutHeaderComponent extends Component {
         const visibleMenuItems = [];
         for (let i = 0; i < headerMenuItems.length; i++) {
             const menuItem = headerMenuItems[i];
-            if (this.abilities.can(`${menuItem.slug} see extension`)) {
+            if (this.abilities.can(`${menuItem.id} see extension`)) {
                 visibleMenuItems.pushObject(menuItem);
             }
         }
@@ -274,6 +274,7 @@ export default class LayoutHeaderComponent extends Component {
                 href: 'javascript:;',
                 text: 'Logout',
                 action: 'invalidateSession',
+                icon: 'person-running',
             },
         ]);
 

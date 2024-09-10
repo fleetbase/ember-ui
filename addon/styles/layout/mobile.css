@@ -150,6 +150,8 @@
     }
 
     .next-view-section-subheader {
+        display: flex;
+        flex-direction: column;
         @apply px-0 flex-col h-24;
     }
 

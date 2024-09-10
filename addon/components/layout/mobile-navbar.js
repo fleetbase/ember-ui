@@ -1,13 +1,45 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { action } from '@ember/object';
 
 export default class LayoutMobileNavbarComponent extends Component {
     @service router;
     @service hostRouter;
+    @service abilities;
+    @service universe;
     @tracked navbarNode;
     @tracked sidebarNode;
+    @tracked extensions = [];
+    @tracked menuItems = [];
+
+    constructor(owner, { menuItems = [] }) {
+        super(...arguments);
+        this.extensions = getOwner(this).application.extensions ?? [];
+        this.menuItems = this.mergeMenuItems(menuItems);
+    }
+
+    mergeMenuItems(menuItems = []) {
+        const headerMenuItems = this.universe.headerMenuItems;
+        const visibleMenuItems = [];
+        for (let i = 0; i < headerMenuItems.length; i++) {
+            const menuItem = headerMenuItems[i];
+            if (this.abilities.can(`${menuItem.id} see extension`)) {
+                visibleMenuItems.pushObject(menuItem);
+            }
+        }
+
+        // Merge additionals
+        visibleMenuItems.pushObjects(menuItems);
+
+        // Callback to allow mutation of menu items
+        if (typeof this.args.mutateMenuItems === 'function') {
+            this.args.mutateMenuItems(menuItems);
+        }
+
+        return visibleMenuItems;
+    }
 
     @action setupMobileNavbar(element) {
         this.navbarNode = element;
@@ -19,10 +51,6 @@ export default class LayoutMobileNavbarComponent extends Component {
 
         // when hostrouter transitions close sidebar automatically
         this.getRouter().on('routeDidChange', this.closeSidebar.bind(this));
-    }
-
-    getRouter() {
-        return this.router ?? this.hostRouter;
     }
 
     @action routeTo(route) {
@@ -51,5 +79,9 @@ export default class LayoutMobileNavbarComponent extends Component {
 
     @action openSidebar() {
         this.sidebarNode?.classList?.add('is-open');
+    }
+
+    getRouter() {
+        return this.router ?? this.hostRouter;
     }
 }

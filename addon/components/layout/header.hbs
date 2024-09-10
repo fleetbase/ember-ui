@@ -3,7 +3,7 @@
         <LinkToExternal @route="console" class="logo navbar-logo mr-4">
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
-        {{#if @showSidebarToggle}}
+        {{#if (and @showSidebarToggle (not (media "isMobile")))}}
             <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{not @sidebarToggleEnabled}} />
         {{/if}}
         {{#unless (media "isMobile")}}

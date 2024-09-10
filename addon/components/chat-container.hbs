@@ -1,4 +1,4 @@
-<div class="chat-container" ...attributes>
+<div class="chat-container {{if (media 'isMobile') 'is-mobile'}}" ...attributes>
     {{#each this.chat.openChannels as |chatChannel|}}
         <ChatWindow @channel={{chatChannel}} />
     {{/each}}

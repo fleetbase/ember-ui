@@ -1,20 +1,20 @@
-<div class="next-user-button" ...attributes>
+<div class="next-user-button locale-selector-tray" ...attributes>
     <BasicDropdown
-        @defaultClass={{@wrapperClass}}
+        class={{@wrapperClass}}
         @onOpen={{@onOpen}}
         @onClose={{@onClose}}
+        @calculatePosition={{this.calculatePosition}}
         @verticalPosition={{@verticalPosition}}
         @horizontalPosition={{@horizontalPosition}}
-        @renderInPlace={{or @renderInPlace true}}
-        @initiallyOpened={{@initiallyOpened}}
+        @renderInPlace={{or @renderInPlace (not (media "isMobile"))}}
         as |dd|
     >
-        <dd.Trigger class={{@triggerClass}}>
+        <dd.Trigger class="{{@triggerClass}} local-selector-tray-trigger {{if (media 'isMobile') 'is-mobile'}}">
             <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                 <FaIcon @icon="globe" @size="sm" />
             </div>
         </dd.Trigger>
-        <dd.Content class={{@contentClass}}>
+        <dd.Content class="{{@contentClass}} locale-selector-tray-content {{if (media 'isMobile') 'is-mobile'}}">
             <div class="next-dd-menu {{@dropdownMenuClass}} {{if dd.isOpen 'is-open'}}">
                 {{#each-in this.availableLocales as |key country|}}
                     <div class="px-1">
