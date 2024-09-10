@@ -4,27 +4,29 @@ import { computed, action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import { bool } from '@ember/object/computed';
 import isMenuItemActive from '../../../../utils/is-menu-item-active';
+import isEmptyObject from '../../../../utils/is-empty-object';
 
 export default class LayoutHeaderDropdownItemComponent extends Component {
     @service router;
     @service hostRouter;
+    @service abilities;
 
     @bool('args.item.onClick') isInteractive;
     @bool('args.item.href') isAnchor;
     @bool('args.item.seperator') isSeperator;
 
     @computed('args.item.{route,onClick}') get isLink() {
-        return typeof this.args.item.route === 'string' && typeof this.args.item.onClick !== 'function';
+        return this.args.item && typeof this.args.item.route === 'string' && typeof this.args.item.onClick !== 'function';
     }
 
     @computed('args.item.{component,onClick}') get isComponent() {
-        return typeof this.args.item.component === 'string' && typeof this.args.item.onClick !== 'function';
+        return this.args.item && typeof this.args.item.component === 'string' && typeof this.args.item.onClick !== 'function';
     }
 
     @computed('args.item.text', 'isAnchor', 'isLink', 'isComponent', 'isSeperator', 'isInteractive')
     get isTextOnly() {
         const { isAnchor, isLink, isComponent, isSeperator, isInteractive } = this;
-        const { text } = this.args.item;
+        const { text } = this.args.item ?? { text: null };
 
         return [isAnchor, isLink, isComponent, isSeperator, isInteractive].every((prop) => prop === false) && text;
     }
@@ -44,9 +46,25 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
     }
 
     @action onClick(event) {
-        const { url, target, route, model, onClick, options } = this.args;
+        const { url, target, route, model, onClick, permission, options = {}, queryParams = {} } = this.args;
+        if (permission && this.abilities.cannot(permission)) {
+            return;
+        }
+
+        const hasTransitionOptions = !isEmptyObject(options);
+        const hasQueryParams = !isEmptyObject(queryParams);
+        const modelHasQueryParams = !isEmptyObject(model) && model.queryParams !== undefined;
         const router = this.getRouter();
         const anchor = event.target?.closest('a');
+
+        if (hasQueryParams) {
+            options.queryParams = queryParams;
+        }
+
+        if (modelHasQueryParams) {
+            options.queryParams = model.queryParams;
+            delete model.queryParams;
+        }
 
         if (anchor && anchor.attributes?.disabled && anchor.attributes.disabled !== 'disabled="false"') {
             return;
@@ -64,11 +82,11 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
             return onClick();
         }
 
-        if (!isBlank(options) && route && model) {
+        if (hasTransitionOptions && route && model) {
             return router.transitionTo(route, model, options);
         }
 
-        if (!isBlank(options) && route) {
+        if (hasTransitionOptions && route && !model) {
             return router.transitionTo(route, options);
         }
 

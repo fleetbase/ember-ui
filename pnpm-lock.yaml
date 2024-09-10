@@ -173,6 +173,9 @@ importers:
       ember-get-config:
         specifier: ^2.1.1
         version: 2.1.1
+      ember-gridstack:
+        specifier: ^4.0.0
+        version: 4.0.0(@babel/core@7.23.2)(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))(webpack@5.89.0)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.2
@@ -212,6 +215,9 @@ importers:
       ember-wormhole:
         specifier: ^0.6.0
         version: 0.6.0
+      gridstack:
+        specifier: ^7.3.0
+        version: 7.3.0
       imask:
         specifier: ^6.4.3
         version: 6.4.3
@@ -339,6 +345,9 @@ importers:
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
+      patch-package:
+        specifier: ^8.0.0
+        version: 8.0.0
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2037,6 +2046,9 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
+
+  '@yarnpkg/lockfile@1.1.0':
+    resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
 
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -3799,6 +3811,12 @@ packages:
     resolution: {integrity: sha512-uNmv1cPG/4qsac8oIf5txJ2FZ8p88LEpG4P3dNcjsJS98Y8hd0GPMFwVqpnzI78Lz7VYRGQWY4jnE4qm5R3j4g==}
     engines: {node: 12.* || 14.* || >= 16}
 
+  ember-gridstack@4.0.0:
+    resolution: {integrity: sha512-qcl3E+k7wWO7D/zqTzU4jtu6ruVYFT/SbBoqaOBZR017aBDOo3zcavU80z6w8zNYqUG6gVWSXFKNTtbE/D2wlg==}
+    engines: {node: 14.* || 16.* || >= 18}
+    peerDependencies:
+      ember-source: ^4.0.0
+
   ember-inflector@4.0.2:
     resolution: {integrity: sha512-+oRstEa52mm0jAFzhr51/xtEWpCEykB3SEBr7vUg8YnXUZJ5hKNBppP938q8Zzr9XfJEbzrtDSGjhKwJCJv6FQ==}
     engines: {node: 10.* || 12.* || >= 14}
@@ -4688,6 +4706,9 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
+  gridstack@7.3.0:
+    resolution: {integrity: sha512-JKZgsHzm1ljkn1NnBZpf8j4NDOBCXTuw0m1ZC0sr6NKUh0BFWzXAONIxtX1hWGUVeKLj5l1VcmnTwCXw5ypDNw==}
+
   growly@1.3.0:
     resolution: {integrity: sha512-+xGQY0YyAWCnqy7Cd++hc2JqMYzlm0dG30Jd0beaA64sROr8C4nt8Yc9V5Ro3avlSUDTN0ulqP/VBKi1/lLygw==}
 
@@ -5274,6 +5295,9 @@ packages:
   kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
     engines: {node: '>=0.10.0'}
+
+  klaw-sync@6.0.0:
+    resolution: {integrity: sha512-nIeuVSzdCCs6TDPTqI8w1Yre34sSq7AkZ4B3sfOBbI2CgVSB4Du4aLQijFU2+lhAFCwt9+42Hel6lQNIv6AntQ==}
 
   known-css-properties@0.29.0:
     resolution: {integrity: sha512-Ne7wqW7/9Cz54PDt4I3tcV+hAyat8ypyOGzYRJQfdxnnjeWsTxt1cy8pjvvKeI5kfXuyvULyeeAvwvvtAX3ayQ==}
@@ -5895,6 +5919,10 @@ packages:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
 
+  open@7.4.2:
+    resolution: {integrity: sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==}
+    engines: {node: '>=8'}
+
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -6038,6 +6066,11 @@ packages:
   pascalcase@0.1.1:
     resolution: {integrity: sha512-XHXfu/yOQRy9vYOtUDVMN60OEJjW013GoObG1o+xwQTpB9eYJX/BjXMsdW13ZDPruFhYYn0AG22w0xgQMwl3Nw==}
     engines: {node: '>=0.10.0'}
+
+  patch-package@8.0.0:
+    resolution: {integrity: sha512-da8BVIhzjtgScwDJ2TtKsfT5JFWz1hYoBl9rUQ1f38MC2HwnEIkK8VN3dKMKcP7P7bvvgzNDbfNHtx3MsQb5vA==}
+    engines: {node: '>=14', npm: '>5'}
+    hasBin: true
 
   path-browserify@0.0.1:
     resolution: {integrity: sha512-BapA40NHICOS+USX9SN4tyhq+A2RrN/Ws5F0Z5aMHDp98Fl86lX8Oti8B7uN93L4Ifv4fHOEA+pQw87gmMO/lQ==}
@@ -7034,6 +7067,10 @@ packages:
     resolution: {integrity: sha512-3TYDR7xWt4dIqV2JauJr+EJeW356RXijHeUlO+8djJ+uBXPn8/2dpzBc8yQhh583sVvc9CvFAeQVgijsH+PNNg==}
     engines: {node: '>=0.10.0'}
 
+  slash@2.0.0:
+    resolution: {integrity: sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==}
+    engines: {node: '>=6'}
+
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -7901,6 +7938,11 @@ packages:
   yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+
+  yaml@2.5.1:
+    resolution: {integrity: sha512-bLQOjaX/ADgQ20isPJRvF0iRUHIxVhYvr53Of7wGcWlO2jvtUlH5m87DsmulFVxRpNLOnI4tB6p/oh8D7kpn9Q==}
+    engines: {node: '>= 14'}
+    hasBin: true
 
   yargs-parser@20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
@@ -10095,6 +10137,8 @@ snapshots:
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
+
+  '@yarnpkg/lockfile@1.1.0': {}
 
   abbrev@1.1.1: {}
 
@@ -12749,6 +12793,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  ember-gridstack@4.0.0(@babel/core@7.23.2)(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))(webpack@5.89.0):
+    dependencies:
+      '@ember/render-modifiers': 2.1.0(@babel/core@7.23.2)(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))
+      ember-auto-import: 2.7.4(webpack@5.89.0)
+      ember-cli-babel: 7.26.11
+      ember-cli-htmlbars: 6.3.0
+      ember-modifier: 4.1.0(ember-source@5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0))
+      ember-source: 5.4.0(@babel/core@7.23.2)(@glimmer/component@1.1.2(@babel/core@7.23.2))(rsvp@4.8.5)(webpack@5.89.0)
+      gridstack: 7.3.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+      - webpack
+
   ember-inflector@4.0.2:
     dependencies:
       ember-cli-babel: 7.26.11
@@ -14181,6 +14240,8 @@ snapshots:
 
   graphemer@1.4.0: {}
 
+  gridstack@7.3.0: {}
+
   growly@1.3.0: {}
 
   handlebars@4.7.8:
@@ -14754,6 +14815,10 @@ snapshots:
       is-buffer: 1.1.6
 
   kind-of@6.0.3: {}
+
+  klaw-sync@6.0.0:
+    dependencies:
+      graceful-fs: 4.2.11
 
   known-css-properties@0.29.0: {}
 
@@ -15412,6 +15477,11 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
+  open@7.4.2:
+    dependencies:
+      is-docker: 2.2.1
+      is-wsl: 2.2.0
+
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -15559,6 +15629,24 @@ snapshots:
       tslib: 2.6.3
 
   pascalcase@0.1.1: {}
+
+  patch-package@8.0.0:
+    dependencies:
+      '@yarnpkg/lockfile': 1.1.0
+      chalk: 4.1.2
+      ci-info: 3.9.0
+      cross-spawn: 7.0.3
+      find-yarn-workspace-root: 2.0.0
+      fs-extra: 9.1.0
+      json-stable-stringify: 1.1.1
+      klaw-sync: 6.0.0
+      minimist: 1.2.8
+      open: 7.4.2
+      rimraf: 2.7.1
+      semver: 7.6.3
+      slash: 2.0.0
+      tmp: 0.0.33
+      yaml: 2.5.1
 
   path-browserify@0.0.1: {}
 
@@ -16665,6 +16753,8 @@ snapshots:
   simple-html-tokenizer@0.5.11: {}
 
   slash@1.0.0: {}
+
+  slash@2.0.0: {}
 
   slash@3.0.0: {}
 
@@ -17801,6 +17891,8 @@ snapshots:
       lodash.merge: 4.6.2
 
   yaml@1.10.2: {}
+
+  yaml@2.5.1: {}
 
   yargs-parser@20.2.9: {}
 

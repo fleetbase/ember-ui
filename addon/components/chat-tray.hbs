@@ -4,13 +4,13 @@
         @defaultClass={{@wrapperClass}}
         @onOpen={{this.unlockAudio}}
         @onClose={{@onClose}}
+        @calculatePosition={{this.calculatePosition}}
         @verticalPosition={{@verticalPosition}}
         @horizontalPosition={{@horizontalPosition}}
-        @renderInPlace={{true}}
-        @initiallyOpened={{@initiallyOpened}}
+        @renderInPlace={{or @renderInPlace (not (media "isMobile"))}}
         as |dd|
     >
-        <dd.Trigger class={{@triggerClass}}>
+        <dd.Trigger class="chat-tray-panel-trigger {{@triggerClass}} {{if (media 'isMobile') 'is-mobile'}}">
             <div class="next-org-button-trigger chat-tray-icon flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                 <FaIcon @icon="message" />
                 {{#if this.unreadCount}}
@@ -18,7 +18,7 @@
                 {{/if}}
             </div>
         </dd.Trigger>
-        <dd.Content class="chat-tray-panel-container">
+        <dd.Content class="chat-tray-panel-container {{@contentClass}} {{if (media 'isMobile') 'is-mobile'}}">
             <div class="chat-tray-panel">
                 <div class="p-4">
                     <Button @type="primary" @text="Start Chat" @icon="paper-plane" @onClick={{dropdown-fn dd this.startChat}} />

@@ -26,6 +26,10 @@ body[data-theme='dark'] .chat-tray-panel-container {
     margin-right: 1rem;
 }
 
+.chat-container.is-mobile {
+    bottom: 55px;
+}
+
 .chat-window-container {
     position: absolute;
     bottom: 0;

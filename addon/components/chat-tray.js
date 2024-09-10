@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { isNone } from '@ember/utils';
 import { task } from 'ember-concurrency';
+import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 import noop from '../utils/noop';
 
 export default class ChatTrayComponent extends Component {
@@ -13,6 +14,7 @@ export default class ChatTrayComponent extends Component {
     @service store;
     @service modalsManager;
     @service currentUser;
+    @service media;
     @tracked channels = [];
     @tracked unreadCount = 0;
     @tracked notificationSound = new Audio('/sounds/message-notification-sound.mp3');
@@ -27,6 +29,26 @@ export default class ChatTrayComponent extends Component {
                 this.listenUserChannel();
             },
         });
+    }
+
+    /**
+     * Calculate dropdown content position.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} content
+     * @return {Object}
+     * @memberof ChatTrayComponent
+     */
+    @action calculatePosition(trigger, content) {
+        if (this.media.isMobile) {
+            content.classList.add('is-mobile');
+            const triggerRect = trigger.getBoundingClientRect();
+            const top = triggerRect.height + triggerRect.top;
+
+            return { style: { left: '0px', right: '0px', top, width: '100%' } };
+        }
+
+        return calculatePosition(...arguments);
     }
 
     willDestroy() {

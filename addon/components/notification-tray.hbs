@@ -1,16 +1,16 @@
-<div class="next-user-button" ...attributes>
+<div class="next-user-button notification-tray" ...attributes>
     <BasicDropdown
         @registerAPI={{this.registerAPI}}
         @defaultClass={{@wrapperClass}}
         @onOpen={{@onOpen}}
         @onClose={{@onClose}}
+        @calculatePosition={{this.calculatePosition}}
         @verticalPosition={{@verticalPosition}}
         @horizontalPosition={{@horizontalPosition}}
-        @renderInPlace={{true}}
-        @initiallyOpened={{@initiallyOpened}}
+        @renderInPlace={{or @renderInPlace (not (media "isMobile"))}}
         as |dd|
     >
-        <dd.Trigger class={{@triggerClass}}>
+        <dd.Trigger class="{{@triggerClass}} local-selector-tray-trigger {{if (media 'isMobile') 'is-mobile'}}">
             <div class="next-org-button-trigger flex-shrink-0 {{if dd.isOpen 'is-open'}}">
                 <FaIcon @icon="inbox" />
                 {{#if this.notifications.length}}
@@ -18,7 +18,7 @@
                 {{/if}}
             </div>
         </dd.Trigger>
-        <dd.Content class="notification-tray-panel-container">
+        <dd.Content class="notification-tray-panel-container {{@contentClass}} {{if (media 'isMobile') 'is-mobile'}}">
             <div class="notification-tray-panel">
                 <div>
                     <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex flex-row space-x-4">

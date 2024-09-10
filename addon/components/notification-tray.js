@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { isArray } from '@ember/array';
 import { action } from '@ember/object';
+import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 
 function uniqBy(arr, key) {
     return arr.reduce((unique, item) => {
@@ -20,53 +21,13 @@ function uniqBy(arr, key) {
  * @extends Component
  */
 export default class NotificationTrayComponent extends Component {
-    /**
-     * Inject the `socket` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {SocketService}
-     */
     @service socket;
-
-    /**
-     * Inject the `store` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {StoreService}
-     */
     @service store;
-
-    /**
-     * Inject the `fetch` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {FetchService}
-     */
     @service fetch;
-
-    /**
-     * Inject the `currentUser` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {CurrentUserService}
-     */
     @service currentUser;
-
-    /**
-     * Inject the `universe` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {UniverseService}
-     */
     @service universe;
-
-    /**
-     * Inject the `notification` service.
-     *
-     * @memberof NotificationTrayComponent
-     * @type {NotificationService}
-     */
     @service notification;
+    @service media;
 
     /**
      * An array to store notifications.
@@ -111,6 +72,26 @@ export default class NotificationTrayComponent extends Component {
         this.universe.on('notifications.all_read', () => {
             this.fetchNotificationsFromStore();
         });
+    }
+
+    /**
+     * Calculate dropdown content position.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} content
+     * @return {Object}
+     * @memberof NotificationTrayComponent
+     */
+    @action calculatePosition(trigger, content) {
+        if (this.media.isMobile) {
+            content.classList.add('is-mobile');
+            const triggerRect = trigger.getBoundingClientRect();
+            const top = triggerRect.height + triggerRect.top;
+
+            return { style: { left: '0px', right: '0px', top, padding: '0 0.5rem', width: '100%' } };
+        }
+
+        return calculatePosition(...arguments);
     }
 
     /**

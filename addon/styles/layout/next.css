@@ -41,8 +41,12 @@ textarea[disabled='true'] {
     @apply flex flex-row w-full relative;
 }
 
+.next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items::-webkit-scrollbar {
+    height: 0;
+}
+
 .next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items {
-    @apply flex flex-row items-center w-full overflow-x-scroll flex-shrink-0;
+    @apply flex flex-row items-center overflow-x-scroll flex-shrink-0;
     width: calc(100% - 5rem);
 }
 
@@ -58,7 +62,7 @@ textarea[disabled='true'] {
 
 .next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items > .next-mobile-navbar-tab-item span,
 .next-mobile-navbar .next-mobile-navbar-tabs > .next-mobile-navbar-tab-item span {
-    @apply text-xs text-gray-800 mt-1.5 truncate block;
+    @apply text-xs text-gray-800 mt-1 truncate block;
 }
 
 .next-mobile-navbar .next-mobile-navbar-tabs > .scrollable-nav-items > .next-mobile-navbar-tab-item:last-child,
@@ -1104,6 +1108,11 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
     height: 57px;
 }
 
+.next-view-section-subheader.is-mobile {
+    display: flex;
+    flex-direction: column;
+}
+
 .next-view-section-subheader,
 .next-view-section-footer.next-view-section-footer-grid {
     display: grid;
@@ -1336,6 +1345,21 @@ body[data-theme='dark']
     @apply bg-blue-600;
 }
 
+.chat-tray-panel-container.is-mobile > .next-dd-menu,
+.notification-tray-panel-container.is-mobile > .next-dd-menu,
+.notification-tray-panel-container.is-mobile > .notification-tray-panel,
+.locale-selector-tray-content.is-mobile > .next-dd-menu,
+.next-header-menu-item-dd-content.is-mobile > .next-dd-menu {
+    width: 100%;
+}
+
+.chat-tray-panel-container.is-mobile {
+    width: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
 .next-user-button-trigger {
     @apply flex flex-row items-center justify-center px-3 py-1.5 rounded-md cursor-default;
     max-height: 31px;
@@ -1424,6 +1448,10 @@ body[data-theme='dark']
 
 .next-dd-menu .next-dd-item {
     @apply text-sm flex flex-row items-center px-3 py-0.5 rounded-md my-1;
+}
+
+.next-dd-menu .next-dd-item > .next-nav-item-icon-container {
+    width: 1rem;
 }
 
 .next-dd-menu .next-dd-title {
@@ -2134,4 +2162,18 @@ body[data-theme='dark'] .x-fleetbase-file > .x-fleetbase-file-wrapper {
 
 .x-fleetbase-file > .x-fleetbase-file-wrapper .x-fleetbase-file-actions #x-fleetbase-file-actions-dropdown .ember-basic-dropdown-trigger button.btn {
     padding: 0.15rem 0.65rem;
+}
+
+.app-version-in-nav {
+    display: flex;
+    align-items: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    padding-left: 1rem;
+    padding-top: 0.2rem;
+}
+
+body[data-theme='dark'] .app-version-in-nav {
+    color: #fff;
 }

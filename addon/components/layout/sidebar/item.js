@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import isMenuItemActive from '../../../utils/is-menu-item-active';
+import isEmptyObject from '../../../utils/is-empty-object';
 
 export default class LayoutSidebarItemComponent extends Component {
     @service router;
@@ -45,7 +46,8 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     @action checkIfActive() {
-        const { route, onClick, item, model } = this.args;
+        const { route, onClick, model } = this.args;
+        const item = this.args.item || this.args.menuItem;
         const router = this.getRouter();
         const currentRoute = router.currentRouteName;
         const currentURL = router.currentURL;
@@ -85,9 +87,21 @@ export default class LayoutSidebarItemComponent extends Component {
             return;
         }
 
-        const { url, target, route, model, onClick, options } = this.args;
+        const { url, target, route, model, onClick, options = {}, queryParams = {} } = this.args;
+        const hasTransitionOptions = !isEmptyObject(options);
+        const hasQueryParams = !isEmptyObject(queryParams);
+        const modelHasQueryParams = !isEmptyObject(model) && model.queryParams !== undefined;
         const router = this.getRouter();
         const anchor = event.target?.closest('a');
+
+        if (hasQueryParams) {
+            options.queryParams = queryParams;
+        }
+
+        if (modelHasQueryParams) {
+            options.queryParams = model.queryParams;
+            delete model.queryParams;
+        }
 
         if (anchor && anchor.attributes?.disabled && anchor.attributes.disabled !== 'disabled="false"') {
             return;
@@ -105,11 +119,11 @@ export default class LayoutSidebarItemComponent extends Component {
             return onClick();
         }
 
-        if (!isBlank(options) && route && model) {
+        if (hasTransitionOptions && route && model) {
             return router.transitionTo(route, model, options);
         }
 
-        if (!isBlank(options) && route) {
+        if (hasTransitionOptions && route && !model) {
             return router.transitionTo(route, options);
         }
 

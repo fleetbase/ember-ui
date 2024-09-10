@@ -3,21 +3,12 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { task } from 'ember-concurrency-decorators';
+import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 
 export default class LocaleSelectorTrayComponent extends Component {
-    /**
-     * Inject the intl service.
-     *
-     * @memberof LocaleSelectorComponent
-     */
     @service intl;
-
-    /**
-     * Inject the intl service.
-     *
-     * @memberof LocaleSelectorComponent
-     */
     @service fetch;
+    @service media;
 
     /**
      * Tracks all the available locales.
@@ -55,6 +46,26 @@ export default class LocaleSelectorTrayComponent extends Component {
         this.intl.onLocaleChanged(() => {
             this.currentLocale = this.intl.primaryLocale;
         });
+    }
+
+    /**
+     * Calculate dropdown content position.
+     *
+     * @param {HTMLElement} trigger
+     * @param {HTMLElement} content
+     * @return {Object}
+     * @memberof LocaleSelectorTrayComponent
+     */
+    @action calculatePosition(trigger, content) {
+        if (this.media.isMobile) {
+            content.classList.add('is-mobile');
+            const triggerRect = trigger.getBoundingClientRect();
+            const top = triggerRect.height + triggerRect.top;
+
+            return { style: { left: '0px', right: '0px', top, padding: '0 0.5rem', width: '100%' } };
+        }
+
+        return calculatePosition(...arguments);
     }
 
     /**
