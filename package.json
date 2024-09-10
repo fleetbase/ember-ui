@@ -1,6 +1,6 @@
 {
     "name": "@fleetbase/ember-ui",
-    "version": "0.2.25",
+    "version": "0.2.26",
     "description": "Fleetbase UI provides all the interface components, helpers, services and utilities for building a Fleetbase extension into the Console.",
     "keywords": [
         "fleetbase-ui",
@@ -26,7 +26,6 @@
         "lint:hbs:fix": "ember-template-lint . --fix",
         "lint:js": "eslint . --cache",
         "lint:js:fix": "eslint . --fix",
-        "postinstall": "patch-package",
         "start": "ember serve",
         "test": "concurrently \"npm:lint\" \"npm:test:*\" --names \"lint,test:\"",
         "test:ember": "ember test",
@@ -50,6 +49,7 @@
         "@fullcalendar/daygrid": "^6.1.9",
         "@fullcalendar/interaction": "^6.1.9",
         "@makepanic/ember-power-calendar-date-fns": "^0.4.2",
+        "@tailwindcss/forms": "^0.5.3",
         "@tiptap/core": "^2.5.7",
         "@tiptap/extension-color": "^2.5.8",
         "@tiptap/extension-font-family": "^2.5.8",
@@ -74,8 +74,6 @@
         "chart.js": "^4.2.1",
         "chartjs-adapter-date-fns": "^3.0.0",
         "date-fns": "^2.30.0",
-        "gridstack": "^7.3.0",
-        "ember-gridstack": "^4.0.0",
         "ember-animated": "^1.1.2",
         "ember-auto-import": "^2.7.4",
         "ember-basic-dropdown": "^7.3.0",
@@ -91,6 +89,7 @@
         "ember-file-upload": "8.4.0",
         "ember-focus-trap": "^1.0.1",
         "ember-get-config": "^2.1.1",
+        "ember-gridstack": "^4.0.0",
         "ember-inflector": "^4.0.2",
         "ember-loading": "^2.0.0",
         "ember-math-helpers": "^4.0.0",
@@ -104,6 +103,7 @@
         "ember-truth-helpers": "^4.0.3",
         "ember-window-mock": "^0.9.0",
         "ember-wormhole": "^0.6.0",
+        "gridstack": "^7.3.0",
         "imask": "^6.4.3",
         "intl-tel-input": "^22.0.2",
         "postcss-at-rules-variables": "^0.3.0",
@@ -112,8 +112,7 @@
         "postcss-import": "^15.1.0",
         "postcss-mixins": "^9.0.4",
         "postcss-preset-env": "^9.1.1",
-        "tailwindcss": "^3.1.8",
-        "@tailwindcss/forms": "^0.5.3"
+        "tailwindcss": "^3.1.8"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.22.15",
@@ -149,8 +148,8 @@
         "eslint-plugin-prettier": "^5.0.1",
         "eslint-plugin-qunit": "^8.0.1",
         "loader.js": "^4.7.0",
-        "prettier": "^3.0.3",
         "patch-package": "^8.0.0",
+        "prettier": "^3.0.3",
         "qunit": "^2.20.0",
         "qunit-dom": "^2.0.0",
         "stylelint": "^15.11.0",
@@ -184,5 +183,10 @@
                 }
             }
         ]
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "ember-gridstack@4.0.0": "patches/ember-gridstack@4.0.0.patch"
+        }
     }
 }
