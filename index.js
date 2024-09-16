@@ -57,37 +57,25 @@ module.exports = {
         app.options = app.options || {};
         app.options.postcssOptions = postcssOptions;
 
+        if (!app.__leafletIncluded) {
+            app.__leafletIncluded = true;
+            this.import('node_modules/leaflet/dist/leaflet-src.js');
+            this.import('node_modules/leaflet/dist/leaflet.css');
+        }
+
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
         this.import('node_modules/intl-tel-input/build/css/intlTelInput.min.css');
     },
 
     treeForLeaflet: function () {
-        const trees = [];
         const leafletImagesPath = path.join(this.pathBase('leaflet'), 'dist', 'images');
-        const alwaysExclude = ['LICENSE', 'package.json', 'example.html'];
-        const leafletAddons = [{ package: 'leaflet', include: ['leaflet-src.js'], exclude: [...alwaysExclude], path: ['dist'] }];
-
-        for (let i = 0; i < leafletAddons.length; i++) {
-            const leafletAdddon = leafletAddons[i];
-            const leafletAddonDist = path.join(this.pathBase(leafletAdddon.package), ...leafletAdddon.path);
-
-            trees.push(
-                new Funnel(leafletAddonDist, {
-                    destDir: 'leaflet',
-                    include: leafletAdddon.include,
-                    exclude: leafletAdddon.exclude,
-                    getDestinationPath: leafletAdddon.getDestinationPath,
-                })
-            );
-        }
-
-        trees.push(
+        const trees = [
             new Funnel(leafletImagesPath, {
                 srcDir: '/',
                 destDir: '/leaflet-images',
                 allowEmpty: true,
-            })
-        );
+            }),
+        ];
 
         return trees;
     },
