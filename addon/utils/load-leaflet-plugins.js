@@ -1,5 +1,6 @@
 import loadAssets from './load-assets';
 
-export default function loadLeafletPlugins(assets = { basePath: 'engines-dist/leaflet', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
-    loadAssets(assets);
+export default function loadLeafletPlugins (assets = { basePath: null, scripts: [], stylesheets: [], globalIndicatorKey: null }) {
+    const basePath = assets.basePath ?? 'engines-dist/leaflet';
+    loadAssets({ basePath, ...assets });
 }

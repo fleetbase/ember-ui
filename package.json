@@ -189,7 +189,8 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "ember-gridstack@4.0.0": "patches/ember-gridstack@4.0.0.patch"
+            "ember-gridstack@4.0.0": "patches/ember-gridstack@4.0.0.patch",
+            "ember-leaflet@5.1.3": "patches/ember-leaflet@5.1.3.patch"
         }
     }
 }

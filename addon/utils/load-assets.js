@@ -1,13 +1,13 @@
 import { later } from '@ember/runloop';
 
-export default function loadAssets(assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
+export default function loadAssets (assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
     // Set global indicator key if applicable
     if (assets.globalIndicatorKey && typeof assets.globalIndicatorKey === 'string') {
         window[assets.globalIndicatorKey] = false;
     }
 
     // Prepare base path
-    const path = `/${assets.basePath}/`;
+    const path = `/${assets.basePath ? assets.basePath + '/' : ''}`;
 
     // Define exports on window
     const exportsScript = document.createElement('script');
