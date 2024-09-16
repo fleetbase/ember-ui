@@ -2,6 +2,7 @@
 const { name } = require('./package');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
+const resolve = require('resolve');
 const path = require('path');
 const postcssImport = require('postcss-import');
 const postcssPresetEnv = require('postcss-preset-env');
@@ -60,12 +61,40 @@ module.exports = {
         this.import('node_modules/intl-tel-input/build/css/intlTelInput.min.css');
     },
 
-    treeForPublic: function () {
-        const publicTree = this._super.treeForPublic.apply(this, arguments);
+    treeForLeaflet: function () {
+        const trees = [];
+        const leafletImagesPath = path.join(this.pathBase('leaflet'), 'dist', 'images');
+        const alwaysExclude = ['LICENSE', 'package.json', 'example.html'];
+        const leafletAddons = [{ package: 'leaflet', include: ['leaflet-src.js'], exclude: [...alwaysExclude], path: ['dist'] }];
 
-        // Use a Funnel to copy the `utils.js` file to `assets/libphonenumber`
+        for (let i = 0; i < leafletAddons.length; i++) {
+            const leafletAdddon = leafletAddons[i];
+            const leafletAddonDist = path.join(this.pathBase(leafletAdddon.package), ...leafletAdddon.path);
+
+            trees.push(
+                new Funnel(leafletAddonDist, {
+                    destDir: 'leaflet',
+                    include: leafletAdddon.include,
+                    exclude: leafletAdddon.exclude,
+                    getDestinationPath: leafletAdddon.getDestinationPath,
+                })
+            );
+        }
+
+        trees.push(
+            new Funnel(leafletImagesPath, {
+                srcDir: '/',
+                destDir: '/leaflet-images',
+                allowEmpty: true,
+            })
+        );
+
+        return trees;
+    },
+
+    treeForIntlTelInput: function () {
         const intlTelInputPath = path.dirname(require.resolve('intl-tel-input')).replace(/build\/js$/, '');
-        const addonTree = [
+        const trees = [
             new Funnel(`${intlTelInputPath}/build/js`, {
                 include: ['utils.js'],
                 destDir: 'assets/libphonenumber',
@@ -82,8 +111,25 @@ module.exports = {
             }),
         ];
 
-        // Merge the addon tree with the existing tree
+        return trees;
+    },
+
+    mergeWithPublicTree: function (publicTree) {
+        const intlTelInputTree = this.treeForIntlTelInput();
+        const leafletTree = this.treeForLeaflet();
+        const addonTree = [...intlTelInputTree, ...leafletTree];
+
         return publicTree ? new MergeTrees([publicTree, ...addonTree], { overwrite: true }) : new MergeTrees([...addonTree], { overwrite: true });
+    },
+
+    treeForPublic: function () {
+        const publicTree = this._super.treeForPublic.apply(this, arguments);
+
+        return this.mergeWithPublicTree(publicTree);
+    },
+
+    pathBase(packageName) {
+        return path.dirname(resolve.sync(packageName + '/package.json', { basedir: __dirname }));
     },
 
     isDevelopingAddon: function () {

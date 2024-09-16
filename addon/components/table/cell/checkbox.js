@@ -27,6 +27,17 @@ export default class TableCellCheckboxComponent extends Component {
     @tracked checked = false;
 
     /**
+     * Creates an instance of TableCellCheckboxComponent.
+     * @param {ApplicationInstance} owner
+     * @param {...Arguments} { value = false }
+     * @memberof TableCellCheckboxComponent
+     */
+    constructor(owner, { value = false }) {
+        super(...arguments);
+        this.checked = value;
+    }
+
+    /**
      * Toggles the checkbox and sends up an action
      *
      * @void
@@ -51,5 +62,16 @@ export default class TableCellCheckboxComponent extends Component {
         if (typeof onToggle === 'function') {
             onToggle(checked, row);
         }
+    }
+
+    /**
+     * Track when the value argument changes
+     *
+     * @param {HTMLElement} el
+     * @param {Array} [value = false]
+     * @memberof TableCellCheckboxComponent
+     */
+    @action trackValue(el, [value = false]) {
+        this.checked = value;
     }
 }
