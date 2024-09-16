@@ -1,4 +1,4 @@
-import loadAssets from 'dummy/utils/load-assets';
+// import loadAssets from 'dummy/utils/load-assets';
 import { module, test } from 'qunit';
 
 module('Unit | Utility | load-assets', function () {

@@ -1,6 +1,6 @@
 import { later } from '@ember/runloop';
 
-export default function loadAssets (assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
+export default function loadAssets(assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
     // Set global indicator key if applicable
     if (assets.globalIndicatorKey && typeof assets.globalIndicatorKey === 'string') {
         window[assets.globalIndicatorKey] = false;
