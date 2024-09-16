@@ -30,6 +30,7 @@ module.exports = {
             'error',
             {
                 allowModules: [
+                    'resolve',
                     'postcss-import',
                     'postcss-preset-env',
                     'postcss-each',

@@ -94,4 +94,15 @@ export default class CheckboxComponent extends Component {
             onChange(checked, event);
         }
     }
+
+    /**
+     * Track when the value argument changes
+     *
+     * @param {HTMLElement} el
+     * @param {Array} [value = false]
+     * @memberof CheckboxComponent
+     */
+    @action trackValue(el, [value = false]) {
+        this.checked = value;
+    }
 }

@@ -1,6 +1,6 @@
 <div class="ui-input-info bg-opacity-{{or @opacity 100}}" ...attributes>
     <FaIcon @icon={{or @icon "info-circle"}} class={{@iconClass}} />
-    <span class="text-left {{@spanClass}}">
+    <div class="text-left {{@spanClass}} {{@yieldClass}}">
         {{#if (has-block)}}
             {{yield}}
         {{else}}
@@ -9,5 +9,5 @@
                 <pre class="break-text subpixel-antialiased">{{@exampleText}}</pre>
             {{/if}}
         {{/if}}
-    </span>
+    </div>
 </div>

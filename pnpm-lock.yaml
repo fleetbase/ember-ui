@@ -8,6 +8,9 @@ patchedDependencies:
   ember-gridstack@4.0.0:
     hash: fwahdwiexnnbxgjkolq2q4epju
     path: patches/ember-gridstack@4.0.0.patch
+  ember-leaflet@5.1.3:
+    hash: dno6ajw7riooqcbiwdjuvkwfhu
+    path: patches/ember-leaflet@5.1.3.patch
 
 importers:
 
@@ -184,6 +187,9 @@ importers:
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.3(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))
+      ember-leaflet:
+        specifier: ^5.1.3
+        version: 5.1.3(patch_hash=dno6ajw7riooqcbiwdjuvkwfhu)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))(leaflet@1.9.4)(webpack@5.94.0)
       ember-loading:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.25.2)
@@ -229,6 +235,9 @@ importers:
       intl-tel-input:
         specifier: ^22.0.2
         version: 22.0.2
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       postcss-at-rules-variables:
         specifier: ^0.3.0
         version: 0.3.0(postcss@8.4.45)
@@ -362,6 +371,9 @@ importers:
       qunit-dom:
         specifier: ^2.0.0
         version: 2.0.0
+      resolve:
+        specifier: ^1.22.8
+        version: 1.22.8
       stylelint:
         specifier: ^15.11.0
         version: 15.11.0
@@ -3734,6 +3746,12 @@ packages:
     resolution: {integrity: sha512-BtkjulweiXo9c3yVWrtexw2dTmBrvavD/xixNC6TKOBdrixUwU+6nuOO9dufDWsMxoid7MvtmDpzc9+mE8PdaA==}
     engines: {node: 10.* || >= 12.*}
 
+  ember-composability-tools@1.3.0:
+    resolution: {integrity: sha512-KRIybkRlPWrymQFfW2UiDrbI6GDpXiqJLK+fxKZyaqf2Pb/vJmHShm55Bch90U2tcbG20UB4Tf+w+IpZA8Gi3w==}
+    engines: {node: 16.* || >= 18}
+    peerDependencies:
+      ember-source: ^3.8 || ^4.0.0 || >= 5.0.0
+
   ember-composable-helpers@5.0.0:
     resolution: {integrity: sha512-gyUrjiSju4QwNrsCLbBpP0FL6VDFZaELNW7Kbcp60xXhjvNjncYgzm4zzYXhT+i1lLA6WEgRZ3lOGgyBORYD0w==}
     engines: {node: 12.* || 14.* || >= 16}
@@ -3829,11 +3847,22 @@ packages:
     peerDependencies:
       ember-source: ^4.0.0
 
+  ember-in-element-polyfill@1.0.1:
+    resolution: {integrity: sha512-eHs+7D7PuQr8a1DPqsJTsEyo3FZ1XuH6WEZaEBPDa9s0xLlwByCNKl8hi1EbXOgvgEZNHHi9Rh0vjxyfakrlgg==}
+    engines: {node: 10.* || >= 12}
+
   ember-inflector@4.0.3:
     resolution: {integrity: sha512-E+NnmzybMRWn1JyEfDxY7arjOTJLIcGjcXnUxizgjD4TlvO1s3O65blZt+Xq2C2AFSPeqHLC6PXd6XHYM8BxdQ==}
     engines: {node: 14.* || 16.* || >= 18}
     peerDependencies:
       ember-source: ^3.16.0 || ^4.0.0 || ^5.0.0
+
+  ember-leaflet@5.1.3:
+    resolution: {integrity: sha512-7rzZePUCjapMzkE1SXsgSDQ28nG1w/WIMt80wf72UG4LIMHOGHibenk3naFllu1Np9wApCHxLB6x4ig8clt2Aw==}
+    engines: {node: 14.* || 16.* || >= 18}
+    peerDependencies:
+      ember-source: ^4.0.0 || ^5.0.0
+      leaflet: '>=0.7'
 
   ember-load-initializers@2.1.2:
     resolution: {integrity: sha512-CYR+U/wRxLbrfYN3dh+0Tb6mFaxJKfdyz+wNql6cqTrA0BBi9k6J3AaKXj273TqvEpyyXegQFFkZEiuZdYtgJw==}
@@ -3897,6 +3926,10 @@ packages:
   ember-ref-bucket@4.1.0:
     resolution: {integrity: sha512-oEUU2mDtuYuMM039U9YEqrrOCVHH6rQfvbFOmh3WxOVEgubmLVyKEpGgU4P/6j0B/JxTqqTwM3ULTQyDto8dKg==}
     engines: {node: 10.* || >= 12}
+
+  ember-render-helpers@0.2.0:
+    resolution: {integrity: sha512-MnqGS8BnY3GJ+n5RZVVRqCwKjfXXMr5quKyqNu1vxft8oslOJuZ1f1dOesQouD+6LwD4Y9tWRVKNw+LOqM9ocw==}
+    engines: {node: 8.* || >= 10.*}
 
   ember-resolver@11.0.1:
     resolution: {integrity: sha512-ucBk3oM+PR+AfYoSUXeQh8cDQS1sSiEKp4Pcgbew5cFMSqPxJfqd1zyZsfQKNTuyubeGmWxBOyMVSTvX2LeCyg==}
@@ -5337,6 +5370,9 @@ packages:
     resolution: {integrity: sha512-M6T051+5QCGLBQb8id3hdvIW8+zeFV2FyBGFS9IEK5H9Wt4MueD4bW1eWikpHgZp+5xR3l5c8pZUkQsIA0BFZg==}
     engines: {node: '>=8'}
 
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
+
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -6739,6 +6775,9 @@ packages:
   remote-git-tags@3.0.0:
     resolution: {integrity: sha512-C9hAO4eoEsX+OXA4rla66pXZQ+TLQ8T9dttgQj18yuKlPMTVkIkdYXvlMC55IuUsIkV6DpmQYi10JKFLaU+l7w==}
     engines: {node: '>=8'}
+
+  remote-promises@1.0.0:
+    resolution: {integrity: sha512-+9LztCwsGzC8VXvm9UuA3qGhLIf4HvMbbev0+A+azLLUYHm3BK4C1BWxiZa45FPQ7JdfpHi4kVT7zT5F2E0iuQ==}
 
   remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
@@ -12615,6 +12654,23 @@ snapshots:
       - '@babel/core'
       - supports-color
 
+  ember-composability-tools@1.3.0(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))(webpack@5.94.0):
+    dependencies:
+      '@babel/core': 7.25.2
+      '@ember/render-modifiers': 2.1.0(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))
+      '@glimmer/component': 1.1.2(@babel/core@7.25.2)
+      ember-auto-import: 2.7.4(webpack@5.94.0)
+      ember-cli-babel: 8.2.0(@babel/core@7.25.2)
+      ember-cli-htmlbars: 6.3.0
+      ember-element-helper: 0.8.6(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))
+      ember-source: 5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0)
+      remote-promises: 1.0.0
+    transitivePeerDependencies:
+      - '@glint/environment-ember-loose'
+      - '@glint/template'
+      - supports-color
+      - webpack
+
   ember-composable-helpers@5.0.0:
     dependencies:
       '@babel/core': 7.25.2
@@ -12782,12 +12838,43 @@ snapshots:
       - supports-color
       - webpack
 
+  ember-in-element-polyfill@1.0.1:
+    dependencies:
+      debug: 4.3.7
+      ember-cli-babel: 7.26.11
+      ember-cli-htmlbars: 5.7.2
+      ember-cli-version-checker: 5.1.2
+    transitivePeerDependencies:
+      - supports-color
+
   ember-inflector@4.0.3(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0)):
     dependencies:
       ember-cli-babel: 7.26.11
       ember-source: 5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0)
     transitivePeerDependencies:
       - supports-color
+
+  ember-leaflet@5.1.3(patch_hash=dno6ajw7riooqcbiwdjuvkwfhu)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))(leaflet@1.9.4)(webpack@5.94.0):
+    dependencies:
+      '@glimmer/component': 1.1.2(@babel/core@7.25.2)
+      '@glimmer/tracking': 1.1.2
+      broccoli-funnel: 3.0.8
+      broccoli-merge-trees: 4.2.0
+      ember-cli-babel: 7.26.11
+      ember-cli-htmlbars: 6.3.0
+      ember-composability-tools: 1.3.0(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0))(webpack@5.94.0)
+      ember-in-element-polyfill: 1.0.1
+      ember-render-helpers: 0.2.0
+      ember-source: 5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0)
+      fastboot-transform: 0.1.3
+      leaflet: 1.9.4
+      resolve: 1.22.8
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/environment-ember-loose'
+      - '@glint/template'
+      - supports-color
+      - webpack
 
   ember-load-initializers@2.1.2(@babel/core@7.25.2):
     dependencies:
@@ -12931,6 +13018,13 @@ snapshots:
       ember-modifier: 3.2.7(@babel/core@7.25.2)
     transitivePeerDependencies:
       - '@babel/core'
+      - supports-color
+
+  ember-render-helpers@0.2.0:
+    dependencies:
+      ember-cli-babel: 7.26.11
+      ember-cli-typescript: 4.2.1
+    transitivePeerDependencies:
       - supports-color
 
   ember-resolver@11.0.1(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.94.0)):
@@ -14806,6 +14900,8 @@ snapshots:
     dependencies:
       invert-kv: 3.0.1
 
+  leaflet@1.9.4: {}
+
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -16362,6 +16458,8 @@ snapshots:
       jsesc: 0.5.0
 
   remote-git-tags@3.0.0: {}
+
+  remote-promises@1.0.0: {}
 
   remove-trailing-separator@1.1.0: {}
 
