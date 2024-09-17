@@ -53,10 +53,18 @@ module.exports = {
     included: function (app) {
         this._super.included.apply(this, arguments);
 
+        // Get host application
+        if (typeof this._findHost === 'function') {
+            app = this._findHost();
+        } else {
+            app = this._findHostFallback();
+        }
+
         // PostCSS
         app.options = app.options || {};
         app.options.postcssOptions = postcssOptions;
 
+        // Import leaflet-src
         if (!app.__leafletIncluded) {
             app.__leafletIncluded = true;
             this.import('node_modules/leaflet/dist/leaflet-src.js');
@@ -72,7 +80,7 @@ module.exports = {
         const trees = [
             new Funnel(leafletImagesPath, {
                 srcDir: '/',
-                destDir: '/leaflet-images',
+                destDir: '/assets/images',
                 allowEmpty: true,
             }),
         ];
@@ -118,6 +126,20 @@ module.exports = {
 
     pathBase(packageName) {
         return path.dirname(resolve.sync(packageName + '/package.json', { basedir: __dirname }));
+    },
+
+    _findHostFallback() {
+        let current = this;
+        let app = current;
+        do {
+            if (current.lazyLoading === true || (current.lazyLoading && current.lazyLoading.enabled === true)) {
+                app = current;
+                break;
+            }
+            app = current.app || app;
+        } while (current.parent.parent && (current = current.parent));
+
+        return app;
     },
 
     isDevelopingAddon: function () {
