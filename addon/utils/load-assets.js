@@ -1,6 +1,6 @@
 import { later } from '@ember/runloop';
 
-export default function loadAssets(assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }) {
+export default function loadAssets(assets = { basePath: '', scripts: [], stylesheets: [], globalIndicatorKey: null }, callback = null) {
     // Set global indicator key if applicable
     if (assets.globalIndicatorKey && typeof assets.globalIndicatorKey === 'string') {
         window[assets.globalIndicatorKey] = false;
@@ -35,6 +35,10 @@ export default function loadAssets(assets = { basePath: '', scripts: [], stylesh
         () => {
             if (assets.globalIndicatorKey && typeof assets.globalIndicatorKey === 'string') {
                 window[assets.globalIndicatorKey] = true;
+            }
+
+            if (typeof callback === 'function') {
+                callback();
             }
         },
         300
