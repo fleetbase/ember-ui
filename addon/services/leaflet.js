@@ -8,20 +8,22 @@ export default class LeafletService extends Service {
     @tracked instance;
     @tracked initializationId;
 
-    load() {
+    load(options = {}) {
         let intervals = 0;
         this.initializationId = setInterval(() => {
             const Leaflet = window.L || window.leaflet;
+            if (this.initialized) {
+                this.setInstance(this.instance);
+            }
             // Check if Leaflet global object `L` is present
             if (Leaflet && typeof Leaflet === 'object') {
                 if (!this.initialized) {
                     // First initialization
                     debug('Leaflet has been initialized.');
                     if (this.instance === undefined) {
-                        this.instance = Leaflet;
-                        window.L = Leaflet;
+                        this.setInstance(Leaflet);
+                        this.initialized = true;
                     }
-                    this.initialized = true;
                 } else if (Leaflet !== this.instance && !this.instances.includes(Leaflet)) {
                     // Subsequent re-initializations
                     debug('Leaflet has been re-initialized!');
@@ -30,10 +32,17 @@ export default class LeafletService extends Service {
             }
 
             intervals++;
-            if (intervals === 5) {
+            if (intervals === 20) {
+                if (typeof options.onReady === 'function') {
+                    options.onReady(this.instance);
+                }
                 clearTimeout(this.initializationId);
             }
         }, 100);
+    }
+
+    setInstance(instance) {
+        this.instance = window.L = window.leaflet = instance;
     }
 
     getInstance() {

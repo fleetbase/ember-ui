@@ -1,5 +1,6 @@
 import { helper } from '@ember/component/helper';
+import { isEmpty } from '@ember/utils';
 
-export default helper(function isNotEmpty(positional /*, named*/) {
-    return positional;
+export default helper(function isNotEmpty([subject]) {
+    return !isEmpty(subject);
 });

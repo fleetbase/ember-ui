@@ -1,6 +1,5 @@
 import { helper } from '@ember/component/helper';
-import { isArray } from '@ember/array';
 
-export default helper(function isObject([object]) {
-    return object !== null && typeof object === 'object' && !isArray(object);
+export default helper(function isObject([obj]) {
+    return obj && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
 });
