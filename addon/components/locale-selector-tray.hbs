@@ -16,23 +16,27 @@
         </dd.Trigger>
         <dd.Content class="{{@contentClass}} locale-selector-tray-content {{if (media 'isMobile') 'is-mobile'}}">
             <div class="next-dd-menu {{@dropdownMenuClass}} {{if dd.isOpen 'is-open'}}">
-                {{#each-in this.availableLocales as |key country|}}
-                    <div class="px-1">
-                        <a href="javascript:;" class="next-dd-item" {{on "click" (fn this.changeLocale key)}}>
-                            <div class="flex flex-row items-center justify-between w-full">
-                                <div class="flex-1">
-                                    <span class="mr-1">{{country.emoji}}</span>
-                                    <span>{{country.language}}</span>
-                                </div>
-                                {{#if (eq this.currentLocale key)}}
-                                    <div>
-                                        <FaIcon @icon="check" class="text-green-400" />
+                {{#if this.loadAvailableCountries.isRunning}}
+                    <Spinner />
+                {{else}}
+                    {{#each-in this.availableLocales as |key country|}}
+                        <div class="px-1">
+                            <a href="javascript:;" class="next-dd-item" {{on "click" (fn this.changeLocale key)}}>
+                                <div class="flex flex-row items-center justify-between w-full">
+                                    <div class="flex-1">
+                                        <span class="mr-1">{{country.emoji}}</span>
+                                        <span>{{country.language}}</span>
                                     </div>
-                                {{/if}}
-                            </div>
-                        </a>
-                    </div>
-                {{/each-in}}
+                                    {{#if (eq this.currentLocale key)}}
+                                        <div>
+                                            <FaIcon @icon="check" class="text-green-400" />
+                                        </div>
+                                    {{/if}}
+                                </div>
+                            </a>
+                        </div>
+                    {{/each-in}}
+                {{/if}}
             </div>
         </dd.Content>
     </BasicDropdown>

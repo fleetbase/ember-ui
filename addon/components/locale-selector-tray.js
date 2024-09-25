@@ -94,7 +94,11 @@ export default class LocaleSelectorTrayComponent extends Component {
      * @generator
      */
     @task *loadAvailableCountries() {
-        this.countries = yield this.fetch.get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji', 'languages'] });
+        this.countries = yield this.fetch.get(
+            'lookup/countries',
+            { columns: ['name', 'cca2', 'flag', 'emoji', 'languages'] },
+            { fromCache: true, expirationInterval: 1, expirationIntervalUnit: 'week' }
+        );
         this.availableLocales = this._createAvailableLocaleMap();
     }
 
