@@ -110,7 +110,7 @@ a.navbar-logo {
 }
 
 a.navbar-logo:hover {
-    opacity: .9;
+    opacity: 0.9;
 }
 
 a.navbar-logo > img {
@@ -558,49 +558,94 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
     @apply border-gray-900;
 }
 
+.ui-input-info-block.info,
+.ui-input-info-block.base,
 .ui-input-info-block {
-    @apply bg-blue-50 border border-blue-300 text-blue-700 p-4;
+    @apply bg-blue-800 border border-blue-600 text-blue-100 rounded-md text-sm p-2;
+}
+
+.ui-input-info-block .ui-input-info-block-inner,
+.ui-input-info-block.base .ui-input-info-block-inner {
+    line-height: 1.25rem;
+}
+
+.ui-input-info-block.lg {
+    @apply px-4 py-3 text-lg;
+}
+
+.ui-input-info-block.lg .ui-input-info-block-inner {
+    @apply text-lg;
 }
 
 .ui-input-info-block.md {
-    @apply px-4 py-3;
+    @apply px-3 py-2.5 text-base;
+}
+
+.ui-input-info-block.md .ui-input-info-block-inner {
+    @apply text-base;
 }
 
 .ui-input-info-block.sm {
-    @apply px-3 py-2;
+    @apply text-sm px-3 py-2;
 }
 
-.ui-input-info-block.sm,
-.ui-input-info-block.sm span {
+.ui-input-info-block.sm .ui-input-info-block-inner {
     @apply text-sm;
 }
 
 .ui-input-info-block.xs {
-    @apply px-2 py-1;
+    @apply px-2 py-1.5;
 }
 
-.ui-input-info-block.xs,
-.ui-input-info-block.xs span {
-    @apply text-xs;
+.ui-input-info-block.xs .ui-input-info-block-inner {
+    font-size: 0.75rem;
+    line-height: 1.25rem;
 }
 
-.ui-input-info-block .ui-input-info-block-text,
-.ui-input-info-block p {
-    @apply text-blue-900;
-}
-
-.ui-input-info-block .ui-input-info-block-text.warning span,
-.ui-input-info-block .ui-input-info-block-text.warning p {
-    @apply text-yellow-900;
-}
-
-.ui-input-info-block .ui-input-info-block-text.success span,
-.ui-input-info-block .ui-input-info-block-text.success p {
-    @apply text-green-900;
+.ui-input-info-block.success {
+    @apply bg-green-800 border-green-600 text-green-100;
 }
 
 .ui-input-info-block.warning {
-    @apply bg-yellow-200 border-yellow-300 text-yellow-900;
+    @apply bg-yellow-800 border-yellow-600 text-yellow-100;
+}
+
+.ui-input-info-block.danger {
+    @apply bg-red-800 border-red-600 text-red-100;
+}
+
+.ui-input-info-block.magic {
+    @apply bg-indigo-800 border-indigo-600 text-indigo-100;
+}
+
+.ui-input-info-block .ui-input-info-block-text,
+.ui-input-info-block .ui-input-info-block-text span,
+.ui-input-info-block p {
+    @apply text-blue-100;
+}
+
+.ui-input-info-block .ui-input-info-block-text.warning,
+.ui-input-info-block .ui-input-info-block-text.warning span,
+.ui-input-info-block .ui-input-info-block-text.warning p {
+    @apply text-yellow-100;
+}
+
+.ui-input-info-block .ui-input-info-block-text.success span,
+.ui-input-info-block .ui-input-info-block-text.success span,
+.ui-input-info-block .ui-input-info-block-text.success p {
+    @apply text-green-100;
+}
+
+.ui-input-info-block .ui-input-info-block-text.danger span,
+.ui-input-info-block .ui-input-info-block-text.danger span,
+.ui-input-info-block .ui-input-info-block-text.danger p {
+    @apply text-red-100;
+}
+
+.ui-input-info-block .ui-input-info-block-text.magic span,
+.ui-input-info-block .ui-input-info-block-text.magic span,
+.ui-input-info-block .ui-input-info-block-text.magic p {
+    @apply text-indigo-100;
 }
 
 .ui-input-info-block.warning .ui-input-info-block-text,
@@ -611,11 +656,7 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
 .ui-input-info-block.warning span:last-child,
 .ui-input-info-block.warning span:first-child,
 .ui-input-info-block.warning p {
-    @apply text-yellow-900;
-}
-
-.ui-input-info-block.danger {
-    @apply bg-red-200 border-red-300 text-red-900;
+    @apply text-yellow-100;
 }
 
 .ui-input-info-block.danger .ui-input-info-block-text,
@@ -626,11 +667,7 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
 .ui-input-info-block.danger span:last-child,
 .ui-input-info-block.danger span:first-child,
 .ui-input-info-block.danger p {
-    @apply text-red-900;
-}
-
-.ui-input-info-block.success {
-    @apply bg-green-200 border-green-300 text-green-900;
+    @apply text-red-100;
 }
 
 .ui-input-info-block.success .ui-input-info-block-text,
@@ -640,7 +677,17 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
 .ui-input-info-block.success span:last-child,
 .ui-input-info-block.success span:first-child,
 .ui-input-info-block.success p {
-    @apply text-green-900;
+    @apply text-green-100;
+}
+
+.ui-input-info-block.magic .ui-input-info-block-text,
+.ui-input-info-block.magic .ui-input-info-block-text > span,
+.ui-input-info-block.magic .ui-input-info-block-text > p,
+.ui-input-info-block.magic span,
+.ui-input-info-block.magic span:last-child,
+.ui-input-info-block.magic span:first-child,
+.ui-input-info-block.magic p {
+    @apply text-indigo-100;
 }
 
 .activity-flow-connector {

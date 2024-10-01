@@ -1,5 +1,5 @@
 {{#if this.visible}}
-    <div class="flex items-center {{@wrapperClass}}" {{did-update this.onChange @isToggled}}>
+    <div class="flex items-center {{@wrapperClass}}" {{did-update this.onChange @isToggled @disabled}}>
         <span
             role="checkbox"
             tabindex="0"

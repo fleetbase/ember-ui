@@ -63,9 +63,9 @@ export default class CheckboxComponent extends Component {
      * @param {*} { permission = null }
      * @memberof ButtonComponent
      */
-    constructor(owner, { value = false, permission = null, disabled = false, visible = true }) {
+    constructor(owner, { value = false, checked = null, permission = null, disabled = false, visible = true }) {
         super(...arguments);
-        this.checked = value;
+        this.checked = checked === null ? value : checked;
         this.permissionRequired = permission;
         this.visible = visible;
         this.disabled = disabled;
