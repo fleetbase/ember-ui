@@ -569,6 +569,28 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
     line-height: 1.25rem;
 }
 
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn {
+    outline: none;
+    transition: all ease-in-out 125ms;
+    @apply border border-blue-900 bg-blue-600 text-blue-100;
+}
+
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn:hover,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn:hover,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary:hover,
+body[data-theme='dark'] .ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default:hover,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary:hover,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default:hover,
+.ui-input-info-block > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn:hover {
+    opacity: 0.7;
+}
+
 .ui-input-info-block.lg {
     @apply px-4 py-3 text-lg;
 }
@@ -606,16 +628,64 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item input[type='rad
     @apply bg-green-800 border-green-600 text-green-100;
 }
 
+body[data-theme='dark'] .ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn,
+body[data-theme='dark'] .ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn,
+body[data-theme='dark'] .ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+body[data-theme='dark'] .ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+.ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.success > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn {
+    outline: none;
+    transition: all ease-in-out 125ms;
+    @apply border border-green-900 bg-green-600 text-green-100;
+}
+
 .ui-input-info-block.warning {
     @apply bg-yellow-800 border-yellow-600 text-yellow-100;
+}
+
+body[data-theme='dark'] .ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn,
+body[data-theme='dark'] .ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn,
+body[data-theme='dark'] .ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+body[data-theme='dark'] .ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+.ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.warning > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn {
+    outline: none;
+    transition: all ease-in-out 125ms;
+    @apply border border-yellow-900 bg-yellow-600 text-yellow-100;
 }
 
 .ui-input-info-block.danger {
     @apply bg-red-800 border-red-600 text-red-100;
 }
 
+body[data-theme='dark'] .ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn,
+body[data-theme='dark'] .ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn,
+body[data-theme='dark'] .ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+body[data-theme='dark'] .ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+.ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.danger > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn {
+    outline: none;
+    transition: all ease-in-out 125ms;
+    @apply border border-red-900 bg-red-600 text-red-100;
+}
+
 .ui-input-info-block.magic {
     @apply bg-indigo-800 border-indigo-600 text-indigo-100;
+}
+
+body[data-theme='dark'] .ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > .btn,
+body[data-theme='dark'] .ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn,
+body[data-theme='dark'] .ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+body[data-theme='dark'] .ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-primary,
+.ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn.btn-default,
+.ui-input-info-block.magic > .ui-input-info-block-inner > .ui-input-info-block-yield-container .btn-wrapper > button.btn {
+    outline: none;
+    transition: all ease-in-out 125ms;
+    @apply border border-indigo-900 bg-indigo-600 text-indigo-100;
 }
 
 .ui-input-info-block .ui-input-info-block-text,
