@@ -60,7 +60,11 @@ export default class LayoutHeaderComponent extends Component {
         // Prepare menuItems
         const menuItems = [
             {
-                text: [this.currentUser.email, this.currentUser.companyName],
+                text: [
+                    this.currentUser.companyName,
+                    this.currentUser.email,
+                    { component: 'badge', disableHumanize: true, text: this.currentUser.roleName, status: 'info', hideStatusDot: false, wrapperClass: 'mt-1' },
+                ],
                 class: 'flex flex-row items-center px-3 rounded-md text-gray-800 text-sm dark:text-gray-300 leading-1',
                 wrapperClass: 'next-dd-session-user-wrapper',
             },
@@ -193,6 +197,14 @@ export default class LayoutHeaderComponent extends Component {
     mergeUserMenuItems(userMenuItems = []) {
         // Prepare menu items
         const menuItems = [
+            {
+                text: [this.currentUser.name, { component: 'badge', disableHumanize: true, text: this.currentUser.roleName, status: 'info', hideStatusDot: false, wrapperClass: 'mt-1' }],
+                class: 'flex flex-row items-center px-3 rounded-md text-gray-800 text-sm dark:text-gray-300 leading-1',
+                wrapperClass: 'next-dd-session-user-wrapper',
+            },
+            {
+                seperator: true,
+            },
             {
                 id: 'view-profile-user-nav-item',
                 wrapperClass: 'view-profile-user-nav-item',

@@ -56,6 +56,16 @@ export default class OverlayComponent extends Component {
     @action toggle() {
         this.isOpen = !this.isOpen;
 
+        if (this.isOpen) {
+            if (typeof this.args.onOpen === 'function') {
+                this.args.onOpen(this.context);
+            }
+        } else {
+            if (typeof this.args.onClose === 'function') {
+                this.args.onClose(this.context);
+            }
+        }
+
         if (typeof this.args.onToggle === 'function') {
             this.args.onToggle(this.context);
         }

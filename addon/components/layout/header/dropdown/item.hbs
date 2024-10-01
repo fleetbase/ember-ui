@@ -4,12 +4,49 @@
             <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
         {{/if}}
         <div class="inline-flex flex-col {{@item.inlineClass}}">
-            {{#if (is-array @item.text)}}
-                {{#each @item.text as |line|}}
-                    <div class="{{@item.class}}">{{line}}</div>
-                {{/each}}
+            {{#if @item.intl}}
+                {{#if (is-array @item.intl)}}
+                    {{#each @item.intl as |intl|}}
+                        <div class="{{@item.class}}">{{t intl}}</div>
+                    {{/each}}
+                {{else}}
+                    <div class="{{@item.class}}">{{t @item.intl}}</div>
+                {{/if}}
             {{else}}
-                <div class="{{@item.class}}">{{@item.text}}</div>
+                {{#if (is-array @item.text)}}
+                    {{#each @item.text as |line|}}
+                        {{#if (is-object line)}}
+                            <div class="{{@item.class}}">
+                                {{#if line.component}}
+                                    {{component
+                                        line.component
+                                        item=line
+                                        text=line.text
+                                        label=(or line.label line.text)
+                                        status=(or line.status line.text)
+                                        type=line.type
+                                        onClick=line.onClick
+                                        hideStatusDot=line.hideStatusDot
+                                        disableHumanize=line.disableHumanize
+                                        class=line.class
+                                        wrapperClass=line.wrapperClass
+                                        spanClass=line.spanClass
+                                        textClass=line.textClass
+                                        icon=line.icon
+                                        iconClass=line.iconClass
+                                        iconSize=line.iconSize
+                                    }}
+                                {{else}}
+                                    <div class="{{line.class}}">{{line.text}}</div>
+                                {{/if}}
+                            </div>
+                        {{else}}
+                            <div class="{{@item.class}}">{{line}}</div>
+                        {{/if}}
+                    {{/each}}
+                {{else}}
+                    <div class="{{@item.class}}">{{@item.text}}</div>
+                {{/if}}
             {{/if}}
         </div>
     </div>
@@ -21,7 +58,11 @@
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
-            <span>{{@item.text}}</span>
+            {{#if @item.intl}}
+                <span>{{t @item.intl}}</span>
+            {{else}}
+                <span>{{@item.text}}</span>
+            {{/if}}
         </LinkTo>
     </div>
 {{/if}}
@@ -38,7 +79,11 @@
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
-            <span>{{@item.text}}</span>
+            {{#if @item.intl}}
+                <span>{{t @item.intl}}</span>
+            {{else}}
+                <span>{{@item.text}}</span>
+            {{/if}}
         </a>
     </div>
 {{/if}}
@@ -49,7 +94,11 @@
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}
-            <span>{{@item.text}}</span>
+            {{#if @item.intl}}
+                <span>{{t @item.intl}}</span>
+            {{else}}
+                <span>{{@item.text}}</span>
+            {{/if}}
         </a>
     </div>
 {{/if}}

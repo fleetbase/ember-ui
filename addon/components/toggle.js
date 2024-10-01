@@ -95,7 +95,10 @@ export default class ToggleComponent extends Component {
      * @param {Array} [isToggled]
      * @memberof ToggleComponent
      */
-    @action onChange(el, [isToggled]) {
+    @action onChange(el, [isToggled, disabled = null]) {
         this.isToggled = isToggled === true;
+        if (disabled !== null) {
+            this.disabled = disabled;
+        }
     }
 }

@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency-decorators';
 import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 
@@ -94,8 +95,16 @@ export default class LocaleSelectorTrayComponent extends Component {
      * @generator
      */
     @task *loadAvailableCountries() {
-        this.countries = yield this.fetch.get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji', 'languages'] });
-        this.availableLocales = this._createAvailableLocaleMap();
+        try {
+            this.countries = yield this.fetch.get(
+                'lookup/countries',
+                { columns: ['name', 'cca2', 'flag', 'emoji', 'languages'] },
+                { fromCache: true, expirationInterval: 1, expirationIntervalUnit: 'week' }
+            );
+            this.availableLocales = this._createAvailableLocaleMap();
+        } catch (error) {
+            debug(`Locale Error: ${error.message}`);
+        }
     }
 
     /**
