@@ -53,23 +53,16 @@ module.exports = {
     included: function (app) {
         this._super.included.apply(this, arguments);
 
-        // Get host application
-        if (typeof this._findHost === 'function') {
-            app = this._findHost();
-        } else {
-            app = this._findHostFallback();
-        }
+        // Get Application Host
+        app = this.findApplicationHost(app);
 
-        // PostCSS
+        // PostCSS Options
         app.options = app.options || {};
         app.options.postcssOptions = postcssOptions;
 
         // Import leaflet-src
-        if (!app.__leafletIncluded) {
-            app.__leafletIncluded = true;
-            this.import('node_modules/leaflet/dist/leaflet-src.js');
-            this.import('node_modules/leaflet/dist/leaflet.css');
-        }
+        this.import('node_modules/leaflet/dist/leaflet-src.js');
+        this.import('node_modules/leaflet/dist/leaflet.css');
 
         // Import the `intlTelInput.min.css` file and append it to the parent application's `vendor.css`
         this.import('node_modules/intl-tel-input/build/css/intlTelInput.min.css');
@@ -124,13 +117,12 @@ module.exports = {
         return this.mergeWithPublicTree(publicTree);
     },
 
-    pathBase(packageName) {
+    pathBase (packageName) {
         return path.dirname(resolve.sync(packageName + '/package.json', { basedir: __dirname }));
     },
 
-    _findHostFallback() {
+    findApplicationHost (app) {
         let current = this;
-        let app = current;
         do {
             if (current.lazyLoading === true || (current.lazyLoading && current.lazyLoading.enabled === true)) {
                 app = current;
