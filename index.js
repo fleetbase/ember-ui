@@ -117,11 +117,11 @@ module.exports = {
         return this.mergeWithPublicTree(publicTree);
     },
 
-    pathBase (packageName) {
+    pathBase(packageName) {
         return path.dirname(resolve.sync(packageName + '/package.json', { basedir: __dirname }));
     },
 
-    findApplicationHost (app) {
+    findApplicationHost(app) {
         let current = this;
         do {
             if (current.lazyLoading === true || (current.lazyLoading && current.lazyLoading.enabled === true)) {
