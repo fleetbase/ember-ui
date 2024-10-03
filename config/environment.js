@@ -1,5 +1,11 @@
 'use strict';
 
 module.exports = function (/* environment, appConfig */) {
-    return {};
+    return {
+        'ember-leaflet': {
+            excludeCSS: true,
+            excludeJS: true,
+            excludeImages: true,
+        },
+    };
 };
