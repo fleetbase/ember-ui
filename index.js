@@ -47,6 +47,11 @@ module.exports = {
                 libphonenumber: 'intl-tel-input/build/js/utils.js',
             },
         },
+        'ember-leaflet': {
+            excludeCSS: true,
+            excludeJS: true,
+            excludeImages: true,
+        },
         postcssOptions,
     },
 
