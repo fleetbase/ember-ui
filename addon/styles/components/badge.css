@@ -77,10 +77,12 @@
     @apply text-emerald-300;
 }
 
+.status-badge.started-status-badge > span,
 .status-badge.cyan-status-badge > span {
     @apply bg-cyan-800 border-cyan-700 text-cyan-100;
 }
 
+.status-badge.started-status-badge > span svg,
 .status-badge.cyan-status-badge > span svg {
     @apply text-cyan-300;
 }

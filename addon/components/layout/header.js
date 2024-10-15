@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { isArray } from '@ember/array';
 import { getOwner } from '@ember/application';
 import config from 'ember-get-config';
 
@@ -136,6 +137,20 @@ export default class LayoutHeaderComponent extends Component {
         // Merge provided menu items
         menuItems.pushObjects(organizationMenuItems);
 
+        // Push items from universe registry
+        const universeOrganizationItems = this.universe.organizationMenuItems;
+        if (isArray(universeOrganizationItems) && universeOrganizationItems.length) {
+            menuItems.pushObjects([
+                {
+                    seperator: true,
+                },
+                ...universeOrganizationItems,
+                {
+                    seperator: true,
+                },
+            ]);
+        }
+
         // Push the version
         menuItems.pushObject({
             id: 'app-version',
@@ -174,17 +189,6 @@ export default class LayoutHeaderComponent extends Component {
                 icon: 'person-running',
             },
         ]);
-
-        // Get organization menu items from registry
-        const universeOrganizationItems = this.universe.organizationMenuItems;
-        if (universeOrganizationItems) {
-            const preIndex = (organizations.length ?? 0) + (staticMenuItems.length ?? 0);
-            for (let i = 0; i < universeOrganizationItems.length; i++) {
-                const menuItem = universeOrganizationItems[i];
-                menuItem.text = menuItem.title;
-                menuItems.insertAt(preIndex + menuItem.index, menuItem);
-            }
-        }
 
         // Callback to allow mutation of menu items
         if (typeof this.args.mutateOrganizationMenuItems === 'function') {
