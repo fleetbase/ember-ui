@@ -359,6 +359,18 @@ const currencies = [
         symbolPlacement: 'before',
     },
     {
+        iso2: 'GE',
+        name: 'Georgia',
+        emoji: '🇬🇪',
+        code: 'GEL',
+        title: 'Georgian lari',
+        symbol: '₾',
+        precision: 2,
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+        symbolPlacement: 'before',
+    },
+    {
         iso2: 'GI',
         name: 'Gibraltar',
         emoji: '🇬🇮',
