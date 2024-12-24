@@ -15,18 +15,22 @@ export default class CurrencySelectComponent extends Component {
 
         let whois = this.currentUser.getOption('whois');
 
-        this.currency = this.args.currency ?? whois?.currency?.code ?? 'USD';
+        this.currency = this.args.currency ?? this.args.value ?? whois?.currency?.code ?? 'USD';
         this.currencyData = this.args.currencyData ?? getCurrency(this.currency);
     }
 
     @action onChange(currency) {
-        const { onChange, onCurrencyChange } = this.args;
+        const { onChange, onCurrencyChange, onSelect } = this.args;
 
         this.currency = currency.code;
         this.currencyData = currency;
 
         if (typeof onCurrencyChange === 'function') {
             onCurrencyChange(currency.code, currency);
+        }
+
+        if (typeof onSelect === 'function') {
+            onSelect(currency.code, currency);
         }
 
         if (typeof onChange === 'function') {

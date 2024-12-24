@@ -40,7 +40,7 @@
                 <PhoneInput @value={{@options.phone}} @onInput={{fn (mut @options.phone)}} class="form-input w-full" />
             </InputGroup>
             <InputGroup @name="Organization currency">
-                <CurrencySelect @value={{@options.currency}} @onSelect={{fn (mut @options.currency)}} @triggerClass="w-full form-select" />
+                <CurrencySelect @currency={{@options.currency}} @onCurrencyChange={{fn (mut @options.currency)}} @triggerClass="w-full form-select" />
             </InputGroup>
         {{/if}}
     </div>
