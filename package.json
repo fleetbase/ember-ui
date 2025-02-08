@@ -1,6 +1,6 @@
 {
     "name": "@fleetbase/ember-ui",
-    "version": "0.2.36",
+    "version": "0.2.37",
     "description": "Fleetbase UI provides all the interface components, helpers, services and utilities for building a Fleetbase extension into the Console.",
     "keywords": [
         "fleetbase-ui",

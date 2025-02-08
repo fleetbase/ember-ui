@@ -72,7 +72,7 @@ export default class ContentPanelComponent extends Component {
         this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace === true;
 
         if (typeof onInsert === 'function') {
-            onInsert(...arguments);
+            onInsert(this.context);
         }
     }
 

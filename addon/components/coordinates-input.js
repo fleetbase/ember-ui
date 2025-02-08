@@ -255,12 +255,17 @@ export default class CoordinatesInputComponent extends Component {
      * @memberof CoordinatesInputComponent
      */
     @action setCoordinatesFromMap(event) {
-        const { target } = event;
+        let { target } = event;
         const { onUpdatedFromMap } = this.args;
+
+        // wrap coordinates
+        if (typeof target.wrap === 'function') {
+            target = target.wrap();
+        }
+
         const { lat, lng } = target.getCenter();
 
         this.updateCoordinates(lat, lng, { updateMap: false });
-
         if (typeof onUpdatedFromMap === 'function') {
             onUpdatedFromMap({ latitude: lat, longitude: lng });
         }
