@@ -2,7 +2,7 @@ import Helper from '@ember/component/helper';
 import { getOwner } from '@ember/application';
 
 export default class IsDarkModeHelper extends Helper {
-    compute(params) {
+    compute() {
         const owner = getOwner(this);
         if (owner) {
             const theme = owner.lookup('service:theme');
