@@ -5,132 +5,65 @@ import { action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
+import { debug } from '@ember/debug';
+import { task } from 'ember-concurrency';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
 
 export default class CoordinatesInputComponent extends Component {
-    /**
-     * Service for fetching data.
-     * @type {Service}
-     * @memberof CoordinatesInputComponent
-     */
     @service fetch;
-
-    /**
-     * Service for accessing current user information.
-     * @type {Service}
-     * @memberof CoordinatesInputComponent
-     */
     @service currentUser;
-
-    /**
-     * Current zoom level of the map.
-     * @type {number}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked zoom;
-
-    /**
-     * Controls whether zoom controls are shown.
-     * @type {boolean}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked zoomControl;
-
-    /**
-     * Reference to the Leaflet map instance.
-     * @type {Object}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked leafletMap;
-
-    /**
-     * Current latitude of the map center.
-     * @type {number}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked latitude;
-
-    /**
-     * Current longitude of the map center.
-     * @type {number}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked longitude;
-
-    /**
-     * Latitude for map positioning.
-     * @type {number}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked mapLat;
-
-    /**
-     * Longitude for map positioning.
-     * @type {number}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked mapLng;
-
-    /**
-     * Query used for location lookup.
-     * @type {string}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked lookupQuery;
-
-    /**
-     * Indicates if the component is loading data.
-     * @type {boolean}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked isLoading = false;
-
-    /**
-     * Indicates if the map is ready.
-     * @type {boolean}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked isReady = false;
-
-    /**
-     * Flag to track if the initial map movement has ended.
-     * @type {boolean}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked isInitialMoveEnded = false;
-
-    /**
-     * The URL for the map's tile source.
-     * @type {string}
-     * @memberof CoordinatesInputComponent
-     */
     @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-
-    /**
-     * Disable input.
-     *
-     * @memberof CoordinatesInputComponent
-     */
+    @tracked mapTheme = 'light';
     @tracked disabled = false;
 
     /**
      * Constructor for CoordinatesInputComponent. Sets initial map coordinates and values.
      * @memberof CoordinatesInputComponent
      */
-    constructor() {
+    constructor(owner, { onInit, value, darkMode = false, zoom = 9, zoomControl = false, disabled = false }) {
         super(...arguments);
-
         this.setInitialMapCoordinates();
-        this.setInitialValueFromPoint(this.args.value);
-        this.zoom = getWithDefault(this.args, 'zoom', 9);
-        this.zoomControl = getWithDefault(this.args, 'zoomControl', false);
-        this.disabled = getWithDefault(this.args, 'disabled', false);
+        this.setInitialValueFromPoint(value);
+        this.changeTileSource(darkMode ? 'dark' : 'light');
+        this.zoom = zoom;
+        this.zoomControl = zoomControl;
+        this.disabled = disabled;
 
-        if (typeof this.args.onInit === 'function') {
-            this.args.onInit(this);
+        if (typeof onInit === 'function') {
+            onInit(this);
+        }
+    }
+
+    changeTileSource(sourceUrl = null) {
+        if (sourceUrl === 'dark') {
+            this.mapTheme = 'dark';
+            this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+        } else if (sourceUrl === 'dark_all') {
+            this.mapTheme = 'dark_all';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        } else if (sourceUrl === 'light') {
+            this.mapTheme = 'light';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+        } else if (typeof sourceUrl === 'string' && sourceUrl.startsWith('https://')) {
+            this.mapTheme = 'custom';
+            this.tileSourceUrl = sourceUrl;
+        } else {
+            this.mapTheme = 'light';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
         }
     }
 
@@ -255,53 +188,46 @@ export default class CoordinatesInputComponent extends Component {
      * @memberof CoordinatesInputComponent
      */
     @action setCoordinatesFromMap(event) {
-        const { target } = event;
         const { onUpdatedFromMap } = this.args;
-        const { lat, lng } = target.getCenter();
+        const { target } = event;
+        const center = target.getCenter();
+        const geographicalCenter = typeof center.wrap === 'function' ? center.wrap() : center;
+        const { lat, lng } = geographicalCenter;
 
         this.updateCoordinates(lat, lng, { updateMap: false });
-
         if (typeof onUpdatedFromMap === 'function') {
             onUpdatedFromMap({ latitude: lat, longitude: lng });
         }
     }
 
     /**
-     * Ember action for performing a reverse geolocation lookup. Updates the coordinates based on the lookup query result.
+     * Task which performs a reverse geolocation lookup. Updates the coordinates based on the lookup query result.
+     *
+     * @return {AsyncGenerator<Promise>}
      * @memberof CoordinatesInputComponent
      */
-    @action reverseLookup() {
-        const { onGeocode, onGeocodeError } = this.args;
-        const query = this.lookupQuery;
-
-        if (isBlank(query)) {
+    @task *reverseLookup() {
+        if (isBlank(this.lookupQuery)) {
             return;
         }
 
-        this.isLoading = true;
-
-        this.fetch
-            .get('geocoder/query', { query, single: true })
-            .then((place) => {
-                if (isBlank(place)) {
-                    return;
-                }
-
+        try {
+            const place = yield this.fetch.get('geocoder/query', { query: this.lookupQuery, single: true });
+            if (place) {
                 const [longitude, latitude] = place.location.coordinates;
-
                 this.updateCoordinates(latitude, longitude);
 
-                if (typeof onGeocode === 'function') {
-                    onGeocode(place);
+                if (typeof this.args.onGeocode === 'function') {
+                    this.args.onGeocode(place);
                 }
-            })
-            .catch((error) => {
-                if (typeof onGeocodeError === 'function') {
-                    onGeocodeError(error);
-                }
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+            }
+
+            return place;
+        } catch (error) {
+            debug('Coordinates input reverse lookup query failed:', error);
+            if (typeof this.args.onGeocodeError === 'function') {
+                this.args.onGeocodeError(error);
+            }
+        }
     }
 }
