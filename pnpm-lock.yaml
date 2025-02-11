@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   ember-gridstack@4.0.0:
-    hash: fwahdwiexnnbxgjkolq2q4epju
+    hash: 7645d189e07b959521021078148e949087a85750095e8b5801d642c1eb63394f
     path: patches/ember-gridstack@4.0.0.patch
 
 importers:
@@ -180,7 +180,7 @@ importers:
         version: 2.1.1
       ember-gridstack:
         specifier: 4.0.0
-        version: 4.0.0(patch_hash=fwahdwiexnnbxgjkolq2q4epju)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(webpack@5.95.0)
+        version: 4.0.0(patch_hash=7645d189e07b959521021078148e949087a85750095e8b5801d642c1eb63394f)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(webpack@5.95.0)
       ember-inflector:
         specifier: ^4.0.2
         version: 4.0.3(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))
@@ -12826,7 +12826,7 @@ snapshots:
       - '@glint/template'
       - supports-color
 
-  ember-gridstack@4.0.0(patch_hash=fwahdwiexnnbxgjkolq2q4epju)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(webpack@5.95.0):
+  ember-gridstack@4.0.0(patch_hash=7645d189e07b959521021078148e949087a85750095e8b5801d642c1eb63394f)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(webpack@5.95.0):
     dependencies:
       '@ember/render-modifiers': 2.1.0(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))
       ember-auto-import: 2.8.1(webpack@5.95.0)

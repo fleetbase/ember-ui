@@ -27,22 +27,43 @@ export default class CoordinatesInputComponent extends Component {
     @tracked isReady = false;
     @tracked isInitialMoveEnded = false;
     @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    @tracked mapTheme = 'light';
     @tracked disabled = false;
 
     /**
      * Constructor for CoordinatesInputComponent. Sets initial map coordinates and values.
      * @memberof CoordinatesInputComponent
      */
-    constructor(owner, { onInit, value, zoom = 9, zoomControl = false, disabled = false }) {
+    constructor(owner, { onInit, value, darkMode = false, zoom = 9, zoomControl = false, disabled = false }) {
         super(...arguments);
         this.setInitialMapCoordinates();
         this.setInitialValueFromPoint(value);
+        this.changeTileSource(darkMode ? 'dark' : 'light');
         this.zoom = zoom;
         this.zoomControl = zoomControl;
         this.disabled = disabled;
 
         if (typeof onInit === 'function') {
             onInit(this);
+        }
+    }
+
+    changeTileSource(sourceUrl = null) {
+        if (sourceUrl === 'dark') {
+            this.mapTheme = 'dark';
+            this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+        } else if (sourceUrl === 'dark_all') {
+            this.mapTheme = 'dark_all';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        } else if (sourceUrl === 'light') {
+            this.mapTheme = 'light';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+        } else if (typeof sourceUrl === 'string' && sourceUrl.startsWith('https://')) {
+            this.mapTheme = 'custom';
+            this.tileSourceUrl = sourceUrl;
+        } else {
+            this.mapTheme = 'light';
+            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
         }
     }
 
