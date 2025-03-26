@@ -32,6 +32,9 @@ export default function smartHumanize(string) {
         'ddp',
         'fob',
         'gsm',
+        'etd',
+        'eta',
+        'ect',
     ];
 
     return humanize([decamelize(string)])
