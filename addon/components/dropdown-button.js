@@ -32,7 +32,7 @@ export default class DropdownButtonComponent extends Component {
         this.disabled = disabled;
         this.visible = visible;
         // If no permissions disable
-        if (!disabled) {
+        if (!disabled && permission) {
             this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
         }
     }
@@ -70,5 +70,13 @@ export default class DropdownButtonComponent extends Component {
         }
 
         this._onInsertFired = true;
+    }
+
+    @action onArgsChanged(el, [disabled = false, visible = true, permission = null]) {
+        this.visible = visible;
+        this.disabled = disabled;
+        if (!disabled && permission) {
+            this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
+        }
     }
 }

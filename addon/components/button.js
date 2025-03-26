@@ -70,6 +70,13 @@ export default class ButtonComponent extends Component {
     @tracked visible = true;
 
     /**
+     * Determines if the button is disabled
+     *
+     * @memberof ButtonComponent
+     */
+    @tracked disabled = false;
+
+    /**
      * Creates an instance of ButtonComponent.
      * @param {*} owner
      * @param {*} { permission = null }
@@ -79,7 +86,7 @@ export default class ButtonComponent extends Component {
         super(...arguments);
         this.permissionRequired = permission;
         this.visible = visible;
-        if (!disabled) {
+        if (!disabled && permission) {
             this.disabledByPermission = permission && this.abilities.cannot(permission);
         }
     }
@@ -112,6 +119,14 @@ export default class ButtonComponent extends Component {
 
         if (typeof onClick === 'function') {
             onClick(...arguments);
+        }
+    }
+
+    @action onArgsChanged(el, [disabled = false, visible = true, permission = null]) {
+        this.permissionRequired = permission;
+        this.visible = visible;
+        if (!disabled && permission) {
+            this.disabledByPermission = permission && this.abilities.cannot(permission);
         }
     }
 }

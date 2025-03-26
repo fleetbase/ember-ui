@@ -214,16 +214,20 @@ export default class ChatWindowComponent extends Component {
     }
 
     @task *loadAvailableUsers(params = {}) {
-        const users = yield this.store.query('user', params);
-        const availableUsers = users.filter((user) => {
-            const isNotSender = user.id !== this.sender.user_uuid;
-            const isNotParticipant = !this.getParticipantByUserId(user.id);
+        try {
+            const users = yield this.store.query('user', params);
+            const availableUsers = users.filter((user) => {
+                const isNotSender = user.id !== this.sender.user_uuid;
+                const isNotParticipant = !this.getParticipantByUserId(user.id);
 
-            return isNotSender && isNotParticipant;
-        });
+                return isNotSender && isNotParticipant;
+            });
 
-        this.availableUsers = availableUsers;
-        return availableUsers;
+            this.availableUsers = availableUsers;
+            return availableUsers;
+        } catch (err) {
+            console.warn('Error loading available users:', err);
+        }
     }
 
     handleChatFeedScroll() {
