@@ -15,7 +15,7 @@
         {{did-insert this.onInsert}}
         as |dd|
     >
-        <dd.Trigger class={{@triggerClass}} {{did-insert this.onTriggerInsert}} {{did-update this.onArgsChanged @disabled @visible @permission}}>
+        <dd.Trigger class={{@triggerClass}} {{did-insert this.onTriggerInsert}} {{did-update this.onArgsChanged @disabled @visible @permission @buttonComponentArgs}}>
             {{#if @buttonComponent}}
                 {{component
                     @buttonComponent

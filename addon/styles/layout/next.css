@@ -1987,6 +1987,8 @@ a.text-danger:hover {
     width: 800px;
 }
 
+.filters-dropdown-container.bulk-search-dropdown-container,
+.bulk-search-dropdown-container,
 .customize-columns-dropdown-container {
     width: 500px;
 }
@@ -2019,8 +2021,19 @@ a.text-danger:hover {
     @apply py-2 px-4;
 }
 
+.filter-component > .filter-multi-option > .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input.form-input-sm, 
+.filter-component > .filter-multi-option > .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input-sm {
+    max-height: none;
+}
+
 .filter-component-label {
     @apply text-sm font-semibold text-black dark:text-gray-200 mb-3;
+}
+
+.filter-component > .filter-checkbox {
+    display: flex;
+    align-items: center;
+    margin-top: 2rem;
 }
 
 .filter-string {

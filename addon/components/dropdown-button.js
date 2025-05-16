@@ -72,7 +72,8 @@ export default class DropdownButtonComponent extends Component {
         this._onInsertFired = true;
     }
 
-    @action onArgsChanged(el, [disabled = false, visible = true, permission = null]) {
+    @action onArgsChanged(el, [disabled = false, visible = true, permission = null, buttonComponentArgs = {}]) {
+        this.buttonComponentArgs = buttonComponentArgs;
         this.visible = visible;
         this.disabled = disabled;
         if (!disabled && permission) {
