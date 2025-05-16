@@ -29,7 +29,9 @@
             <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full mb-4">
                 {{#each this.filters as |filter|}}
                     <div class="filter-component">
-                        <label class="filter-component-label">{{or filter.filterLabel filter.label}}</label>
+                        {{#unless filter.noFilterLabel}}
+                            <label class="filter-component-label">{{or filter.filterLabel filter.label}}</label>
+                        {{/unless}}
                         {{component
                             filter.filterComponent
                             value=filter.filterValue

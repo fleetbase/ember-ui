@@ -1,183 +1,116 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { set, action } from '@ember/object';
-import { filter, gt } from '@ember/object/computed';
+import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import { later } from '@ember/runloop';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
-    /**
-     * Inject router to handle param changes via `transitionTo`
-     *
-     * @memberof FiltersPickerComponent
-     */
     @service hostRouter;
-
-    /**
-     * Array of filters created from columns argument.
-     *
-     * @memberof FiltersPickerComponent
-     */
     @tracked filters = [];
 
-    /**
-     * Filters which are active and should be applied.
-     *
-     * @memberof FiltersPickerComponent
-     */
-    @filter('filters.@each.isFilterActive', (filter) => filter.isFilterActive === true) activeFilters;
-
-    /**
-     * Computed property that determines if any filters are set.
-     *
-     * @memberof FiltersPickerComponent
-     */
-    @gt('activeFilters.length', 0) hasFilters;
-
-    /**
-     * Creates an instance of FiltersPickerComponent.
-     * @memberof FiltersPickerComponent
-     */
-    constructor() {
-        super(...arguments);
-        this.updateFilters();
+    get activeFilters() {
+        return this.filters.filter((f) => f.isFilterActive);
     }
 
-    /**
-     * Creates and updates filters via map
-     *
-     * @param {null|Function} onColumn
-     * @memberof FiltersPickerComponent
-     */
-    @action updateFilters(onColumn) {
-        this.filters = this.args.columns
-            .filter((column) => column.filterable)
-            .map((column, trueIndex) => {
-                // add true index to column
-                column = { ...column, trueIndex };
+    get hasFilters() {
+        return this.activeFilters.length > 0;
+    }
 
-                // set the column param
-                column.param = column.filterParam ?? column.valuePath;
+    constructor() {
+        super(...arguments);
 
-                // get the active param if any and update filter
-                const activeParam = getUrlParam(column.param);
+        this.#rebuildFilters(); // initial state
 
-                // update if an activeParam exists
-                if (activeParam) {
-                    column.isFilterActive = true;
+        // Refresh whenever the route (→ query-params) changes
+        this._routeHandler = () => this.#rebuildFilters();
+        this.hostRouter.on('routeDidChange', this._routeHandler);
+    }
 
-                    if (isArray(activeParam) && activeParam.length === 0) {
-                        column.isFilterActive = false;
-                    }
+    willDestroy() {
+        super.willDestroy(...arguments);
+        this.hostRouter.off('routeDidChange', this._routeHandler);
+    }
 
-                    column.filterValue = activeParam;
-                }
+    #readUrlValue(param) {
+        const raw = getUrlParam(param); // string | string[] | undefined
+        if (isArray(raw)) {
+            return raw.length ? raw : undefined;
+        }
+        return raw === '' ? undefined : raw;
+    }
 
-                // callback to modify column from hook
+    #rebuildFilters(onColumn) {
+        const cols = this.args.columns ?? [];
+
+        this.filters = cols
+            .filter((c) => c.filterable)
+            .map((column, index) => {
+                const param = column.filterParam ?? column.valuePath;
+                const value = this.#readUrlValue(param);
+                const active = value != null; // null & undefined only
+
+                const filterCol = {
+                    ...column,
+                    trueIndex: index,
+                    param,
+                    filterValue: value,
+                    isFilterActive: active,
+                };
+
                 if (typeof onColumn === 'function') {
-                    onColumn(column, trueIndex, activeParam);
+                    onColumn(filterCol, index, value);
                 }
 
-                return column;
+                return filterCol;
             });
 
         return this;
     }
 
-    /**
-     * Triggers the apply callback for the filters picker.
-     *
-     * @memberof FiltersPickerComponent
-     */
     @action applyFilters() {
-        const { onApply } = this.args;
-
-        // run `onApply()` callback
-        if (typeof onApply === 'function') {
-            onApply();
+        if (typeof this.args.onApply === 'function') {
+            this.args.onApply();
         }
-
-        // manually run update filters after apply with slight 300ms delay to update activeFilters
-        later(
-            this,
-            () => {
-                this.updateFilters();
-            },
-            150
-        );
     }
 
-    /**
-     * Updates an individual filter/column value.
-     *
-     * @param {String} key
-     * @param {*} value
-     * @memberof FiltersPickerComponent
-     */
     @action updateFilterValue({ param }, value) {
-        const { onChange } = this.args;
-
-        // run `onChange()` callback
-        if (typeof onChange === 'function') {
-            onChange(param, value);
+        if (typeof this.args.onChange === 'function') {
+            this.args.onChange(param, value);
         }
     }
 
-    /**
-     * Callback to clear a single filter/column value.
-     *
-     * @param {String} key
-     * @memberof FiltersPickerComponent
-     */
     @action clearFilterValue({ param }) {
-        const { onFilterClear } = this.args;
-
-        // update filters
-        this.updateFilters((column) => {
-            if (column.param !== param) {
-                return;
-            }
-
-            // clear column values
-            set(column, 'filterValue', undefined);
-            set(column, 'isFilterActive', false);
-        });
-
-        // run `onFilterClear()` callback
-        if (typeof onFilterClear === 'function') {
-            onFilterClear(param);
+        if (typeof this.args.onFilterClear === 'function') {
+            this.args.onFilterClear(param);
         }
     }
 
-    /**
-     * Used to clear all filter/column values and URL params.
-     *
-     * @memberof FiltersPickerComponent
-     */
-    @action clearFilters() {
-        const { onClear } = this.args;
-        const currentRouteName = this.hostRouter.currentRouteName;
-        const currentQueryParams = { ...this.hostRouter.currentRoute.queryParams };
+    @action async clearFilters(...args) {
+        if (typeof this.args.onClear === 'function') {
+            this.args.onClear(...args);
+        }
 
-        // update filters
-        this.updateFilters((column) => {
-            const paramKey = column.filterParam ?? column.valuePath;
-            delete currentQueryParams[paramKey];
-            delete currentQueryParams[`${paramKey}[]`];
+        // Build a clean query-param bag
+        const qp = { ...this.hostRouter.currentRoute.queryParams };
+        (this.args.columns ?? [])
+            .filter((c) => c.filterable)
+            .forEach((c) => {
+                const key = c.filterParam ?? c.valuePath;
+                delete qp[key];
+                delete qp[`${key}[]`];
+            });
 
-            // reset column values
-            set(column, 'filterValue', undefined);
-            set(column, 'isFilterActive', false);
-        });
-
-        // transition to cleared params with router service
-        this.hostRouter.transitionTo(currentRouteName, { queryParams: currentQueryParams });
-
-        // run `onClear()` callback
-        if (typeof onClear === 'function') {
-            onClear(...arguments);
+        // Transition – routeDidChange listener will rebuild afterwards
+        try {
+            await this.hostRouter.transitionTo(this.hostRouter.currentRouteName, {
+                queryParams: qp,
+            });
+        } catch (error) {
+            // Ignore only the "transition aborted" case
+            if (error?.name !== 'TransitionAborted') {
+                throw error; // real error → rethrow
+            }
         }
     }
 }

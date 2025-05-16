@@ -77,6 +77,24 @@ export default class TableComponent extends Component {
         }
     }
 
+    @action untoggleAllRows() {
+        this.untoggleSelectAll();
+
+        for (let i = 0; i < this.rows.length; i++) {
+            const row = this.rows.objectAt(i);
+            set(row, 'checked', false);
+        }
+    }
+
+    @action untoggleSelected() {
+        this.untoggleSelectAll();
+
+        for (let i = 0; i < this.selectedRows.length; i++) {
+            const row = this.selectedRows.objectAt(i);
+            set(row, 'checked', false);
+        }
+    }
+
     @action untoggleSelectAll() {
         this.allRowsToggled = false;
     }

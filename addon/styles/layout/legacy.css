@@ -361,6 +361,10 @@ body[data-theme='dark'] .overlay-panel-section-title {
     @apply flex items-center justify-between py-2 px-3 border-b border-gray-300 list-none;
 }
 
+.list-scroll-box.li-items-start > li {
+    align-items: start;
+}
+
 [data-theme='dark'] .list-scroll-box > li {
     @apply border-gray-900;
 }
