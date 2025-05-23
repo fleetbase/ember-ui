@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import intlTelInput from 'intl-tel-input';
 
 export default class PhoneInputComponent extends Component {
