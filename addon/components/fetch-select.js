@@ -5,8 +5,7 @@ import { isEmpty } from '@ember/utils';
 import { action, set } from '@ember/object';
 import { isArray } from '@ember/array';
 import { assert } from '@ember/debug';
-import { timeout } from 'ember-concurrency';
-import { restartableTask } from 'ember-concurrency-decorators';
+import { timeout, restartableTask } from 'ember-concurrency';
 
 /**
  * FetchSelectComponent is a Glimmer component responsible for rendering a
@@ -75,7 +74,7 @@ export default class FetchSelectComponent extends Component {
      * @param {boolean} [initialLoad=false] - Whether this is the initial load.
      * @task
      */
-    @restartableTask({ withTestWaiter: true }) searchOptions = function* (term, options = {}, initialLoad = false) {
+    @restartableTask() searchOptions = function* (term, options = {}, initialLoad = false) {
         if (!initialLoad) {
             yield timeout(this.debounceDuration);
         }
@@ -90,7 +89,7 @@ export default class FetchSelectComponent extends Component {
      * @param {Object} [options={}] - Additional options for the fetch.
      * @task
      */
-    @restartableTask({ withTestWaiter: true }) fetchOptions = function* (term, options = {}) {
+    @restartableTask() fetchOptions = function* (term, options = {}) {
         // query might be an EmptyObject/{{hash}}, make it a normal Object
         const query = Object.assign({}, this.args.query);
 
