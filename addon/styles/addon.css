@@ -48,4 +48,6 @@
 @import 'components/tip-tap-editor.css';
 
 /** Third party */
+@import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
+@import 'ember-power-select/vendor/ember-power-select.css';
 @import 'air-datepicker/air-datepicker.css';

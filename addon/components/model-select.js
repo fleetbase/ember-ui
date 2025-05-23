@@ -4,8 +4,7 @@ import { action, get, set } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { tracked } from '@glimmer/tracking';
-import { timeout } from 'ember-concurrency';
-import { restartableTask, dropTask } from 'ember-concurrency-decorators';
+import { timeout, restartableTask, dropTask } from 'ember-concurrency';
 import generateUuid from '@fleetbase/ember-core/utils/generate-uuid';
 import config from 'ember-get-config';
 
@@ -160,7 +159,7 @@ export default class ModelSelectComponent extends Component {
         this.selectedModel = selectedModel;
     }
 
-    @dropTask({ withTestWaiter: true }) findRecord = function* (modelName, id) {
+    @dropTask findRecord = function* (modelName, id) {
         // this wrapper task is requried to avoid the following error upon fast changes
         // of selectedModel:
         // Error: Assertion Failed: You attempted to remove a function listener which
@@ -172,7 +171,7 @@ export default class ModelSelectComponent extends Component {
         return resolvedModel;
     };
 
-    @restartableTask({ withTestWaiter: true }) searchModels = function* (term, options, initialLoad = false) {
+    @restartableTask searchModels = function* (term, options, initialLoad = false) {
         if (this.doesntHavePermissions || this.disabled) {
             return;
         }
@@ -195,7 +194,7 @@ export default class ModelSelectComponent extends Component {
         yield this.loadModels.perform(term, createOption);
     };
 
-    @restartableTask({ withTestWaiter: true }) loadModels = function* (term, createOption) {
+    @restartableTask loadModels = function* (term, createOption) {
         if (this.doesntHavePermissions || this.disabled) {
             return;
         }

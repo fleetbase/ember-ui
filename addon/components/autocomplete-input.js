@@ -5,8 +5,7 @@ import { action, computed } from '@ember/object';
 import { later } from '@ember/runloop';
 import { isBlank } from '@ember/utils';
 import { isArray } from '@ember/array';
-import { timeout } from 'ember-concurrency';
-import { task } from 'ember-concurrency-decorators';
+import { timeout, task } from 'ember-concurrency';
 
 export default class AutocompleteInputComponent extends Component {
     @service fetch;

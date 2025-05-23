@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import intlTelInput from 'intl-tel-input';
 
 export default class PhoneInputComponent extends Component {
@@ -14,13 +15,14 @@ export default class PhoneInputComponent extends Component {
             initialCountry: 'auto',
             separateDialCode: true,
             formatAsYouType: true,
-            geoIpLookup: (success, failure) => {
-                this.fetch
-                    .get('lookup/whois')
-                    .then((response) => {
-                        success(response.country_code);
-                    })
-                    .catch(failure);
+            geoIpLookup: async (success, failure) => {
+                try {
+                    const { country_code } = await this.fetch.get('lookup/whois');
+                    success(country_code);
+                } catch (error) {
+                    debug('Failed to lookup country code with whois API.');
+                    failure(error);
+                }
             },
             utilsScript: '/assets/libphonenumber/utils.js',
         });

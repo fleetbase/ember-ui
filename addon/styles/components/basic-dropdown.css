@@ -35,3 +35,7 @@ body[data-theme='dark'] .ember-power-select-multiple-option {
 .ember-basic-dropdown.listbox-2xl .ember-power-select-options[role='listbox'] {
     max-height: 40rem;
 }
+
+body.fleetbase-console .ember-basic-dropdown-content {
+    background-color: transparent;
+}

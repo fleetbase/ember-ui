@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { debug } from '@ember/debug';
-import { task } from 'ember-concurrency-decorators';
+import { task } from 'ember-concurrency';
 import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 
 export default class LocaleSelectorTrayComponent extends Component {
