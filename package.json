@@ -1,6 +1,6 @@
 {
     "name": "@fleetbase/ember-ui",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Fleetbase UI provides all the interface components, helpers, services and utilities for building a Fleetbase extension into the Console.",
     "keywords": [
         "fleetbase-ui",
@@ -186,7 +186,8 @@
     },
     "pnpm": {
         "patchedDependencies": {
-            "ember-gridstack@4.0.0": "patches/ember-gridstack@4.0.0.patch"
+            "ember-gridstack@4.0.0": "patches/ember-gridstack@4.0.0.patch",
+            "ember-leaflet": "patches/ember-leaflet.patch"
         }
     }
 }

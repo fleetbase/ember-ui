@@ -1,0 +1,45 @@
+diff --git a/addon/components/marker-layer.js b/addon/components/marker-layer.js
+index 132bc4876f0c2847e732fd66e79b06dedf0ea470..ae87f033f1b12301a9a892ced7e408659d76d672 100644
+--- a/addon/components/marker-layer.js
++++ b/addon/components/marker-layer.js
+@@ -264,13 +264,15 @@ export default class MarkerLayer extends InteractiveLayer {
+       arg: 'icon',
+       // there was an old leaflet bug where draggability is lost on icon change
+       updateFn(layer, value) {
+-        let enabled = layer.dragging.enabled();
+         layer.setIcon(value);
+-
+-        if (enabled) {
+-          layer.dragging.enable();
+-        } else {
+-          layer.dragging.disable();
++        
++        if (layer.dragging) {
++          let enabled = layer.dragging.enabled();
++          if (enabled) {
++            layer.dragging.enable();
++          } else {
++            layer.dragging.disable();
++          }
+         }
+       }
+     }
+diff --git a/addon/components/popup-layer.js b/addon/components/popup-layer.js
+index 960ca419a96bed894a420c629f43501265adc4dd..122a3cd9f0e0ac6e17595514513ee097ebff38c2 100644
+--- a/addon/components/popup-layer.js
++++ b/addon/components/popup-layer.js
+@@ -134,7 +134,13 @@ export default class PopupLayer extends DivOverlayLayer {
+    */
+   @action
+   closePopup() {
+-    this._layer._close ? this._layer._close() : this._layer.close();
++    if (this._layer) {
++      if (typeof this._layer._close === 'function') {
++        this._layer._close()
++      } else if (typeof this._layer.close === 'function') {
++        this._layer.close()
++      }
++    }
+   }
+ 
+   @action

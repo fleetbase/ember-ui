@@ -8,6 +8,9 @@ patchedDependencies:
   ember-gridstack@4.0.0:
     hash: 7645d189e07b959521021078148e949087a85750095e8b5801d642c1eb63394f
     path: patches/ember-gridstack@4.0.0.patch
+  ember-leaflet:
+    hash: 9958892bb4a9f3c545aaa0c48ce63b548b93230e2deac4f62b46524734368e6d
+    path: patches/ember-leaflet.patch
 
 importers:
 
@@ -180,7 +183,7 @@ importers:
         version: 4.0.3(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))
       ember-leaflet:
         specifier: ^5.1.3
-        version: 5.1.3(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(leaflet@1.9.4)(webpack@5.95.0)
+        version: 5.1.3(patch_hash=9958892bb4a9f3c545aaa0c48ce63b548b93230e2deac4f62b46524734368e6d)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(leaflet@1.9.4)(webpack@5.95.0)
       ember-loading:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.25.2)
@@ -13064,7 +13067,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  ember-leaflet@5.1.3(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(leaflet@1.9.4)(webpack@5.95.0):
+  ember-leaflet@5.1.3(patch_hash=9958892bb4a9f3c545aaa0c48ce63b548b93230e2deac4f62b46524734368e6d)(@babel/core@7.25.2)(ember-source@5.4.1(@babel/core@7.25.2)(@glimmer/component@1.1.2(@babel/core@7.25.2))(rsvp@4.8.5)(webpack@5.95.0))(leaflet@1.9.4)(webpack@5.95.0):
     dependencies:
       '@glimmer/component': 1.1.2(@babel/core@7.25.2)
       '@glimmer/tracking': 1.1.2
