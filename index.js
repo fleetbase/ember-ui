@@ -13,7 +13,7 @@ const postcssAtRulesVariables = require('postcss-at-rules-variables');
 const autoprefixer = require('autoprefixer');
 const tailwind = require('tailwindcss');
 
-const tailwindConfigPath = path.resolve(__dirname, 'tailwind.js');
+const tailwindConfigPath = path.resolve(__dirname, 'tailwind.config.js');
 const postcssOptions = {
     compile: {
         enabled: true,

@@ -4,17 +4,21 @@ module.exports = {
     content: [
         './app/**/*.{hbs,js}',
         './addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/ember-ui/addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/ember-ui/addon/templates/*.{hbs,js}',
+        // All Fleetbase packages (both pnpm symlinked and normal installs)
+        './node_modules/@fleetbase+*/**/addon/**/*.{hbs,js}',
+        './node_modules/@fleetbase/**/addon/**/*.{hbs,js}',
+        // Explicit ember-ui paths
         './node_modules/@fleetbase/ember-ui/addon/templates/**/*.{hbs,js}',
-        './node_modules/@fleetbase/ember-ui/addon/components/*.{hbs,js}',
         './node_modules/@fleetbase/ember-ui/addon/components/**/*.{hbs,js}',
-        './node_modules/@fleetbase/ember-core/addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/fleetops-engine/addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/storefront-engine/addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/*-engine/addon/**/*.{hbs,js}',
+        // Explicit support for .pnpm paths (for unhoisted deps)
+        './node_modules/.pnpm/@fleetbase+*/**/addon/**/*.{hbs,js}',
+        // Engine packages
         './node_modules/**/*-engine/addon/**/*.{hbs,js}',
-        '../packages/*-engine/addon/**/*.{hbs,js}',
+    ],
+    safelist: [
+        {
+            pattern: /(py|px|mx|my|gap)-[1-9][0-9]?/,
+        },
     ],
     theme: {
         extend: {
