@@ -27,7 +27,7 @@ jobs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
-        version: latest
+        version: 9.5
 
     - name: Install Dependencies
       run: pnpm install
@@ -52,7 +52,7 @@ jobs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
-        version: latest
+        version: 9.5
 
     - name: Install Dependencies
       run: pnpm install
@@ -78,7 +78,7 @@ jobs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
-        version: latest
+        version: 9.5
 
     - name: Install Dependencies
       run: pnpm install
@@ -107,7 +107,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 9.5
 
       - name: Install Dependencies
         run: pnpm install
