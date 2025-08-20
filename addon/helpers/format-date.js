@@ -10,7 +10,7 @@ export default helper(function formatDate([dateInstance, formatString = 'PPP p',
     }
 
     if (typeof dateInstance === 'string') {
-        dateInstance = isEmptyObject(parseOptions) ? new Date(dateInstance) : parse(DateInstance, parseOptions?.formatString ?? formatString, new Date(), parseOptions ?? {});
+        dateInstance = isEmptyObject(parseOptions) ? new Date(dateInstance) : parse(dateInstance, parseOptions?.formatString ?? formatString, new Date(), parseOptions ?? {});
     }
 
     return format(dateInstance, formatString);
