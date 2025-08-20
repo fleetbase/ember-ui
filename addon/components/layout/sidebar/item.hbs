@@ -7,7 +7,9 @@
         ...attributes
     >
         <div class="next-nav-item-icon-container {{@iconWrapperClass}}">
-            {{#if @icon}}
+            {{#if @iconComponent}}
+                {{component @iconComponent options=@iconComponentOptions}}
+            {{else if @icon}}
                 <FaIcon @prefix={{@iconPrefix}} @icon={{@icon}} @size={{or @iconSize "xs"}} class={{@iconClass}} />
             {{/if}}
         </div>
