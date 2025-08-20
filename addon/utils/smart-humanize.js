@@ -35,6 +35,8 @@ export default function smartHumanize(string) {
         'etd',
         'eta',
         'ect',
+        'aws',
+        'gcp',
     ];
 
     return humanize([decamelize(string)])

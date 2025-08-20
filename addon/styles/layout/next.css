@@ -881,6 +881,14 @@ body[data-theme='light'] .next-map-container-toolbar > .next-map-container-view-
     right: 0;
 }
 
+body[data-theme="dark"] .next-map-container-view-switch > button > .status-badge.info-status-badge > span {
+    @apply bg-gray-800 border border-gray-700;
+}
+
+body[data-theme="light"] .next-map-container-view-switch > button > .status-badge.info-status-badge > span {
+    @apply bg-white border border-gray-200 text-black;
+}
+
 .next-map-container-table-container {
     @apply bg-white opacity-100 relative;
     width: 100%;
@@ -997,6 +1005,10 @@ body[data-theme='dark'] .next-view-header-item.is-open {
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-right {
     @apply flex flex-1 items-center justify-end;
+}
+
+body[data-theme="light"] .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-right .status-badge.info-status-badge > span {
+    @apply bg-blue-500 border border-blue-600;
 }
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-right > .btn-wrapper > .btn {
@@ -1234,7 +1246,11 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
 }
 
 .next-sidebar .next-nav-item.active {
-    @apply bg-gray-200 bg-opacity-25;
+    @apply bg-blue-500 text-white;
+}
+
+body[data-theme='light'] .next-view-container > nav.next-sidebar a.next-nav-item.active .next-nav-item-icon-container svg {
+    @apply text-white;
 }
 
 body[data-theme='dark'] .next-sidebar .next-nav-item.active {
@@ -1242,17 +1258,28 @@ body[data-theme='dark'] .next-sidebar .next-nav-item.active {
 }
 
 .next-sidebar .next-nav-item .next-nav-item-icon-container {
-    margin-top: -2px;
     @apply w-5;
 }
 
-.next-sidebar .next-nav-item .next-nav-item-icon-container svg {
+body[data-theme='dark'] .next-sidebar .next-nav-item .next-nav-item-icon-container svg {
     @apply text-gray-100;
+}
+
+.next-sidebar .next-content-panel-wrapper .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle,
+.next-sidebar .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header,
+body[data-theme='dark'] .next-sidebar .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header,
+body[data-theme='dark'] .next-sidebar .next-content-panel-wrapper .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle {
+    border-color: transparent;
 }
 
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle {
     min-height: auto;
-    @apply flex flex-row items-center justify-between px-3 py-0.5 rounded-md text-sm mb-1 border-0;
+    border-color: transparent;
+    @apply flex flex-row items-center justify-between px-3 py-0.5 rounded-md text-sm mb-1 border border-transparent;
+}
+
+body[data-theme="light"] .next-sidebar .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header.next-sidebar-panel-toggle {
+    background-color: #ffffff;
 }
 
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle > .next-content-panel-header-left > .next-content-panel-title-container {
@@ -1260,11 +1287,23 @@ body[data-theme='dark'] .next-sidebar .next-nav-item.active {
 }
 
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover {
-    @apply bg-gray-300;
+    border-color: transparent;
+    @apply bg-gray-100;
 }
 
 body[data-theme='dark'] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover {
+    border-color: transparent;
     @apply bg-gray-700;
+}
+
+body[data-theme='light'] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover {
+    border-color: transparent;
+    @apply bg-blue-500;
+}
+
+body[data-theme='light'] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover a.next-content-panel-header-left,
+body[data-theme='light'] .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle:hover a.next-content-panel-header-left .icon-container > svg {
+    color: #ffffff;
 }
 
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle > .left {

@@ -1,5 +1,5 @@
 diff --git a/addon/components/marker-layer.js b/addon/components/marker-layer.js
-index 132bc4876f0c2847e732fd66e79b06dedf0ea470..ae87f033f1b12301a9a892ced7e408659d76d672 100644
+index 132bc4876f0c2847e732fd66e79b06dedf0ea470..93a4a446e0ebecc4eebe6e9d3b7831f2b986d036 100644
 --- a/addon/components/marker-layer.js
 +++ b/addon/components/marker-layer.js
 @@ -264,13 +264,15 @@ export default class MarkerLayer extends InteractiveLayer {
@@ -8,12 +8,11 @@ index 132bc4876f0c2847e732fd66e79b06dedf0ea470..ae87f033f1b12301a9a892ced7e40865
        updateFn(layer, value) {
 -        let enabled = layer.dragging.enabled();
          layer.setIcon(value);
--
+ 
 -        if (enabled) {
 -          layer.dragging.enable();
 -        } else {
 -          layer.dragging.disable();
-+        
 +        if (layer.dragging) {
 +          let enabled = layer.dragging.enabled();
 +          if (enabled) {
