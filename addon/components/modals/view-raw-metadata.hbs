@@ -1,0 +1,7 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}}>
+    <div class="modal-body-container pt-0i">
+        <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded p-2 dark:text-gray-300 text-gray-700 font-mono text-sm">
+            <pre>{{json-stringify @options.metadata pretty=true}}</pre>
+        </div>
+    </div>
+</Modal::Default>

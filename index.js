@@ -77,8 +77,7 @@ module.exports = {
         const leafletImagesPath = path.join(this.pathBase('leaflet'), 'dist', 'images');
         const trees = [
             new Funnel(leafletImagesPath, {
-                srcDir: '/',
-                destDir: '/assets/images',
+                destDir: 'assets/images',
                 allowEmpty: true,
             }),
         ];

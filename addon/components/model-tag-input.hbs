@@ -1,0 +1,15 @@
+{{#let (get @model (or @attr "tags")) as |tags|}}
+    <TagInput
+        class="form-input"
+        @placeholder={{@placeholder}}
+        @allowSpacesInTags={{or @allowSpacesInTags true}}
+        @tags={{tags}}
+        @addTag={{this.addTag}}
+        @removeTagAtIndex={{this.removeTag}}
+        @disabled={{@disabled}}
+        ...attributes
+        as |tag|
+    >
+        {{yield tag}}
+    </TagInput>
+{{/let}}

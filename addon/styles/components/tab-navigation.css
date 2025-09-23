@@ -1,0 +1,275 @@
+:root {
+    --tab-bg-primary: theme('colors.white');
+    --tab-bg-secondary: theme('colors.gray.50');
+    --tab-border-color: theme('colors.gray.200');
+    --tab-text-primary: theme('colors.gray.900');
+    --tab-text-secondary: theme('colors.gray.600');
+    --tab-text-hover: theme('colors.gray.900');
+    --tab-hover-bg: theme('colors.gray.100');
+    --tab-active-indicator: theme('colors.blue.500');
+    --tab-focus-ring: theme('colors.blue.500');
+    --tab-close-hover: theme('colors.gray.200');
+}
+
+body[data-theme='dark'] {
+    --tab-bg-primary: theme('colors.gray.900');
+    --tab-bg-secondary: theme('colors.gray.800');
+    --tab-border-color: theme('colors.gray.700');
+    --tab-text-primary: theme('colors.white');
+    --tab-text-secondary: theme('colors.gray.400');
+    --tab-text-hover: theme('colors.white');
+    --tab-hover-bg: theme('colors.gray.700');
+    --tab-active-indicator: theme('colors.blue.500');
+    --tab-focus-ring: theme('colors.blue.500');
+    --tab-close-hover: theme('colors.gray.600');
+}
+
+.tab-navigation {
+    @apply w-full h-full;
+}
+
+.tab-list {
+    @apply flex items-end;
+    background-color: var(--tab-bg-primary);
+    border-color: var(--tab-border-color);
+}
+
+.tab-navigation[data-style='github'] .tab-list {
+    @apply border-b;
+    background-color: var(--tab-bg-primary);
+    border-color: var(--tab-border-color);
+}
+
+.tab-navigation[data-style='obsidian'] .tab-list {
+    align-items: end;
+    background-color: var(--tab-bg-secondary);
+}
+
+.tab-item {
+    @apply relative flex items-center gap-2 font-medium transition-all duration-200 focus:outline-none;
+    color: var(--tab-text-secondary);
+}
+
+.tab-item:hover:not(.tab-item--disabled) {
+    color: var(--tab-text-hover);
+}
+
+/* .tab-item:focus {
+    @apply ring-2 ring-offset-2;
+    --tw-ring-color: var(--tab-focus-ring);
+} */
+
+/* body[data-theme='dark'] .tab-item:focus {
+    @apply ring-offset-gray-900;
+} */
+
+.tab-item--active {
+    color: var(--tab-text-primary) !important;
+}
+
+.tab-item--disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.tab-navigation[data-style='github'] .tab-item {
+    @apply border-b-2 border-transparent;
+}
+
+.tab-navigation[data-style='github'] .tab-item--active {
+    border-bottom-color: var(--tab-active-indicator);
+}
+
+.tab-navigation[data-style='github'] .tab-item:hover:not(.tab-item--active, .tab-item--disabled) {
+    border-bottom-color: var(--tab-border-color);
+}
+
+.tab-navigation[data-style='obsidian'] .tab-item {
+    @apply rounded-t-md;
+}
+
+.tab-navigation[data-style='obsidian'] .tab-item:hover:not(.tab-item--active, .tab-item--disabled) {
+    background-color: var(--tab-hover-bg);
+}
+
+.tab-navigation[data-style='obsidian'] .tab-item--active {
+    @apply border-t border-l border-r -mb-px z-10;
+    background-color: var(--tab-bg-primary);
+    border-color: var(--tab-border-color);
+    border-bottom: 1px solid var(--tab-bg-primary);
+}
+
+.tab-content {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.tab-icon {
+    @apply flex-shrink-0;
+}
+
+.tab-label {
+    @apply truncate;
+}
+
+.tab-badge {
+    @apply inline-flex items-center justify-center rounded-full text-xs font-medium;
+    @apply bg-blue-500 text-white transition-all duration-200 ease-in-out;
+}
+
+body[data-theme='dark'] .tab-badge {
+    @apply bg-blue-600;
+}
+
+.tab-close {
+    @apply flex-shrink-0 rounded-sm transition-all duration-150 ease-in-out;
+}
+
+.tab-close:hover {
+    background-color: var(--tab-close-hover);
+}
+
+/* .tab-close:focus {
+    @apply outline-none ring-2 ring-offset-1;
+    --tw-ring-color: var(--tab-focus-ring);
+} */
+
+.tab-add-button {
+    @apply flex items-center justify-center rounded transition-all duration-150 ease-in-out;
+    color: var(--tab-text-secondary);
+}
+
+.tab-add-button:hover {
+    color: var(--tab-text-hover);
+    background-color: var(--tab-hover-bg);
+}
+
+/* .tab-add-button:focus {
+    @apply outline-none ring-2 ring-offset-2;
+    --tw-ring-color: var(--tab-focus-ring);
+} */
+
+/* body[data-theme='dark'] .tab-add-button:focus {
+    @apply ring-offset-gray-800;
+} */
+
+.tab-navigation[data-size='sm'] .tab-list {
+    @apply h-8;
+}
+
+.tab-navigation[data-size='sm'] .tab-item {
+    @apply px-3 py-1.5 text-sm;
+}
+
+.tab-navigation[data-size='sm'] .tab-icon {
+    @apply w-3 h-3;
+}
+
+.tab-navigation[data-size='sm'] .tab-badge {
+    @apply min-w-[16px] h-4 px-1;
+}
+
+.tab-navigation[data-size='sm'] .tab-close {
+    @apply p-0.5;
+}
+
+.tab-navigation[data-size='sm'] .tab-add-button {
+    @apply w-6 h-6 ml-1;
+}
+
+.tab-navigation[data-size='md'] .tab-list {
+    @apply h-11;
+}
+
+.tab-navigation[data-size='md'] .tab-item {
+    @apply px-4 py-2 text-sm;
+}
+
+.tab-navigation[data-size='md'] .tab-icon {
+    @apply w-4 h-4;
+}
+
+.tab-navigation[data-size='md'] .tab-badge {
+    @apply min-w-[18px] h-[18px] px-1.5;
+}
+
+.tab-navigation[data-size='md'] .tab-close {
+    @apply p-1;
+}
+
+.tab-navigation[data-size='md'] .tab-add-button {
+    @apply w-8 h-8 ml-2;
+}
+
+.tab-navigation[data-size='lg'] .tab-list {
+    @apply h-12;
+}
+
+.tab-navigation[data-size='lg'] .tab-item {
+    @apply px-6 py-3 text-base;
+}
+
+.tab-navigation[data-size='lg'] .tab-icon {
+    @apply w-5 h-5;
+}
+
+.tab-navigation[data-size='lg'] .tab-badge {
+    @apply min-w-[20px] h-5 px-2;
+}
+
+.tab-navigation[data-size='lg'] .tab-close {
+    @apply p-1.5;
+}
+
+.tab-navigation[data-size='lg'] .tab-add-button {
+    @apply w-10 h-10 ml-2;
+}
+
+@media (max-width: 640px) {
+    .tab-navigation .tab-item {
+        @apply px-2 py-1.5 text-xs;
+    }
+
+    .tab-navigation .tab-label {
+        @apply max-w-[80px];
+    }
+
+    .tab-navigation .tab-icon {
+        @apply w-3 h-3;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .tab-navigation[data-style='github'] .tab-item--active {
+        --tab-active-indicator: theme('colors.blue.600');
+    }
+
+    .tab-navigation .tab-item {
+        @apply border border-transparent;
+    }
+
+    .tab-navigation .tab-item--active {
+        @apply border-blue-600;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tab-item,
+    .tab-badge,
+    .tab-close,
+    .tab-add-button {
+        @apply transition-none;
+    }
+}
+
+.tab-navigation-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+}
+
+.tab-navigation-actions input.form-input,
+.tab-navigation-actions span.btn-wrapper > button.btn {
+    height: 28px;
+}

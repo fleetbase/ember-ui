@@ -1,6 +1,6 @@
 <DropdownButton
     @buttonComponent="filters-picker/button"
-    @buttonComponentArgs={{hash activeFilters=this.activeFilters}}
+    @buttonComponentArgs={{hash activeFilters=this.activeFilters iconOnly=@iconOnly}}
     @text={{or @text "Filter"}}
     @icon={{or @icon "filter"}}
     @type={{@type}}
@@ -21,12 +21,12 @@
     ...attributes
     as |dd|
 >
-    <div class="filters-dropdown-container">
+    <div class="filters-dropdown-container" {{set-width (or @width "650px")}}>
         <div class="filters-dropdown-header">
             <h4>{{or @dropdownHeaderText "Filters"}}</h4>
         </div>
         <div class="filters-dropdown-body">
-            <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full mb-4">
+            <div class="grid grid-cols-1 lg:grid-cols-{{or @gridCols '2'}} gap-2 w-full mb-4">
                 {{#each this.filters as |filter|}}
                     <div class="filter-component">
                         {{#unless filter.noFilterLabel}}

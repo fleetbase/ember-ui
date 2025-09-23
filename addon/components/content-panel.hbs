@@ -1,5 +1,5 @@
-<div class="next-content-panel-wrapper {{@wrapperClass}} {{if @isLoading 'is-loading'}}">
-    <div class="next-content-panel-container {{@containerClass}}">
+<div class="next-content-panel-wrapper {{if this.isOpen 'is-open' 'is-closed'}} {{@wrapperClass}} {{if @isLoading 'is-loading'}}">
+    <div class="next-content-panel-container {{if this.isOpen 'is-open' 'is-closed'}} {{@containerClass}}">
         <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
             <div
                 class="next-content-panel-header next-content-panel-toggle
@@ -7,16 +7,21 @@
                     {{@panelHeaderClass}}
                     {{if @isLoading 'is-loading'}}"
             >
-                <a href="javascript:;" aria-expanded={{this.isOpen}} class="next-content-panel-header-left {{if this.disabled 'opacity-50'}} {{@panelHeaderLeftClass}}" disabled={{this.disabled}} {{on "click" this.toggle}}>
-                    {{#unless @hideCaret}}
-                        <span class="icon-container" {{did-insert this.trackIconContainer}}>
-                            <FaIcon @icon={{if this.isOpen "caret-down" "caret-right"}} @prefix="fas" />
+                <a
+                    href="javascript:;"
+                    aria-expanded={{this.isOpen}}
+                    class="next-content-panel-header-left {{if this.disabled 'opacity-50'}} {{@panelHeaderLeftClass}}"
+                    disabled={{this.disabled}}
+                    {{on "click" this.toggle}}
+                >
+                    {{#if (and @caretLeft (not @hideCaret))}}
+                        <span class="icon-container" {{did-insert this.trackIconContainer}} {{on "click" this.toggle}}>
+                            <FaIcon @icon={{if this.isOpen (concat (or @caretIcon "chevron") "-down") (concat (or @caretIcon "chevron") "-up")}} @prefix="fas" />
                         </span>
-                    {{/unless}}
+                    {{/if}}
                     {{#if @isLoading}}
                         <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
-                    {{/if}}
-                    {{#if @titleIcon}}
+                    {{else if @titleIcon}}
                         <span class="icon-container {{@titleIconWrapperClass}}" {{did-insert this.trackIconContainer}}>
                             <FaIcon @icon={{@titleIcon}} @prefix={{@titleIconPrefix}} @size={{or @titleIconSize "xs"}} class={{@titleIconClass}} />
                         </span>
@@ -96,7 +101,7 @@
                                 @icon={{button.icon}}
                                 @size={{button.size}}
                                 @iconPrefix={{button.iconPrefix}}
-                                @onClick={{button.onClick}}
+                                @onClick={{if button.perform (perform button.perform) (or button.onClick button.fn button.action)}}
                                 @wrapperClass={{button.wrapperClass}}
                                 @permission={{button.permission}}
                                 @disabled={{button.disabled}}
@@ -150,6 +155,11 @@
                             </DropdownButton>
                         {{/if}}
                     {{/if}}
+                    {{#unless (or @caretLeft @hideCaret)}}
+                        <a href="#" class="icon-container" {{did-insert this.trackIconContainer}} {{on "click" this.toggle}}>
+                            <FaIcon @icon={{if this.isOpen (concat (or @caretIcon "chevron") "-down") (concat (or @caretIcon "chevron") "-up")}} @prefix="fas" />
+                        </a>
+                    {{/unless}}
                 </div>
             </div>
             <div class="next-content-panel-body {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelBodyClass}} {{if @isLoading 'is-loading'}}">

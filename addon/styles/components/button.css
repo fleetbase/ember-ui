@@ -3,6 +3,11 @@ a.btn,
 .fc-button,
 .ui-full-calendar .fc-button {
     @apply inline-flex items-center px-3 py-2 text-sm font-medium leading-4 transition duration-150 ease-in-out border border-transparent rounded-md;
+    cursor: default;
+}
+
+.btn svg {
+    cursor: default;
 }
 
 .btn.btn-is-loading,

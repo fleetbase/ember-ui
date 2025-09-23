@@ -1,9 +1,13 @@
-<div class="relative" aria-label={{n-a @value}}>
+<div class="relative" aria-label={{or @value "-"}}>
     <span class={{@column.cellClassNames}}>
         {{#if (has-block)}}
             {{yield}}
         {{else}}
-            {{n-a @value}}
+            {{#if @column.humanize}}
+                {{smart-humanize (or @value "-")}}
+            {{else}}
+                {{or @value "-"}}
+            {{/if}}
         {{/if}}
     </span>
     {{#if @column.showOnlineIndicator}}

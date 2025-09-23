@@ -1,0 +1,54 @@
+{{#each this.computedOverlays as |overlay|}}
+    <Layout::Resource::Panel
+        @resource={{overlay.model}}
+        @headerTitle={{overlay.title}}
+        @headerComponent={{if overlay.header (component overlay.header overlay=overlay resource=overlay.resource model=overlay.resource onPressCancel=(fn this.closeOverlay overlay.id)) ""}}
+        @actionButtons={{overlay.actionButtons}}
+        @width={{overlay.computedWidth}}
+        @isResizable={{overlay.computedResizable}}
+        @onPressCancel={{fn this.closeOverlay overlay.id}}
+        @saveTask={{if overlay.model.hasDirtyAttributes (or overlay.saveTask this.saveTask)}}
+        @saveOptions={{overlay.saveOptions}}
+        @bodyClass={{concat "resource-context-panel-body " (if overlay.tabs "has-tabs") " " overlay.bodyClass}}
+        @headerClass="{{overlay.headerClass}} resource-context-panel-header"
+    >
+        {{#if overlay.computedTabs}}
+            <div class="resource-context-panel-tabs {{overlay.tabWrapperClass}}">
+                <TabNavigation
+                    @tabs={{overlay.computedTabs}}
+                    @activeTabId={{get this.resourceContextPanel.activeTabs overlay.id}}
+                    @onTabChange={{fn this.handleTabChange overlay.id}}
+                    @style={{or overlay.tabStyle "github"}}
+                    @size={{or overlay.tabSize "md"}}
+                    @containerClass={{overlay.tabContainerClass}}
+                    @tablistClass="{{overlay.tablistClass}} resource-context-panel-tablist bg-white"
+                    @contentClass="{{overlay.tabContentClass}} resource-context-panel-tab-content p-4"
+                >
+                    {{#let (find-by "key" (get this.resourceContextPanel.activeTabs overlay.id) overlay.tabs) as |activeTab|}}
+                        {{#if activeTab}}
+                            {{component activeTab.component overlay=overlay resource=overlay.resource model=overlay.resource close=(fn this.closeOverlay overlay.id) class=activeTab.class}}
+                        {{/if}}
+                    {{/let}}
+                </TabNavigation>
+            </div>
+        {{else if overlay.content}}
+            <div class="resource-context-panel-content {{overlay.panelContentClass}}">
+                {{component overlay.content overlay=overlay resource=overlay.resource model=overlay.resource close=(fn this.closeOverlay overlay.id) class=overlay.contentClass}}
+            </div>
+        {{/if}}
+
+        {{#if overlay.footer}}
+            <div class="resource-context-panel-footer {{overlay.panelFooterClass}}">
+                {{component overlay.footer overlay=overlay resource=overlay.resource model=overlay.resource close=(fn this.closeOverlay overlay.id) class=overlay.footerClass}}
+            </div>
+        {{/if}}
+    </Layout::Resource::Panel>
+{{/each}}
+
+{{#if this.hasOverlays}}
+    {{#let this.resourceContextPanel.getActive as |activeOverlay|}}
+        {{#if activeOverlay.dismissible}}
+            <div class="resource-context-panel-backdrop fixed inset-0 bg-black bg-opacity-10 z-[999] cursor-pointer" {{on "click" this.closeActiveOverlay}} role="button" tabindex="-1"></div>
+        {{/if}}
+    {{/let}}
+{{/if}}

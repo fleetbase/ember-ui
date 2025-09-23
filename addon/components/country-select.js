@@ -4,6 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { task } from 'ember-concurrency';
+import { later } from '@ember/runloop';
 
 export default class CountrySelectComponent extends Component {
     @service fetch;
@@ -40,7 +41,7 @@ export default class CountrySelectComponent extends Component {
     }
 
     @action listenForInputChanges(element) {
-        setInterval(() => {
+        later(() => {
             const { value } = element;
 
             if (this.value !== value) {
@@ -54,7 +55,7 @@ export default class CountrySelectComponent extends Component {
         const { onChange } = this.args;
         this.selected = country;
 
-        if (typeof onChange === 'function') {
+        if (country && typeof onChange === 'function') {
             onChange(country.cca2, country);
         }
     }

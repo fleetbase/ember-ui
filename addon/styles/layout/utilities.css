@@ -717,3 +717,16 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
 .upload-avatar-overlay .upload-avatar-label-overlay {
     padding-left: 2rem;
 }
+
+.no-scroll {
+    overflow-y: visible !important;
+}
+
+.scrollable {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.rounded-none-i {
+    border-radius: 0 !important;
+}

@@ -4,14 +4,12 @@ import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { defer } from 'rsvp';
+import { guidFor } from '@ember/object/internals';
 
 const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
-    @tracked modalIsOpened = false;
-    @tracked modalDefer = null;
-    @tracked componentToRender = null;
-    @tracked options = {};
+    @tracked modals = [];
     @tracked defaultOptions = {
         title: null,
         body: null,
@@ -48,20 +46,75 @@ export default class ModalsManagerService extends Service {
         modalClass: '',
     };
 
+    // Computed properties for backward compatibility
+    get modalIsOpened() {
+        return this.modals.length > 0;
+    }
+
+    get componentToRender() {
+        const topModal = this.getTopModal();
+        return topModal ? topModal.componentToRender : null;
+    }
+
+    get options() {
+        const topModal = this.getTopModal();
+        return topModal ? topModal.options : {};
+    }
+
+    get modalDefer() {
+        const topModal = this.getTopModal();
+        return topModal ? topModal.defer : null;
+    }
+
     /**
-     * @throws {Error} if some modal is already opened
+     * Get the top-most (most recently opened) modal
+     * @return {Object|null}
+     */
+    getTopModal() {
+        return this.modals.length > 0 ? this.modals[this.modals.length - 1] : null;
+    }
+
+    /**
+     * Get modal by ID
+     * @param {String} modalId
+     * @return {Object|null}
+     */
+    getModalById(modalId) {
+        return this.modals.find((modal) => modal.id === modalId) || null;
+    }
+
+    /**
+     * Get the z-index for a modal based on its position in the stack
+     * @param {String} modalId
+     * @return {Number}
+     */
+    getModalZIndex(modalId) {
+        const index = this.modals.findIndex((modal) => modal.id === modalId);
+        return index >= 0 ? 1060 + index * 10 : 1060;
+    }
+
+    /**
      * @param componentToRender Component's child-class represents needed modal
      * @param options options passed to the rendered modal
      */
     @action show(componentToRender, options) {
-        assert('Only one modal may be opened in the same time!', !this.modalIsOpened);
         const component = componentToRender;
-        const opts = assign({}, this.defaultOptions, options);
-        this.componentToRender = component;
-        this.modalIsOpened = true;
-        this.options = opts;
+        const opts = assign({}, this.defaultOptions, options, { _zIndex: 1060 + this.modals.length * 10 });
+        const modalId = guidFor({}) + '-' + Date.now(); // Generate unique ID
         const modalDefer = defer();
-        this.modalDefer = modalDefer;
+
+        const modal = {
+            id: modalId,
+            componentToRender: component,
+            options: opts,
+            defer: modalDefer,
+            isOpen: true,
+            createdAt: new Date(),
+        };
+
+        // Add modal to the stack
+        this.modals = [...this.modals, modal];
+
         return modalDefer.promise;
     }
 
@@ -183,18 +236,25 @@ export default class ModalsManagerService extends Service {
                 selected,
                 selectOption: (event) => {
                     const { value } = event.target;
-
-                    this.setOption('selected', value);
+                    const topModal = this.getTopModal();
+                    if (topModal) {
+                        this.setOptionForModal(topModal.id, 'selected', value);
+                    }
                 },
                 confirm: () => {
-                    this.startLoading();
-                    const selected = this.getOption('selected');
-
-                    this.done();
-                    resolve(selected);
+                    const topModal = this.getTopModal();
+                    if (topModal) {
+                        this.startLoadingForModal(topModal.id);
+                        const selected = this.getOptionForModal(topModal.id, 'selected');
+                        this.done(topModal.id);
+                        resolve(selected);
+                    }
                 },
                 decline: () => {
-                    this.done();
+                    const topModal = this.getTopModal();
+                    if (topModal) {
+                        this.done(topModal.id);
+                    }
                     resolve(null);
                 },
                 ...modalOptions,
@@ -205,11 +265,14 @@ export default class ModalsManagerService extends Service {
     /**
      * Same as onClickConfirm but allows a handler to run then resolve by user
      *
-     * @param {EbmmModalOptions} v
+     * @param {String} modalId
      */
-    @action onClickConfirmWithDone() {
-        const done = this.done.bind(this, this, 'onConfirm');
-        const { confirm, keepOpen } = this.options;
+    @action onClickConfirmWithDone(modalId) {
+        const modal = this.getModalById(modalId);
+        if (!modal) return;
+
+        const done = this.done.bind(this, modalId, 'onConfirm');
+        const { confirm, keepOpen } = modal.options;
 
         if (typeof confirm === 'function') {
             const response = confirm(this, done);
@@ -233,11 +296,14 @@ export default class ModalsManagerService extends Service {
     /**
      * Same as onClickDecline but allows a handler to run then resolve by user
      *
-     * @param {EbmmModalOptions} v
+     * @param {String} modalId
      */
-    @action onClickDeclineWithDone() {
-        const done = this.done.bind(this, this, 'onDecline');
-        const { decline, keepOpen } = this.options;
+    @action onClickDeclineWithDone(modalId) {
+        const modal = this.getModalById(modalId);
+        if (!modal) return;
+
+        const done = this.done.bind(this, modalId, 'onDecline');
+        const { decline, keepOpen } = modal.options;
 
         if (typeof decline === 'function') {
             const response = decline(this, done);
@@ -261,23 +327,40 @@ export default class ModalsManagerService extends Service {
     /**
      * Closes the modal and cleans up
      *
-     * @void
+     * @param {String} modalId - ID of the modal to close, if not provided closes the top modal
+     * @param {String} action - The action that triggered the close
      */
-    @action done(instance, action) {
+    @action done(modalId, action) {
         return new Promise((resolve) => {
-            const callback = get(this, `options.${action}`);
-            const onFinish = get(this, `options.onFinish`);
+            let modal;
 
-            set(this, 'modalIsOpened', false);
-            this.modalDefer?.resolve(this);
-            this.clearOptions();
+            if (modalId) {
+                modal = this.getModalById(modalId);
+            } else {
+                // If no modalId provided, close the top modal (backward compatibility)
+                modal = this.getTopModal();
+            }
+
+            if (!modal) {
+                resolve(true);
+                return;
+            }
+
+            const callback = get(modal.options, `${action}`);
+            const onFinish = modal.options.onFinish;
+
+            // Remove modal from the stack
+            this.modals = this.modals.filter((m) => m.id !== modal.id);
+
+            // Resolve the modal's promise
+            modal.defer?.resolve(this);
 
             if (typeof callback === 'function') {
-                callback(this.options);
+                callback(modal.options);
             }
 
             if (typeof onFinish === 'function') {
-                onFinish(this.options);
+                onFinish(modal.options);
             }
 
             resolve(true);
@@ -285,18 +368,42 @@ export default class ModalsManagerService extends Service {
     }
 
     /**
-     * Retrieves an option
+     * Close all modals
+     */
+    @action closeAll() {
+        const modalsCopy = [...this.modals];
+        modalsCopy.forEach((modal) => {
+            this.done(modal.id);
+        });
+    }
+
+    /**
+     * Close the top-most modal
+     */
+    @action closeTop() {
+        const topModal = this.getTopModal();
+        if (topModal) {
+            this.done(topModal.id);
+        }
+    }
+
+    /**
+     * Retrieves an option from the top modal or a specific modal
      *
      * @param {String} key
      * @param {Mixed} defaultValue
+     * @param {String} modalId - Optional modal ID, defaults to top modal
      * @return {Mixed}
      */
-    @action getOption(key, defaultValue = null) {
+    @action getOption(key, defaultValue = null, modalId = null) {
         if (isArray(key)) {
-            return this.getOptions(key);
+            return this.getOptions(key, modalId);
         }
 
-        const value = get(this.options, key);
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (!modal) return defaultValue;
+
+        const value = get(modal.options, key);
         if (value === undefined) {
             return defaultValue;
         }
@@ -305,47 +412,84 @@ export default class ModalsManagerService extends Service {
     }
 
     /**
-     * Allows multiple options to be get
+     * Retrieves an option from a specific modal
      *
-     * @param {Object} options
-     * @void
+     * @param {String} modalId
+     * @param {String} key
+     * @param {Mixed} defaultValue
+     * @return {Mixed}
      */
-    @action getOptions(props = []) {
-        if (props?.length === 0) {
-            return this.options ?? {};
-        }
-
-        return getProperties(this.options, props);
+    @action getOptionForModal(modalId, key, defaultValue = null) {
+        return this.getOption(key, defaultValue, modalId);
     }
 
     /**
-     * Updates an option in the service
+     * Allows multiple options to be get
+     *
+     * @param {Array} props
+     * @param {String} modalId - Optional modal ID, defaults to top modal
+     */
+    @action getOptions(props = [], modalId = null) {
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (!modal) return {};
+
+        if (props?.length === 0) {
+            return modal.options ?? {};
+        }
+
+        return getProperties(modal.options, props);
+    }
+
+    /**
+     * Updates an option in the top modal or a specific modal
      *
      * @param {String} key
      * @param {Mixed} value
-     * @void
+     * @param {String} modalId - Optional modal ID, defaults to top modal
      */
-    @action setOption(key, value) {
-        set(this.options, key, value);
+    @action setOption(key, value, modalId = null) {
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (modal) {
+            set(modal.options, key, value);
+        }
+    }
+
+    /**
+     * Updates an option in a specific modal
+     *
+     * @param {String} modalId
+     * @param {String} key
+     * @param {Mixed} value
+     */
+    @action setOptionForModal(modalId, key, value) {
+        this.setOption(key, value, modalId);
     }
 
     /**
      * Allows multiple options to be updated
      *
      * @param {Object} options
-     * @void
+     * @param {String} modalId - Optional modal ID, defaults to top modal
      */
-    @action setOptions(options = {}) {
-        setProperties(this.options, options);
+    @action setOptions(options = {}, modalId = null) {
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (modal) {
+            setProperties(modal.options, options);
+        }
     }
 
     /**
      * Executes a function passed in options
      *
-     * @void
+     * @param {String} fn
+     * @param {String} modalId - Optional modal ID, defaults to top modal
+     * @param {...any} params
      */
-    @action invoke(fn, ...params) {
-        const callable = get(this.options, fn);
+    @action invoke(fn, modalId = null, ...params) {
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (!modal) return null;
+
+        const callable = get(modal.options, fn);
 
         if (typeof callable === 'function') {
             return callable(...params);
@@ -357,27 +501,62 @@ export default class ModalsManagerService extends Service {
     /**
      * Alias to start loading indicator on modal
      *
-     * @void
+     * @param {String} modalId - Optional modal ID, defaults to top modal
      */
-    @action startLoading() {
-        this.setOption('isLoading', true);
+    @action startLoading(modalId = null) {
+        this.setOption('isLoading', true, modalId);
+    }
+
+    /**
+     * Alias to start loading indicator on a specific modal
+     *
+     * @param {String} modalId
+     */
+    @action startLoadingForModal(modalId) {
+        this.startLoading(modalId);
     }
 
     /**
      * Alias to stop loading indicator on modal
      *
-     * @void
+     * @param {String} modalId - Optional modal ID, defaults to top modal
      */
-    @action stopLoading() {
-        this.setOption('isLoading', false);
+    @action stopLoading(modalId = null) {
+        this.setOption('isLoading', false, modalId);
     }
 
     /**
-     * Clear modalsManager options.
+     * Alias to stop loading indicator on a specific modal
      *
-     * @memberof ModalsManagerService
+     * @param {String} modalId
      */
-    @action clearOptions() {
-        this.options = {};
+    @action stopLoadingForModal(modalId) {
+        this.stopLoading(modalId);
+    }
+
+    /**
+     * Clear modalsManager options for a specific modal or top modal.
+     *
+     * @param {String} modalId - Optional modal ID, defaults to top modal
+     */
+    @action clearOptions(modalId = null) {
+        const modal = modalId ? this.getModalById(modalId) : this.getTopModal();
+        if (modal) {
+            modal.options = {};
+        }
+    }
+
+    /**
+     * Handle keyboard events (like ESC key) for the top modal
+     *
+     * @param {KeyboardEvent} event
+     */
+    @action handleKeyboardEvent(event) {
+        if (event.key === 'Escape') {
+            const topModal = this.getTopModal();
+            if (topModal && topModal.options.keyboard !== false) {
+                this.done(topModal.id);
+            }
+        }
     }
 }

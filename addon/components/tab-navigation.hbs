@@ -1,0 +1,120 @@
+<div class="tab-navigation {{@containerClass}}" data-style={{or @style "github"}} data-size={{or @size "md"}}>
+
+    <div class="tab-list justify-between {{@tablistClass}}" role="tablist">
+        <div class="flex flex-row items-center" role="tablist">
+            {{#if (has-block "tabs")}}
+                {{yield this to="tabs"}}
+            {{else if @tabs}}
+                {{#each this.enhancedTabs as |tab|}}
+                    {{! template-lint-disable require-presentational-children }}
+                    {{#if tab.route}}
+                        <LinkTo
+                            @route={{tab.route}}
+                            @query={{or tab.query (hash)}}
+                            @models={{or tab.models (array)}}
+                            @activeClass="tab-item--active"
+                            class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
+                            role="tab"
+                            aria-selected={{tab.isActive}}
+                            aria-controls="tabpanel-{{tab.route}}"
+                            id="tab-{{tab.route}}"
+                            data-tab-id={{tab.route}}
+                            data-disabled={{tab.isDisabled}}
+                            disabled={{tab.isDisabled}}
+                        >
+                            {{#if tab.hasIcon}}
+                                <span class="tab-ico {{tab.iconWrapperClass}}">
+                                    {{#if (eq @iconType "component")}}
+                                        {{component tab.icon}}
+                                    {{else}}
+                                        <FaIcon @icon={{tab.icon}} @size={{tab.iconSize}} class={{tab.iconClass}} />
+                                    {{/if}}
+                                </span>
+                            {{/if}}
+                            <span class="tab-label">
+                                {{tab.label}}
+                            </span>
+                            {{#if tab.hasBadge}}
+                                <span class="tab-badge">
+                                    {{tab.badgeText}}
+                                </span>
+                            {{/if}}
+                            {{#if tab.isClosable}}
+                                {{! template-lint-disable no-nested-interactive }}
+                                <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            {{/if}}
+                        </LinkTo>
+                    {{else}}
+                        <button
+                            type="button"
+                            class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isActive 'tab-item--active'}} {{if tab.isDisabled 'tab-item--disabled'}}"
+                            role="tab"
+                            aria-selected={{tab.isActive}}
+                            aria-controls="tabpanel-{{tab.id}}"
+                            id="tab-{{tab.id}}"
+                            {{on "click" (fn this.selectTab tab)}}
+                            {{on "keydown" (fn this.handleKeyDown tab)}}
+                            data-tab-id={{tab.id}}
+                            data-active={{tab.isActive}}
+                            data-disabled={{tab.isDisabled}}
+                            disabled={{tab.isDisabled}}
+                        >
+                            {{#if tab.hasIcon}}
+                                <span class="tab-ico {{tab.iconWrapperClass}}">
+                                    {{#if (eq @iconType "component")}}
+                                        {{component tab.icon}}
+                                    {{else}}
+                                        <FaIcon @icon={{tab.icon}} @size={{tab.iconSize}} class={{tab.iconClass}} />
+                                    {{/if}}
+                                </span>
+                            {{/if}}
+                            <span class="tab-label">
+                                {{tab.label}}
+                            </span>
+                            {{#if tab.hasBadge}}
+                                <span class="tab-badge">
+                                    {{tab.badgeText}}
+                                </span>
+                            {{/if}}
+                            {{#if tab.isClosable}}
+                                {{! template-lint-disable no-nested-interactive }}
+                                <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            {{/if}}
+                        </button>
+                    {{/if}}
+                {{/each}}
+            {{/if}}
+            {{#if @onAddTab}}
+                <button type="button" class="tab-add-button" aria-label="Add new tab" {{on "click" @onAddTab}}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </button>
+            {{/if}}
+        </div>
+
+        {{#if (has-block "actions")}}
+            <div id="tab-navigation-actions" class="tab-navigation-actions">
+                {{yield to="actions"}}
+            </div>
+        {{/if}}
+    </div>
+
+    {{#if this.activeTab}}
+        <div class="tab-content {{@contentClass}}" role="tabpanel" id="tabpanel-{{this.activeTab.id}}" aria-labelledby="tab-{{this.activeTab.id}}">
+            {{yield this.activeTab}}
+        </div>
+    {{else if (has-block)}}
+        <div class="tab-content {{@contentClass}}" role="tabpanel">
+            {{yield}}
+        </div>
+    {{/if}}
+</div>

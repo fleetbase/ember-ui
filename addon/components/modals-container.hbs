@@ -1,9 +1,11 @@
-{{#if this.modalsManager.modalIsOpened}}
+{{#each this.modalsManager.modals as |modal|}}
     {{component
-        (component this.modalsManager.componentToRender)
-        modalIsOpened=this.modalsManager.modalIsOpened
-        options=this.modalsManager.options
-        onConfirm=this.confirm
-        onDecline=this.decline
+        (component modal.componentToRender options=modal.options)
+        modalIsOpened=modal.isOpen
+        options=modal.options
+        modalId=modal.id
+        zIndex=modal.options._zIndex
+        onConfirm=(fn this.confirm modal.id)
+        onDecline=(fn this.decline modal.id)
     }}
-{{/if}}
+{{/each}}

@@ -1,4 +1,12 @@
-<Button @type={{@type}} @text={{or @text "Filters"}} @icon={{or @icon "filter"}} @size={{or @size "xs"}} @wrapperClass={{@wrapperClass}} {{did-update this.handleComponentArgsUpdate @buttonComponentArgs}} ...attributes>
+<Button
+    @type={{@type}}
+    @text={{if this.buttonComponentArgs.iconOnly "" (or @text "Filters")}}
+    @icon={{or @icon "filter"}}
+    @size={{or @size "xs"}}
+    @wrapperClass={{@wrapperClass}}
+    {{did-update this.handleComponentArgsUpdate @buttonComponentArgs}}
+    ...attributes
+>
     {{#if this.buttonComponentArgs.activeFilters.length}}
         <div class="box-divider">
             <span class="font-semibold text-sky-500">{{this.buttonComponentArgs.activeFilters.length}}</span>

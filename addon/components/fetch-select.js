@@ -61,7 +61,7 @@ export default class FetchSelectComponent extends Component {
         assert('<FetchSelect /> requires a valid `endpoint`.', !isEmpty(this.args.endpoint));
 
         this.endpoint = this.args.endpoint;
-        this.selected = this.setSelectedOption(this.args.selected);
+        this.setSelectedOption(this.args.selected);
         // this.debounceDuration = this.args.debounceDuration || this.debounceDuration;
     }
 
@@ -106,6 +106,14 @@ export default class FetchSelectComponent extends Component {
 
         // set options
         this.options = _options;
+
+        // Set selected if applicable
+        if (this.selected && this.args.optionValue) {
+            this.findAndSelect(this.selected, this.options);
+        } else if (this.selected) {
+            this.select(this.selected);
+        }
+
         return _options;
     };
 
@@ -133,23 +141,19 @@ export default class FetchSelectComponent extends Component {
      * @param {*} selected
      * @memberof FetchSelectComponent
      */
-    setSelectedOption(selected) {
-        const { optionValue } = this.args;
+    async setSelectedOption(selected) {
+        if (this.args.optionValue) {
+            const options = await this.fetchOptions.perform();
+            this.findAndSelect(selected, options);
+        } else {
+            this.select(selected);
+        }
+    }
 
-        if (optionValue) {
-            this.fetchOptions.perform().then((options) => {
-                let foundSelected = null;
-
-                if (isArray(options)) {
-                    foundSelected = options.find((option) => option[optionValue] === selected);
-                }
-
-                if (foundSelected) {
-                    this.select(foundSelected);
-                } else {
-                    this.select(selected);
-                }
-            });
+    findAndSelect(selected, options = []) {
+        const foundSelected = options.find((option) => option[this.args.optionValue] === selected);
+        if (foundSelected) {
+            this.select(foundSelected);
         } else {
             this.select(selected);
         }

@@ -39,3 +39,20 @@ body[data-theme='dark'] .ember-power-select-multiple-option {
 body.fleetbase-console .ember-basic-dropdown-content {
     background-color: transparent;
 }
+
+.ember-power-select-selected-item .hide-from-trigger {
+    display: none;
+}
+
+.ember-power-select-selected-item div.normalize-in-trigger {
+    font-weight: normal;
+}
+
+.ember-basic-dropdown-content-wormhole-origin,
+.ember-basic-dropdown-content-placeholder {
+    margin: 0 !important;
+}
+
+body.fleetbase-console .ember-power-select-trigger {
+    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+}
