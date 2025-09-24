@@ -17,8 +17,10 @@ export default helper(function jsonStringify(positional, named = {}) {
     if (replacer == null && typeof arg3 === 'function') replacer = arg3;
 
     if (named.space === undefined) {
-        if (typeof arg2 === 'number') space = arg2; // (obj, 4)
-        else if (typeof arg2 === 'boolean') space = arg2 ? 2 : 0; // (obj, true|false)
+        if (typeof arg2 === 'number')
+            space = arg2; // (obj, 4)
+        else if (typeof arg2 === 'boolean')
+            space = arg2 ? 2 : 0; // (obj, true|false)
         else if (typeof arg3 === 'number') space = arg3; // (obj, replacer, 2)
     }
 

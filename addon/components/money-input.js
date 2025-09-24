@@ -93,4 +93,8 @@ export default class MoneyInputComponent extends Component {
 
         return options;
     }
+
+    @action handleCurrencyChanges(el, [currency]) {
+        this.setCurrency(getCurrency(currency));
+    }
 }
