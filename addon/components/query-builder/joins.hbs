@@ -1,0 +1,142 @@
+<div class="query-builder-panel" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="query-builder-panel-title">
+            <FaIcon @icon="link" @size="sm" class="mr-2" />
+            Joins
+        </div>
+        <div class="text-xs text-gray-500">
+            {{if this.joins.length (concat this.joins.length " join" (if (gt this.joins.length 1) "s")) "No joins"}}
+        </div>
+    </div>
+
+    <div class="query-builder-panel-content">
+        {{#if this.relationships.length}}
+            <div class="space-y-4">
+                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Available Relationships
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    {{#each this.relationships as |relationship|}}
+                        <div class="relationship-card {{if (this.isJoined relationship.key) 'selected'}}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <Checkbox @value={{this.isJoined relationship.key}} @onToggle={{fn this.toggleJoin relationship}} />
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-gray-100">
+                                            {{relationship.label}}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{relationship.table}}
+                                            table
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="join-type-badge">
+                                    {{uppercase relationship.type}}
+                                    JOIN
+                                </div>
+                            </div>
+
+                            {{#if (this.isJoined relationship.key)}}
+                                {{#let (this.getJoinedRelationship relationship.key) as |joinedRel|}}
+                                    <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="text-xs font-medium text-blue-800 dark:text-blue-200">
+                                                Select columns from
+                                                {{relationship.label}}
+                                            </div>
+                                            <div class="text-xs text-blue-600 dark:text-blue-400">
+                                                {{joinedRel.selectedColumns.length}}
+                                                selected
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center space-x-2 mb-3">
+                                            <button
+                                                type="button"
+                                                class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-700"
+                                                {{on "click" (fn this.selectAllJoinColumns relationship.key)}}
+                                            >
+                                                Select All
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                                                {{on "click" (fn this.selectNoneJoinColumns relationship.key)}}
+                                            >
+                                                Select None
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="text-xs px-2 py-1 bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-700"
+                                                {{on "click" (fn this.selectCommonJoinColumns relationship.key)}}
+                                            >
+                                                Common Fields
+                                            </button>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                                            {{#each relationship.columns as |column|}}
+                                                <div class="column-item {{if (includes column.name (map-by 'name' joinedRel.selectedColumns)) 'selected'}}">
+                                                    <div class="column-checkbox-wrapper">
+                                                        <Checkbox
+                                                            @value={{includes column.name (map-by "name" joinedRel.selectedColumns)}}
+                                                            @onToggle={{fn this.toggleJoinColumn relationship.key column}}
+                                                        />
+                                                        <div class="column-info">
+                                                            <div class="column-label">{{column.label}}</div>
+                                                            <div class="column-type">{{column.type}}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{#if (includes column.name (map-by "name" joinedRel.selectedColumns))}}
+                                                        <Input
+                                                            @value={{this.getColumnAlias relationship.key column.name}}
+                                                            placeholder="Alias (optional)"
+                                                            class="form-input form-input-sm column-alias-input"
+                                                            {{on "input" (fn this.updateJoinColumnAlias relationship.key column.name)}}
+                                                        />
+                                                    {{/if}}
+                                                </div>
+                                            {{/each}}
+                                        </div>
+                                    </div>
+                                {{/let}}
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+
+            {{#if (gt this.totalJoinedColumns 20)}}
+                <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                    <div class="flex items-start space-x-2">
+                        <FaIcon @icon="exclamation-triangle" @size="sm" class="text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                        <div class="text-xs text-yellow-800 dark:text-yellow-200">
+                            <div class="font-medium">Performance Warning</div>
+                            <div class="mt-1">
+                                You have
+                                {{this.totalJoinedColumns}}
+                                joined columns selected. Consider selecting only the columns you need for better performance.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/if}}
+        {{else}}
+            <div class="min-h-24 p-4">
+                <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                    <div class="text-center">
+                        <FaIcon @icon="link" @size="2x" class="text-gray-400 mb-2" />
+                        <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">No relationships available</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                            This table has no defined relationships to join with other tables
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+    </div>
+</div>

@@ -48,6 +48,9 @@
 @import 'components/tip-tap-editor.css';
 @import 'components/tab-navigation.css';
 @import 'components/resource-context-panel.css';
+@import 'components/card-grid.css';
+@import 'components/report-builder.css';
+@import 'components/query-builder.css';
 
 /** Third party */
 @import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";

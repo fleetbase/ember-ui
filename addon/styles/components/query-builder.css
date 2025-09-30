@@ -1,0 +1,387 @@
+.query-builder-panel {
+    @apply bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
+}
+
+.query-builder-panel-header {
+    @apply flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700;
+}
+
+.query-builder-panel-header.without-border-b {
+    border-bottom-width: 0px;
+}
+
+.query-builder-panel-title {
+    @apply flex items-center text-sm font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.query-builder-panel-content {
+    @apply px-2 py-3;
+}
+
+.query-builder-panel-content.no-padding {
+    padding: 0px;
+}
+
+.query-builder-actions {
+    @apply flex flex-wrap gap-2;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item {
+    @apply px-2 py-1 rounded-md border border-gray-200 dark:border-gray-600 flex flex-wrap items-center justify-between gap-2;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+body[data-theme='dark'] .query-builder-panel .query-builder-panel-content .column-item {
+    background: rgba(31, 41, 55, 0.8);
+}
+
+.query-builder-panel .query-builder-panel-content .column-item:hover {
+    @apply border-blue-500 shadow-md;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item.selected {
+    @apply border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20;
+}
+
+.query-builder-panel .query-builder-panel-content .column-checkbox-wrapper {
+    @apply flex items-center space-x-2;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item .column-info {
+    @apply flex items-center flex-row flex-1 gap-2;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item .column-label {
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item .column-type {
+    @apply text-xs text-gray-500 dark:text-gray-400 font-mono;
+}
+
+.query-builder-panel .query-builder-panel-content .column-item .column-alias-input {
+    @apply text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+}
+
+/* Relationship Cards */
+.relationship-card {
+    @apply p-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-200;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+body[data-theme='dark'] .relationship-card {
+    background: rgba(31, 41, 55, 0.8);
+}
+
+.relationship-card:hover {
+    @apply border-blue-300 dark:border-blue-600 shadow-md;
+}
+
+.relationship-card.selected {
+    @apply border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20;
+}
+
+/* Joins Styling */
+.joins-container .query-builder-panel-content {
+    @apply space-y-4;
+}
+
+.join-item {
+    @apply relative;
+}
+
+.join-connector {
+    @apply flex items-center justify-center py-2;
+}
+
+.join-type-badge {
+    @apply px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-700;
+}
+
+.join-header {
+    @apply flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700;
+}
+
+.join-table-info {
+    @apply flex items-center space-x-2;
+}
+
+.join-table-icon {
+    @apply w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center text-white;
+}
+
+.join-condition {
+    @apply p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700;
+}
+
+.join-condition-text {
+    @apply px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs font-mono text-gray-800 dark:text-gray-200;
+}
+
+/* Condition Group Container */
+.condition-group-container {
+    @apply space-y-4;
+}
+
+/* Condition Group */
+.condition-group {
+    @apply relative bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+body[data-theme='dark'] .condition-group {
+    background: rgba(31, 41, 55, 0.9);
+}
+
+.condition-group.nested-group {
+    @apply border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/10;
+    background: rgba(139, 92, 246, 0.05);
+}
+
+body[data-theme='dark'] .condition-group.nested-group {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Group Header */
+.condition-group-header {
+    @apply flex items-center justify-between px-2 py-1 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-t-md;
+}
+
+.nested-group .condition-group-header {
+    @apply bg-blue-100 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700;
+}
+
+/* Group Content */
+.condition-group-content {
+    @apply p-3 space-y-3;
+}
+
+/* Group Brackets */
+.group-bracket {
+    @apply text-2xl font-bold text-blue-600 dark:text-blue-400 select-none;
+}
+
+/* Group Operator Select */
+.group-operator-select {
+    @apply px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 rounded-md;
+}
+
+/* Condition Item */
+.condition-item {
+    @apply relative;
+}
+
+/* Condition Connector */
+.condition-connector {
+    @apply flex items-center justify-center py-2;
+}
+
+.condition-operator-select {
+    @apply px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-full;
+}
+
+/* Condition Content */
+.condition-content {
+    @apply flex items-center space-x-2 px-2 py-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600 shadow-sm;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.condition-content .drag-sort-list > :not([hidden]) ~ :not([hidden]) {
+    margin: 0 !important;
+}
+
+body[data-theme='dark'] .condition-content {
+    background: rgba(31, 41, 55, 0.95);
+}
+
+.condition-content:hover {
+    @apply border-blue-300 dark:border-blue-600 shadow-md;
+}
+
+/* Condition Fields */
+.condition-field,
+.condition-operator,
+.condition-value {
+    @apply flex-1 min-w-0;
+}
+
+.condition-field {
+    @apply flex-[2];
+}
+
+.condition-operator {
+    @apply flex-[1.5];
+}
+
+.condition-value {
+    @apply flex-[2];
+}
+
+/* Range Inputs */
+.condition-range-inputs {
+    @apply grid grid-cols-2 gap-2;
+}
+
+/* Action Buttons */
+.condition-actions {
+    @apply flex items-center space-x-2 pt-4 border-t border-gray-200 dark:border-gray-600;
+}
+
+.action-btn {
+    @apply flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200;
+}
+
+.action-btn.primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg;
+}
+
+.action-btn.secondary {
+    @apply bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md;
+}
+
+/* Add Condition Button */
+.add-condition-btn {
+    @apply w-full flex items-center justify-center px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 border border-dashed border-blue-300 dark:border-blue-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200;
+}
+
+/* Drag Sort Styling for Groups */
+.condition-group.is-dragging {
+    @apply shadow-xl border-blue-400 dark:border-blue-500;
+    transform: rotate(1deg) scale(1.02);
+    opacity: 0.9;
+}
+
+/* Nested Group Visual Indicators */
+.nested-group::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1 bg-blue-400 dark:bg-blue-500 rounded-l-lg;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .condition-content {
+        @apply flex-col space-x-0 space-y-3;
+    }
+
+    .condition-field,
+    .condition-operator,
+    .condition-value {
+        @apply flex-none w-full;
+    }
+
+    .condition-actions {
+        @apply flex-col space-x-0 space-y-2;
+    }
+
+    .action-btn {
+        @apply w-full justify-center;
+    }
+}
+
+/* Animation for adding/removing groups */
+.condition-group {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.condition-content {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover effects for better UX */
+.condition-group:hover {
+    @apply shadow-md;
+}
+
+.nested-group:hover {
+    @apply shadow-lg border-blue-400 dark:border-blue-500;
+}
+
+/* Focus states for form elements within conditions */
+.condition-content input:focus,
+.condition-content select:focus {
+    @apply border-blue-400 dark:border-blue-500;
+}
+
+/* Visual connection lines for nested groups */
+.condition-group-container > .drag-sort-list > .condition-group:not(:last-child)::after {
+    content: '';
+    @apply absolute -bottom-2 left-1/2 w-px h-4 bg-gray-300 dark:bg-gray-600 transform -translate-x-1/2;
+}
+
+.nested-group::after {
+    @apply bg-blue-300 dark:bg-blue-600;
+}
+
+/* Drag Sort Styling */
+.drag-sort-list {
+    @apply space-y-3;
+}
+
+.drag-sort-item {
+    @apply flex items-center space-x-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm transition-all duration-200;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+body[data-theme='dark'] .drag-sort-item {
+    background: rgba(31, 41, 55, 0.9);
+}
+
+.drag-sort-item:hover {
+    @apply shadow-md border-blue-300 dark:border-blue-600;
+    transform: translateY(-1px);
+}
+
+.drag-sort-item.is-dragging {
+    @apply shadow-xl border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20;
+    transform: rotate(2deg) scale(1.02);
+    opacity: 0.9;
+}
+
+.drag-handle {
+    @apply text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-grab p-1 rounded;
+}
+
+.drag-handle:active {
+    @apply cursor-grabbing;
+}
+
+/* Group/Sort Item Styling */
+.group-sort-item {
+    @apply flex items-center space-x-2 px-2 py-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm;
+}
+
+.group-sort-item:hover {
+    @apply border-blue-300 dark:border-blue-600 shadow-md;
+}
+
+/* PowerSelect Multiple */
+.ember-power-select-multiple-option {
+    @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 rounded-md px-2 py-1 text-xs font-medium;
+}
+
+.ember-power-select-multiple-remove-btn {
+    @apply text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .group-sort-item {
+        @apply flex-col items-start space-x-0 space-y-2;
+    }
+
+    .drag-handle {
+        @apply self-center;
+    }
+}

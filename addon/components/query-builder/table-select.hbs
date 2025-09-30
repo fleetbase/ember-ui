@@ -1,0 +1,45 @@
+<div class="query-builder-panel" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="query-builder-panel-title">
+            <FaIcon @icon="table" @size="sm" class="mr-2" />
+            Data Source
+        </div>
+        <div class="text-xs text-gray-500">
+            {{if this.primaryTable this.primaryTable.label "No source selected"}}
+        </div>
+    </div>
+    <div class="query-builder-panel-content">
+        <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+            <PowerSelect
+                @options={{@tables}}
+                @selected={{this.primaryTable}}
+                @onChange={{this.selectPrimaryTable}}
+                @placeholder="Select data source..."
+                @triggerClass="form-select form-input w-full"
+                @searchEnabled={{true}}
+                @searchField="label"
+                as |option|
+            >
+                <div class="flex-1">
+                    <div class="font-semibold text-sm normalize-in-trigger">{{option.label}}</div>
+                    <div class="text-xs text-gray-500 hide-from-trigger">{{option.description}}</div>
+                </div>
+            </PowerSelect>
+        </div>
+
+        {{#if this.primaryTable}}
+            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                <div class="flex items-center space-x-2 mb-2">
+                    <FaIcon @icon="info-circle" @size="sm" class="text-blue-600 dark:text-blue-400" />
+                    <span class="text-sm font-medium text-blue-900 dark:text-blue-100">Table Information</span>
+                </div>
+                <div class="text-xs text-blue-700 dark:text-blue-300">
+                    <div><strong>Columns:</strong> {{this.primaryTable.columns.length}}</div>
+                    {{#if this.primaryTable.relationships}}
+                        <div><strong>Relationships:</strong> {{get (keys this.primaryTable.relationships) "length"}}</div>
+                    {{/if}}
+                </div>
+            </div>
+        {{/if}}
+    </div>
+</div>

@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { next } from '@ember/runloop';
 
 export default class TabNavigationComponent extends Component {
     @tracked _activeTabId = null;
@@ -8,7 +9,16 @@ export default class TabNavigationComponent extends Component {
     constructor(owner, args) {
         super(owner, args);
         this._activeTabId = args.activeTabId || (args.tabs?.[0]?.id ?? null);
+        next(() => {
+            if (typeof this.args.contextApi === 'function') {
+                this.args.contextApi(this.context);
+            }
+        });
     }
+
+    context = {
+        selectTabById: this.selectTabById.bind(this),
+    };
 
     get activeTab() {
         if (!this.args.tabs) return null;
@@ -45,6 +55,12 @@ export default class TabNavigationComponent extends Component {
         if (this.args.onTabChange) {
             this.args.onTabChange(tab);
         }
+    }
+
+    selectTabById(tabId) {
+        const tab = this.enhancedTabs.find((t) => t.id === tabId);
+        if (!tab) return;
+        this.selectTab(tab);
     }
 
     @action closeTab(tab) {

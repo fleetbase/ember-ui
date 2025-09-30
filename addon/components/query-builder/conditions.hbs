@@ -1,0 +1,242 @@
+<div class="query-builder-panel" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="query-builder-panel-title">
+            <FaIcon @icon="filter" @size="sm" class="mr-2" />
+            Conditions
+        </div>
+        <div class="text-xs text-gray-500">
+            {{if this.hasConditions this.conditionsSummary "No conditions"}}
+        </div>
+    </div>
+
+    <div class="query-builder-panel-content">
+        {{#if @columns}}
+            <div class="condition-group-container">
+                {{#if this.conditionGroups.length}}
+                    <DragSortList
+                        @items={{this.conditionGroups}}
+                        @dragEndAction={{this.reorderConditionGroups}}
+                        @group="condition-groups"
+                        @dragHandle=".drag-handle"
+                        class="drag-sort-list"
+                        as |group groupIndex|
+                    >
+                        <div class="condition-group {{if group.isNested 'nested-group'}}">
+                            <div class="condition-group-header">
+                                <div class="drag-handle">
+                                    <FaIcon @icon="grip-vertical" @size="sm" />
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    {{#if group.isNested}}
+                                        <div class="group-bracket">(</div>
+                                    {{/if}}
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                        {{if group.isNested "Group" "Conditions"}}
+                                    </span>
+                                    {{#if (gt groupIndex 0)}}
+                                        <Select
+                                            class="group-operator-select"
+                                            @value={{group.operator}}
+                                            @options={{array "and" "or"}}
+                                            @onSelect={{fn this.updateGroupOperator groupIndex}}
+                                            @unstyled={{true}}
+                                            @defaultStylingDisabled={{true}}
+                                            as |option|
+                                        >
+                                            {{uppercase option}}
+                                        </Select>
+                                    {{/if}}
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    {{#if group.isNested}}
+                                        <button
+                                            type="button"
+                                            class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 p-1"
+                                            {{on "click" (fn this.removeConditionGroup groupIndex)}}
+                                        >
+                                            <FaIcon @icon="trash" @size="sm" />
+                                        </button>
+                                    {{/if}}
+                                </div>
+                            </div>
+
+                            <div class="condition-group-content">
+                                {{#if group.conditions.length}}
+                                    <DragSortList
+                                        @items={{group.conditions}}
+                                        @dragEndAction={{fn this.reorderConditions groupIndex}}
+                                        @group="conditions"
+                                        @dragHandle=".drag-handle"
+                                        class="drag-sort-list"
+                                        as |condition conditionIndex|
+                                    >
+                                        <div class="condition-item">
+
+                                            {{#if (gt conditionIndex 0)}}
+                                                <div class="condition-connector">
+                                                    <Select
+                                                        class="condition-operator-select"
+                                                        @value={{condition.logicalOperator}}
+                                                        @options={{array "and" "or"}}
+                                                        @onSelect={{fn this.updateConditionOperator groupIndex conditionIndex}}
+                                                        @unstyled={{true}}
+                                                        @defaultStylingDisabled={{true}}
+                                                        as |option|
+                                                    >
+                                                        {{uppercase option}}
+                                                    </Select>
+                                                </div>
+                                            {{/if}}
+
+                                            <div class="condition-content">
+                                                <div class="drag-handle">
+                                                    <FaIcon @icon="grip-vertical" @size="sm" />
+                                                </div>
+
+                                                <div class="condition-field">
+                                                    <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+                                                        <PowerSelect
+                                                            @options={{this.availableColumns}}
+                                                            @selected={{condition.field}}
+                                                            @onChange={{fn this.updateConditionField groupIndex conditionIndex}}
+                                                            @placeholder="Select field..."
+                                                            @triggerClass="form-select form-input"
+                                                            @searchEnabled={{true}}
+                                                            @searchField="label"
+                                                            as |option|
+                                                        >
+                                                            <div class="flex items-center space-x-2">
+                                                                <span class="font-medium">{{option.label}}</span>
+                                                                <span class="text-xs text-gray-500 font-mono">{{option.type}}</span>
+                                                            </div>
+                                                        </PowerSelect>
+                                                    </div>
+                                                </div>
+
+                                                <div class="condition-operator">
+                                                    <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+                                                        <PowerSelect
+                                                            @options={{this.getOperatorsForField condition.field}}
+                                                            @selected={{condition.operator}}
+                                                            @onChange={{fn this.updateConditionOperator groupIndex conditionIndex}}
+                                                            @placeholder="Operator..."
+                                                            @triggerClass="form-select form-input"
+                                                            @disabled={{not condition.field}}
+                                                            as |option|
+                                                        >
+                                                            <div class="flex items-center space-x-2">
+                                                                <FaIcon @icon={{this.getOperatorIcon option.value}} @size="sm" class="text-gray-500" />
+                                                                <span>{{option.label}}</span>
+                                                            </div>
+                                                        </PowerSelect>
+                                                    </div>
+                                                </div>
+
+                                                <div class="condition-value">
+                                                    {{#if (and condition.operator (not (includes condition.operator.value (array "is_null" "is_not_null"))))}}
+                                                        {{#if (includes condition.operator.value (array "between" "not_between"))}}
+                                                            <div class="condition-range-inputs">
+                                                                <Input
+                                                                    @value={{get condition.value 0}}
+                                                                    @type={{this.getInputTypeForField condition.field}}
+                                                                    placeholder="From"
+                                                                    class="form-input form-input-sm"
+                                                                    {{on "input" (fn this.updateConditionRangeValue groupIndex conditionIndex 0)}}
+                                                                />
+                                                                <Input
+                                                                    @value={{get condition.value 1}}
+                                                                    @type={{this.getInputTypeForField condition.field}}
+                                                                    placeholder="To"
+                                                                    class="form-input form-input-sm"
+                                                                    {{on "input" (fn this.updateConditionRangeValue groupIndex conditionIndex 1)}}
+                                                                />
+                                                            </div>
+                                                        {{else if (includes condition.operator.value (array "in" "not_in"))}}
+                                                            <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+                                                                <PowerSelectMultiple
+                                                                    @options={{this.getValueOptionsForField condition.field}}
+                                                                    @selected={{condition.value}}
+                                                                    @onChange={{fn this.updateConditionValue groupIndex conditionIndex}}
+                                                                    @placeholder="Select values..."
+                                                                    @triggerClass="form-select form-input"
+                                                                    @allowClear={{true}}
+                                                                    as |option|
+                                                                >
+                                                                    {{option.label}}
+                                                                </PowerSelectMultiple>
+                                                            </div>
+                                                        {{else if (eq condition.field.type "boolean")}}
+                                                            <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+                                                                <PowerSelect
+                                                                    @options={{this.booleanOptions}}
+                                                                    @selected={{condition.value}}
+                                                                    @onChange={{fn this.updateConditionValue groupIndex conditionIndex}}
+                                                                    @placeholder="Select value..."
+                                                                    @triggerClass="form-select form-input"
+                                                                    as |option|
+                                                                >
+                                                                    {{option.label}}
+                                                                </PowerSelect>
+                                                            </div>
+                                                        {{else}}
+                                                            <Input
+                                                                @value={{condition.value}}
+                                                                @type={{this.getInputTypeForField condition.field}}
+                                                                placeholder="Enter value..."
+                                                                class="form-input form-input-sm"
+                                                                {{on "input" (fn this.updateConditionValue groupIndex conditionIndex)}}
+                                                            />
+                                                        {{/if}}
+                                                    {{/if}}
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 p-1"
+                                                    {{on "click" (fn this.removeCondition groupIndex conditionIndex)}}
+                                                >
+                                                    <FaIcon @icon="trash" @size="sm" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </DragSortList>
+                                {{/if}}
+
+                                <Button @text="Add condition" @icon="plus" @size="xs" @onClick={{fn this.addConditionToGroup groupIndex}} />
+                            </div>
+
+                            {{#if group.isNested}}
+                                <div class="group-bracket">)</div>
+                            {{/if}}
+                        </div>
+                    </DragSortList>
+                {{else}}
+                    <div class="min-h-24 p-4">
+                        <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                            <div class="text-center">
+                                <FaIcon @icon="filter" @size="2x" class="text-gray-400 mb-2" />
+                                <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">No conditions set</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Add conditions to filter your data</div>
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+
+                <div class="condition-actions">
+                    <Button @text="Add condition" @type="primary" @icon="plus" @size="xs" @onClick={{this.addCondition}} />
+                    <Button @text="Add inner group" @type="secondary" @icon="layer-group" @size="xs" @onClick={{this.addConditionGroup}} />
+                </div>
+            </div>
+        {{else}}
+            <div class="min-h-24 p-4">
+                <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                    <div class="text-center">
+                        <FaIcon @icon="table" @size="2x" class="text-gray-400 mb-2" />
+                        <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Select fields first</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Choose columns to enable filtering</div>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+    </div>
+</div>

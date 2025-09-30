@@ -1,5 +1,4 @@
 <div class="tab-navigation {{@containerClass}}" data-style={{or @style "github"}} data-size={{or @size "md"}}>
-
     <div class="tab-list justify-between {{@tablistClass}}" role="tablist">
         <div class="flex flex-row items-center" role="tablist">
             {{#if (has-block "tabs")}}
@@ -102,7 +101,7 @@
         </div>
 
         {{#if (has-block "actions")}}
-            <div id="tab-navigation-actions" class="tab-navigation-actions">
+            <div id="tab-navigation-actions" class="tab-navigation-actions {{@tabActionsWrapperClass}}">
                 {{yield to="actions"}}
             </div>
         {{/if}}
@@ -114,7 +113,7 @@
         </div>
     {{else if (has-block)}}
         <div class="tab-content {{@contentClass}}" role="tabpanel">
-            {{yield}}
+            {{yield this.activeTab}}
         </div>
     {{/if}}
 </div>

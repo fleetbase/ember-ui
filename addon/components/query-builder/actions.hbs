@@ -1,0 +1,19 @@
+<div class="query-builder-panel" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="query-builder-panel-title">
+            <FaIcon @icon="bolt" @size="sm" class="mr-2" />
+            Actions
+        </div>
+        <div class="text-xs text-gray-500">
+            Query operations
+        </div>
+    </div>
+
+    <div class="query-builder-panel-content">
+        <div class="query-builder-actions">
+            <Button @type="danger" @icon="trash" @text="Clear" @size="xs" @onClick={{this.onClear}} />
+            <Button @type="magic" @icon="play" @text="Execute" @size="xs" @onClick={{this.onExecute}} />
+            <Button @type="primary" @icon="floppy-disk" @text="Save" @size="xs" @onClick={{this.onSave}} />
+        </div>
+    </div>
+</div>
