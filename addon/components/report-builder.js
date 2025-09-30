@@ -5,6 +5,7 @@ import { isArray } from '@ember/array';
 import { inject as service } from '@ember/service';
 import { task } from 'ember-concurrency';
 import { EMPTY_QUERY } from '../utils/report-builder';
+import removeNullish from '../utils/remove-nullish';
 
 export default class ReportBuilderComponent extends Component {
     @service fetch;
@@ -37,10 +38,10 @@ export default class ReportBuilderComponent extends Component {
 
     @task *loadSchema() {
         try {
-            this.schema = yield this.fetch.get('reports/tables', {
+            this.schema = yield this.fetch.get('reports/tables', removeNullish({
                 extension: this.args.extension,
                 category: this.args.category,
-            });
+            }));
             this.tables = isArray(this.schema.tables) ? this.schema.tables : [];
         } catch (e) {
             this.notifications.error('Failed to load data sources');
