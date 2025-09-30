@@ -37,7 +37,10 @@ export default class ReportBuilderComponent extends Component {
 
     @task *loadSchema() {
         try {
-            this.schema = yield this.fetch.get('reports/tables');
+            this.schema = yield this.fetch.get('reports/tables', {
+                extension: this.args.extension,
+                category: this.args.category,
+            });
             this.tables = isArray(this.schema.tables) ? this.schema.tables : [];
         } catch (e) {
             this.notifications.error('Failed to load data sources');
