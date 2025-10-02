@@ -53,7 +53,7 @@ export default class CustomFieldsManagerComponent extends Component {
 
     @task *loadCustomFields(subject) {
         try {
-            const groups = yield this.store.query('category', { for: `${subject.model}_custom_field_group` });
+            const groups = yield this.store.query('category', { for: `${underscore(subject.model)}_custom_field_group` });
             const customFields = yield this.store.query('custom-field', { for: subject.type });
             this.#updateSubject(subject, (s) => {
                 const grouped = groups.map((group) => {
