@@ -29,8 +29,8 @@ export default class CustomFieldYieldComponent extends Component {
             const customFieldsManager = yield this.customFieldsRegistry.loadSubjectCustomFields.perform(company, {
                 loadOptions: {
                     groupedFor: `${modelName}_custom_field_group`,
-                    fieldFor: modelType
-                }
+                    fieldFor: modelType,
+                },
             });
             this.customFields = customFieldsManager;
             this.args.resource.cfManager = customFieldsManager;

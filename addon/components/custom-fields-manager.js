@@ -75,8 +75,8 @@ export default class CustomFieldsManagerComponent extends Component {
             for: `${subject.model}_custom_field_group`,
         });
 
-        this.modalsManager.show('modals/new-custom-field-group', {
-            title: this.intl.t('fleet-ops.component.modals.new-custom-field-group.modal-title'),
+        this.modalsManager.show('modals/custom-field-group-form', {
+            title: 'New custom field group',
             acceptButtonIcon: 'check',
             acceptButtonIconPrefix: 'fas',
             declineButtonIcon: 'times',
@@ -140,9 +140,9 @@ export default class CustomFieldsManagerComponent extends Component {
 
     @action deleteCustomField(customField) {
         this.modalsManager.confirm({
-            title: this.intl.t('fleet-ops.component.order-config-manager.custom-fields.delete-custom-field-prompt.modal-title'),
-            body: this.intl.t('fleet-ops.component.order-config-manager.custom-fields.delete-custom-field-prompt.delete-body-message'),
-            acceptButtonText: this.intl.t('fleet-ops.component.order-config-manager.custom-fields.delete-custom-field-prompt.confirm-delete'),
+            title: 'Delete this field group?',
+            body: 'Once this field group is deleted it will not be recoverable and you will lose all custom fields inside.',
+            acceptButtonText: 'Delete',
             confirm: async (modal) => {
                 modal.startLoading();
 
