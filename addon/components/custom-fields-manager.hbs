@@ -54,7 +54,7 @@
                                         </div>
                                     </div>
                                 </DropdownButton>
-                                <Button @type="danger" @icon="trash" @onClick={{fn this.deleteGroup group}} @permission="fleet-ops update custom-field" />
+                                <Button @type="danger" @icon="trash" @onClick={{fn this.deleteGroup group subject}} @permission="fleet-ops update custom-field" />
                             </div>
                             <div class="grid grid-cols-{{or group.meta.grid_size 1}} gap-2 px-1.5">
                                 {{#each group.customFields as |customField|}}
@@ -72,7 +72,7 @@
                                         </div>
                                         <div class="flex flex-row items-center space-x-2">
                                             <Button @type="default" @icon="pencil" @onClick={{fn this.editCustomField customField}} @permission="fleet-ops update custom-field" />
-                                            <Button @type="danger" @icon="trash" @onClick={{fn this.deleteCustomField customField}} @permission="fleet-ops update custom-field" />
+                                            <Button @type="danger" @icon="trash" @onClick={{fn this.deleteCustomField customField subject}} @permission="fleet-ops update custom-field" />
                                         </div>
                                     </div>
                                 {{/each}}

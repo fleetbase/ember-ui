@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { action, setProperties } from '@ember/object';
 import { isArray } from '@ember/array';
 import { next } from '@ember/runloop';
+import { underscore } from '@ember/string';
 import { task } from 'ember-concurrency';
 import isObject from '@fleetbase/ember-core/utils/is-object';
 
@@ -72,7 +73,7 @@ export default class CustomFieldsManagerComponent extends Component {
         const customFieldGroup = this.store.createRecord('category', {
             owner_uuid: this.currentUser.companyId,
             owner_type: 'company',
-            for: `${subject.model}_custom_field_group`,
+            for: `${underscore(subject.model)}_custom_field_group`,
         });
 
         this.modalsManager.show('modals/custom-field-group-form', {
@@ -114,7 +115,7 @@ export default class CustomFieldsManagerComponent extends Component {
         this.customFieldsRegistry.panel.edit(customField);
     }
 
-    @action deleteGroup(group) {
+    @action deleteGroup(group, subject) {
         this.modalsManager.confirm({
             title: 'Delete this custom field?',
             body: 'Once this custom field is deleted it will not be recoverable and you will lose all configurations.',
@@ -125,12 +126,13 @@ export default class CustomFieldsManagerComponent extends Component {
 
                 try {
                     await group.destroyRecord();
+                    await this.loadCustomFields.perform(subject);
                     modal.done();
                 } catch (error) {
                     this.notifications.serverError(error);
                     modal.stopLoading();
                 }
-            },
+            }
         });
     }
 
@@ -138,7 +140,7 @@ export default class CustomFieldsManagerComponent extends Component {
         this.customFieldsRegistry.panel.edit(customField);
     }
 
-    @action deleteCustomField(customField) {
+    @action deleteCustomField(customField, subject) {
         this.modalsManager.confirm({
             title: 'Delete this field group?',
             body: 'Once this field group is deleted it will not be recoverable and you will lose all custom fields inside.',
@@ -148,12 +150,13 @@ export default class CustomFieldsManagerComponent extends Component {
 
                 try {
                     await customField.destroyRecord();
+                    await this.loadCustomFields.perform(subject);
                     modal.done();
                 } catch (error) {
                     this.notifications.serverError(error);
                     modal.stopLoading();
                 }
-            },
+            }
         });
     }
 

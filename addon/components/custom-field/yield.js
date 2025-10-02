@@ -22,13 +22,13 @@ export default class CustomFieldYieldComponent extends Component {
     @task *loadCustomFields(subject) {
         // follow fleetbase & ember conventions
         const modelName = getModelName(subject);
-        const modelType = `${this.extension}:${underscore(modelName)}`;
+        const modelType = `${this.extension ? this.extension + ':' : ''}${underscore(this.args.modelType ?? modelName)}`;
         const company = yield this.currentUser.loadCompany();
 
         try {
             const customFieldsManager = yield this.customFieldsRegistry.loadSubjectCustomFields.perform(company, {
                 loadOptions: {
-                    groupedFor: `${modelName}_custom_field_group`,
+                    groupedFor: `${underscore(modelName)}_custom_field_group`,
                     fieldFor: modelType,
                 },
             });
