@@ -1,0 +1,190 @@
+<div
+    class="kanban-column-header"
+    {{on "click" this.onClickOutside}}
+    {{on "keydown" this.onKeyDown}}
+>
+    <div class="column-header-main">
+        {{! Column title section }}
+        <div class="column-title-section">
+            {{#if @isEditing}}
+                {{! Title editing input }}
+                <input
+                    id="{{@columnId}}-title-input"
+                    type="text"
+                    class="column-title-input"
+                    value={{@editingTitle}}
+                    {{on "input" this.onTitleInput}}
+                    {{on "keydown" @onTitleKeyDown}}
+                    {{on "blur" @onSaveTitle}}
+                    aria-label="Edit column title"
+                    placeholder="Column title"
+                />
+            {{else}}
+                {{! Column title display }}
+                <button
+                    type="button"
+                    class="column-title-button"
+                    {{on "click" @onStartEditing}}
+                    aria-label="Edit column title: {{@column.title}}"
+                    disabled={{@readonly}}
+                    tabindex="0"
+                >
+                    <h3 class="column-title">
+                        {{@column.title}}
+                    </h3>
+                    {{#unless @readonly}}
+                        <FaIcon @icon="edit" @prefix="fas" class="edit-icon" />
+                    {{/unless}}
+                </button>
+            {{/if}}
+
+            {{! Card count and WIP limit display }}
+            <div class="column-stats">
+                <span class="card-count" aria-label={{this.cardCountLabel}}>
+                    {{@column.cardCount}}
+                    {{#if @column.wipLimit}}
+                        <span class="wip-limit-separator">/</span>
+                        <span class="wip-limit {{this.wipLimitColor}}" aria-label={{this.wipLimitLabel}}>
+                            {{@column.wipLimit}}
+                        </span>
+                    {{/if}}
+                </span>
+
+                {{! WIP limit progress bar }}
+                {{#if @column.wipLimit}}
+                    <div class="wip-progress-container">
+                        <div
+                            class="wip-progress-bar"
+                            style="width: {{this.wipLimitProgress}}%"
+                            aria-hidden="true"
+                        ></div>
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+
+        {{! Column actions }}
+        {{#unless @readonly}}
+            <div class="column-actions">
+                {{! Collapse toggle }}
+                <Button
+                    @type="ghost"
+                    @size="xs"
+                    @icon={{if @isCollapsed "chevron-down" "chevron-up"}}
+                    @onClick={{@onToggleCollapse}}
+                    @helpText={{if @isCollapsed "Expand column" "Collapse column"}}
+                    class="collapse-button"
+                />
+
+                {{! Actions menu toggle }}
+                <div class="relative">
+                    <Button
+                        @type="ghost"
+                        @size="xs"
+                        @icon="ellipsis-v"
+                        @onClick={{this.toggleActions}}
+                        @helpText="Column actions"
+                        class="actions-button"
+                        aria-expanded={{this.showActions}}
+                        aria-haspopup="true"
+                    />
+
+                    {{! Actions dropdown }}
+                    {{#if this.showActions}}
+                        <div class="column-actions-dropdown">
+                            <div class="dropdown-content">
+                                {{! WIP limit action }}
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    {{on "click" this.toggleWipLimitEditor}}
+                                >
+                                    <FaIcon @icon="tachometer-alt" @prefix="fas" />
+                                    <span>{{if @column.wipLimit "Edit" "Set"}} WIP Limit</span>
+                                </button>
+
+                                {{! Color picker action }}
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    {{on "click" this.showColorPicker}}
+                                >
+                                    <FaIcon @icon="palette" @prefix="fas" />
+                                    <span>Change Color</span>
+                                </button>
+
+                                {{! Divider }}
+                                <div class="dropdown-divider"></div>
+
+                                {{! Delete action }}
+                                <button
+                                    type="button"
+                                    class="dropdown-item danger"
+                                    {{on "click" @onDeleteColumn}}
+                                    disabled={{@disabled}}
+                                >
+                                    <FaIcon @icon="trash" @prefix="fas" />
+                                    <span>Delete Column</span>
+                                </button>
+                            </div>
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
+        {{/unless}}
+    </div>
+
+    {{! WIP limit editor }}
+    {{#if this.showWipLimitEditor}}
+        <div class="wip-limit-editor">
+            <div class="wip-limit-editor-content">
+                <label class="wip-limit-label">
+                    WIP Limit
+                </label>
+                <div class="wip-limit-input-group">
+                    <input
+                        id="{{@columnId}}-wip-limit-input"
+                        type="number"
+                        class="wip-limit-input"
+                        value={{this.wipLimitValue}}
+                        {{on "input" (fn (mut this.wipLimitValue) (target-value))}}
+                        {{on "keydown" this.onWipLimitKeyDown}}
+                        placeholder="No limit"
+                        min="0"
+                        aria-label="Set WIP limit for column"
+                    />
+                    <div class="wip-limit-actions">
+                        <Button
+                            @type="primary"
+                            @size="xs"
+                            @icon="check"
+                            @onClick={{this.saveWipLimit}}
+                            @helpText="Save WIP limit"
+                        />
+                        <Button
+                            @type="secondary"
+                            @size="xs"
+                            @icon="times"
+                            @onClick={{this.cancelWipLimitEdit}}
+                            @helpText="Cancel"
+                        />
+                    </div>
+                </div>
+                <div class="wip-limit-help">
+                    <span class="text-xs text-gray-600 dark:text-gray-400">
+                        Leave empty for no limit
+                    </span>
+                </div>
+            </div>
+        </div>
+    {{/if}}
+
+    {{! Column color indicator }}
+    {{#if @column.color}}
+        <div
+            class="column-color-indicator"
+            style="background-color: {{@column.color}}"
+            aria-hidden="true"
+        ></div>
+    {{/if}}
+</div>

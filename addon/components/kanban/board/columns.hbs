@@ -1,0 +1,119 @@
+<div class="kanban-columns-wrapper" {{on "keydown" this.onKeyDown}}>
+    {{! Scroll indicators }}
+    {{#if this.canScrollLeft}}
+        <button
+            type="button"
+            class="kanban-scroll-button kanban-scroll-left"
+            {{on "click" this.scrollLeft}}
+            aria-label="Scroll columns left"
+        >
+            <FaIcon @icon="chevron-left" @prefix="fas" />
+        </button>
+    {{/if}}
+
+    {{#if this.canScrollRight}}
+        <button
+            type="button"
+            class="kanban-scroll-button kanban-scroll-right"
+            {{on "click" this.scrollRight}}
+            aria-label="Scroll columns right"
+        >
+            <FaIcon @icon="chevron-right" @prefix="fas" />
+        </button>
+    {{/if}}
+
+    {{! Columns container }}
+    <div
+        class="kanban-columns-container"
+        {{on "scroll" this.onScroll}}
+        {{did-insert this.setupScrollIndicators}}
+        role="group"
+        aria-label="Kanban columns"
+    >
+        {{#if this.isEmpty}}
+            {{! Empty state for no columns }}
+            <div class="kanban-no-columns" role="status">
+                <div class="text-center py-12 px-6">
+                    <FaIcon @icon="columns" @prefix="fas" class="text-gray-400 text-3xl mb-4" />
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        No columns yet
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Create your first column to start organizing your work
+                    </p>
+                    {{#unless @readonly}}
+                        <Button
+                            @text="Create Column"
+                            @icon="plus"
+                            @onClick={{@onCreateColumn}}
+                            @type="primary"
+                            @disabled={{@disabled}}
+                        />
+                    {{/unless}}
+                </div>
+            </div>
+        {{else}}
+            {{! Render columns }}
+            {{#each this.processedColumns as |column|}}
+                <div
+                    class="kanban-column-wrapper {{if (equal this.dragOverColumn column) 'drag-over'}} {{if (and (equal this.dragOverColumn column) (equal this.dragOverPosition 'before')) 'drag-before'}} {{if (and (equal this.dragOverColumn column) (equal this.dragOverPosition 'after')) 'drag-after'}}"
+                    {{on "dragover" (fn this.onColumnDragOver column)}}
+                    {{on "dragleave" this.onColumnDragLeave}}
+                    {{on "drop" (fn this.onColumnDrop column)}}
+                >
+                    {{! Column drop indicator }}
+                    {{#if (and @draggedColumn (equal this.dragOverColumn column))}}
+                        <div class="kanban-column-drop-indicator {{this.dragOverPosition}}">
+                            <div class="drop-line"></div>
+                        </div>
+                    {{/if}}
+
+                    {{! Column component }}
+                    <Kanban::Column
+                        @column={{column}}
+                        @isDragging={{@isDragging}}
+                        @draggedCard={{@draggedCard}}
+                        @draggedColumn={{@draggedColumn}}
+                        @isOver={{equal this.dragOverColumn column}}
+                        @onDragStart={{@onColumnDragStart}}
+                        @onDragOver={{fn this.onCardDragOverColumn column}}
+                        @onDrop={{fn this.onCardDropOnColumn column}}
+                        @onCardDragStart={{@onCardDragStart}}
+                        @onCardDragEnd={{@onCardDragEnd}}
+                        @onCardDrop={{@onCardDrop}}
+                        @onCreateCard={{@onCreateCard}}
+                        @onUpdateCard={{@onUpdateCard}}
+                        @onDeleteCard={{@onDeleteCard}}
+                        @onUpdateColumn={{@onUpdateColumn}}
+                        @onDeleteColumn={{@onDeleteColumn}}
+                        @boardId={{@boardId}}
+                        @disabled={{@disabled}}
+                        @readonly={{@readonly}}
+                        @cardTemplate={{@cardTemplate}}
+                        @columnTemplate={{@columnTemplate}}
+                    />
+                </div>
+            {{/each}}
+
+            {{! Add column placeholder }}
+            {{#unless @readonly}}
+                <div class="kanban-add-column-wrapper">
+                    <button
+                        type="button"
+                        class="kanban-add-column-button"
+                        {{on "click" @onCreateColumn}}
+                        aria-label="Add new column"
+                        disabled={{@disabled}}
+                    >
+                        <div class="add-column-content">
+                            <FaIcon @icon="plus" @prefix="fas" class="text-gray-400 text-xl mb-2" />
+                            <span class="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                                Add Column
+                            </span>
+                        </div>
+                    </button>
+                </div>
+            {{/unless}}
+        {{/if}}
+    </div>
+</div>

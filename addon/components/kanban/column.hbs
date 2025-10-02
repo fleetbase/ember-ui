@@ -1,0 +1,101 @@
+<div
+    class="kanban-column {{if this.isCollapsed 'collapsed'}} {{if this.isDragOver 'drag-over'}} {{if this.column.isOverWipLimit 'over-wip-limit'}}"
+    draggable={{unless @readonly "true"}}
+    role="region"
+    aria-label={{this.columnAriaLabel}}
+    aria-describedby="{{this.columnId}}-description"
+    data-column-id={{this.column.id}}
+    {{on "dragstart" this.onDragStart}}
+    {{on "dragend" this.onDragEnd}}
+    {{on "dragover" this.onCardDragOver}}
+    {{on "dragleave" this.onCardDragLeave}}
+    {{on "drop" this.onCardDrop}}
+    {{on "keydown" this.onKeyDown}}
+>
+    {{! Column description for screen readers }}
+    <div id="{{this.columnId}}-description" class="sr-only">
+        Column with {{this.column.cardCount}} cards
+        {{#if this.column.wipLimit}}
+            , WIP limit {{this.column.wipLimit}}
+            {{#if this.column.isOverWipLimit}}
+                , currently over limit
+            {{/if}}
+        {{/if}}
+    </div>
+
+    {{! Column Header }}
+    <Kanban::Column::Header
+        @column={{this.column}}
+        @isEditing={{this.isEditing}}
+        @editingTitle={{this.editingTitle}}
+        @isCollapsed={{this.isCollapsed}}
+        @wipLimitStatus={{this.wipLimitStatus}}
+        @onStartEditing={{this.startEditing}}
+        @onSaveTitle={{this.saveTitle}}
+        @onCancelEditing={{this.cancelEditing}}
+        @onTitleKeyDown={{this.onTitleKeyDown}}
+        @onToggleCollapse={{this.toggleCollapse}}
+        @onDeleteColumn={{this.onDeleteColumn}}
+        @onWipLimitChange={{this.onWipLimitChange}}
+        @columnId={{this.columnId}}
+        @readonly={{@readonly}}
+        @disabled={{@disabled}}
+    />
+
+    {{! Column Body }}
+    {{#unless this.isCollapsed}}
+        <Kanban::Column::Body
+            @column={{this.column}}
+            @cards={{this.sortedCards}}
+            @isEmpty={{this.isEmpty}}
+            @isDragOver={{this.isDragOver}}
+            @dragOverCard={{this.dragOverCard}}
+            @dragOverPosition={{this.dragOverPosition}}
+            @draggedCard={{@draggedCard}}
+            @onCardDragStart={{@onCardDragStart}}
+            @onCardDragEnd={{@onCardDragEnd}}
+            @onUpdateCard={{@onUpdateCard}}
+            @onDeleteCard={{@onDeleteCard}}
+            @columnId={{this.columnId}}
+            @boardId={{@boardId}}
+            @readonly={{@readonly}}
+            @disabled={{@disabled}}
+            @cardTemplate={{@cardTemplate}}
+        />
+    {{/unless}}
+
+    {{! Column Footer }}
+    {{#unless this.isCollapsed}}
+        <Kanban::Column::Footer
+            @column={{this.column}}
+            @onCreateCard={{this.onCreateCard}}
+            @columnId={{this.columnId}}
+            @readonly={{@readonly}}
+            @disabled={{@disabled}}
+        />
+    {{/unless}}
+
+    {{! Drop indicator for card drops }}
+    {{#if (and this.isDragOver @draggedCard)}}
+        <div class="kanban-column-drop-indicator">
+            {{#if this.dragOverCard}}
+                <div class="card-drop-line {{this.dragOverPosition}}"></div>
+            {{else}}
+                <div class="card-drop-zone">
+                    <FaIcon @icon="plus" @prefix="fas" class="text-blue-500" />
+                    <span class="text-blue-600 dark:text-blue-400 text-sm">Drop card here</span>
+                </div>
+            {{/if}}
+        </div>
+    {{/if}}
+
+    {{! WIP limit warning }}
+    {{#if this.column.isOverWipLimit}}
+        <div class="kanban-wip-warning" role="alert">
+            <FaIcon @icon="exclamation-triangle" @prefix="fas" class="text-red-500" />
+            <span class="text-red-600 dark:text-red-400 text-xs">
+                Over WIP limit ({{this.column.cardCount}}/{{this.column.wipLimit}})
+            </span>
+        </div>
+    {{/if}}
+</div>
