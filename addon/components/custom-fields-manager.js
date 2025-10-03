@@ -53,17 +53,18 @@ export default class CustomFieldsManagerComponent extends Component {
 
     @task *loadCustomFields(subject) {
         try {
-            const groups = yield this.store.query('category', { for: `${underscore(subject.model)}_custom_field_group` });
-            const customFields = yield this.store.query('custom-field', { for: subject.type });
-            this.#updateSubject(subject, (s) => {
-                const grouped = groups.map((group) => {
-                    const fields = customFields.filter((cf) => cf.category_uuid === group.id);
-                    group.set?.('customFields', fields) ?? (group.customFields = fields);
-                    return group;
-                });
-
-                return { ...s, groups: grouped };
+            const company = yield this.currentUser.loadCompany();
+            const customFieldsManager = yield this.customFieldsRegistry.loadSubjectCustomFields.perform(company, {
+                loadOptions: {
+                    groupedFor: `${underscore(subject.model)}_custom_field_group`,
+                    fieldFor: subject.type,
+                },
             });
+            this.#updateSubject(subject, (s) => {
+                return { ...s, groups: customFieldsManager.customFieldGroups };
+            });
+
+            return customFieldsManager;
         } catch (err) {
             this.notifications.serverError(err);
         }
@@ -117,8 +118,8 @@ export default class CustomFieldsManagerComponent extends Component {
 
     @action deleteGroup(group, subject) {
         this.modalsManager.confirm({
-            title: 'Delete this custom field?',
-            body: 'Once this custom field is deleted it will not be recoverable and you will lose all configurations.',
+            title: 'Delete this field group?',
+            body: 'Once this field group is deleted it will not be recoverable and you will lose all custom fields inside.',
             acceptButtonText: 'Delete',
             acceptButtonType: 'danger',
             confirm: async (modal) => {
@@ -132,7 +133,7 @@ export default class CustomFieldsManagerComponent extends Component {
                     this.notifications.serverError(error);
                     modal.stopLoading();
                 }
-            }
+            },
         });
     }
 
@@ -142,8 +143,8 @@ export default class CustomFieldsManagerComponent extends Component {
 
     @action deleteCustomField(customField, subject) {
         this.modalsManager.confirm({
-            title: 'Delete this field group?',
-            body: 'Once this field group is deleted it will not be recoverable and you will lose all custom fields inside.',
+            title: 'Delete this custom field?',
+            body: 'Once this custom field is deleted it will not be recoverable and you will lose all data assosciated.',
             acceptButtonText: 'Delete',
             confirm: async (modal) => {
                 modal.startLoading();
@@ -156,7 +157,7 @@ export default class CustomFieldsManagerComponent extends Component {
                     this.notifications.serverError(error);
                     modal.stopLoading();
                 }
-            }
+            },
         });
     }
 

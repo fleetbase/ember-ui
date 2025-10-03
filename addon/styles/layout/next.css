@@ -1045,12 +1045,76 @@ body[data-theme='dark'] .next-view-header-item.is-open {
     min-height: 2.5rem;
 }
 
-.next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header.bordered {
+/** bordered classic styling panel header */
+.next-content-panel-wrapper.bordered-classic .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply border rounded-t-md bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 px-3;
+}
+
+.next-content-panel-wrapper.bordered-classic .next-content-panel-container .next-content-panel > .next-content-panel-body {
+    @apply border-b border-x rounded-b-md bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 px-3 py-2;
+}
+
+.next-content-panel-wrapper.bordered-classic.is-closed .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply rounded-md;
+}
+
+body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply shadow-sm text-gray-200;
+}
+
+/** bordered styling panel header */
+.next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply border rounded-lg bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 px-3 mb-2;
 }
 
-body[data-theme="dark"] .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header.bordered {
-    @apply shadow-sm;
+body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply shadow-sm text-gray-200;
+}
+
+/** bordered inline styling */
+.next-content-panel-wrapper.bordered-inline .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply border-t border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 px-3;
+}
+
+.next-content-panel-wrapper.bordered-inline .next-content-panel-container.is-closed .next-content-panel > .next-content-panel-header {
+    @apply border-b-0;
+}
+
+.next-content-panel-wrapper.bordered-inline:first-child .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply border-t-0;
+}
+
+body[data-theme="dark"] .next-content-panel-wrapper.bordered-inline .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply shadow-sm text-gray-200;
+}
+
+.next-content-panel-wrapper.bordered-inline .next-content-panel-container.is-open .next-content-panel > .next-content-panel-body > .next-content-panel-body-wrapper {
+    @apply py-2 px-3;
+}
+
+/** simple single top bordered styling */
+.next-content-panel-wrapper.bordered-top .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply border-t border-gray-200 dark:border-gray-700 px-3 py-0.5;
+}
+
+.next-content-panel-wrapper.bordered-top:first-child .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply border-t-0;
+}
+
+body[data-theme="dark"] .next-content-panel-wrapper.bordered-top .next-content-panel-container .next-content-panel > .next-content-panel-header {
+    @apply text-gray-200;
+}
+
+.next-content-panel-wrapper.bordered-top .next-content-panel-container.is-open .next-content-panel > .next-content-panel-body > .next-content-panel-body-wrapper {
+    @apply pt-1 px-3 pb-5;
+}
+
+/** fix padding on closed panels */
+.next-content-panel-wrapper.bordered.is-closed .next-content-panel-container .next-content-panel > .next-content-panel-body,
+.next-content-panel-wrapper.bordered-inline.is-closed .next-content-panel-container .next-content-panel > .next-content-panel-body,
+.next-content-panel-wrapper.bordered-top.is-closed .next-content-panel-container .next-content-panel > .next-content-panel-body,
+.next-content-panel-wrapper.bordered-classic.is-closed .next-content-panel-container .next-content-panel > .next-content-panel-body {
+    padding: 0;
 }
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-left {
@@ -1070,10 +1134,6 @@ body[data-theme="dark"] .next-content-panel-wrapper .next-content-panel-containe
 }
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header.bordered .next-content-panel-header-left > .next-content-panel-title-container .panel-title {
-    @apply font-normal;
-}
-
-.details-wrapper .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-left > .next-content-panel-title-container .panel-title {
     @apply font-normal;
 }
 
@@ -2391,5 +2451,10 @@ body[data-theme='dark'] .app-version-in-nav {
 }
 
 .details-wrapper {
-    @apply flex-1 space-y-4;
+    @apply flex-1;
+}
+
+.details-wrapper > :not([hidden], .is-closed) ~ :not([hidden], .is-closed) {
+    margin-top: calc(1rem * (1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }

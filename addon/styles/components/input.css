@@ -126,6 +126,10 @@ body[data-theme='dark'] input.form-input:focus {
     --tw-shadow: transparent;
 }
 
+.input-group {
+    margin-bottom: 0.5rem;
+}
+
 .input-group label {
     @apply block mb-1 text-sm font-medium leading-5 text-gray-700;
 }
@@ -671,5 +675,15 @@ body[data-theme='dark'] .iti__selected-country[aria-disabled='true'] .iti__selec
 }
 
 .form-wrapper {
-    @apply space-y-4 flex-1;
+    @apply flex-1;
+    --tw-space-y-reverse: 0;
+}
+
+.form-wrapper:not(.with-input-group-padding) .input-group {
+    margin-bottom: 0;
+}
+
+.form-wrapper > :not([hidden], .hidden, .is-closed) ~ :not([hidden], .hidden, .is-closed) {
+    margin-top: calc(1rem * (1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }

@@ -1,0 +1,53 @@
+.card-grid-pagination-container {
+    @apply border-t border-gray-200 dark:border-gray-700;
+    position: sticky;
+    bottom: 56px;
+    min-width: 100%;
+    width: 100%;
+    padding: 0px 22px 0px 36px;
+}
+
+.card-img-xs {
+    width: 100%;
+    height: 80px;
+}
+
+.card-img-sm {
+    width: 100%;
+    height: 120px;
+}
+
+.card-img-md {
+    width: 100%;
+    height: 140px;
+}
+
+.card-img-lg {
+    width: 100%;
+    height: 160px;
+}
+
+.card-img-xl {
+    width: 100%;
+    height: 180px;
+}
+
+.card-img-2xl {
+    width: 100%;
+    height: 200px;
+}
+
+.card-img-3xl {
+    width: 100%;
+    height: 220px;
+}
+
+.card-img-4xl {
+    width: 100%;
+    height: 240px;
+}
+
+.card-img-5xl {
+    width: 100%;
+    height: 260px;
+}

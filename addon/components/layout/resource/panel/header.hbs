@@ -2,14 +2,25 @@
     <div class="flex flex-row flex-1 items-center justify-end space-x-2">
         {{yield}}
         {{#if @saveTask}}
-            <Button
-                @type="primary"
-                @icon={{if @resource.isNew "check" "save"}}
-                @text={{if @resource.isNew (concat "Create " this.modelName) "Save Changes"}}
-                @onClick={{perform @saveTask @resource @saveOptions}}
-                @disabled={{or @saveDisabled (cannot-write @resource schema=@authSchema)}}
-                @isLoading={{@saveTask.isRunning}}
-            />
+            {{#if @pojoResource}}
+                <Button
+                    @type="primary"
+                    @icon={{if @resource.isNew "check" "save"}}
+                    @text={{if @resource.isNew (concat "Create " this.modelName) "Save Changes"}}
+                    @onClick={{perform @saveTask @resource @saveOptions}}
+                    @disabled={{@saveDisabled}}
+                    @isLoading={{@saveTask.isRunning}}
+                />
+            {{else}}
+                <Button
+                    @type="primary"
+                    @icon={{if @resource.isNew "check" "save"}}
+                    @text={{if @resource.isNew (concat "Create " this.modelName) "Save Changes"}}
+                    @onClick={{perform @saveTask @resource @saveOptions}}
+                    @disabled={{or @saveDisabled (cannot-write @resource schema=@authSchema)}}
+                    @isLoading={{@saveTask.isRunning}}
+                />
+            {{/if}}
         {{/if}}
         {{#each @actionButtons as |actionButton|}}
             {{#if actionButton.items}}
@@ -34,6 +45,27 @@
                         </div>
                     </div>
                 </DropdownButton>
+            {{else if actionButton.component}}
+                {{component
+                    actionButton.component
+                    icon=actionButton.icon
+                    iconPrefix=actionButton.iconPrefix
+                    iconComponent=actionButton.iconComponent
+                    size=actionButton.size
+                    text=actionButton.text
+                    options=actionButton.options
+                    items=actionButton.items
+                    permission=actionButton.permission
+                    isLoading=actionButton.isLoading
+                    renderInPlace=actionButton.renderInPlace
+                    triggerClass=actionButton.triggerClass
+                    disabled=actionButton.disabled
+                    onClick=actionButton.onClick
+                    fn=actionButton.fn
+                    perform=actionButton.perform
+                    onSelect=actionButton.onSelect
+                    onChange=actionButton.onChange
+                }}
             {{else}}
                 <Button
                     @type={{actionButton.type}}

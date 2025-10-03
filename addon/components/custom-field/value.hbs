@@ -1,10 +1,10 @@
-<span class="custom-meta-field" ...attributes>
-    {{#if this.isTextDisplay}}
-        {{@value}}
-    {{/if}}
-
-    {{#if this.isBooleanInput}}
-        <Badge @status={{if @metaField.value "success" ""}}>{{if @metaField.value "Yes" "No"}}</Badge>
-    {{/if}}
-    {{yield}}
-</span>
+<div class="field-info-container {{if @customField.meta.colSpan (concat 'col-span-' @customField.meta.colSpan) ''}}">
+    <div class="field-name">{{@customField.label}}</div>
+    <div class="field-value">
+        {{#if this.isBoolean}}
+            <Badge @status={{if this.value "success" ""}}>{{if this.value "Yes" "No"}}</Badge>
+        {{else}}
+            {{n-a this.value}}
+        {{/if}}
+    </div>
+</div>

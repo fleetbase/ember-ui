@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { debug } from '@ember/debug';
+import { next } from '@ember/runloop';
 import { task } from 'ember-concurrency';
 import { underscore } from '@ember/string';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
@@ -16,7 +17,7 @@ export default class CustomFieldYieldComponent extends Component {
     constructor(owner, { subject, extension = 'fleet-ops' }) {
         super(...arguments);
         this.extension = extension;
-        this.loadCustomFields.perform(subject);
+        next(() => this.loadCustomFields.perform(subject));
     }
 
     @task *loadCustomFields(subject) {
@@ -33,7 +34,9 @@ export default class CustomFieldYieldComponent extends Component {
                 },
             });
             this.customFields = customFieldsManager;
-            this.args.resource.cfManager = customFieldsManager;
+            if (this.args.resource) {
+                this.args.resource.cfManager = customFieldsManager;
+            }
             if (typeof this.args.onCustomFieldsReady === 'function') {
                 this.args.onCustomFieldsReady(customFieldsManager);
             }

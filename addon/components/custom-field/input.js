@@ -46,7 +46,7 @@ export default class CustomFieldInputComponent extends Component {
     constructor(owner, { customField, subject, extension = 'fleet-ops' }) {
         super(...arguments);
         this.customField = customField;
-        this.value = customField.value;
+        this.value = this.#getValueFromSubject(customField, subject);
         this.subject = subject;
         this.extension = extension;
         this.customFieldComponent = typeof customField.component === 'string' ? customField.component : 'input';
@@ -141,5 +141,11 @@ export default class CustomFieldInputComponent extends Component {
             }
             return;
         }
+    }
+
+    #getValueFromSubject(customField, subject) {
+        const cfValue = (subject.get('custom_field_values') ?? []).find((cfv) => cfv.custom_field_uuid === customField.id);
+        if (cfValue) return cfValue.value;
+        return null;
     }
 }

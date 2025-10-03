@@ -25,4 +25,9 @@
             {{/unless}}
         {{/if}}
     </a>
+    {{#if @helpText}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPlacement "top"}}>
+            <InputInfo @text={{@helpText}} @exampleText={{@exampleText}} />
+        </Attach::Tooltip>
+    {{/if}}
 </FileUpload>

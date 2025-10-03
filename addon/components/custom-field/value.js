@@ -1,21 +1,24 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
-import { action, computed } from '@ember/object';
 import { equal } from '@ember/object/computed';
 
 export default class CustomFieldValueComponent extends Component {
-    @service fetch;
-    @equal('args.metaField.type', 'text') isTextInput;
-    @equal('args.metaField.type', 'select') isSelectInput;
-    @equal('args.metaField.type', 'vessel') isVesselInput;
-    @equal('args.metaField.type', 'port') isPortInput;
-    @equal('args.metaField.type', 'datetime') isDateTimeInput;
-    @equal('args.metaField.type', 'boolean') isBooleanInput;
+    @tracked customField;
+    @tracked value;
+    @tracked subject;
+    @equal('args.customField.type', 'boolean') isBoolean;
 
-    @computed('args.metaField.type') get isTextDisplay() {
-        const { type } = this.args.metaField;
+    constructor(owner, { customField, subject }) {
+        super(...arguments);
+        this.customField = customField;
+        this.value = this.#getValueFromSubject(customField, subject);
+        this.subject = subject;
+    }
 
-        return ['text', 'select', 'vessel', 'port', 'datetime'].includes(type);
+    #getValueFromSubject(customField, subject) {
+        const cfValue = (subject.get('custom_field_values') ?? []).find((cfv) => cfv.custom_field_uuid === customField.id);
+        if (cfValue) return cfValue.value;
+        return null;
     }
 }

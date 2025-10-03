@@ -6,7 +6,7 @@ export default class LayoutResourceCardBodyComponent extends Component {
     }
 
     get bodyClass() {
-        const baseClasses = 'px-4 py-3';
+        const baseClasses = '';
         return this.args.class ? `${baseClasses} ${this.args.class}` : baseClasses;
     }
 }

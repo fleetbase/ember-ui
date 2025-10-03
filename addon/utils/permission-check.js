@@ -17,7 +17,7 @@ export function resolveResource({ resource, model }) {
     if (nameFromCtor) return dasherize(nameFromCtor);
 
     // VERY old fallback (avoid if possible)
-    const legacy = model?._internalModel?.modelName;
+    const legacy = model?.get('_internalModel.modelName');
     if (legacy) return dasherize(legacy);
 
     return null;

@@ -98,7 +98,7 @@ export default class ResourceContextPanelComponent extends Component {
         for (let [k, v] of Object.entries(overlay)) {
             if (isModel(v)) return v;
         }
-        return null;
+        return overlay.resource ?? overlay.model ?? null;
     }
 
     getResourceName(resource) {

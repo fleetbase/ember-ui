@@ -2,15 +2,29 @@
     <Layout::Resource::Panel
         @resource={{overlay.model}}
         @headerTitle={{overlay.title}}
-        @headerComponent={{if overlay.header (component overlay.header overlay=overlay resource=overlay.resource model=overlay.resource onPressCancel=(fn this.closeOverlay overlay.id)) ""}}
+        @headerComponent={{if
+            overlay.header
+            (component
+                overlay.header
+                overlay=overlay
+                resource=overlay.resource
+                pojoResource=overlay.pojoResource
+                saveDisabled=overlay.saveDisabled
+                model=overlay.resource
+                onPressCancel=(fn this.closeOverlay overlay.id)
+            )
+            ""
+        }}
         @actionButtons={{overlay.actionButtons}}
         @width={{overlay.computedWidth}}
         @isResizable={{overlay.computedResizable}}
         @onPressCancel={{fn this.closeOverlay overlay.id}}
-        @saveTask={{if overlay.model.hasDirtyAttributes (or overlay.saveTask this.saveTask)}}
+        @saveTask={{or overlay.saveTask this.saveTask}}
+        @saveDisabled={{resource-context-panel-save-disabled overlay}}
         @saveOptions={{overlay.saveOptions}}
         @bodyClass={{concat "resource-context-panel-body " (if overlay.tabs "has-tabs") " " overlay.bodyClass}}
         @headerClass="{{overlay.headerClass}} resource-context-panel-header"
+        @pojoResource={{overlay.pojoResource}}
     >
         {{#if overlay.computedTabs}}
             <div class="resource-context-panel-tabs {{overlay.tabWrapperClass}}">

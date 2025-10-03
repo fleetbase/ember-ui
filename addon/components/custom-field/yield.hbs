@@ -1,9 +1,13 @@
 {{#each this.customFields.customFieldGroups as |group|}}
     {{#if group.customFields.length}}
-        <ContentPanel @title={{group.name}} @open={{true}} @panelHeaderClass={{@panelHeaderClass}}>
+        <ContentPanel @title={{group.name}} @open={{true}} @wrapperClass={{@wrapperClass}} @panelHeaderClass={{@panelHeaderClass}}>
             <div class="grid grid-cols-1 lg:grid-cols-{{or group.meta.grid_size 2}} gap-{{or @groupWrapperGap 2}} {{@groupWrapperClass}}">
                 {{#each group.customFields as |customField|}}
-                    <CustomField::Input @customField={{customField}} @subject={{@resource}} @onChange={{this.customFields.setFieldValue}} />
+                    {{#if @viewMode}}
+                        <CustomField::Value @customField={{customField}} @subject={{@subject}} />
+                    {{else}}
+                        <CustomField::Input @customField={{customField}} @subject={{@subject}} @onChange={{fn this.customFields.writeFieldValue @subject}} />
+                    {{/if}}
                 {{/each}}
             </div>
         </ContentPanel>

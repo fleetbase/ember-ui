@@ -474,3 +474,15 @@ body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .f
 .flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body > .modal-body-container {
     padding: 1.5rem 1rem;
 }
+
+.flb--default-modal.flb-resource-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
+    @apply border-b border-gray-200 dark:border-gray-700;
+}
+
+.flb--default-modal.flb-resource-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+body[data-theme="light"] .flb--default-modal.flb-resource-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-footer {
+    @apply bg-gray-100;
+}

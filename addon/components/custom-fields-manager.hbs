@@ -1,16 +1,16 @@
 <div class="rounded-md border border-gray-200 dark:border-gray-700 shadow-sm">
     <div>
-        <div class="rounded-md px-4 py-2">{{or @title "Custom Fields Manager"}}</div>
+        <div class="rounded-md px-3 py-2">{{or @title "Custom Fields Manager"}}</div>
         <TabNavigation @tabs={{this.tabs}} @onTabChange={{perform this.loadCustomFields}} @contentClass="bg-gray-100 dark:bg-gray-800 px-4 py-2" as |activeTab|>
             {{#each this.subjects as |subject|}}
                 <div class="subject-custom-fields {{if (eq activeTab.id subject.model) 'block' 'hidden'}}">
-                    <div class="flex flex-row justify-end mb-2 space-x-4">
+                    <div class="flex flex-row justify-end mb-4 space-x-4">
                         <Button @type="primary" @icon="square-plus" @text="New field group" @onClick={{fn this.createGroup subject}} @permission="fleet-ops update custom-field" />
                     </div>
                     <div class="space-y-4">
                         {{#each subject.groups as |group|}}
-                            <ContentPanel @title={{group.name}} @open={{true}} @panelHeaderClass="bordered">
-                                <div class="flex flex-row items-center space-x-2 px-1.5 mb-2">
+                            <ContentPanel @title={{group.name}} @open={{true}} @wrapperClass="bordered">
+                                <div class="flex flex-row items-center space-x-2 mb-4">
                                     <Button
                                         @type="primary"
                                         @icon="square-plus"
@@ -57,7 +57,7 @@
                                     </DropdownButton>
                                     <Button @type="danger" @icon="trash" @onClick={{fn this.deleteGroup group subject}} @permission="fleet-ops update custom-field" />
                                 </div>
-                                <div class="grid grid-cols-{{or group.meta.grid_size 1}} gap-2 px-1.5">
+                                <div class="grid grid-cols-{{or group.meta.grid_size 1}} gap-2">
                                     {{#each group.customFields as |customField|}}
                                         <div
                                             class="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 flex flex-row items-center justify-between
