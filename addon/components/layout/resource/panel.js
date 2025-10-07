@@ -87,6 +87,14 @@ export default class LayoutResourcePanelComponent extends Component {
         return contextComponentCallback(this, 'onPressEdit', this.resource);
     }
 
+    @action onOpen() {
+        return contextComponentCallback(this, 'onOpen', { resource: this.resource, panel: this.context });
+    }
+
+    @action onClose() {
+        return contextComponentCallback(this, 'onClose', { resource: this.resource, panel: this.context });
+    }
+
     @task *save() {
         contextComponentCallback(this, 'onBeforeSave', this.resource);
 

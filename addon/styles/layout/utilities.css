@@ -297,7 +297,7 @@ body[data-theme='dark'] .dimensions-box:before {
 }
 
 .table-scrolling-height {
-    height: 19.53rem;
+    max-height: 18rem;
 }
 
 .w-99pr,
@@ -696,11 +696,15 @@ body[data-theme='dark'] .contenteditable-placeholder:empty:before {
     width: auto !important;
 }
 
+.px-0i {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
 .py-0i {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-
 .border-b-0i {
     border-bottom-width: 0px !important;
 }

@@ -47,7 +47,7 @@ export default class ResourceContextPanelService extends Service {
 
         // Default size to medium
         if (!definition.size) {
-            definition.size = 'md';
+            definition.size = 'sm';
         }
 
         // Validate definition
@@ -72,7 +72,7 @@ export default class ResourceContextPanelService extends Service {
 
         // Call onOpen hook
         if (definition.onOpen) {
-            definition.onOpen({ resource: definition.resource ?? model, model: definition.resource ?? definition.model, close: () => this.close(definition.id) });
+            definition.onOpen({ resource: definition.resource ?? definition.model, model: definition.resource ?? definition.model, close: () => this.close(definition.id) });
         }
 
         return definition.id;

@@ -407,7 +407,7 @@
 }
 
 .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body > .modal-body-container {
-    @apply px-4 py-3;
+    @apply px-4 py-2;
 }
 
 .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-footer {
@@ -472,7 +472,7 @@ body[data-theme='dark'] .flb--modal.flb--default-modal > .flb--modal-dialog > .f
 }
 
 .flb--confirm-modal.flb--modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-body > .modal-body-container {
-    padding: 1.5rem 1rem;
+    @apply px-4 py-2;
 }
 
 .flb--default-modal.flb-resource-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {

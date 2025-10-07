@@ -40,7 +40,7 @@ export default class ModalsManagerService extends Service {
         confirmIconInactive: '',
         declineIsActive: false,
         declineButtonSize: 'md',
-        declineButtonType: 'secondary',
+        declineButtonType: 'default',
         declineIconActive: '',
         declineIconInactive: '',
         modalClass: '',

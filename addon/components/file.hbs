@@ -3,7 +3,7 @@
         <div class="x-fleetbase-file-actions">
             <DropdownButton
                 @dropdownId="x-fleetbase-file-actions-dropdown"
-                @icon="ellipsis"
+                @icon={{or @dropdownIcon "ellipsis"}}
                 @iconSize="xs"
                 @iconPrefix={{@dropdownButtonIconPrefix}}
                 @text={{@dropdownButtonText}}

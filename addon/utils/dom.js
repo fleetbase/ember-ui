@@ -1,13 +1,8 @@
-/*
- * Implement some helpers methods for interacting with the DOM,
- * be it Fastboot's SimpleDOM or the browser's version.
- *
- * Credit to https://github.com/yapplabs/ember-wormhole, from where this has been shamelessly stolen.
- */
-
 import { getOwner } from '@ember/application';
 import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
+import { schedule } from '@ember/runloop';
+import { all } from 'rsvp';
 import requirejs from 'require';
 
 function childNodesOfElement(element) {
@@ -107,4 +102,67 @@ export function unwrapChildren(context) {
 
     context.parentNode.insertBefore(fragment, context);
     context.parentNode.removeChild(context);
+}
+
+export function afterRender() {
+    return new Promise((resolve) => schedule('afterRender', null, resolve));
+}
+
+export function afterPaint() {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+export function renderCompleted() {
+    return all([afterRender, afterPaint]);
+}
+
+export function waitForInsertedAndSized(getElOrEl, { timeoutMs = 4000 } = {}) {
+    const getEl = typeof getElOrEl === 'function' ? getElOrEl : () => getElOrEl;
+
+    return new Promise((resolve, reject) => {
+        const ok = (el) => {
+            if (!el) return false;
+            const inDoc = document.documentElement.contains(el);
+            if (!inDoc) return false;
+            const r = el.getBoundingClientRect?.();
+            return !!r && r.width > 0 && r.height > 0;
+        };
+
+        let toId = 0;
+        let mo = null;
+
+        const check = () => {
+            const el = getEl();
+            if (ok(el)) {
+                cleanup();
+                resolve(el);
+            }
+        };
+
+        function cleanup() {
+            if (mo) mo.disconnect();
+            if (toId) clearTimeout(toId);
+        }
+
+        // fast path
+        if (ok(getEl())) return resolve(getEl());
+
+        // observe the whole doc for insertions/attribute tweaks that would affect layout
+        mo = new MutationObserver(check);
+        mo.observe(document.documentElement, {
+            childList: true,
+            attributes: true,
+            subtree: true,
+        });
+
+        // one immediate tick to catch “already there but styles settling”
+        requestAnimationFrame(check);
+
+        if (timeoutMs >= 0) {
+            toId = setTimeout(() => {
+                cleanup();
+                reject(new Error('Element was not inserted/sized in time'));
+            }, timeoutMs);
+        }
+    });
 }

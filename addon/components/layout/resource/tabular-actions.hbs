@@ -41,7 +41,7 @@
         @permission="fleet-ops delete allocation"
         as |dd|
     >
-        <div class="next-dd-menu mt-2 mx-0">
+        <div class="next-dd-menu mt-1 mx-0">
             {{#each @bulkActions as |bulkAction|}}
                 {{#if bulkAction.separator}}
                     <div class="next-dd-menu-seperator"></div>
@@ -51,7 +51,7 @@
                             {{#if bulkAction.icon}}
                                 <div class="w-{{or bulkAction.iconWidth '6'}}"><FaIcon @icon={{bulkAction.icon}} @size={{or bulkAction.iconSize "sm"}} /></div>
                             {{/if}}
-                            <div>{{bulkAction.label}}</div>
+                            <div>{{or bulkAction.text bulkAction.label}}</div>
                         </a>
                     </div>
                 {{/if}}

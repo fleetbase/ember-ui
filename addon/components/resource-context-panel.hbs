@@ -19,12 +19,13 @@
         @width={{overlay.computedWidth}}
         @isResizable={{overlay.computedResizable}}
         @onPressCancel={{fn this.closeOverlay overlay.id}}
-        @saveTask={{or overlay.saveTask this.saveTask}}
+        @saveTask={{overlay.saveTask}}
         @saveDisabled={{resource-context-panel-save-disabled overlay}}
         @saveOptions={{overlay.saveOptions}}
         @bodyClass={{concat "resource-context-panel-body " (if overlay.tabs "has-tabs") " " overlay.bodyClass}}
         @headerClass="{{overlay.headerClass}} resource-context-panel-header"
         @pojoResource={{overlay.pojoResource}}
+        @authSchema={{overlay.authSchema}}
     >
         {{#if overlay.computedTabs}}
             <div class="resource-context-panel-tabs {{overlay.tabWrapperClass}}">
@@ -36,7 +37,7 @@
                     @size={{or overlay.tabSize "md"}}
                     @containerClass={{overlay.tabContainerClass}}
                     @tablistClass="{{overlay.tablistClass}} resource-context-panel-tablist bg-white"
-                    @contentClass="{{overlay.tabContentClass}} resource-context-panel-tab-content p-4"
+                    @contentClass="{{overlay.tabContentClass}} resource-context-panel-tab-content"
                 >
                     {{#let (find-by "key" (get this.resourceContextPanel.activeTabs overlay.id) overlay.tabs) as |activeTab|}}
                         {{#if activeTab}}

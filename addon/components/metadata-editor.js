@@ -133,7 +133,7 @@ export default class MetadataEditorComponent extends Component {
     emitChange() {
         const output = this.getOutput();
 
-        if (typeof this.args.onChange !== 'function') {
+        if (typeof this.args.onChange === 'function') {
             this.args.onChange(output);
         }
 

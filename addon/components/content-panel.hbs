@@ -19,9 +19,8 @@
                             <FaIcon @icon={{if this.isOpen (concat (or @caretIcon "chevron") "-down") (concat (or @caretIcon "chevron") "-up")}} @prefix="fas" />
                         </span>
                     {{/if}}
-                    {{#if @isLoading}}
-                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
-                    {{else if @titleIcon}}
+                    
+                    {{#if @titleIcon}}
                         <span class="icon-container {{@titleIconWrapperClass}}" {{did-insert this.trackIconContainer}}>
                             <FaIcon @icon={{@titleIcon}} @prefix={{@titleIconPrefix}} @size={{or @titleIconSize "xs"}} class={{@titleIconClass}} />
                         </span>
@@ -41,7 +40,12 @@
                             </div>
                             <div class="panel-title flex-shrink-0 {{@panelTitleClass}}">
                                 <div class="flex flex-col {{@panelTitleWrapperClass}}">
-                                    <span class={{@panelTitleInlineClass}}>{{@title}}</span>
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <span class={{@panelTitleInlineClass}}>{{@title}}</span>
+                                        {{#if @isLoading}}
+                                            <Spinner />
+                                        {{/if}}
+                                    </div>
                                     {{#if @subtitle}}
                                         <span class={{@panelSubtitleInlineClass}}>{{@subtitle}}</span>
                                     {{/if}}
@@ -52,6 +56,7 @@
                                     </span>
                                 {{/if}}
                             </div>
+                            {{yield to="title"}}
                         {{/if}}
                     </div>
                     {{#if this.doesntHavePermissions}}
@@ -65,6 +70,7 @@
                     {{/if}}
                 </a>
                 <div class="next-content-panel-header-right {{@panelHeaderRightClass}}">
+                    {{yield to="actions"}}
                     {{#if @titleRightSideComponent}}
                         {{component @titleRightSideComponent context=@titleRightSideComponentContext}}
                     {{else}}
@@ -97,24 +103,28 @@
                         {{#each @actionButtons as |actionButton|}}
                             {{#if actionButton.items}}
                                 <DropdownButton
-                                    @icon={{actionButton.icon}}
-                                    @size={{actionButton.size}}
+                                    @icon={{or actionButton.icon "ellipsis"}}
+                                    @size={{or actionButton.size "xs"}}
                                     @iconPrefix={{actionButton.prefix}}
                                     @triggerClass={{actionButton.triggerClass}}
                                     @renderInPlace={{or actionButton.renderInPlace true}}
                                     as |dd|
                                 >
                                     <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
-                                        <div class="p-1">
-                                            {{#each actionButton.items as |item|}}
-                                                <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd (or item.fn item.onClick))}} disabled={{item.disabled}}>
-                                                    <div class="w-7 flex-grow-0 flex-shrink-0">
-                                                        <FaIcon @icon={{item.icon}} />
-                                                    </div>
-                                                    <span>{{item.text}}</span>
-                                                </a>
-                                            {{/each}}
-                                        </div>
+                                        {{#each actionButton.items as |item|}}
+                                            {{#if item.separator}}
+                                                <div class="next-dd-menu-seperator"></div>
+                                            {{else}}
+                                                <div class="px-1 {{item.wrapperClass}}">
+                                                    <a href="javascript:;" class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}" disabled={{item.disabled}} {{on "click" (dropdown-fn dd (or item.fn item.onClick))}} disabled={{item.disabled}}>
+                                                        <div class="w-7 flex-grow-0 flex-shrink-0">
+                                                            <FaIcon @icon={{item.icon}} />
+                                                        </div>
+                                                        <span>{{or item.text item.label}}</span>
+                                                    </a>
+                                                </div>
+                                            {{/if}}
+                                        {{/each}}
                                     </div>
                                 </DropdownButton>
                             {{else if actionButton.component}}
@@ -123,7 +133,7 @@
                                     icon=actionButton.icon
                                     iconPrefix=actionButton.iconPrefix
                                     iconComponent=actionButton.iconComponent
-                                    size=actionButton.size
+                                    size=(or actionButton.size "xs")
                                     text=actionButton.text
                                     options=actionButton.options
                                     items=actionButton.items
@@ -143,7 +153,7 @@
                                     @type={{actionButton.type}}
                                     @text={{actionButton.text}}
                                     @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
-                                    @size={{actionButton.size}}
+                                    @size={{or actionButton.size "xs"}}
                                     @buttonType={{actionButton.buttonType}}
                                     @disabled={{actionButton.disabled}}
                                     @exampleText={{actionButton.exampleText}}
@@ -227,14 +237,6 @@
                             {{if @isLoading 'opacity-50'}}
                             {{if @isLoading 'is-loading'}}"
                     >
-                        {{#if @isLoading}}
-                            <div class="absolute w-full h-full inset-0 bg-opacity-50 bg-gray-900 flex items-center justify-center">
-                                <div class="flex flex-row items-center">
-                                    <Spinner @iconClass="text-sky-500 fa-spin-800ms" class="flex mr-2i" />
-                                    <span>Loading...</span>
-                                </div>
-                            </div>
-                        {{/if}}
                         {{yield}}
                     </div>
                 {{/if}}

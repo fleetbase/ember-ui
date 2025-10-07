@@ -414,7 +414,7 @@ export default class Modal extends Component {
 
     @action doSubmit() {
         if (typeof this.args.onSubmit === 'function') {
-            this.args.onSubmit();
+            this.args.onSubmit(this.modalsManager);
         }
 
         let forms = this.modalElement.querySelectorAll('.flb--modal-body form');

@@ -1146,7 +1146,7 @@ body[data-theme="light"] .details-wrapper .next-content-panel-wrapper .next-cont
 }
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-right {
-    @apply flex flex-1 items-center justify-end space-x-2 py-2;
+    @apply flex flex-1 items-center justify-end space-x-1 py-2;
 }
 
 .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-right button.btn,
@@ -2030,6 +2030,26 @@ body[data-theme='light'] .next-table-wrapper table tfoot tr td {
 
 .field-info-container {
     @apply text-sm space-y-1;
+}
+
+.field-info-container.field-vertical-container {
+    @apply flex flex-row space-y-0 items-start;
+}
+
+.field-info-container.field-vertical-container.dashed-bottom {
+    @apply pb-1 border-b border-dashed border-gray-200 dark:border-gray-700;
+}
+
+.field-info-container.field-vertical-container + .field-info-container.field-vertical-container {
+    @apply mt-1.5; 
+}
+
+.field-info-container.field-vertical-container > .field-name {
+    width: 200px;
+}
+
+.field-info-container.field-vertical-container > .field-value {
+    @apply flex-1 flex justify-end;
 }
 
 .field-info-container > .field-name {

@@ -15,7 +15,7 @@ export default class LayoutResourceCardComponent extends Component {
     }
 
     get headerClass() {
-        const baseClasses = 'px-2 py-3 border-b border-gray-200 dark:border-gray-700';
+        const baseClasses = 'px-2 py-1.5 border-b border-gray-200 dark:border-gray-700';
         return this.args.headerClass ? `${baseClasses} ${this.args.headerClass}` : baseClasses;
     }
 

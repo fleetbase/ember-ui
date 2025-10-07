@@ -42,7 +42,9 @@
                             optionLabel=filter.filterOptionLabel
                             optionValue=filter.filterOptionValue
                             optionFormats=filter.filterOptionFormats
-                            fetchParams=filter.filterFetchParams
+                            fetchUri=filter.fetchUri
+                            fetchParams=(or filter.filterFetchParams filter.fetchParams)
+                            fetchOptions=(or filter.filterFetchOptions filter.fetchOptions)
                             placeholder=(or filter.filterComponentPlaceholder filter.filterLabel filter.label)
                             onChange=this.updateFilterValue
                             onClear=this.clearFilterValue

@@ -1,0 +1,46 @@
+<div class="metadata-viewer" ...attributes>
+    {{#if this.emptyMetadata}}
+        <div class="min-h-24 p-4">
+            <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                <div class="text-center">
+                    <FaIcon @icon="table" @size="2x" class="text-gray-400 mb-2" />
+                    <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        No metadata
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        No metadata to display
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{else}}
+        <div class="next-table-wrapper h-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each-in @metadata as |key value|}}
+                        <tr>
+                            <td>{{key}}</td>
+                            <td>{{value}}</td>
+                        </tr>
+                    {{/each-in}}
+                </tbody>
+            </table>
+        </div>
+        <div class="px-3 mt-2">
+            <Button @text={{if this.displayRaw "Hide raw metadata" "View raw metadata"}} @onClick={{this.viewRaw}} @size="xs" />
+            {{#if this.displayRaw}}
+                <div class="my-2">
+                    <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded p-2 dark:text-gray-300 text-gray-700 font-mono text-sm">
+                        <pre>{{json-stringify @metadata pretty=true}}</pre>
+                    </div>
+                </div>
+            {{/if}}
+        </div>
+    {{/if}}
+</div>

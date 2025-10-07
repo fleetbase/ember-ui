@@ -23,7 +23,9 @@ export default class ResourceContextPanelComponent extends Component {
      * @type {Object}
      */
     sizeMap = {
-        sm: '400px',
+        xxs: '400px',
+        xs: '500px',
+        sm: '550px',
         md: '600px',
         lg: '800px',
         xl: '1000px',
@@ -35,6 +37,7 @@ export default class ResourceContextPanelComponent extends Component {
      * @type {Object}
      */
     resizableMap = {
+        xs: true,
         sm: true,
         md: true,
         lg: true,
@@ -62,12 +65,13 @@ export default class ResourceContextPanelComponent extends Component {
                 resource,
                 model: resource,
                 title: overlay.title ?? resource?.name ?? resource?.displayName,
-                computedWidth: this.sizeMap[overlay.size] || this.sizeMap.md,
+                computedWidth: overlay.width ?? this.sizeMap[overlay.size] ?? this.sizeMap.sm,
                 computedResizable: this.resizableMap[overlay.size] !== undefined ? this.resizableMap[overlay.size] : true,
                 saveOptions: {
                     ...(overlay.saveOptions ?? {}),
                     overlay,
                 },
+                saveTask: overlay.saveTask ?? (overlay.useDefaultSaveTask ? this.saveTask : null),
                 computedTabs: overlay.tabs
                     ? overlay.tabs.map((tab) => ({
                           ...tab,

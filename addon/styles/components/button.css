@@ -25,7 +25,7 @@ a.btn.btn-is-loading:disabled,
 a.btn.btn-xs,
 .fc-button.btn-xs,
 .ui-full-calendar .fc-button.btn-xs {
-    @apply px-2.5 py-1.5 text-sm leading-4 font-medium rounded-md;
+    @apply px-3 py-1 text-sm leading-4 font-medium rounded-md;
 }
 
 .btn.btn-sm,
