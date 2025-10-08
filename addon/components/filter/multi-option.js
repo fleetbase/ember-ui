@@ -58,7 +58,7 @@ export default class FilterMultiOptionComponent extends Component {
 
     @task *fetchOptions(uri, params = {}) {
         if (!uri) return;
-        
+
         const { fetchParams } = this.args;
         const queryParams = Object.assign(params, fetchParams ?? {});
 

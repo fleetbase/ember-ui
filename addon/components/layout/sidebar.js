@@ -1,5 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { later } from '@ember/runloop';
 import { capitalize } from '@ember/string';
@@ -10,10 +11,12 @@ class SidebarContext {
         this.hideNow = component.hideNow;
         this.show = component.show;
         this.minimize = component.minimize;
+        this.component = component;
     }
 }
 
 export default class LayoutSidebarComponent extends Component {
+    @service sidebar;
     @tracked siderbarNode;
     @tracked gutterNode;
     @tracked mouseX = 0;
@@ -44,8 +47,10 @@ export default class LayoutSidebarComponent extends Component {
             this.hideNow(sidebarNode);
         }
 
+        const context = new SidebarContext(this);
+        this.sidebar.setSidbarContext(context);
         if (typeof onSetup === 'function') {
-            onSetup(new SidebarContext(this));
+            onSetup(context);
         }
     }
 
