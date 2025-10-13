@@ -1,8 +1,11 @@
 import { modifier } from 'ember-modifier';
 import numbersOnly from '../utils/numbers-only';
 
-export default modifier(function setHeight(element, [height]) {
-    if (height === undefined || height === null) {
+export default modifier(function setHeight(element, [height], { calculated = false }) {
+    if (height === undefined || height === null) return;
+
+    if (calculated) {
+        element.style.height = height;
         return;
     }
 

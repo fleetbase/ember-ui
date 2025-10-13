@@ -1,14 +1,59 @@
-<div class="kanban-container">
-    <div class="kanban-inner-container">
-        {{#each @columns as |column|}}
-            <div class="kanban-column">
-                <div class="kanban-column-header">
-                    <h1 class="text-white">{{smart-humanize column}}</h1>
-                </div>
-                <div class="kanban-column-body">
+<div class="kanban-board" role="application" {{set-height this.calculatedHeight calculated=true}} aria-label={{or @title "Kanban Board"}} {{on "keydown" this.onKeyDown}}>
+    {{#if @title}}
+        <div class="kanban-board-header">
+            <h1 class="kanban-board-title">{{@title}}</h1>
+        </div>
+    {{/if}}
 
-                </div>
-            </div>
-        {{/each}}
+    <div class="kanban-board-content">
+        <div class="kanban-columns-container">
+            {{#if (has-block)}}
+                {{#each this.columns as |column|}}
+                    {{yield
+                        (component
+                            "kanban/column"
+                            column=column
+                            draggedCard=this.draggedCard
+                            draggedColumn=this.draggedColumn
+                            onCardDragStart=this.onCardDragStart
+                            onCardDragEnd=this.onCardDragEnd
+                            onCardDrop=this.onCardDrop
+                            onColumnDragStart=this.onColumnDragStart
+                            onColumnDragEnd=this.onColumnDragEnd
+                            onColumnDrop=this.onColumnDrop
+                            onCardUpdate=@onCardUpdate
+                            onCardDelete=@onCardDelete
+                            onCreateCard=@onCreateCard
+                            readonly=@readonly
+                            disabled=@disabled
+                            cardTemplate=@cardTemplate
+                            subject=@subject
+                        )
+                        column
+                    }}
+                {{/each}}
+            {{else}}
+                {{#each this.columns as |column|}}
+                    <Kanban::Column
+                        @column={{column}}
+                        @draggedCard={{this.draggedCard}}
+                        @draggedColumn={{this.draggedColumn}}
+                        @onCardDragStart={{this.onCardDragStart}}
+                        @onCardDragEnd={{this.onCardDragEnd}}
+                        @onCardDrop={{this.onCardDrop}}
+                        @onColumnDragStart={{this.onColumnDragStart}}
+                        @onColumnDragEnd={{this.onColumnDragEnd}}
+                        @onColumnDrop={{this.onColumnDrop}}
+                        @onCardUpdate={{@onCardUpdate}}
+                        @onCardDelete={{@onCardDelete}}
+                        @onCreateCard={{@onCreateCard}}
+                        @readonly={{@readonly}}
+                        @disabled={{@disabled}}
+                        @cardTemplate={{@cardTemplate}}
+                        @subject={{@subject}}
+                    />
+                {{/each}}
+            {{/if}}
+        </div>
     </div>
 </div>

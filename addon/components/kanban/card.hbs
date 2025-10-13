@@ -1,96 +1,22 @@
 <div
-    class="kanban-card group {{if @isSelected 'selected'}} {{if @isDragging 'dragging'}} {{if this.card.isOverdue 'overdue'}} {{if this.card.isDueSoon 'due-soon'}}"
-    draggable={{unless @readonly "true"}}
+    class={{this.cardClasses}}
+    draggable={{this.isDraggable}}
+    {{on "dragstart" (or @onDragStart (noop))}}
+    {{on "dragend" (or @onDragEnd (noop))}}
+    {{on "click" this.onClick}}
+    data-card-id={{this.card.id}}
     role="button"
     tabindex="0"
-    aria-label={{this.cardAriaLabel}}
-    aria-describedby="{{this.cardId}}-description"
-    data-card-id={{this.card.id}}
-    {{on "dragstart" this.onDragStart}}
-    {{on "dragend" this.onDragEnd}}
-    {{on "click" this.onCardClick}}
-    {{on "dblclick" this.onCardDoubleClick}}
-    {{on "keydown" this.onKeyDown}}
-    {{on "click" this.onClickOutside}}
 >
-    {{! Card description for screen readers }}
-    <div id="{{this.cardId}}-description" class="sr-only">
-        Card in {{@columnId}} column
-        {{#if this.card.hasDescription}}
-            , description: {{this.card.description}}
-        {{/if}}
-    </div>
-
-    {{! Card Header }}
-    <Kanban::Card::Header
-        @card={{this.card}}
-        @isEditing={{and this.isEditing (equal this.editingField "title")}}
-        @editingValue={{this.editingValue}}
-        @showActions={{this.showActions}}
-        @onStartEditing={{fn this.startEditing "title"}}
-        @onSaveEdit={{this.saveEdit}}
-        @onCancelEdit={{this.cancelEdit}}
-        @onEditKeyDown={{this.onEditKeyDown}}
-        @onToggleActions={{this.toggleActions}}
-        @onDelete={{this.onDelete}}
-        @onDuplicate={{this.onDuplicate}}
-        @cardId={{this.cardId}}
-        @readonly={{@readonly}}
-        @disabled={{@disabled}}
-    />
-
-    {{! Card Body }}
-    <Kanban::Card::Body
-        @card={{this.card}}
-        @isExpanded={{this.isExpanded}}
-        @truncatedDescription={{this.truncatedDescription}}
-        @isDescriptionTruncated={{this.isDescriptionTruncated}}
-        @isEditing={{this.isEditing}}
-        @editingField={{this.editingField}}
-        @editingValue={{this.editingValue}}
-        @onStartEditing={{this.startEditing}}
-        @onSaveEdit={{this.saveEdit}}
-        @onCancelEdit={{this.cancelEdit}}
-        @onEditKeyDown={{this.onEditKeyDown}}
-        @onToggleExpansion={{this.toggleExpansion}}
-        @onPriorityChange={{this.onPriorityChange}}
-        @onAssigneeChange={{this.onAssigneeChange}}
-        @cardId={{this.cardId}}
-        @readonly={{@readonly}}
-        @disabled={{@disabled}}
-    />
-
-    {{! Card Footer }}
-    <Kanban::Card::Footer
-        @card={{this.card}}
-        @onDueDateChange={{this.onDueDateChange}}
-        @onTagsChange={{this.onTagsChange}}
-        @cardId={{this.cardId}}
-        @readonly={{@readonly}}
-        @disabled={{@disabled}}
-    />
-
-    {{! Priority indicator }}
-    {{#if this.card.priority}}
-        <div class="card-priority-indicator {{this.card.priorityColor}}" aria-hidden="true">
-            <div class="priority-bar priority-{{this.card.priority}}"></div>
+    {{#if @template}}
+        {{component @template card=this.card}}
+    {{else}}
+        <div class="kanban-card-content">
+            <h4 class="kanban-card-title">{{this.card.title}}</h4>
+            
+            {{#if this.card.description}}
+                <p class="kanban-card-description">{{this.card.description}}</p>
+            {{/if}}
         </div>
     {{/if}}
-
-    {{! Selection indicator }}
-    {{#if @isSelected}}
-        <div class="card-selection-indicator" aria-hidden="true">
-            <FaIcon @icon="check-circle" @prefix="fas" class="text-blue-500" />
-        </div>
-    {{/if}}
-
-    {{! Drag handle }}
-    {{#unless @readonly}}
-        <div class="card-drag-handle" aria-hidden="true">
-            <FaIcon @icon="grip-vertical" @prefix="fas" class="text-gray-400 group-hover:text-gray-600" />
-        </div>
-    {{/unless}}
-
-    {{! Card overlay for interactions }}
-    <div class="card-overlay {{if @isSelected 'selected'}}" aria-hidden="true"></div>
 </div>

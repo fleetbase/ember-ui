@@ -19,3 +19,10 @@
 .col-span-full {
     grid-column: 1 / -1;
 }
+
+.fleetbase-dashboard-grid .btn-wrapper > .btn,
+.fleetbase-dashboard-grid .ember-basic-dropdown-trigger .btn-wrapper > .btn {
+    height: 30px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}

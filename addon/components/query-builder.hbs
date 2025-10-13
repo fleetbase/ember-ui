@@ -7,10 +7,20 @@
                 "query-builder/column-select" columns=this.table.columns selectedColumns=this.selectedColumns columnAliases=this.columnAliases onChange=(fn this.callbackChange "columns")
             )
             group=(component
-                "query-builder/group-by" groupBy=this.groupBy columns=this.columns selectedColumns=this.selectedColumns allSelectedColumns=this.allSelectedColumns onChange=(fn this.callbackChange "groupBy")
+                "query-builder/group-by"
+                groupBy=this.groupBy
+                columns=this.columns
+                selectedColumns=this.selectedColumns
+                allSelectedColumns=this.allSelectedColumns
+                onChange=(fn this.callbackChange "groupBy")
             )
             sort=(component
-                "query-builder/sort-by" sortBy=this.sortBy columns=this.columns selectedColumns=this.selectedColumns allSelectedColumns=this.allSelectedColumns onChange=(fn this.callbackChange "sortBy")
+                "query-builder/sort-by"
+                sortBy=this.sortBy
+                columns=this.columns
+                selectedColumns=this.selectedColumns
+                allSelectedColumns=this.allSelectedColumns
+                onChange=(fn this.callbackChange "sortBy")
             )
             limit=(component "query-builder/limit" limit=this.limit onChange=(fn this.callbackChange "limit"))
             joins=(component "query-builder/joins" table=this.table relationships=this.table.relationships onChange=(fn this.callbackChange "joins"))

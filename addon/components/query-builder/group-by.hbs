@@ -86,7 +86,14 @@
                     </div>
                 </div>
 
-                <Button @text="Add Grouping" @type="primary" @icon="save" @size="xs" @onClick={{this.addGroupBy}} @disabled={{not (and this.selectedGroupBy this.selectedAggregateFn this.selectedAggregateBy)}} />
+                <Button
+                    @text="Add Grouping"
+                    @type="primary"
+                    @icon="save"
+                    @size="xs"
+                    @onClick={{this.addGroupBy}}
+                    @disabled={{not (and this.selectedGroupBy this.selectedAggregateFn this.selectedAggregateBy)}}
+                />
             </div>
 
             {{#if this.groupByItems.length}}

@@ -41,7 +41,7 @@
                     )
                 }}
             </Dialog>
-            {{! Only show backdrop for the topmost modal }}
+
             {{#if this.shouldShowBackdrop}}
                 <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{set-z-index this.backdropZIndex}} {{create-ref "backdropElement"}}></div>
             {{/if}}
@@ -58,7 +58,7 @@
                         )
                     }}
                 </Dialog>
-                {{! Only show backdrop for the topmost modal }}
+
                 {{#if this.shouldShowBackdrop}}
                     <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{set-z-index this.backdropZIndex}} {{create-ref "backdropElement"}}></div>
                 {{/if}}

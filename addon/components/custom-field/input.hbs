@@ -41,12 +41,7 @@
             </InputGroup>
         {{else if (eq this.customFieldComponent "date-picker")}}
             <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>
-                <DatePicker
-                    class="form-input w-full"
-                    @placeholder="YYYY-MM-DD"
-                    @value={{this.value}}
-                    @onDateChanged={{this.onChangeHandler}}
-                />
+                <DatePicker class="form-input w-full" @placeholder="YYYY-MM-DD" @value={{this.value}} @onDateChanged={{this.onChangeHandler}} />
             </InputGroup>
         {{else if (eq this.customFieldComponent "radio-button-select")}}
             <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>

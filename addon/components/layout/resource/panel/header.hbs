@@ -1,4 +1,14 @@
-<Overlay::Header @title={{@title}} @onPressCancel={{@onPressCancel}} class="resource-panel-header" ...attributes>
+<Overlay::Header
+    @title={{@title}}
+    @onPressCancel={{@onPressCancel}}
+    @headerLeftClass={{@headerLeftClass}}
+    @headerLeftInnerClass={{@headerLeftInnerClass}}
+    @titleWrapperClass={{@titleWrapperClass}}
+    @titleClass={{@titleClass}}
+    @actionsWrapperClass={{@actionsWrapperClass}}
+    class="resource-panel-header"
+    ...attributes
+>
     <:actions>
         <Layout::Resource::Panel::HeaderActions
             @resource={{@resource}}

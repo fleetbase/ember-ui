@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { next } from '@ember/runloop';
 
 /**
  * DashboardComponent for managing dashboards in an Ember application.
@@ -24,8 +25,11 @@ export default class DashboardComponent extends Component {
      */
     constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false }) {
         super(...arguments);
-        this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
-        this.dashboard.loadDashboards.perform(defaultDashboardId, defaultDashboardName);
+        this.dashboard.reset(); // ensure service is reset when re-rendering
+        next(() => {
+            this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
+            this.dashboard.loadDashboards.perform(defaultDashboardId, defaultDashboardName);
+        });
     }
 
     /**

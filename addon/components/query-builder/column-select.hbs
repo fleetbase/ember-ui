@@ -12,7 +12,7 @@
     <div class="query-builder-panel-content no-padding">
         <div class="{{if @columns 'max-h-80 overflow-y-auto' ''}} grid grid-cols-1 gap-2 lg:grid-cols-2 px-2 py-3">
             {{#each @columns as |column|}}
-                <div class="column-item {{if (includes column.name (map-by "name" this.selectedColumns)) 'selected'}}">
+                <div class="column-item {{if (includes column.name (map-by 'name' this.selectedColumns)) 'selected'}}">
                     <div class="column-checkbox-wrapper">
                         <Checkbox @checked={{includes column.name (map-by "name" this.selectedColumns)}} @onToggle={{fn this.selectColumn column}} />
                         <div class="column-info">
@@ -24,7 +24,12 @@
                     {{#if (includes column.name (map-by "name" this.selectedColumns))}}
                         <div class="flex items-center space-x-1">
                             <label class="text-xs text-gray-600 dark:text-gray-400">Alias:</label>
-                            <Input @value={{get this.columnAliases column.name}} placeholder={{column.name}} class="form-input form-input-sm column-alias-input" {{on "input" (fn this.updateAlias column.name)}} />
+                            <Input
+                                @value={{get this.columnAliases column.name}}
+                                placeholder={{column.name}}
+                                class="form-input form-input-sm column-alias-input"
+                                {{on "input" (fn this.updateAlias column.name)}}
+                            />
                         </div>
                     {{/if}}
                 </div>

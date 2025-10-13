@@ -3,7 +3,7 @@
     <Input
         @type="text"
         @value={{@searchQuery}}
-        aria-label={{t "common.search-input"}}
+        aria-label={{t "common.search"}}
         placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}}
         class="w-64 form-input form-input-sm {{@searchInputClass}}"
         disabled={{@searchDisabled}}
@@ -14,7 +14,7 @@
     <BulkSearchDropdown @value={{@bulkSearchValue}} @onClear={{@onClearBulkSearch}} @onSubmit={{@onSubmitBulkSearch}} @placeholder={{@bulkSearchPlaceholder}} />
 {{/if}}
 {{#if @onReload}}
-    <Button @icon="refresh" @onClick={{@onReload}} @helpText="Refresh" class={{@refreshButtonClass}} />
+    <Button @icon="refresh" @onClick={{@onReload}} @helpText={{t "common.refresh"}} class={{@refreshButtonClass}} />
 {{/if}}
 <FiltersPicker
     @columns={{@columns}}
@@ -30,18 +30,18 @@
 {{#unless @hideColumnsPicker}}
     <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} class={{@columnPickerButtonClass}} />
 {{/unless}}
-{{#if (safe-has this.table "selectedRows")}}
+{{#if (safe-has @table "selectedRows")}}
     <DropdownButton
         @icon="layer-group"
-        @text="Bulk Actions"
+        @text={{unless @bulkActionIconOnly (t "common.bulk-actions") ""}}
         @type="magic"
         @size="sm"
         @buttonWrapperClass={{@bulkActionButtonClass}}
-        @contentClass="dropdown-menu"
-        @permission="fleet-ops delete allocation"
+        @contentClass="dropdown-menu mt-0i"
+        @renderInPlace={{true}}
         as |dd|
     >
-        <div class="next-dd-menu mt-1 mx-0">
+        <div class="next-dd-menu mx-0">
             {{#each @bulkActions as |bulkAction|}}
                 {{#if bulkAction.separator}}
                     <div class="next-dd-menu-seperator"></div>
@@ -109,13 +109,13 @@
     {{/if}}
 {{/each}}
 {{#if @onPressNew}}
-    <Button @icon="plus" @iconPrefix="fas" @type="primary" @text="New" class={{@newButtonClass}} @onClick={{@onPressNew}} />
+    <Button @icon="plus" @iconPrefix="fas" @type="primary" @text={{t "common.new"}}  class={{@newButtonClass}} @onClick={{@onPressNew}} />
 {{/if}}
 {{#if @onPressImport}}
-    <Button @icon="upload" @type="magic" @text="Import" @wrapperClass="hidden md:flex" class={{@importButtonClass}} @onClick={{@onPressImport}} />
+    <Button @icon="upload" @type="magic" @text={{t "common.import"}} @wrapperClass="hidden md:flex" class={{@importButtonClass}} @onClick={{@onPressImport}} />
 {{/if}}
 {{#if @onPressExport}}
-    <Button @icon="long-arrow-up" @iconClass="rotate-icon-45" @wrapperClass="hidden md:flex" @text="Export" class={{@exportButtonClass}} @onClick={{@onPressExport}} />
+    <Button @icon="long-arrow-up" @iconClass="rotate-icon-45" @wrapperClass="hidden md:flex" @text={{t "common.export"}}  class={{@exportButtonClass}} @onClick={{@onPressExport}} />
 {{/if}}
 {{#if (has-block "end")}}
     {{yield to="end"}}

@@ -77,11 +77,13 @@
     @apply text-sky-300;
 }
 
+.status-badge.ready-status-badge > span,
 .status-badge.verified-status-badge > span,
 .status-badge.emerald-status-badge > span {
     @apply bg-emerald-800 border-emerald-700 text-emerald-100;
 }
 
+.status-badge.ready-status-badge > span svg,
 .status-badge.verified-status-badge > span svg,
 .status-badge.emerald-status-badge > span svg {
     @apply text-emerald-300;

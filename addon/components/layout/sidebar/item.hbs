@@ -70,7 +70,7 @@
                                 {{else}}
                                     {{#if (is-dd-item-visible action.context action.isVisible)}}
                                         <div role="group" class="px-1">
-                                            {{! template-lint-disable no-nested-interactive }}
+
                                             <a href="javascript:;" role="menuitem" class="next-dd-item {{action.class}}" {{on "click" (fn this.onDropdownItemClick action dd)}}>
                                                 {{#if action.icon}}
                                                     <div class="w-6">

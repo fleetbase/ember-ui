@@ -33,6 +33,13 @@ export default class ResourceContextPanelService extends Service {
     @tracked activeTabs = {};
 
     /**
+     * @private
+     * Tracks registered route change listeners for overlays that should close on transition.
+     * @type {Map<string, Function>}
+     */
+    #routeListeners = new Map();
+
+    /**
      * Opens a new overlay panel with the given definition.
      *
      * @method open
@@ -42,7 +49,7 @@ export default class ResourceContextPanelService extends Service {
     @action open(definition) {
         // Generate ID if not provided
         if (!definition.id) {
-            definition.id = this._generateId();
+            definition.id = this.#generateId();
         }
 
         // Default size to medium
@@ -50,8 +57,13 @@ export default class ResourceContextPanelService extends Service {
             definition.size = 'sm';
         }
 
+        // If should close on transition away
+        if (definition.closeOnTransition === true) {
+            this.#registerCloseOnTransition(definition);
+        }
+
         // Validate definition
-        this._validateDefinition(definition);
+        this.#validateDefinition(definition);
 
         // Set initial active tab if tabs are provided
         if (definition.tabs && definition.tabs.length > 0) {
@@ -67,7 +79,7 @@ export default class ResourceContextPanelService extends Service {
 
         // Sync with route if enabled
         if (definition.routeSync) {
-            this._syncToRoute(definition);
+            this.#syncToRoute(definition);
         }
 
         // Call onOpen hook
@@ -92,13 +104,13 @@ export default class ResourceContextPanelService extends Service {
         }
 
         const updatedOverlay = { ...this.overlays[overlayIndex], ...partial };
-        this._validateDefinition(updatedOverlay);
+        this.#validateDefinition(updatedOverlay);
 
         this.overlays = [...this.overlays.slice(0, overlayIndex), updatedOverlay, ...this.overlays.slice(overlayIndex + 1)];
 
         // Sync with route if enabled
         if (updatedOverlay.routeSync) {
-            this._syncToRoute(updatedOverlay);
+            this.#syncToRoute(updatedOverlay);
         }
     }
 
@@ -146,9 +158,12 @@ export default class ResourceContextPanelService extends Service {
         const { [overlayToClose.id]: removedTab, ...remainingTabs } = this.activeTabs;
         this.activeTabs = remainingTabs;
 
+        // Detach route listener if it was registered
+        this.#unregisterCloseOnTransition(overlayToClose.id);
+
         // Clear route sync if enabled
         if (overlayToClose.routeSync) {
-            this._clearFromRoute(overlayToClose);
+            this.#clearFromRoute(overlayToClose);
         }
     }
 
@@ -203,7 +218,7 @@ export default class ResourceContextPanelService extends Service {
                 if (canLeave && typeof canLeave.then === 'function') {
                     canLeave.then((result) => {
                         if (result) {
-                            this._setActiveTabInternal(id, tabKey, overlay);
+                            this.#setActiveTabInternal(id, tabKey, overlay);
                         }
                     });
                     return;
@@ -213,19 +228,19 @@ export default class ResourceContextPanelService extends Service {
             }
         }
 
-        this._setActiveTabInternal(id, tabKey, overlay);
+        this.#setActiveTabInternal(id, tabKey, overlay);
     }
 
     /**
      * Internal method to set active tab without guards.
      *
      * @private
-     * @method _setActiveTabInternal
+     * @method #setActiveTabInternal
      * @param {String} id - The overlay ID
      * @param {String} tabKey - The tab key to activate
      * @param {OverlayDefinition} overlay - The overlay definition
      */
-    _setActiveTabInternal(id, tabKey, overlay) {
+    #setActiveTabInternal(id, tabKey, overlay) {
         this.activeTabs = {
             ...this.activeTabs,
             [id]: tabKey,
@@ -233,8 +248,69 @@ export default class ResourceContextPanelService extends Service {
 
         // Sync with route if enabled
         if (overlay.routeSync) {
-            this._syncTabToRoute(overlay, tabKey);
+            this.#syncTabToRoute(overlay, tabKey);
         }
+    }
+
+    /**
+     * Registers a router listener to automatically close an overlay when a route transition occurs.
+     * This allows overlays to close cleanly when the user navigates away.
+     *
+     * @private
+     * @method _registerCloseOnTransition
+     * @param {OverlayDefinition} definition - The overlay definition object containing overlay metadata.
+     * @example
+     * if (definition.closeOnTransition) {
+     *   this._registerCloseOnTransition(definition);
+     * }
+     */
+    #registerCloseOnTransition(definition) {
+        // Ensure any previous listener for this overlay is removed
+        this.#unregisterCloseOnTransition(definition.id);
+
+        /**
+         * Handler for closing the overlay on route change.
+         * Uses `routeWillChange` so the overlay closes immediately before navigation.
+         */
+        const handler = () => {
+            this.close(definition.id);
+            this.#unregisterCloseOnTransition(definition.id); // cleanup after first fire
+        };
+
+        // Attach listener
+        this.router.on('routeWillChange', handler);
+
+        // Track the listener for future cleanup
+        this.#routeListeners.set(definition.id, handler);
+    }
+
+    /**
+     * Unregisters a previously registered close-on-transition listener for the specified overlay.
+     *
+     * @private
+     * @method _unregisterCloseOnTransition
+     * @param {String} id - The overlay ID whose listener should be removed.
+     */
+    #unregisterCloseOnTransition(id) {
+        const handler = this.#routeListeners.get(id);
+        if (handler) {
+            this.router.off('routeWillChange', handler);
+            this.#routeListeners.delete(id);
+        }
+    }
+
+    /**
+     * Unregisters all active close-on-transition listeners.
+     * Useful for cleaning up when the service is destroyed.
+     *
+     * @private
+     * @method _unbindAllCloseOnTransition
+     */
+    #unbindAllCloseOnTransition() {
+        for (const handler of this.#routeListeners.values()) {
+            this.router.off('routeWillChange', handler);
+        }
+        this.#routeListeners.clear();
     }
 
     /**
@@ -317,10 +393,10 @@ export default class ResourceContextPanelService extends Service {
      * Generates a unique ID for an overlay.
      *
      * @private
-     * @method _generateId
+     * @method #generateId
      * @returns {String}
      */
-    _generateId() {
+    #generateId() {
         return `overlay-${guidFor({})}`;
     }
 
@@ -328,11 +404,11 @@ export default class ResourceContextPanelService extends Service {
      * Validates an overlay definition.
      *
      * @private
-     * @method _validateDefinition
+     * @method #validateDefinition
      * @param {OverlayDefinition} definition
      * @throws {Error} If the definition is invalid
      */
-    _validateDefinition(definition) {
+    #validateDefinition(definition) {
         if (!definition) {
             throw new Error('Overlay definition is required');
         }
@@ -362,10 +438,10 @@ export default class ResourceContextPanelService extends Service {
      * Syncs overlay state to route query parameters.
      *
      * @private
-     * @method _syncToRoute
+     * @method #syncToRoute
      * @param {OverlayDefinition} overlay
      */
-    _syncToRoute(overlay) {
+    #syncToRoute(overlay) {
         if (!this.router) {
             return;
         }
@@ -385,11 +461,11 @@ export default class ResourceContextPanelService extends Service {
      * Syncs active tab to route query parameters.
      *
      * @private
-     * @method _syncTabToRoute
+     * @method #syncTabToRoute
      * @param {OverlayDefinition} overlay
      * @param {String} tabKey
      */
-    _syncTabToRoute(overlay, tabKey) {
+    #syncTabToRoute(overlay, tabKey) {
         if (!this.router) {
             return;
         }
@@ -406,10 +482,10 @@ export default class ResourceContextPanelService extends Service {
      * Clears overlay state from route query parameters.
      *
      * @private
-     * @method _clearFromRoute
+     * @method #clearFromRoute
      * @param {OverlayDefinition} overlay
      */
-    _clearFromRoute(overlay) {
+    #clearFromRoute(overlay) {
         if (!this.router) {
             return;
         }

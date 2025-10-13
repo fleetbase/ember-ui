@@ -80,7 +80,12 @@
                             <div class="next-dd-menu-seperator {{item.seperatorClass}}"></div>
                         {{else}}
                             <div class="px-1 {{item.wrapperClass}}">
-                                <a href="javascript:;" class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}" disabled={{item.disabled}} {{on "click" (dropdown-fn dd (if item.perform (perform item.perform) (or item.onClick item.fn)))}}>
+                                <a
+                                    href="javascript:;"
+                                    class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}"
+                                    disabled={{item.disabled}}
+                                    {{on "click" (dropdown-fn dd (if item.perform (perform item.perform) (or item.onClick item.fn)))}}
+                                >
                                     {{#if item.icon}}
                                         <div class="w-{{or item.iconWidth '6'}}"><FaIcon @icon={{item.icon}} @size={{or item.iconSize "sm"}} /></div>
                                     {{/if}}

@@ -67,7 +67,7 @@ export default class ContentPanelComponent extends Component {
         if (!disabled) {
             this.disabled = this.doesntHavePermissions = permission && this.abilities.cannot(permission);
         }
-        this.isOpen = open === true;
+        this.isOpen = Boolean(open);
         this.toggleOnCaretOnly = toggleOnCaretOnly === true;
         this.dropdownButtonRenderInPlace = dropdownButtonRenderInPlace === true;
 
@@ -86,6 +86,15 @@ export default class ContentPanelComponent extends Component {
         open: this.open.bind(this),
         close: this.close.bind(this),
     };
+
+    /**
+     * Handle arguments changed
+     *
+     * @memberof ContentPanelComponent
+     */
+    @action handleArgsChange(el, [open]) {
+        this.isOpen = Boolean(open);
+    }
 
     /**
      * Toggles the content panel's open/closed state based on click events.

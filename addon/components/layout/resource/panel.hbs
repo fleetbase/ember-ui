@@ -23,6 +23,11 @@
             headerClass=@headerClass
             modelName=@modelName
             saveOptions=@saveOptions
+            headerLeftClass=@headerLeftClass
+            headerLeftInnerClass=@headerLeftInnerClass
+            titleWrapperClass=@titleWrapperClass
+            titleClass=@titleClass
+            actionsWrapperClass=@actionsWrapperClass
         }}
     {{else}}
         <Layout::Resource::Panel::Header
@@ -36,6 +41,11 @@
             @onPressCancel={{this.onPressCancel}}
             @actionButtons={{@actionButtons}}
             @modelName={{@modelName}}
+            @headerLeftClass={{@headerLeftClass}}
+            @headerLeftInnerClass={{@headerLeftInnerClass}}
+            @titleWrapperClass={{@titleWrapperClass}}
+            @titleClass={{@titleClass}}
+            @actionsWrapperClass={{@actionsWrapperClass}}
             class={{@headerClass}}
         />
     {{/if}}

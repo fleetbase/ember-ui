@@ -1,36 +1,181 @@
-.kanban-container {
-    display: flex;
-    width: 100%;
-    max-width: 100%;
-    height: 100vh;
-    overflow-x: scroll;
-}
-
-.kanban-container .kanban-inner-container {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: row;
-    height: 100vh;
-    padding-left: 1.25rem;
-}
-
-.kanban-container .kanban-inner-container .kanban-column {
-    width: 300px;
+.kanban-board {
+    @apply w-full flex flex-col bg-gray-50 dark:bg-gray-900;
     height: 100%;
-    border-radius: 0.5rem;
-    margin-right: 1.25rem;
-    @apply bg-gray-300 dark:bg-gray-800 shadow-sm;
 }
 
-.kanban-container .kanban-inner-container .kanban-column > .kanban-column-header {
+.kanban-board .kanban-board-header {
+    @apply px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800;
+    flex-shrink: 0;
+}
+
+.kanban-board .kanban-board-title {
+    @apply text-lg font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.kanban-board .kanban-board-content {
+    @apply flex-1 overflow-hidden;
     display: flex;
-    flex-direction: row;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    border-bottom-width: 2px;
-    @apply px-4 py-2 border-gray-200 dark:border-gray-500;
+    flex-direction: column;
 }
 
-.kanban-container .kanban-inner-container .kanban-column > .kanban-column-body {
-    @apply px-4 py-2;
+.kanban-board .kanban-columns-container {
+    @apply flex gap-6 p-6 overflow-x-auto pr-70;
+    height: 100%;
+    overflow-y: scroll;
+    min-height: 0;
+    flex: 1;
 }
+
+.kanban-board .kanban-column {
+    @apply flex flex-col bg-gray-100 dark:bg-gray-800 rounded-lg min-w-80 max-w-80 h-full;
+    flex-shrink: 0;
+    align-self: flex-start;
+    height: auto !important;
+}
+
+.kanban-board .kanban-column.drag-over {
+    @apply ring-2 ring-blue-500 ring-opacity-50 bg-blue-50 dark:bg-blue-900 bg-opacity-20;
+}
+
+.kanban-board .kanban-column-header {
+    @apply flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700;
+}
+
+.kanban-board .kanban-column-title {
+    @apply font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.kanban-board .kanban-column-count {
+    @apply px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full;
+}
+
+.kanban-board .kanban-column-body {
+    @apply flex-1 p-3 space-y-3 overflow-y-auto;
+}
+
+.kanban-board .kanban-column-empty {
+    @apply flex items-center justify-center h-32;
+}
+
+.kanban-board .kanban-empty-text {
+    @apply text-gray-500 dark:text-gray-400 text-sm text-center;
+}
+
+.kanban-board .kanban-column-footer {
+    @apply px-3 py-2 border-t border-gray-200 dark:border-gray-700;
+}
+
+.kanban-board .kanban-add-card-button {
+    @apply w-full px-3 py-2 text-left text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors;
+}
+
+.kanban-board .kanban-card {
+    @apply bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 cursor-pointer hover:shadow-md transition-shadow duration-200;
+}
+
+.kanban-board .kanban-card:hover {
+    @apply shadow-md;
+}
+
+.kanban-board .kanban-card:focus {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+}
+
+.kanban-board .kanban-card img {
+    pointer-events: none;
+}
+
+.kanban-board .kanban-card.dragging {
+    @apply opacity-50 transform rotate-2 shadow-lg;
+}
+
+.kanban-board .kanban-drop-indicator {
+    height: 4px !important;
+    background: #3b82f6 !important;
+    border-radius: 2px !important;
+    margin: 8px 0 !important;
+    opacity: 1 !important;
+}
+
+.kanban-board .kanban-column.drag-over {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    border: 2px dashed #3b82f6 !important;
+}
+
+.kanban-board .kanban-card-content {
+    @apply space-y-2;
+}
+
+.kanban-board .kanban-card-title {
+    @apply font-medium text-gray-900 dark:text-gray-100;
+}
+
+.kanban-board .kanban-card-description {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.kanban-board .kanban-drop-indicator {
+    @apply h-1 bg-blue-500 rounded-full mx-2 my-1;
+}
+
+@media (max-width: 640px) {
+    .kanban-board .kanban-columns-container {
+        @apply flex-col space-y-4 p-4;
+    }
+
+    .kanban-board .kanban-column {
+        @apply min-w-full max-w-full;
+    }
+}
+
+.kanban-board .kanban-card:focus,
+.kanban-board .kanban-add-card-button:focus {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+}
+
+.kanban-board .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kanban-board .kanban-card,
+    .kanban-board * {
+        @apply transition-none;
+        animation: none !important;
+    }
+}
+
+/* Style the horizontal scrollbar */
+.kanban-board .kanban-columns-container::-webkit-scrollbar {
+  height: 12px; /* Scrollbar height */
+}
+
+.kanban-board .kanban-columns-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 12px; /* This creates padding on left/right - equivalent to px-3 */
+}
+
+.kanban-board .kanban-columns-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Light gray */
+  border-radius: 6px;
+  border: 2px solid transparent; /* Creates padding around the thumb */
+  background-clip: content-box; /* Makes border act as padding */
+}
+
+.kanban-board .kanban-columns-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Darker on hover */
+  background-clip: content-box;
+}
+
+/* Dark mode */
+body[data-theme="dark"] .kanban-board .kanban-columns-container::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  background-clip: content-box;
+}
+
+body[data-theme="dark"] .kanban-board .kanban-columns-container::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+  background-clip: content-box;
+}
+

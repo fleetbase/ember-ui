@@ -15,7 +15,6 @@ export default class DashboardWidgetPanelComponent extends Component {
      */
     constructor(owner, { dashboard, defaultDashboardId = 'dashboard' }) {
         super(...arguments);
-
         this.availableWidgets = this.universe.getWidgets(defaultDashboardId);
         this.dashboard = dashboard;
     }

@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { later } from '@ember/runloop';
+import { next } from '@ember/runloop';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 
 /**
@@ -82,21 +82,17 @@ export default class DrawerComponent extends Component {
         this.height = getWithDefault(this.args, 'height', this.height);
         this.isMinimized = getWithDefault(this.args, 'isMinimized', this.isMinimized);
 
-        later(
-            this,
-            () => {
-                this.isOpen = getWithDefault(this.args, 'isOpen', this.isOpen);
-                this.isResizable = getWithDefault(this.args, 'isResizable', this.isResizable);
-                this.noBackdrop = getWithDefault(this.args, 'noBackdrop', this.noBackdrop);
+        next(() => {
+            this.isOpen = getWithDefault(this.args, 'isOpen', this.isOpen);
+            this.isResizable = getWithDefault(this.args, 'isResizable', this.isResizable);
+            this.noBackdrop = getWithDefault(this.args, 'noBackdrop', this.noBackdrop);
 
-                if (typeof this.args.onLoad === 'function') {
-                    this.args.onLoad(this.getContext());
-                }
+            if (typeof this.args.onLoad === 'function') {
+                this.args.onLoad(this.getContext());
+            }
 
-                this._rendered = true;
-            },
-            300
-        );
+            this._rendered = true;
+        });
     }
 
     /**

@@ -24,7 +24,7 @@
     {{#each @actionButtons as |actionButton|}}
         {{#if actionButton.items}}
             <DropdownButton
-                @icon={{or actionButton.icon  "ellipsis"}}
+                @icon={{or actionButton.icon "ellipsis"}}
                 @size={{or actionButton.size "sm"}}
                 @iconPrefix={{actionButton.prefix}}
                 @triggerClass={{actionButton.triggerClass}}
@@ -37,7 +37,12 @@
                             <div class="next-dd-menu-seperator"></div>
                         {{else}}
                             <div class="px-1 {{item.wrapperClass}}">
-                                <a href="javascript:;" class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}" disabled={{item.disabled}} {{on "click" (dropdown-fn dd (or item.fn item.onClick))}}>
+                                <a
+                                    href="javascript:;"
+                                    class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}"
+                                    disabled={{item.disabled}}
+                                    {{on "click" (dropdown-fn dd (or item.fn item.onClick))}}
+                                >
                                     <div class="w-7 flex-grow-0 flex-shrink-0">
                                         <FaIcon @icon={{item.icon}} />
                                     </div>

@@ -1,6 +1,6 @@
 <Button
     @type={{@type}}
-    @text={{if this.buttonComponentArgs.iconOnly "" (or @text "Filters")}}
+    @text={{if this.buttonComponentArgs.iconOnly "" (or @text (t "common.filter"))}}
     @icon={{or @icon "filter"}}
     @size={{or @size "xs"}}
     @wrapperClass={{@wrapperClass}}
