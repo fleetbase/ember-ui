@@ -4,7 +4,6 @@ import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 import { inject as service } from '@ember/service';
 import { task } from 'ember-concurrency';
-import { EMPTY_QUERY } from '../utils/report-builder';
 import removeNullish from '../utils/remove-nullish';
 
 export default class ReportBuilderComponent extends Component {

@@ -93,6 +93,7 @@ export default class ResourceContextPanelComponent extends Component {
     /**
      * Finds the resource model from a overlay definition
      */
+    /* eslint-disable no-unused-vars */
     findResource(overlay) {
         if (!overlay || typeof overlay !== 'object') return null;
 

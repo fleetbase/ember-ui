@@ -1,11 +1,11 @@
 <Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}} as |options|>
     <div class="modal-body-container">
         <InputGroup @name="Report Title" @required={{true}}>
-            <Input @value={{@options.title}} placeholder="Enter report title..." @onChange={{@options.setTitle}} class="form-input" />
+            <Input @value={{@options.title}} placeholder="Enter report title..." class="form-input" />
         </InputGroup>
 
         <InputGroup @name="Description">
-            <Textarea @value={{@options.description}} placeholder="Optional description..." @onChange={{@options.setDescription}} class="form-input" rows="3" />
+            <Textarea @value={{@options.description}} placeholder="Optional description..." class="form-input" rows="3" />
         </InputGroup>
 
         <InputGroup @name="Category">
@@ -28,7 +28,7 @@
                         </InputGroup>
 
                         <InputGroup @name="Time">
-                            <Input @type="time" @value={{@options.scheduleTime}} @onChange={{@options.setScheduleTime}} class="form-input" />
+                            <Input @type="time" @value={{@options.scheduleTime}} class="form-input" />
                         </InputGroup>
                     </div>
                 {{/if}}

@@ -49,7 +49,7 @@ export default class CustomFieldYieldComponent extends Component {
     }
 
     @task *loadCustomFields() {
-        const subject = yield this.resolveSubject();
+        // const subject = yield this.resolveSubject();
         const owner = yield this.resolveOwner();
 
         try {

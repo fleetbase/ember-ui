@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { task } from 'ember-concurrency';
 
@@ -15,8 +16,8 @@ export default class FilterSelectComponent extends Component {
 
     constructor(owner, { value, options = [], fetchUri, fetchParams = {} }) {
         super(...arguments);
-        this.value = this.args.value;
-        this.options = isArray(this.args.options) ? this.args.options : [];
+        this.value = value;
+        this.options = isArray(options) ? options : [];
         this.optionLabel = this.args.optionLabel ?? this.args.filterOptionLabel;
         this.optionValue = this.args.optionValue ?? this.args.filterOptionValue;
         this.placeholder = this.args.placeholder ?? this.args.filterPlaceholder;

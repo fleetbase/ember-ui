@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 import { later } from '@ember/runloop';
 import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';
+import { Point } from '@fleetbase/fleetops-data/utils/geojson';
 
 export default class ModelCoordinatesInputComponent extends Component {
     @service fetch;
@@ -27,7 +28,7 @@ export default class ModelCoordinatesInputComponent extends Component {
         if (this.args.autocomplete === 'location') {
             const { location } = selected;
             const key = this.args.locationProperty ?? 'location';
-            this.args.model.setProperties({ key: location });
+            this.args.model.setProperties({ [key]: location });
         }
 
         if (this.args.autocomplete === 'all' || this.args.autocomplete === true) {
@@ -61,7 +62,7 @@ export default class ModelCoordinatesInputComponent extends Component {
         const location = new Point(longitude, latitude);
         const key = this.args.locationProperty ?? 'location';
 
-        this.args.model.setProperties({ key: location });
+        this.args.model.setProperties({ [key]: location });
 
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(...arguments);

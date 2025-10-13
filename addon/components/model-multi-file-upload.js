@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { isArray } from '@ember/array';
 import { dasherize, underscore } from '@ember/string';
 import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';

@@ -138,7 +138,7 @@ export default class KanbanColumnComponent extends Component {
     /**
      * Calculate target position for drop
      */
-    calculateTargetPosition(event) {
+    calculateTargetPosition() {
         return this.dragOverPosition !== null ? this.dragOverPosition : this.cards.length;
     }
 

@@ -3,10 +3,10 @@ import { action } from '@ember/object';
 
 /**
  * Kanban Card Component
- * 
+ *
  * Usage:
  * <Kanban::Card @card={{card}} />
- * 
+ *
  * With custom template:
  * <Kanban::Card @card={{card}} @template={{component "my-custom-card"}} />
  */
@@ -80,15 +80,15 @@ export default class KanbanCardComponent extends Component {
      */
     get cardClasses() {
         let classes = 'kanban-card';
-        
+
         if (this.args.isDragging) {
             classes += ' dragging';
         }
-        
+
         if (this.card.priority) {
             classes += ` priority-${this.card.priority}`;
         }
-        
+
         return classes;
     }
 }

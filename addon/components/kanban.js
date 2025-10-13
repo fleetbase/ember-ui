@@ -70,7 +70,7 @@ export default class KanbanComponent extends Component {
      * Handle card drop on column
      */
     @action
-    onCardDrop(targetColumnId, targetPosition = null, event) {
+    onCardDrop(targetColumnId, targetPosition = null) {
         if (!this.draggedCard) return;
 
         const card = this.draggedCard;
@@ -108,7 +108,7 @@ export default class KanbanComponent extends Component {
      * Handle column drop
      */
     @action
-    onColumnDrop(targetPosition, event) {
+    onColumnDrop(targetPosition) {
         if (!this.draggedColumn) return;
 
         const column = this.draggedColumn;

@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { isArray, A } from '@ember/array';
+import { isArray } from '@ember/array';
 import { task, timeout } from 'ember-concurrency';
 
 export default class QueryBuilderConditionsComponent extends Component {
@@ -399,7 +399,7 @@ export default class QueryBuilderConditionsComponent extends Component {
         targetList.insertAt(targetIndex, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
-        this.conditionGroups = this.conditionGroups;
+        this.conditionGroups = [...this.conditionGroups];
 
         this.notifyChange();
     }
@@ -413,7 +413,7 @@ export default class QueryBuilderConditionsComponent extends Component {
         targetList.insertAt(targetIndex, item);
 
         // force a tick for Glimmer just in case
-        this.conditionGroups = this.conditionGroups;
+        this.conditionGroups = [...this.conditionGroups];
 
         this.notifyChange();
     }

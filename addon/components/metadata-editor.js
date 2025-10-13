@@ -8,10 +8,11 @@ import { isEmpty } from '@ember/utils';
 
 function coerceValue(value, targetType) {
     switch (targetType) {
-        case 'number':
+        case 'number': {
             if (isEmpty(value)) return '';
             const num = Number(value);
             return isNaN(num) ? '' : num;
+        }
         case 'boolean':
             return Boolean(value);
         case 'text':

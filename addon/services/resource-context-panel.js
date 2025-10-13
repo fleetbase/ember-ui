@@ -2,7 +2,6 @@ import Service, { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
-import { isPresent } from '@ember/utils';
 
 /**
  * Service for managing the state and interactions of resource context panels.
@@ -121,6 +120,7 @@ export default class ResourceContextPanelService extends Service {
      * @param {String} [id] - The overlay ID. If not provided, closes the active overlay.
      * @returns {Promise<void>}
      */
+    /* eslint-disable no-unused-vars */
     @action async close(id) {
         let overlayToClose;
         let overlayIndex;

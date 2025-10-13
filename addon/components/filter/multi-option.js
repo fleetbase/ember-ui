@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, get } from '@ember/object';
+import { debug } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { task } from 'ember-concurrency';
 
@@ -10,7 +11,7 @@ export default class FilterMultiOptionComponent extends Component {
     @tracked value = [];
     @tracked options = [];
 
-    constructor(owner, { value, options, filter, fetch, fetchUri, fetchParams = {} }) {
+    constructor(owner, { value, options, fetchUri, fetchParams = {} }) {
         super(...arguments);
         this.value = this.parseValue(value);
         this.options = isArray(options) ? options : [];
@@ -38,8 +39,7 @@ export default class FilterMultiOptionComponent extends Component {
     }
 
     @action search(query) {
-        const { filter, optionLabel, fetchUri, fetchParams = {} } = this.args;
-        const { filterFetchOptions } = filter;
+        const { optionLabel, fetchUri, fetchParams = {} } = this.args;
 
         if (typeof fetchUri === 'string') {
             return this.fetchOptions(fetchUri, { query, ...fetchParams });
