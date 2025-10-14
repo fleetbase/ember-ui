@@ -170,7 +170,9 @@ export default class ActivityLogComponent extends Component {
                     `<span class="activity-change">changed <span class="activity-change-prop highlight-gray ${this.args.activityChangePropClass ?? ''}">${k}</span> from <span class="activity-change-prop highlight-gray ${this.args.activityPreviousValueClass ?? ''}">${this.#code(c.from)}</span> to <span class="activity-change-prop highlight-blue ${this.args.activityNewValueClass ?? ''}">${this.#code(c.to)}</span></span>`
                 );
             } else {
-                parts.push(`<span class="activity-change">set <span class="activity-change-prop highlight-gray ${this.args.activityChangePropClass ?? ''}">${k}</span> to <span class="activity-change-prop highlight-blue ${this.args.activityNewValueClass ?? ''}">${this.#code(c.to)}</span></span>`);
+                parts.push(
+                    `<span class="activity-change">set <span class="activity-change-prop highlight-gray ${this.args.activityChangePropClass ?? ''}">${k}</span> to <span class="activity-change-prop highlight-blue ${this.args.activityNewValueClass ?? ''}">${this.#code(c.to)}</span></span>`
+                );
             }
         }
 

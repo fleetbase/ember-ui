@@ -1,8 +1,9 @@
 <div class="activity-log w-full space-y-4" ...attributes>
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between {{@headerWrapperClass}}">
         <div class="text-sm font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">{{t "common.activity"}}</div>
         <div class="flex flex-row items-center space-x-2">
             <div>
+                {{yield to="filters"}}
                 <DatePicker
                     @value={{this.dateFilter}}
                     @onSelect={{this.setDateFilter}}
@@ -19,9 +20,9 @@
     </div>
 
     {{#each this.groups as |group|}}
-        <section>
+        <section class={{@groupClass}}>
             <header class="mb-3 flex items-center gap-3">
-                <div class="text-[10px] font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">
+                <div class="text-[10px] {{@groupLabelClass}} font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">
                     {{group.dateLabel}}
                 </div>
                 <div class="flex-1 border-t border-gray-200 dark:border-gray-800"></div>
@@ -31,7 +32,7 @@
                 <span class="absolute left-0 top-0 h-full w-px bg-gray-200 dark:bg-gray-800"></span>
 
                 {{#each group.items as |item|}}
-                    <li class="relative mb-4" data-key={{item.key}}>
+                    <li class="relative mb-4 {{@itemClass}}" data-key={{item.key}}>
                         <span class="activity-log-knob"></span>
 
                         <div class="rounded-xl border border-gray-100 bg-white/90 dark:bg-[#0b0c10] dark:border-gray-800 px-3 py-2 shadow-sm">
@@ -45,26 +46,26 @@
                                     />
                                 {{/if}}
 
-                                <div class="min-w-0 flex-1">
+                                <div class="min-w-0 flex-1 {{@itemDetailsClass}}">
                                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        <span class="text-sm {{@itemSentenceClass}} font-medium text-gray-900 dark:text-gray-100">
                                             {{item.sentence}}
                                         </span>
 
                                         {{#if this.showBadges}}
-                                            <span class="pl-1.5 inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 {{item.badge.class}}">
+                                            <span class="{{@itemBadgeClass}} pl-1.5 inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 {{item.badge.class}}">
                                                 {{item.badge.text}}
                                             </span>
                                         {{/if}}
                                     </div>
 
                                     {{#if item.inlineSummary}}
-                                        <div class="mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                                        <div class="{{@itemSummaryClass}} mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300">
                                             {{item.inlineSummary}}
                                         </div>
                                     {{/if}}
 
-                                    <div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    <div class="{{@itemRelativeTimestampClass}} mt-1 text-xs text-gray-400 dark:text-gray-500">
                                         <time title={{item.timestamp.exactLocal}} datetime={{item.timestamp.iso}}>
                                             {{item.timestamp.relative}}
                                         </time>
@@ -77,7 +78,7 @@
                                                 class="text-xs inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
                                                 {{on "click" (fn this.toggleAdvanced item.key)}}
                                             >
-                                                <FaIcon @icon={{if (set-has-item this.expanded item.key) "chevron-down" "chevron-right"}} class="h-3 w-3" />
+                                                <FaIcon @icon={{if (set-has-item this.expanded item.key) "chevron-down" "chevron-right"}} @size="sm" />
                                                 {{#if (set-has-item this.expanded item.key)}}
                                                     Hide advanced
                                                 {{else}}
@@ -87,7 +88,7 @@
 
                                             {{#if (set-has-item this.expanded item.key)}}
                                                 <div
-                                                    class="mt-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 px-3 py-2 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto"
+                                                    class="{{@advancedChangesWrapperClass}} mt-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 px-3 py-2 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto"
                                                 >
                                                     {{#each item.advancedChanges as |c|}}
                                                         <div class="py-1 leading-6">
