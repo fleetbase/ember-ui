@@ -3,7 +3,7 @@
         <div class="x-fleetbase-file-actions">
             <DropdownButton
                 @dropdownId="x-fleetbase-file-actions-dropdown"
-                @icon="ellipsis"
+                @icon={{or @dropdownIcon "ellipsis"}}
                 @iconSize="xs"
                 @iconPrefix={{@dropdownButtonIconPrefix}}
                 @text={{@dropdownButtonText}}
@@ -25,7 +25,7 @@
                     </div>
                     <div class="next-dd-menu-seperator"></div>
                     <div role="group" class="px-1">
-                        {{! template-lint-disable no-nested-interactive }}
+
                         <a href="javascript:;" role="menuitem" class="next-dd-item text-danger" {{on "click" (fn this.onDropdownItemClick "onDelete" dd)}}>
                             <span class="mr-1">
                                 <FaIcon @icon="trash" @prefix={{@dropdownButtonIconPrefix}} />

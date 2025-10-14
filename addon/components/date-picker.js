@@ -22,7 +22,15 @@ export default class DatePickerComponent extends Component {
 
     getOptions() {
         const options = this.defaultOptions;
-        const { value } = this.args;
+        const { value, dateFormat, inline } = this.args;
+
+        if (inline) {
+            options.inline = inline;
+        }
+
+        if (dateFormat) {
+            options.dateFormat = dateFormat;
+        }
 
         if (value) {
             options.selectedDates = this.parseValue(value);
@@ -32,13 +40,17 @@ export default class DatePickerComponent extends Component {
             options.container = this.nodeRef.parentNode;
         }
 
-        const onSelect = function () {
-            if (typeof this.args.onChange === 'function') {
-                this.args.onChange(...arguments);
-            }
-
+        const onSelect = function (selection) {
             if (typeof this.args.onSelect === 'function') {
                 this.args.onSelect(...arguments);
+            }
+
+            if (typeof this.args.onChange === 'function') {
+                this.args.onChange(selection.date, ...arguments);
+            }
+
+            if (typeof this.args.onDateChanged === 'function') {
+                this.args.onDateChanged(selection.formattedDate, ...arguments);
             }
         };
 

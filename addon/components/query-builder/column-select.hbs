@@ -1,0 +1,85 @@
+<div class="query-builder-panel" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="query-builder-panel-title">
+            <FaIcon @icon="columns" @size="sm" class="mr-2" />
+            Select fields
+        </div>
+        <div class="text-xs text-gray-500">
+            {{if this.selectedColumns.length (concat this.selectedColumns.length " selected") "None selected"}}
+        </div>
+    </div>
+
+    <div class="query-builder-panel-content no-padding">
+        <div class="{{if @columns 'max-h-80 overflow-y-auto' ''}} grid grid-cols-1 gap-2 lg:grid-cols-2 px-2 py-3">
+            {{#each @columns as |column|}}
+                <div class="column-item {{if (includes column.name (map-by 'name' this.selectedColumns)) 'selected'}}">
+                    <div class="column-checkbox-wrapper">
+                        <Checkbox @checked={{includes column.name (map-by "name" this.selectedColumns)}} @onToggle={{fn this.selectColumn column}} />
+                        <div class="column-info">
+                            <div class="column-label">{{column.label}}</div>
+                            <div class="column-type">{{column.type}}</div>
+                        </div>
+                    </div>
+
+                    {{#if (includes column.name (map-by "name" this.selectedColumns))}}
+                        <div class="flex items-center space-x-1">
+                            <label class="text-xs text-gray-600 dark:text-gray-400">Alias:</label>
+                            <Input
+                                @value={{get this.columnAliases column.name}}
+                                placeholder={{column.name}}
+                                class="form-input form-input-sm column-alias-input"
+                                {{on "input" (fn this.updateAlias column.name)}}
+                            />
+                        </div>
+                    {{/if}}
+                </div>
+            {{else}}
+                <div class="min-h-24 p-4 col-span-2">
+                    <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                        <div class="text-center">
+                            <FaIcon @icon="table" @size="2x" class="text-gray-400 mb-2" />
+                            <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">Select a data source</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Choose a table to see available fields</div>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+
+        {{#if this.selectedColumns.length}}
+            <div class="mt-4 pt-4 px-4 border-t border-gray-200 dark:border-gray-600">
+                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Fields:</div>
+                <div class="flex flex-wrap gap-2">
+                    {{#each this.selectedColumns as |column|}}
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700"
+                        >
+                            {{column.label}}
+                            {{#if (get this.columnAliases column.name)}}
+                                <span class="ml-1 text-indigo-600 dark:text-indigo-300">as {{get this.columnAliases column.name}}</span>
+                            {{/if}}
+                            <button
+                                type="button"
+                                class="ml-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200"
+                                {{on "click" (fn this.selectColumn column)}}
+                            >
+                                <FaIcon @icon="times" @size="xs" />
+                            </button>
+                        </span>
+                    {{/each}}
+                </div>
+            </div>
+
+            <div class="mt-3 px-4 pb-2 flex items-center justify-between">
+                <button type="button" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium" {{on "click" this.selectAllColumns}}>
+                    <FaIcon @icon="check-double" @size="xs" class="mr-1" />
+                    Select All
+                </button>
+                <button type="button" class="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium" {{on "click" this.clearAllColumns}}>
+                    <FaIcon @icon="times" @size="xs" class="mr-1" />
+                    Clear All
+                </button>
+            </div>
+        {{/if}}
+    </div>
+</div>

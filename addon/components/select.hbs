@@ -1,12 +1,12 @@
 <select
     ...attributes
-    class="form-select {{if this.value 'has--selection' 'has--placeholder'}} {{if this.disabled 'disabled'}}"
+    class="{{if @unstyled '' (trim (concat (unless @defaultStylingDisabled 'form-select ') (if this.value 'has--selection' 'has--placeholder') ' ' (if this.disabled 'disabled')))}}"
     disabled={{this.disabled}}
     {{on "change" this.select}}
     {{did-update this.changed @value @placeholder}}
 >
     {{#if this.placeholder}}
-        <option selected disabled>
+        <option selected disabled class={{trim (concat @optionClass " " @placeholderOptionClass)}}>
             {{this.placeholder}}
         </option>
     {{/if}}
@@ -19,6 +19,7 @@
                         <option
                             value={{if @optionValue (get selectable @optionValue) selectable}}
                             selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                            class={{@optionClass}}
                         >
                             {{yield (get selectable @optionLabel) key}}
                         </option>
@@ -34,6 +35,7 @@
                         <option
                             value={{if @optionValue (get selectable @optionValue) selectable}}
                             selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                            class={{@optionClass}}
                         >
                             {{yield (get selectable @optionLabel) selectable}}
                         </option>
@@ -50,6 +52,7 @@
                     <option
                         value={{if @optionValue (get selectable @optionValue) selectable}}
                         selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                        class={{@optionClass}}
                     >
                         {{yield (get selectable @optionLabel) selectable}}
                     </option>
@@ -67,6 +70,7 @@
                     <option
                         value={{if @optionValue (get selectable @optionValue) selectable}}
                         selected={{if @optionValue (eq this.value (get selectable @optionValue)) (eq this.value selectable)}}
+                        class={{@optionClass}}
                     >
                         {{#if @humanize}}
                             {{or (humanize label) (humanize (get selectable @optionValue))}}
@@ -76,7 +80,7 @@
                     </option>
                 {{/let}}
             {{else}}
-                <option value={{selectable}} selected={{eq this.value selectable}}>
+                <option value={{selectable}} selected={{eq this.value selectable}} class={{@optionClass}}>
                     {{#if @humanize}}
                         {{humanize selectable}}
                     {{else}}

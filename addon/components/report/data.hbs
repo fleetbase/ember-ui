@@ -1,0 +1,34 @@
+{{#if @resource.result_columns}}
+    <div class="next-table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    {{#each @resource.result_columns as |column|}}
+                        <th>{{column.label}}</th>
+                    {{/each}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#each @resource.data as |row|}}
+                    <tr>
+                        {{#each @resource.result_columns as |column|}}
+                            <td>{{n-a (get row column.name)}}</td>
+                        {{/each}}
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+{{else}}
+    <div>
+        <div class="min-h-24 p-4 col-span-2">
+            <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                <div class="text-center">
+                    <FaIcon @icon="triangle-exclamation" @size="2x" class="text-gray-400 mb-2" />
+                    <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">No report preview</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Configure the report and press the execute button to preview the results.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}

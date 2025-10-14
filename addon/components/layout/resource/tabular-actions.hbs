@@ -1,0 +1,122 @@
+{{yield}}
+{{#if @onSearch}}
+    <Input
+        @type="text"
+        @value={{@searchQuery}}
+        aria-label={{t "common.search"}}
+        placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}}
+        class="w-64 form-input form-input-sm {{@searchInputClass}}"
+        disabled={{@searchDisabled}}
+        {{on "keyup" @onSearch}}
+    />
+{{/if}}
+{{#if @onSubmitBulkSearch}}
+    <BulkSearchDropdown @value={{@bulkSearchValue}} @onClear={{@onClearBulkSearch}} @onSubmit={{@onSubmitBulkSearch}} @placeholder={{@bulkSearchPlaceholder}} />
+{{/if}}
+{{#if @onReload}}
+    <Button @icon="refresh" @onClick={{@onReload}} @helpText={{t "common.refresh"}} class={{@refreshButtonClass}} />
+{{/if}}
+<FiltersPicker
+    @columns={{@columns}}
+    @onApply={{fn this.filters.apply @controller}}
+    @onClear={{fn this.filters.reset @controller}}
+    @onFilterClear={{this.filters.clear}}
+    @onChange={{this.filters.set}}
+    @buttonWrapperClass={{@filterPickerButtonClass}}
+    @gridCols={{@filterPickerGridCols}}
+    @width={{@filterPickerWidth}}
+    @iconOnly={{true}}
+/>
+{{#unless @hideColumnsPicker}}
+    <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} class={{@columnPickerButtonClass}} />
+{{/unless}}
+{{#if (safe-has @table "selectedRows")}}
+    <DropdownButton
+        @icon="layer-group"
+        @text={{unless @bulkActionIconOnly (t "common.bulk-actions") ""}}
+        @type="magic"
+        @size="sm"
+        @buttonWrapperClass={{@bulkActionButtonClass}}
+        @contentClass="dropdown-menu mt-0i"
+        @renderInPlace={{true}}
+        as |dd|
+    >
+        <div class="next-dd-menu mx-0">
+            {{#each @bulkActions as |bulkAction|}}
+                {{#if bulkAction.separator}}
+                    <div class="next-dd-menu-seperator"></div>
+                {{else}}
+                    <div class="px-1">
+                        <a href="#" class="next-dd-item {{bulkAction.class}}" {{on "click" (dropdown-fn dd bulkAction.fn)}}>
+                            {{#if bulkAction.icon}}
+                                <div class="w-{{or bulkAction.iconWidth '6'}}"><FaIcon @icon={{bulkAction.icon}} @size={{or bulkAction.iconSize "sm"}} /></div>
+                            {{/if}}
+                            <div>{{or bulkAction.text bulkAction.label}}</div>
+                        </a>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    </DropdownButton>
+{{/if}}
+{{#each @actionButtons as |actionButton|}}
+    {{#if actionButton.component}}
+        {{component
+            actionButton.component
+            icon=actionButton.icon
+            iconPrefix=actionButton.iconPrefix
+            iconComponent=actionButton.iconComponent
+            size=actionButton.size
+            text=actionButton.text
+            options=actionButton.options
+            items=actionButton.items
+            permission=actionButton.permission
+            isLoading=actionButton.isLoading
+            renderInPlace=actionButton.renderInPlace
+            triggerClass=actionButton.triggerClass
+            disabled=actionButton.disabled
+            onClick=actionButton.onClick
+            fn=actionButton.fn
+            perform=actionButton.perform
+            onSelect=actionButton.onSelect
+            onChange=actionButton.onChange
+        }}
+    {{else}}
+        <Button
+            @type={{actionButton.type}}
+            @text={{actionButton.text}}
+            @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
+            @size={{actionButton.size}}
+            @buttonType={{actionButton.buttonType}}
+            @disabled={{actionButton.disabled}}
+            @exampleText={{actionButton.exampleText}}
+            @helpText={{actionButton.helpText}}
+            @icon={{actionButton.icon}}
+            @iconClass={{actionButton.iconClass}}
+            @iconFlip={{actionButton.iconFlip}}
+            @iconPrefix={{actionButton.iconPrefix}}
+            @iconRotation={{actionButton.iconRotation}}
+            @iconSize={{actionButton.iconSize}}
+            @isLoading={{actionButton.isLoading}}
+            @outline={{actionButton.outline}}
+            @permission={{actionButton.permission}}
+            @wrapperClass={{actionButton.wrapperClass}}
+            @textClass={{actionButton.textClass}}
+            @tooltipPlacement={{actionButton.tooltipPlacement}}
+            @visible={{actionButton.visible}}
+            class={{actionButton.class}}
+        />
+    {{/if}}
+{{/each}}
+{{#if @onPressNew}}
+    <Button @icon="plus" @iconPrefix="fas" @type="primary" @text={{t "common.new"}}  class={{@newButtonClass}} @onClick={{@onPressNew}} />
+{{/if}}
+{{#if @onPressImport}}
+    <Button @icon="upload" @type="magic" @text={{t "common.import"}} @wrapperClass="hidden md:flex" class={{@importButtonClass}} @onClick={{@onPressImport}} />
+{{/if}}
+{{#if @onPressExport}}
+    <Button @icon="long-arrow-up" @iconClass="rotate-icon-45" @wrapperClass="hidden md:flex" @text={{t "common.export"}}  class={{@exportButtonClass}} @onClick={{@onPressExport}} />
+{{/if}}
+{{#if (has-block "end")}}
+    {{yield to="end"}}
+{{/if}}

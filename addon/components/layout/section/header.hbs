@@ -23,22 +23,28 @@
                     {{/if}}
                 </div>
             {{/if}}
-            {{#if @onSearch}}
-                <Input
-                    @type="text"
-                    @value={{@searchQuery}}
-                    aria-label={{t "common.search-input"}}
-                    placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}}
-                    class="w-64 ml-3 form-input form-input-sm {{@searchInputClass}}"
-                    disabled={{@searchDisabled}}
-                    {{on "keyup" @onSearch}}
-                />
-            {{/if}}
         </div>
         {{#unless @hideActions}}
-            <div id="next-view-section-subheader-actions" class="next-view-section-subheader-actions {{@actionsWrapperClass}}">
+            <EmberWormhole
+                @to={{@actionsRenderDestination}}
+                @renderInPlace={{not @actionsRenderDestination}}
+                id="next-view-section-subheader-actions"
+                class="next-view-section-subheader-actions {{@actionsWrapperClass}}"
+            >
+                {{#if @onSearch}}
+                    <Input
+                        @type="text"
+                        @value={{@searchQuery}}
+                        aria-label={{t "common.search-input"}}
+                        placeholder={{or @searchPlaceholder (concat (t "common.search") " " (pluralize @title))}}
+                        class="w-64 form-input form-input-sm {{@searchInputClass}}"
+                        disabled={{@searchDisabled}}
+                        {{on "keyup" @onSearch}}
+                    />
+                {{/if}}
+                <div id="next-view-section-subheader-wormhole-after-search" class="hidden"></div>
                 {{yield}}
-            </div>
+            </EmberWormhole>
         {{/unless}}
     {{/if}}
 </div>

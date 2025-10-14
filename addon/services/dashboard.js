@@ -4,6 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
+import { next } from '@ember/runloop';
 
 /**
  * Service for managing dashboards, including loading, creating, and deleting dashboards, as well as managing the current dashboard and widget states.
@@ -161,6 +162,21 @@ export default class DashboardService extends Service {
      */
     @action onAddingWidget(state = true) {
         this.isAddingWidget = state;
+    }
+
+    /**
+     * Reset dashboards
+     *
+     * @memberof DashboardService
+     */
+    reset() {
+        this.currentDashboard = null;
+        this.dashboards = [];
+        // unload from store
+        next(() => {
+            this.store.unloadAll('dashboard');
+            // this.store.unloadAll('dashboard-widget');
+        });
     }
 
     /**

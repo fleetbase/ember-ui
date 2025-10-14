@@ -52,7 +52,14 @@
                         </div>
                     </DropdownButton>
                 {{else}}
-                    <Button class={{button.class}} @icon={{button.icon}} @text={{button.title}} @type={{button.type}} @size={{button.size}} @onClick={{button.action}} />
+                    <Button
+                        class={{button.class}}
+                        @icon={{button.icon}}
+                        @text={{button.title}}
+                        @type={{button.type}}
+                        @size={{button.size}}
+                        @onClick={{if button.perform (perform button.perform) (or button.onClick button.fn button.action)}}
+                    />
                 {{/if}}
             {{/each}}
         {{/if}}

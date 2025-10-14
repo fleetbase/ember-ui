@@ -1,0 +1,14 @@
+<DropdownButton @icon={{or @icon "magnifying-glass"}} @buttonWrapperClass={{@buttonWrapperClass}} @size={{or @size "xs"}} as |dd|>
+    <div class="bulk-search-dropdown-container filters-dropdown-container">
+        <div class="filters-dropdown-header">
+            <h4>{{or @title "Bulk Search"}}</h4>
+        </div>
+        <div class="filters-dropdown-body">
+            <Textarea @value={{this.value}} class="form-input w-full" rows={{or @rows "8"}} placeholder={{or @placeholder "Input comma delimited ID's to perform a bulk search"}} />
+        </div>
+        <div class="filters-dropdown-footer space-x-2">
+            <Button @text="Clear" @icon="trash" @size="xs" @onClick={{dropdown-fn dd this.clear}} />
+            <Button @text="Search" @icon="check" @type="primary" @size="xs" @onClick={{dropdown-fn dd this.submit}} />
+        </div>
+    </div>
+</DropdownButton>

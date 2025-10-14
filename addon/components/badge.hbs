@@ -1,4 +1,4 @@
-<div class="status-badge {{safe-dasherize (or @type @status "info")}}-status-badge {{@wrapperClass}}" ...attributes>
+<div class="status-badge {{safe-dasherize (or @type @status 'info')}}-status-badge {{@wrapperClass}}" ...attributes>
     <span
         class="status-badge-inner-wrap inline-flex items-center
             {{unless @roundedFull 'px-2 py-0.5 rounded' 'badge-rounded-full'}}

@@ -1,0 +1,9 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}} @modalClass="flb-resource-modal" ...attributes>
+    <div class="{{@options.wrapperClass}}">
+        {{#let (or @options.render @options.component) as |render|}}
+            {{#if render}}
+                {{component render resource=@options.resource}}
+            {{/if}}
+        {{/let}}
+    </div>
+</Modal::Default>

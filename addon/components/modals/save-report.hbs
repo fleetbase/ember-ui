@@ -1,0 +1,38 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}} as |options|>
+    <div class="modal-body-container">
+        <InputGroup @name="Report Title" @required={{true}}>
+            <Input @value={{@options.title}} placeholder="Enter report title..." class="form-input" />
+        </InputGroup>
+
+        <InputGroup @name="Description">
+            <Textarea @value={{@options.description}} placeholder="Optional description..." class="form-input" rows="3" />
+        </InputGroup>
+
+        <InputGroup @name="Category">
+            <Select @value={{@options.category}} @options={{@options.categoryOptions}} @placeholder="Select category..." @onChange={{@options.setCategory}} class="form-input" />
+        </InputGroup>
+
+        {{#if @options.showScheduling}}
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <div class="flex items-center mb-3">
+                    <input type="checkbox" checked={{@options.isScheduled}} {{on "change" @options.toggleScheduling}} class="form-checkbox h-4 w-4 text-blue-600" />
+                    <label class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Schedule this report
+                    </label>
+                </div>
+
+                {{#if @options.isScheduled}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputGroup @name="Frequency">
+                            <Select @value={{@options.scheduleFrequency}} @options={{@options.frequencyOptions}} @onChange={{@options.setScheduleFrequency}} class="form-input" />
+                        </InputGroup>
+
+                        <InputGroup @name="Time">
+                            <Input @type="time" @value={{@options.scheduleTime}} class="form-input" />
+                        </InputGroup>
+                    </div>
+                {{/if}}
+            </div>
+        {{/if}}
+    </div>
+</Modal::Default>

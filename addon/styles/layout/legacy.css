@@ -527,21 +527,6 @@ body[data-theme='dark'] .radio-group-condensed .radio-group-item {
     @apply text-gray-100 border-night-905;
 }
 
-body[data-theme='dark'] .radio-group-condensed .radio-group-item .ui-input-info-block .ui-input-info-block-text > span,
-body[data-theme='dark'] .radio-group-condensed .radio-group-item .ui-input-info-block .ui-input-info-block-text > p {
-    @apply text-blue-700;
-}
-
-body[data-theme='dark'] .radio-group-condensed .radio-group-item.warning .ui-input-info-block .ui-input-info-block-text > span,
-body[data-theme='dark'] .radio-group-condensed .radio-group-item.warning .ui-input-info-block .ui-input-info-block-text > p {
-    @apply text-yellow-900;
-}
-
-body[data-theme='dark'] .radio-group-condensed .radio-group-item.success .ui-input-info-block .ui-input-info-block-text > span,
-body[data-theme='dark'] .radio-group-condensed .radio-group-item.success .ui-input-info-block .ui-input-info-block-text > p {
-    @apply text-green-900;
-}
-
 body[data-theme='dark'] .radio-group-condensed .radio-group-item label span:first-child {
     @apply text-gray-200;
 }

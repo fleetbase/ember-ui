@@ -22,6 +22,12 @@
     border-bottom-left-radius: 4px;
 }
 
+.ember-power-select-dropdown.ember-basic-dropdown-content--above {
+    @apply border-x border-b border-t-0 dark:border-gray-900 border-gray-200 shadow-sm shadow-gray-900;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
 .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input.form-input-sm,
 .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input-sm {
     max-height: 34px;
@@ -46,4 +52,8 @@
 .ember-power-select-trigger-multiple-input[type='search'] {
     @apply bg-transparent text-sm text-white outline-0 leading-5 px-1;
     max-height: 21px;
+}
+
+.ember-power-select-option[aria-selected="true"] {
+    @apply dark:bg-gray-900 bg-gray-200;
 }

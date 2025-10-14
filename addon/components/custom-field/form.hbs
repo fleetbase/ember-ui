@@ -1,0 +1,77 @@
+<div class="form-wrapper with-input-group-padding" ...attributes>
+    <InputGroup @name="Field Label" @value={{@resource.label}} {{on "input" this.setCustomFieldName}} />
+    <InputGroup @name="Field Description" @value={{@resource.description}} />
+    <InputGroup @name="Field Help Text" @value={{@resource.help_text}} />
+    <InputGroup>
+        <Toggle @isToggled={{@resource.required}} @onToggle={{fn (mut @resource.required)}}>
+            <span class="dark:text-gray-100 text-sm ml-2">Field is Required</span>
+        </Toggle>
+    </InputGroup>
+    <InputGroup>
+        <Toggle @isToggled={{@resource.editable}} @onToggle={{fn (mut @resource.editable)}}>
+            <span class="dark:text-gray-100 text-sm ml-2">Field is Editable</span>
+        </Toggle>
+    </InputGroup>
+    <InputGroup @name="Field Type">
+        <select class="form-select w-full has--placeholder" {{on "change" this.onSelectCustomFieldType}}>
+            <option selected disabled>
+                Select field type...
+            </option>
+            {{#each-in this.customFieldTypeMap as |key|}}
+                <option value={{dasherize key}} selected={{eq @resource.type (dasherize key)}}>
+                    {{smart-humanize key}}
+                </option>
+            {{/each-in}}
+        </select>
+    </InputGroup>
+    {{#if this.currentFieldMap.hasOptions}}
+        <CustomField::OptionsInput @customField={{@resource}} @fieldMap={{this.currentFieldMap}} class="mb-4" />
+    {{/if}}
+    {{#if this.currentFieldMap.allowedModels}}
+        <InputGroup @name="Field Model Type">
+            <select class="form-select w-full has--placeholder" {{on "change" this.onSelectModelType}}>
+                <option selected disabled>
+                    Select model type
+                </option>
+                {{#each this.currentFieldMap.allowedModels as |modelName|}}
+                    <option value={{dasherize modelName}} selected={{eq @resource.meta.modelName (dasherize modelName)}}>
+                        {{smart-humanize modelName}}
+                    </option>
+                {{/each}}
+            </select>
+        </InputGroup>
+    {{/if}}
+    <InputGroup @name="Meta: Column-Span">
+        <DropdownButton
+            @text={{concat "Column Span Size :" (n-a @resource.meta.colSpan)}}
+            @textClass="text-sm mr-2"
+            @buttonClass="flex-row-reverse w-64 justify-between"
+            @icon="caret-down"
+            @iconClass="mr-0i"
+            @size="sm"
+            @iconPrefix="fas"
+            @triggerClass="hidden md:flex"
+            as |dd|
+        >
+            <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                <div class="p-1">
+                    {{#each this.colSpanSizeOptions as |size|}}
+                        <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.setCustomFieldMetaProperty "colSpan" size)}}>
+                            <div class="flex-1 flex flex-row items-center">
+                                <div class="w-6">
+                                    <FaIcon @icon="grip" />
+                                </div>
+                                <span>{{size}}</span>
+                            </div>
+                            <div>
+                                {{#if (eq size @resource.meta.colSpan)}}
+                                    <FaIcon @icon="check" class="text-green-500" />
+                                {{/if}}
+                            </div>
+                        </a>
+                    {{/each}}
+                </div>
+            </div>
+        </DropdownButton>
+    </InputGroup>
+</div>

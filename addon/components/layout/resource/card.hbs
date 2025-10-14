@@ -1,0 +1,11 @@
+<div class={{this.cardClass}} ...attributes>
+    {{yield
+        (hash
+            model=this.model
+            index=this.index
+            header=(component "layout/resource/card/header" model=this.model class=this.headerClass)
+            body=(component "layout/resource/card/body" model=this.model class=this.bodyClass)
+            footer=(component "layout/resource/card/footer" model=this.model class=this.footerClass)
+        )
+    }}
+</div>

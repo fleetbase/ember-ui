@@ -2,25 +2,20 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, get } from '@ember/object';
+import { debug } from '@ember/debug';
 import { isArray } from '@ember/array';
+import { task } from 'ember-concurrency';
 
 export default class FilterMultiOptionComponent extends Component {
     @service fetch;
     @tracked value = [];
     @tracked options = [];
-    @tracked isLoading = false;
 
-    constructor() {
+    constructor(owner, { value, options, fetchUri, fetchParams = {} }) {
         super(...arguments);
-
-        const { value, options, filter } = this.args;
-
         this.value = this.parseValue(value);
         this.options = isArray(options) ? options : [];
-
-        if (typeof filter?.filterFetchOptions === 'string') {
-            this.fetchOptions(filter?.filterFetchOptions);
-        }
+        this.fetchOptions.perform(fetchUri, fetchParams);
     }
 
     @action onChange(selection) {
@@ -44,11 +39,10 @@ export default class FilterMultiOptionComponent extends Component {
     }
 
     @action search(query) {
-        const { filter, optionLabel } = this.args;
-        const { filterFetchOptions } = filter;
+        const { optionLabel, fetchUri, fetchParams = {} } = this.args;
 
-        if (typeof filterFetchOptions === 'string') {
-            return this.fetchOptions(filterFetchOptions, { query });
+        if (typeof fetchUri === 'string') {
+            return this.fetchOptions(fetchUri, { query, ...fetchParams });
         }
 
         this.options = this.options.filter((option) => {
@@ -62,19 +56,18 @@ export default class FilterMultiOptionComponent extends Component {
         });
     }
 
-    @action fetchOptions(uri, params = {}) {
+    @task *fetchOptions(uri, params = {}) {
+        if (!uri) return;
+
         const { fetchParams } = this.args;
         const queryParams = Object.assign(params, fetchParams ?? {});
 
-        this.isLoading = true;
-        this.fetch
-            .get(uri, queryParams)
-            .then((options) => {
-                this.options = options;
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+        try {
+            const options = yield this.fetch.get(uri, queryParams);
+            this.options = options;
+        } catch (err) {
+            debug('Error loading options: ' + err.message);
+        }
     }
 
     parseValue(value) {

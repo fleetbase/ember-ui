@@ -1,12 +1,14 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action, set } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
 import { filter, alias } from '@ember/object/computed';
 import { isEqual } from '@fleetbase/ember-core/decorators/is-equal';
 
 export default class TableComponent extends Component {
+    @service tableContext;
     @tracked tableNode;
     @tracked allRowsToggled = false;
     @alias('args.rows') rows;
@@ -19,6 +21,8 @@ export default class TableComponent extends Component {
         const { onSetup } = this.args;
 
         this.tableNode = tableNode;
+        this.tableContext.node = tableNode;
+        this.tableContext.table = this;
 
         later(
             this,
@@ -101,5 +105,9 @@ export default class TableComponent extends Component {
 
     @action toggleSelectAll() {
         this.allRowsToggled = true;
+    }
+
+    getSelectedIds() {
+        return this.selectedRows.map((_) => _.id);
     }
 }

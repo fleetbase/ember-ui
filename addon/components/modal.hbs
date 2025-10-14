@@ -25,11 +25,12 @@
             centered=(eq this.position "center")
             scrollable=this.scrollable
             fullscreen=@fullscreen
+            zIndex=this.modalZIndex
         )
         as |Dialog|
     }}
         {{#if this._renderInPlace}}
-            <Dialog {{create-ref "modalElement"}} ...attributes>
+            <Dialog {{create-ref "modalElement"}} {{set-z-index this.modalZIndex}} ...attributes>
                 {{yield
                     (hash
                         header=(component (or @headerComponent "modal/header") onClose=this.close)
@@ -40,12 +41,13 @@
                     )
                 }}
             </Dialog>
+
             {{#if this.shouldShowBackdrop}}
-                <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{create-ref "backdropElement"}}></div>
+                <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{set-z-index this.backdropZIndex}} {{create-ref "backdropElement"}}></div>
             {{/if}}
         {{else}}
             {{#in-element this.destinationElement insertBefore=null}}
-                <Dialog {{create-ref "modalElement"}} ...attributes>
+                <Dialog {{create-ref "modalElement"}} {{set-z-index this.modalZIndex}} ...attributes>
                     {{yield
                         (hash
                             header=(component (ensure-safe-component (or @headerComponent (component "modal/header"))) onClose=this.close)
@@ -56,8 +58,9 @@
                         )
                     }}
                 </Dialog>
+
                 {{#if this.shouldShowBackdrop}}
-                    <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{create-ref "backdropElement"}}></div>
+                    <div class="flb--modal-backdrop {{if this._fade 'fade'}} {{if this.showModal 'show'}}" {{set-z-index this.backdropZIndex}} {{create-ref "backdropElement"}}></div>
                 {{/if}}
             {{/in-element}}
         {{/if}}

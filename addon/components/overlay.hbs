@@ -10,6 +10,7 @@
         {{if this.isMinimized 'minimized'}}
         {{@overlayClass}}"
     {{did-insert this.setupComponent}}
+    {{did-update this.handleArgsChanged @isOpen}}
 >
     <div class="next-content-overlay-panel-container {{@containerClass}}" {{did-insert (fn this.setupNode "overlayContainer")}}>
         <div class="next-content-overlay-panel" {{did-insert (fn this.setupNode "overlayPanel")}} {{set-width @width}} ...attributes>{{yield this.context}}</div>

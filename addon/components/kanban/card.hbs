@@ -1,0 +1,23 @@
+{{! template-lint-disable require-presentational-children }}
+<div
+    class={{this.cardClasses}}
+    draggable={{this.isDraggable}}
+    {{on "dragstart" (or @onDragStart (noop))}}
+    {{on "dragend" (or @onDragEnd (noop))}}
+    {{on "click" this.onClick}}
+    data-card-id={{this.card.id}}
+    role="button"
+    tabindex="0"
+>
+    {{#if @template}}
+        {{component @template card=this.card}}
+    {{else}}
+        <div class="kanban-card-content">
+            <h4 class="kanban-card-title">{{this.card.title}}</h4>
+            
+            {{#if this.card.description}}
+                <p class="kanban-card-description">{{this.card.description}}</p>
+            {{/if}}
+        </div>
+    {{/if}}
+</div>

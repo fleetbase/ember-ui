@@ -1,0 +1,115 @@
+<div class="flex flex-row flex-1 items-center justify-end space-x-2">
+    {{yield}}
+    {{#if @saveTask}}
+        {{#if @pojoResource}}
+            <Button
+                @type="primary"
+                @icon={{if @resource.isNew "check" "save"}}
+                @text={{if @resource.isNew (concat "Create " this.modelName) "Save Changes"}}
+                @onClick={{perform @saveTask @resource @saveOptions}}
+                @disabled={{@saveDisabled}}
+                @isLoading={{@saveTask.isRunning}}
+            />
+        {{else}}
+            <Button
+                @type="primary"
+                @icon={{if @resource.isNew "check" "save"}}
+                @text={{if @resource.isNew (concat "Create " this.modelName) "Save Changes"}}
+                @onClick={{perform @saveTask @resource @saveOptions}}
+                @disabled={{or @saveDisabled (cannot-write @resource schema=@authSchema)}}
+                @isLoading={{@saveTask.isRunning}}
+            />
+        {{/if}}
+    {{/if}}
+    {{#each @actionButtons as |actionButton|}}
+        {{#if actionButton.items}}
+            <DropdownButton
+                @icon={{or actionButton.icon "ellipsis"}}
+                @size={{or actionButton.size "sm"}}
+                @iconPrefix={{actionButton.prefix}}
+                @triggerClass={{actionButton.triggerClass}}
+                @renderInPlace={{or actionButton.renderInPlace true}}
+                as |dd|
+            >
+                <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                    {{#each actionButton.items as |item|}}
+                        {{#if item.separator}}
+                            <div class="next-dd-menu-seperator"></div>
+                        {{else}}
+                            <div class="px-1 {{item.wrapperClass}}">
+                                <a
+                                    href="javascript:;"
+                                    class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}"
+                                    disabled={{item.disabled}}
+                                    {{on "click" (dropdown-fn dd (or item.fn item.onClick))}}
+                                >
+                                    <div class="w-7 flex-grow-0 flex-shrink-0">
+                                        <FaIcon @icon={{item.icon}} />
+                                    </div>
+                                    <span>{{item.text}}</span>
+                                </a>
+                            </div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+            </DropdownButton>
+        {{else if actionButton.component}}
+            {{component
+                actionButton.component
+                icon=actionButton.icon
+                iconPrefix=actionButton.iconPrefix
+                iconComponent=actionButton.iconComponent
+                size=actionButton.size
+                text=actionButton.text
+                options=actionButton.options
+                items=actionButton.items
+                permission=actionButton.permission
+                isLoading=actionButton.isLoading
+                renderInPlace=actionButton.renderInPlace
+                triggerClass=actionButton.triggerClass
+                disabled=actionButton.disabled
+                onClick=actionButton.onClick
+                fn=actionButton.fn
+                perform=actionButton.perform
+                onSelect=actionButton.onSelect
+                onChange=actionButton.onChange
+            }}
+        {{else}}
+            <Button
+                @type={{actionButton.type}}
+                @text={{actionButton.text}}
+                @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
+                @size={{actionButton.size}}
+                @buttonType={{actionButton.buttonType}}
+                @disabled={{actionButton.disabled}}
+                @exampleText={{actionButton.exampleText}}
+                @helpText={{actionButton.helpText}}
+                @icon={{actionButton.icon}}
+                @iconClass={{actionButton.iconClass}}
+                @iconFlip={{actionButton.iconFlip}}
+                @iconPrefix={{actionButton.iconPrefix}}
+                @iconRotation={{actionButton.iconRotation}}
+                @iconSize={{actionButton.iconSize}}
+                @isLoading={{actionButton.isLoading}}
+                @outline={{actionButton.outline}}
+                @permission={{actionButton.permission}}
+                @wrapperClass={{actionButton.wrapperClass}}
+                @textClass={{actionButton.textClass}}
+                @tooltipPlacement={{actionButton.tooltipPlacement}}
+                @visible={{actionButton.visible}}
+            />
+        {{/if}}
+    {{/each}}
+    {{#if @onPressCancel}}
+        <button
+            type="button"
+            class="next-content-overlay-panel-cancel-button {{@cancelButtonClass}}"
+            {{set-height @cancelButtonHeight}}
+            {{set-width @cancelButtonWidth}}
+            {{on "click" @onPressCancel}}
+        >
+            <FaIcon @icon={{or @cancelIcon "times"}} @size={{@iconSize}} @prefix={{or @iconPrefix "fas"}} class={{@iconClass}} />
+        </button>
+    {{/if}}
+    {{yield to="end"}}
+</div>

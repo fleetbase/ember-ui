@@ -15,7 +15,7 @@
         {{or (get option @optionLabel) option}}
     </MultiSelect>
 
-    {{#if this.isLoading}}
+    {{#if this.fetchOptions.isRunning}}
         <div class="ember-model-select__loading">
             <ModelSelect::Spinner />
         </div>

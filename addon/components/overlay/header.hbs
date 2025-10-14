@@ -1,32 +1,107 @@
 <div class="next-content-overlay-panel-header" {{did-insert this.setupComponent}} ...attributes>
-    {{#unless @hideLeftSection}}
-        <div class="next-view-header-left {{@headerLeftClass}}">
-            <div class="next-view-header-left-inner {{@headerLeftInnerClass}}">
-                <div class="next-view-header-left-title-wrapper flex flex-row items-center {{@titleWrapperClass}}">
-                    <h2 class="next-content-overlay-panel-title {{@titleClass}}">
-                        {{#if @overlay.isMinimized}}
-                            {{this.titleWithElipsis}}
-                        {{else}}
-                            {{@title}}
-                        {{/if}}
-                    </h2>
-                    <div class="flex flex-row space-x-2">
-                        {{#if @status}}
-                            <Badge @hideStatusDot={{@hideStatusDot}} @disableHumanize={{@disableBadgeHumanize}} @status={{@status}} class="ml-2" />
-                        {{/if}}
-                        {{#if (and @dispatched (eq @status "created"))}}
-                            <Badge @hideStatusDot={{true}} @disableHumanize={{@disableBadgeHumanize}} @status="Dispatched" class="ml-2" />
-                        {{/if}}
+    {{#if (has-block)}}
+        {{yield @overlay}}
+    {{else}}
+        {{#unless @hideLeftSection}}
+            <div class="next-view-header-left {{@headerLeftClass}}">
+                <div class="next-view-header-left-inner {{@headerLeftInnerClass}}">
+                    <div class="next-view-header-left-title-wrapper flex flex-row items-center {{@titleWrapperClass}}">
+                        <h2 class="next-content-overlay-panel-title {{@titleClass}}">
+                            {{#if @overlay.isMinimized}}
+                                {{this.titleWithElipsis}}
+                            {{else}}
+                                {{@title}}
+                            {{/if}}
+                        </h2>
+                        <div class="flex flex-row space-x-2">
+                            {{#if @status}}
+                                <Badge @hideStatusDot={{@hideStatusDot}} @disableHumanize={{@disableBadgeHumanize}} @status={{@status}} class="ml-2" />
+                            {{/if}}
+                        </div>
                     </div>
+                    {{#if @createdAt}}
+                        <div class="text-sm">{{@createdAt}}</div>
+                    {{/if}}
                 </div>
-                {{#if @createdAt}}
-                    <div class="text-sm">{{@createdAt}}</div>
-                {{/if}}
             </div>
-        </div>
-    {{/unless}}
+        {{/unless}}
+    {{/if}}
     <div class="next-view-header-right {{@actionsWrapperClass}}">
-        {{yield}}
+        {{yield to="actions"}}
+        {{#each @actionButtons as |actionButton|}}
+            {{#if actionButton.items}}
+                <DropdownButton
+                    @icon={{actionButton.icon}}
+                    @size={{actionButton.size}}
+                    @iconPrefix={{actionButton.prefix}}
+                    @triggerClass={{actionButton.triggerClass}}
+                    @renderInPlace={{or actionButton.renderInPlace true}}
+                    as |dd|
+                >
+                    <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                        {{#each actionButton.items as |item|}}
+                            {{#if item.separator}}
+                                <div class="next-dd-menu-seperator"></div>
+                            {{else}}
+                                <div class="px-1 {{item.wrapperClass}}">
+                                    <a href="javascript:;" class="next-dd-item {{item.class}}" {{on "click" (dropdown-fn dd (or item.fn item.onClick))}} disabled={{item.disabled}}>
+                                        <div class="w-7 flex-grow-0 flex-shrink-0">
+                                            <FaIcon @icon={{item.icon}} />
+                                        </div>
+                                        <span>{{item.text}}</span>
+                                    </a>
+                                </div>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                </DropdownButton>
+            {{else if actionButton.component}}
+                {{component
+                    actionButton.component
+                    icon=actionButton.icon
+                    iconPrefix=actionButton.iconPrefix
+                    iconComponent=actionButton.iconComponent
+                    size=actionButton.size
+                    text=actionButton.text
+                    options=actionButton.options
+                    items=actionButton.items
+                    permission=actionButton.permission
+                    isLoading=actionButton.isLoading
+                    renderInPlace=actionButton.renderInPlace
+                    triggerClass=actionButton.triggerClass
+                    disabled=actionButton.disabled
+                    onClick=actionButton.onClick
+                    fn=actionButton.fn
+                    perform=actionButton.perform
+                    onSelect=actionButton.onSelect
+                    onChange=actionButton.onChange
+                }}
+            {{else}}
+                <Button
+                    @type={{actionButton.type}}
+                    @text={{actionButton.text}}
+                    @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
+                    @size={{actionButton.size}}
+                    @buttonType={{actionButton.buttonType}}
+                    @disabled={{actionButton.disabled}}
+                    @exampleText={{actionButton.exampleText}}
+                    @helpText={{actionButton.helpText}}
+                    @icon={{actionButton.icon}}
+                    @iconClass={{actionButton.iconClass}}
+                    @iconFlip={{actionButton.iconFlip}}
+                    @iconPrefix={{actionButton.iconPrefix}}
+                    @iconRotation={{actionButton.iconRotation}}
+                    @iconSize={{actionButton.iconSize}}
+                    @isLoading={{actionButton.isLoading}}
+                    @outline={{actionButton.outline}}
+                    @permission={{actionButton.permission}}
+                    @wrapperClass={{actionButton.wrapperClass}}
+                    @textClass={{actionButton.textClass}}
+                    @tooltipPlacement={{actionButton.tooltipPlacement}}
+                    @visible={{actionButton.visible}}
+                />
+            {{/if}}
+        {{/each}}
         {{#if @overlay.onMaximize}}
             <button
                 type="button"

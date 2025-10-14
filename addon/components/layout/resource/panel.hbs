@@ -1,0 +1,56 @@
+<Overlay
+    @onLoad={{this.setOverlayContext}}
+    @onOpen={{this.onOpen}}
+    @onClose={{this.onClose}}
+    @onToggle={{this.onToggle}}
+    @position="right"
+    @noBackdrop={{true}}
+    @fullHeight={{true}}
+    @isResizable={{this.isResizable}}
+    @width={{this.width}}
+>
+    {{#if @headerComponent}}
+        {{component
+            @headerComponent
+            class="{{@headerClass}} resource-panel-header"
+            authSchema=this.authSchema
+            resource=this.resource
+            saveTask=@saveTask
+            saveDisabled=@saveDisabled
+            pojoResource=@pojoResource
+            onPressCancel=@onPressCancel
+            actionButtons=@actionButtons
+            headerClass=@headerClass
+            modelName=@modelName
+            saveOptions=@saveOptions
+            headerLeftClass=@headerLeftClass
+            headerLeftInnerClass=@headerLeftInnerClass
+            titleWrapperClass=@titleWrapperClass
+            titleClass=@titleClass
+            actionsWrapperClass=@actionsWrapperClass
+        }}
+    {{else}}
+        <Layout::Resource::Panel::Header
+            @authSchema={{this.authSchema}}
+            @resource={{this.resource}}
+            @title={{@headerTitle}}
+            @saveTask={{@saveTask}}
+            @saveDisabled={{@saveDisabled}}
+            @pojoResource={{@pojoResource}}
+            @saveOptions={{@saveOptions}}
+            @onPressCancel={{this.onPressCancel}}
+            @actionButtons={{@actionButtons}}
+            @modelName={{@modelName}}
+            @headerLeftClass={{@headerLeftClass}}
+            @headerLeftInnerClass={{@headerLeftInnerClass}}
+            @titleWrapperClass={{@titleWrapperClass}}
+            @titleClass={{@titleClass}}
+            @actionsWrapperClass={{@actionsWrapperClass}}
+            class={{@headerClass}}
+        />
+    {{/if}}
+
+    <Overlay::Body class="no-padding {{@bodyClass}}">
+        {{yield this.resource}}
+    </Overlay::Body>
+</Overlay>

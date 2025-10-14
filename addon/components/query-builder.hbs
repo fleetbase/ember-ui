@@ -1,0 +1,79 @@
+{{#if (has-block)}}
+    {{yield
+        (hash
+            actions=(component "query-builder/actions" onClear=this.onClear onExecute=this.onExecute onSave=this.onSave)
+            select=(component "query-builder/table-select" table=this.table tables=@tables onChange=(fn this.callbackChange "table"))
+            columns=(component
+                "query-builder/column-select" columns=this.table.columns selectedColumns=this.selectedColumns columnAliases=this.columnAliases onChange=(fn this.callbackChange "columns")
+            )
+            group=(component
+                "query-builder/group-by"
+                groupBy=this.groupBy
+                columns=this.columns
+                selectedColumns=this.selectedColumns
+                allSelectedColumns=this.allSelectedColumns
+                onChange=(fn this.callbackChange "groupBy")
+            )
+            sort=(component
+                "query-builder/sort-by"
+                sortBy=this.sortBy
+                columns=this.columns
+                selectedColumns=this.selectedColumns
+                allSelectedColumns=this.allSelectedColumns
+                onChange=(fn this.callbackChange "sortBy")
+            )
+            limit=(component "query-builder/limit" limit=this.limit onChange=(fn this.callbackChange "limit"))
+            joins=(component "query-builder/joins" table=this.table relationships=this.table.relationships onChange=(fn this.callbackChange "joins"))
+            conditions=(component
+                "query-builder/conditions"
+                table=this.table
+                columns=this.columns
+                selectedColumns=this.selectedColumns
+                allSelectedColumns=this.allSelectedColumns
+                joins=this.joins
+                conditions=this.conditions
+                onChange=(fn this.callbackChange "conditions")
+            )
+        )
+    }}
+{{else}}
+    <div class="query-builder">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            <QueryBuilder::Actions @onClear={{this.onClear}} @onExecute={{this.onExecute}} @onSave={{this.onSave}} class="col-span-2" />
+            <QueryBuilder::TableSelect @table={{this.table}} @tables={{@tables}} @onChange={{fn this.callbackChange "table"}} class="col-span-2" />
+            <QueryBuilder::ColumnSelect
+                @columns={{this.table.columns}}
+                @selectedColumns={{this.selectedColumns}}
+                @columnAliases={{this.columnAliases}}
+                @onChange={{fn this.callbackChange "columns"}}
+                class="col-span-2"
+            />
+            <QueryBuilder::GroupBy
+                @groupBy={{this.groupBy}}
+                @columns={{this.columns}}
+                @selectedColumns={{this.selectedColumns}}
+                @allSelectedColumns={{this.allSelectedColumns}}
+                @onChange={{fn this.callbackChange "groupBy"}}
+            />
+            <QueryBuilder::SortBy
+                @sortBy={{this.sortBy}}
+                @columns={{this.columns}}
+                @selectedColumns={{this.selectedColumns}}
+                @allSelectedColumns={{this.allSelectedColumns}}
+                @onChange={{fn this.callbackChange "sortBy"}}
+            />
+            <QueryBuilder::Limit @limit={{this.limit}} @onChange={{fn this.callbackChange "limit"}} class="col-span-2" />
+            <QueryBuilder::Joins @table={{this.table}} @relationships={{this.table.relationships}} @onChange={{fn this.callbackChange "joins"}} class="col-span-2" />
+            <QueryBuilder::Conditions
+                @table={{this.table}}
+                @columns={{this.columns}}
+                @selectedColumns={{this.selectedColumns}}
+                @allSelectedColumns={{this.allSelectedColumns}}
+                @joins={{this.joins}}
+                @conditions={{this.conditions}}
+                @onChange={{fn this.callbackChange "conditions"}}
+                class="col-span-2"
+            />
+        </div>
+    </div>
+{{/if}}

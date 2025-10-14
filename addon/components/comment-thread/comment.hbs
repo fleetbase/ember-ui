@@ -5,14 +5,14 @@
     <div class="thread-comment-content-wrapper flex-1">
         <div class="thread-comment-author flex flex-row items-center">
             <div class="thread-comment-author-name text-sm dark:text-white text-black font-bold mr-1.5">{{this.comment.author.name}}</div>
-            <div class="thread-comment-created-at dark:text-gray-300 text-gray-600 text-xs">{{t "component.comment-thread.comment-published-ago" createdAgo=this.comment.createdAgo}}</div>
+            <div class="thread-comment-created-at dark:text-gray-300 text-gray-600 text-xs">{{t "comment-thread.comment-published-ago" createdAgo=this.comment.createdAgo}}</div>
         </div>
         <div class="thread-comment-conent-paragraph-wrapper mt-2">
             {{#if this.editing}}
                 <Textarea
                     @value={{this.comment.content}}
                     class="form-input w-full"
-                    placeholder={{t "component.comment-thread.comment-reply-placeholder"}}
+                    placeholder={{t "comment-thread.comment-reply-placeholder"}}
                     rows={{2}}
                     disabled={{not this.updateComment.isIdle}}
                 />
@@ -43,7 +43,7 @@
                 @iconSize="xs"
                 @textClass="text-xs"
                 @icon="reply"
-                @text={{t "component.comment-thread.reply-comment-button-text"}}
+                @text={{t "comment-thread.reply-comment-button-text"}}
                 @onClick={{this.reply}}
             />
             {{#if this.comment.editable}}
@@ -55,7 +55,7 @@
                     @iconSize="xs"
                     @textClass="text-xs"
                     @icon="edit"
-                    @text={{t "component.comment-thread.edit-comment-button-text"}}
+                    @text={{t "comment-thread.edit-comment-button-text"}}
                     @onClick={{this.edit}}
                 />
                 <Button
@@ -67,7 +67,7 @@
                     @iconClass="text-xs text-danger"
                     @textClass="text-xs text-danger"
                     @icon="trash"
-                    @text={{t "component.comment-thread.delete-comment-button-text"}}
+                    @text={{t "comment-thread.delete-comment-button-text"}}
                     @onClick={{this.delete}}
                 />
             {{/if}}
@@ -77,7 +77,7 @@
                 <Textarea
                     @value={{this.input}}
                     class="form-input w-full"
-                    placeholder={{t "component.comment-thread.comment-reply-placeholder"}}
+                    placeholder={{t "comment-thread.comment-reply-placeholder"}}
                     rows={{2}}
                     disabled={{not this.publishReply.isIdle}}
                 />
@@ -90,7 +90,7 @@
                         @size="xs"
                         @iconSize="xs"
                         @iconClass="text-xs"
-                        @text={{t "component.comment-thread.publish-reply-button-text"}}
+                        @text={{t "comment-thread.publish-reply-button-text"}}
                         @onClick={{perform this.publishReply}}
                         @disabled={{or (not this.publishReply.isIdle) (not this.input)}}
                     />

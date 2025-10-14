@@ -1,0 +1,30 @@
+{{#each this.customFields.customFieldGroups as |group|}}
+    {{#if group.customFields.length}}
+        <ContentPanel
+            @title={{group.name}}
+            @open={{true}}
+            @wrapperClass={{@wrapperClass}}
+            @actionButtons={{if @editable (cfg-edit-buttons group permission=@permission disabled=(or @editDisabled group.isEditing)) null}}
+            @panelHeaderClass={{@panelHeaderClass}}
+        >
+            <div class="grid grid-cols-1 lg:grid-cols-{{or group.meta.grid_size 2}} gap-{{or @groupWrapperGap 2}} {{@groupWrapperClass}}">
+                {{#each group.customFields as |customField|}}
+                    {{#if (and @viewMode group.isEditing)}}
+                        <CustomField::Input @customField={{customField}} @subject={{@subject}} @onChange={{fn this.customFields.writeFieldValue @subject}} />
+                    {{else if @viewMode}}
+                        <CustomField::Value @customField={{customField}} @subject={{@subject}} />
+                    {{else}}
+                        <CustomField::Input @customField={{customField}} @subject={{@subject}} @onChange={{fn this.customFields.writeFieldValue @subject}} />
+                    {{/if}}
+                {{/each}}
+            </div>
+
+            {{#if (and @viewMode group.isEditing)}}
+                <div class="mt-2 space-x-1">
+                    <Button @type="primary" @icon="save" @text="Save Changes" @size="xs" @onClick={{fn this.groupSaveHandler group}} />
+                    <Button @icon="times" @text="Cancel" @size="xs" @onClick={{fn this.cancelEditing group}} />
+                </div>
+            {{/if}}
+        </ContentPanel>
+    {{/if}}
+{{/each}}

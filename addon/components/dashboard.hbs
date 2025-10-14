@@ -2,46 +2,42 @@
     <div class="left-section {{@leftHeaderWrapperClass}}">
         <h1 class="text-lg font-bold">{{this.dashboard.currentDashboard.name}}</h1>
     </div>
-    <div class="fleetbase-dashboard-actions right-section {{@rightHeaderWrapperClass}} flex items-center">
-        <div class="fleetbase-model-select fleetbase-power-select ember-model-select h-10">
-            <DropdownButton
-                class="h-10"
-                @text={{if this.dashboard.currentDashboard.name this.dashboard.currentDashboard.name (t "component.dashboard.select-dashboard")}}
-                @textClass="text-sm mr-2"
-                @buttonClass="flex-row-reverse w-44 justify-between"
-                @icon="caret-down"
-                @iconClass="mr-0i"
-                @size="sm"
-                @iconPrefix="fas"
-                @triggerClass="hidden md:flex"
-                as |dd|
-            >
-                <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
-                    <div class="p-1">
-                        {{#each this.dashboard.dashboards as |dashboard|}}
-                            <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.selectDashboard dashboard)}}>
-                                <div class="flex-1 flex flex-row items-center">
-                                    <div class="w-6">
-                                        <FaIcon @icon="desktop" />
-                                    </div>
-                                    <span>{{dashboard.name}}</span>
+    <div class="fleetbase-dashboard-actions right-section {{@rightHeaderWrapperClass}} flex items-center space-x-2">
+        <DropdownButton
+            @text={{if this.dashboard.currentDashboard.name this.dashboard.currentDashboard.name (t "component.dashboard.select-dashboard")}}
+            @buttonClass="flex-row-reverse w-44 justify-between"
+            @icon="caret-down"
+            @iconClass="mr-0i"
+            @size="xs"
+            @iconPrefix="fas"
+            @triggerClass="hidden md:flex"
+            as |dd|
+        >
+            <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                <div class="px-1">
+                    {{#each this.dashboard.dashboards as |dashboard|}}
+                        <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.selectDashboard dashboard)}}>
+                            <div class="flex-1 flex flex-row items-center">
+                                <div class="w-6">
+                                    <FaIcon @icon="desktop" />
                                 </div>
-                                <div>
-                                    {{#if (eq this.dashboard.currentDashboard.id dashboard.id)}}
-                                        <FaIcon @icon="check" class="text-green-500" />
-                                    {{/if}}
-                                </div>
-                            </a>
-                        {{/each}}
-                    </div>
+                                <span>{{dashboard.name}}</span>
+                            </div>
+                            <div>
+                                {{#if (eq this.dashboard.currentDashboard.id dashboard.id)}}
+                                    <FaIcon @icon="check" class="text-green-500" />
+                                {{/if}}
+                            </div>
+                        </a>
+                    {{/each}}
                 </div>
-            </DropdownButton>
-        </div>
+            </div>
+        </DropdownButton>
 
-        <div class="ml-2 relative h-10">
-            <DropdownButton class="h-10" @icon="ellipsis-h" @size="sm" @iconPrefix="fas" @triggerClass="hidden md:flex" as |dd|>
+        <div class="relative">
+            <DropdownButton @icon="ellipsis-h" @size="xs" @iconPrefix="fas" @triggerClass="hidden md:flex" as |dd|>
                 <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
-                    <div class="p-1">
+                    <div class="px-1">
                         <a href="javascript:;" class="next-dd-item" {{on "click" (dropdown-fn dd this.createDashboard)}}>
                             <div class="w-6">
                                 <FaIcon @icon="add" />
@@ -76,14 +72,14 @@
             </DropdownButton>
         </div>
         {{#if this.dashboard.isEditingDashboard}}
-            <div class="ml-2 h-10">
-                <Button @type="magic" @icon="save" @helpText={{t "component.dashboard.save-dashboard"}} @onClick={{fn this.onChangeEdit false}} class="h-10" />
+            <div>
+                <Button @type="magic" @icon="save" @size="xs" @helpText={{t "component.dashboard.save-dashboard"}} @onClick={{fn this.onChangeEdit false}} />
             </div>
         {{/if}}
     </div>
 </div>
 
-<div class="px-10 {{@createWrapperClass}}">
+<div class="{{@createWrapperClass}}">
     <Dashboard::Create @isEdit={{this.dashboard.isEditingDashboard}} @isAddingWidget={{this.dashboard.isAddingWidget}} @dashboard={{this.dashboard.currentDashboard}} />
     {{#if this.dashboard.isAddingWidget}}
         <EmberWormhole @to="application-root-wormhole">

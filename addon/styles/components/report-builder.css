@@ -1,0 +1,37 @@
+/* Report Builder Component Styles */
+.report-builder {
+    @apply w-full;
+}
+
+/* Query Builder Specific Styles */
+.report-builder .form-input,
+.report-builder .form-input-sm {
+    @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100;
+}
+
+.report-builder .form-input:focus,
+.report-builder .form-input-sm:focus {
+    @apply border-blue-500 dark:border-blue-400 ring-blue-500 dark:ring-blue-400;
+}
+
+/* Results Table Styles */
+.report-builder table {
+    @apply text-sm;
+}
+
+.report-builder table th {
+    @apply bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300;
+}
+
+.report-builder table td {
+    @apply text-gray-900 dark:text-gray-100;
+}
+
+.report-builder table tr:hover {
+    @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.report-builder .loading-spinner {
+    @apply animate-spin rounded-full border-b-2 border-blue-600;
+}
+

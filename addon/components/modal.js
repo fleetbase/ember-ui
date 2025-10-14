@@ -22,6 +22,7 @@ function afterRender() {
 
 /**
   Component for creating [Bootstrap modals](http://getbootstrap.com/javascript/#modals) with custom markup.
+  Now supports multiple modals with proper z-index stacking.
 
   ### Usage
 
@@ -65,6 +66,7 @@ function afterRender() {
 @deprecateSubclassing
 export default class Modal extends Component {
     @service('-document') document;
+    @service modalsManager;
 
     /**
      * @property _isOpen
@@ -319,6 +321,32 @@ export default class Modal extends Component {
     isFastBoot = isFastBoot(this);
 
     /**
+     * Get the z-index for this modal - now properly uses the passed zIndex argument
+     *
+     * @property modalZIndex
+     * @type number
+     * @readonly
+     * @public
+     */
+    get modalZIndex() {
+        // Use the zIndex passed from modals-container, fallback to 1060
+        return this.args.options?._zIndex ?? this.args.zIndex ?? 1060;
+    }
+
+    /**
+     * Get the z-index for this modal's backdrop
+     *
+     * @property backdropZIndex
+     * @type number
+     * @readonly
+     * @public
+     */
+    get backdropZIndex() {
+        // Backdrop should be 5 levels below the modal dialog
+        return this.modalZIndex - 5;
+    }
+
+    /**
      * The action to be sent when the modal footer's submit button (if present) is pressed.
      * Note that if your modal body contains a form (e.g. [Components.Form](Components.Form.html)) this action will
      * not be triggered. Instead, a submit event will be triggered on the form itself. See the class description for an
@@ -386,7 +414,7 @@ export default class Modal extends Component {
 
     @action doSubmit() {
         if (typeof this.args.onSubmit === 'function') {
-            this.args.onSubmit();
+            this.args.onSubmit(this.modalsManager);
         }
 
         let forms = this.modalElement.querySelectorAll('.flb--modal-body form');
@@ -588,28 +616,40 @@ export default class Modal extends Component {
         document.body.style.paddingRight = this._originalBodyPad;
     }
 
+    /**
+     * Add body class only if this is the first modal
+     */
     addBodyClass() {
-        // special handling for FastBoot, where real `document` is not available
-        if (isFastBoot(this)) {
-            // a SimpleDOM instance with just a subset of the DOM API!
-            let document = this.document;
+        // Only add the body class if this is the first modal
+        if (this.modalsManager.modals.length === 1) {
+            // special handling for FastBoot, where real `document` is not available
+            if (isFastBoot(this)) {
+                // a SimpleDOM instance with just a subset of the DOM API!
+                let document = this.document;
 
-            let existingClasses = document.body.getAttribute('class') || '';
-            if (!existingClasses.includes('flb--modal-open')) {
-                document.body.setAttribute('class', `flb--modal-open ${existingClasses}`);
+                let existingClasses = document.body.getAttribute('class') || '';
+                if (!existingClasses.includes('flb--modal-open')) {
+                    document.body.setAttribute('class', `flb--modal-open ${existingClasses}`);
+                }
+            } else {
+                document.body.classList.add('flb--modal-open');
             }
-        } else {
-            document.body.classList.add('flb--modal-open');
         }
     }
 
+    /**
+     * Remove body class only if this is the last modal
+     */
     removeBodyClass() {
-        if (isFastBoot(this)) {
-            // no need for FastBoot support here
-            return;
-        }
+        // Only remove the body class if there are no more modals
+        if (this.modalsManager.modals.length === 0) {
+            if (isFastBoot(this)) {
+                // no need for FastBoot support here
+                return;
+            }
 
-        document.body.classList.remove('flb--modal-open');
+            document.body.classList.remove('flb--modal-open');
+        }
     }
 
     /**

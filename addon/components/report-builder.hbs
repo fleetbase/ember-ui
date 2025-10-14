@@ -1,0 +1,92 @@
+<div class="form-wrapper" ...attributes>
+    <div class="px-2">
+        <ContentPanel @title="Report Details" @open={{true}}>
+            <div class="flex flex-col space-y-2">
+                <InputGroup @name="Title" @value={{@report.title}} />
+                <InputGroup @name="Description" @value={{@report.description}} />
+                <InputGroup @name="Tags">
+                    <ModelTagInput @model={{@report}} @placeholder="Add tags to the report" as |tag|>
+                        {{tag}}
+                    </ModelTagInput>
+                </InputGroup>
+            </div>
+        </ContentPanel>
+    </div>
+
+    <TabNavigation @tabs={{this.tabs}} @contextApi={{fn (mut this.tabContext)}}>
+        <:actions>
+            <div class="flex flex-row space-x-2 pr-2">
+                <Button @type="magic" @icon="play" @text="Execute" @size="xs" @onClick={{perform this.execute}} @isLoading={{this.execute.isRunning}} />
+            </div>
+        </:actions>
+        <:default as |activeTab|>
+            <div class="p-2 {{if (eq activeTab.id 'configuration') 'block' 'hidden'}}">
+                {{#if this.validationErrors}}
+                    <div class="mb-2">
+                        <InfoBlock @type="danger" @icon="triangle-exclamation">
+                            {{#each this.validationErrors as |error|}}
+                                <div>{{error}}</div>
+                            {{/each}}
+                        </InfoBlock>
+                    </div>
+                {{/if}}
+                {{#if this.validationWarnings}}
+                    <div class="mb-2">
+                        <InfoBlock @type="warning" @icon="triangle-exclamation">
+                            {{#each this.validationWarnings as |error|}}
+                                <div>{{error}}</div>
+                            {{/each}}
+                        </InfoBlock>
+                    </div>
+                {{/if}}
+                <QueryBuilder @tables={{this.tables}} @initialQuery={{@report.query_config}} @isLoading={{this.loadSchema.isRunning}} @onChange={{this.setQueryConfig}} as |QueryBuilder|>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                        <QueryBuilder.select class="col-span-2" />
+                        <QueryBuilder.columns class="col-span-2" />
+                        <QueryBuilder.group />
+                        <QueryBuilder.sort />
+                        <QueryBuilder.limit class="col-span-2" />
+                        <QueryBuilder.joins class="col-span-2" />
+                        <QueryBuilder.conditions class="col-span-2" />
+                    </div>
+                </QueryBuilder>
+            </div>
+            <div class="{{if (eq activeTab.id 'preview') 'block' 'hidden'}}">
+                {{#if this.result}}
+                    <div class="next-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {{#each this.result.columns as |column|}}
+                                        <th>{{column.label}}</th>
+                                    {{/each}}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each this.result.data as |row|}}
+                                    <tr>
+                                        {{#each this.result.columns as |column|}}
+                                            <td>{{n-a (get row column.name)}}</td>
+                                        {{/each}}
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                {{else}}
+                    <div>
+                        <div class="min-h-24 p-4 col-span-2">
+                            <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                                <div class="text-center">
+                                    <FaIcon @icon="triangle-exclamation" @size="2x" class="text-gray-400 mb-2" />
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">No report preview</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Configure the report and press the execute button to preview the results.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            </div>
+        </:default>
+    </TabNavigation>
+</div>

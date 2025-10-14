@@ -1,0 +1,137 @@
+<div class="activity-log w-full space-y-4" ...attributes>
+    <div class="flex items-center justify-between {{@headerWrapperClass}}">
+        <div class="text-sm font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">{{t "common.activity"}}</div>
+        <div class="flex flex-row items-center space-x-2">
+            <div>
+                {{yield to="filters"}}
+                <DatePicker
+                    @value={{this.dateFilter}}
+                    @onSelect={{this.setDateFilter}}
+                    @placeholder={{t "common.filter-by-field" field=(t "common.date")}}
+                    @range={{true}}
+                    @toggleSelected={{@toggleSelected}}
+                    @autoClose={{@autoClose}}
+                    @buttons={{@dateFilterButtons}}
+                    class="filter-date-input form-input-sm w-44"
+                />
+            </div>
+            <Button @size="sm" @icon="refresh" @helpText={{t "common.refresh"}} @isLoading={{this.loadActivities.isRunning}} @onClick={{this.reload}} />
+        </div>
+    </div>
+
+    {{#each this.groups as |group|}}
+        <section class={{@groupClass}}>
+            <header class="mb-3 flex items-center gap-3">
+                <div class="text-[10px] {{@groupLabelClass}} font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">
+                    {{group.dateLabel}}
+                </div>
+                <div class="flex-1 border-t border-gray-200 dark:border-gray-800"></div>
+            </header>
+
+            <ol class="relative ml-3 pl-6">
+                <span class="absolute left-0 top-0 h-full w-px bg-gray-200 dark:bg-gray-800"></span>
+
+                {{#each group.items as |item|}}
+                    <li class="relative mb-4 {{@itemClass}}" data-key={{item.key}}>
+                        <span class="activity-log-knob"></span>
+
+                        <div class="rounded-xl border border-gray-100 bg-white/90 dark:bg-[#0b0c10] dark:border-gray-800 px-3 py-2 shadow-sm">
+                            <div class="flex items-start gap-3">
+                                {{#if this.showAvatars}}
+                                    <img
+                                        src={{or item.actor.avatarUrl "/assets/images/avatar-placeholder.png"}}
+                                        alt={{item.actor.name}}
+                                        class="h-8 w-8 rounded-full ring-1 ring-gray-200 dark:ring-gray-700 object-cover"
+                                        referrerpolicy="no-referrer"
+                                    />
+                                {{/if}}
+
+                                <div class="min-w-0 flex-1 {{@itemDetailsClass}}">
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <span class="text-sm {{@itemSentenceClass}} font-medium text-gray-900 dark:text-gray-100">
+                                            {{item.sentence}}
+                                        </span>
+
+                                        {{#if this.showBadges}}
+                                            <span class="{{@itemBadgeClass}} pl-1.5 inline-flex items-center rounded-md px-2 py-0.5 text-xs ring-1 {{item.badge.class}}">
+                                                {{item.badge.text}}
+                                            </span>
+                                        {{/if}}
+                                    </div>
+
+                                    {{#if item.inlineSummary}}
+                                        <div class="{{@itemSummaryClass}} mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                                            {{item.inlineSummary}}
+                                        </div>
+                                    {{/if}}
+
+                                    <div class="{{@itemRelativeTimestampClass}} mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                        <time title={{item.timestamp.exactLocal}} datetime={{item.timestamp.iso}}>
+                                            {{item.timestamp.relative}}
+                                        </time>
+                                    </div>
+
+                                    {{#if item.advancedChanges.length}}
+                                        <div class="mt-1">
+                                            <button
+                                                type="button"
+                                                class="text-xs inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
+                                                {{on "click" (fn this.toggleAdvanced item.key)}}
+                                            >
+                                                <FaIcon @icon={{if (set-has-item this.expanded item.key) "chevron-down" "chevron-right"}} @size="sm" />
+                                                {{#if (set-has-item this.expanded item.key)}}
+                                                    Hide advanced
+                                                {{else}}
+                                                    Show advanced ({{item.advancedChanges.length}})
+                                                {{/if}}
+                                            </button>
+
+                                            {{#if (set-has-item this.expanded item.key)}}
+                                                <div
+                                                    class="{{@advancedChangesWrapperClass}} mt-1 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 px-3 py-2 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto"
+                                                >
+                                                    {{#each item.advancedChanges as |c|}}
+                                                        <div class="py-1 leading-6">
+                                                            <span
+                                                                class="inline-flex items-center rounded bg-white dark:bg-gray-900 px-2 py-0.5 text-xs font-mono font-medium text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-gray-200 dark:ring-gray-700"
+                                                            >
+                                                                {{c.key}}
+                                                            </span>
+                                                            <span class="mx-1 font-mono text-gray-500 dark:text-gray-400">from</span>
+                                                            <code
+                                                                class="px-1 py-0.5 font-mono rounded bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-700 text-gray-900 dark:text-gray-100"
+                                                            >{{c.from}}</code>
+                                                            <span class="mx-1 font-mono text-gray-500 dark:text-gray-400">to</span>
+                                                            <code
+                                                                class="px-1 py-0.5 font-mono rounded bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-700 text-gray-900 dark:text-gray-100"
+                                                            >{{c.to}}</code>
+                                                        </div>
+                                                    {{/each}}
+                                                </div>
+                                            {{/if}}
+                                        </div>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                {{/each}}
+            </ol>
+        </section>
+    {{/each}}
+
+    {{#if (eq this.groups.length 0)}}
+        <div class="min-h-24 p-4 col-span-2">
+            <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                <div class="text-center">
+                    {{#if this.loadActivities.isRunning}}
+                        <Spinner @loadingMessage="Loading activity..." />
+                    {{else}}
+                        <FaIcon @icon="bars-staggered" @size="2x" class="text-gray-400 mb-2" />
+                        <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">No activity yet</div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    {{/if}}
+</div>

@@ -1,0 +1,121 @@
+<div class="space-y-2" ...attributes>
+    <div class="flex items-center justify-between {{@actionsWrapperClass}}">
+        {{#if @label}}
+            <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200">{{@label}}</h3>
+        {{/if}}
+        <div class="flex items-center gap-2">
+            <input type="text" placeholder="Filter keys…" class="form-input form-input-sm" {{on "input" this.onFilter}} />
+            <button type="button" class="btn btn-xs btn-default text-xs px-2 py-1 rounded" {{on "click" this.addRow}}>
+                + Add
+            </button>
+            <button type="button" class="btn btn-xs btn-default text-xs px-2 py-1 rounded" {{on "click" this.preview}}>
+                <FaIcon @icon="eye" />
+            </button>
+            {{#if this.rows.length}}
+                <button type="button" class="btn btn-xs btn-danger text-xs px-2 py-1" {{on "click" this.clearAll}}>
+                    Clear all
+                </button>
+            {{/if}}
+        </div>
+    </div>
+
+    <div class="overflow-hidden rounded border border-gray-200 dark:border-gray-700 {{@tableWrapperClass}}">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr class="text-left text-gray-600` dark:text-gray-300">
+                    <th class="px-3 py-2 w-1/3">Key</th>
+                    <th class="px-3 py-2 w-2/5">Value</th>
+                    <th class="px-3 py-2 w-32">Type</th>
+                    <th class="px-3 py-2 w-12"></th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                {{#if this.filteredRows.length}}
+                    {{#each this.filteredRows as |row|}}
+                        <tr class="bg-white dark:bg-gray-900">
+                            <td class="px-3 py-2 align-top">
+                                <input
+                                    type="text"
+                                    class="w-full px-2 py-1 rounded text-gray-600 dark:text-gray-300 border
+                                        {{if row.error 'border-red-400' 'border-gray-300 dark:border-gray-600'}}
+                                        bg-white dark:bg-gray-800"
+                                    value={{row.key}}
+                                    placeholder="e.g. order_number"
+                                    {{on "input" (fn this.onKeyInput row)}}
+                                />
+                            </td>
+
+                            <td class="px-3 py-2 {{if (eq row.type 'boolean') 'align-middle' 'align-top'}}">
+                                {{#if (eq row.type "boolean")}}
+                                    <label class="inline-flex items-center gap-2">
+                                        <input type="checkbox" checked={{row.value}} {{on "change" (fn this.onValueInput row)}} />
+                                        <span class="text-xs text-gray-600 dark:text-gray-300">True / False</span>
+                                    </label>
+                                {{else if (eq row.type "number")}}
+                                    <input
+                                        type="number"
+                                        class="w-full px-2 py-1 rounded border text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+                                        value={{row.value}}
+                                        {{on "input" (fn this.onValueInput row)}}
+                                    />
+                                {{else}}
+                                    <input
+                                        type="text"
+                                        class="w-full px-2 py-1 rounded border text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+                                        value={{row.value}}
+                                        {{on "input" (fn this.onValueInput row)}}
+                                    />
+                                {{/if}}
+                            </td>
+
+                            <td class="px-3 py-2 align-top">
+                                <select
+                                    class="w-full px-2 py-1 rounded text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+                                    {{on "change" (fn this.onTypeChange row)}}
+                                >
+                                    <option value="text" selected={{eq row.type "text"}}>Text</option>
+                                    <option value="number" selected={{eq row.type "number"}}>Number</option>
+                                    {{#if this.allowBoolean}}
+                                        <option value="boolean" selected={{eq row.type "boolean"}}>Boolean</option>
+                                    {{/if}}
+                                </select>
+                            </td>
+
+                            <td class="px-3 py-2 align-middle">
+                                <button
+                                    type="button"
+                                    class="px-2 py-1 text-xs rounded border border-red-900 bg-red-600 text-red-100 hover:bg-red-500"
+                                    {{on "click" (fn this.removeRow row)}}
+                                    aria-label="Remove"
+                                    title="Remove"
+                                >
+                                    ✕
+                                </button>
+                            </td>
+                        </tr>
+                        {{#if row.error}}
+                            <tr>
+                                <td colspan="4" class="bg-red-900">
+                                    <div class="text-xs text-red-100 px-3 py-1.5">{{row.error}}</div>
+                                </td>
+                            </tr>
+                        {{/if}}
+                    {{/each}}
+                {{else}}
+                    <tr>
+                        <td colspan="4" class="px-3 py-6 text-center text-gray-500 dark:text-gray-400">
+                            No metadata. Click
+                            <span class="font-medium">Add</span>
+                            to create one.
+                        </td>
+                    </tr>
+                {{/if}}
+            </tbody>
+        </table>
+    </div>
+
+    {{#if this.hasErrors}}
+        <p class="text-xs text-red-600">Please fix invalid/duplicate keys above.</p>
+    {{/if}}
+</div>

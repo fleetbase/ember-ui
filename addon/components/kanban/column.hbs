@@ -1,0 +1,83 @@
+<div
+    class="kanban-column {{if this.isDragOver 'drag-over'}}"
+    {{on "dragover" this.onDragOver}}
+    {{on "drop" this.onDrop}}
+    {{on "dragleave" this.onDragLeave}}
+    draggable={{this.isDraggable}}
+    {{on "dragstart" this.onColumnDragStart}}
+    {{on "dragend" this.onColumnDragEnd}}
+    data-column-id={{@column.id}}
+>
+    <div class="kanban-column-header">
+        <h3 class="kanban-column-title">{{this.title}}</h3>
+        <span class="kanban-column-count">{{this.cards.length}}</span>
+    </div>
+
+    <div class="kanban-column-body">
+        {{#if (has-block)}}
+            {{#each this.cards as |card index|}}
+                {{#if (and this.isDragOver (eq this.dragOverPosition index))}}
+                    <div class="kanban-drop-indicator"></div>
+                {{/if}}
+
+                {{yield
+                    (component
+                        "kanban/card"
+                        card=card
+                        isDragging=(eq @draggedCard card)
+                        onDragStart=(fn (or @onCardDragStart (noop)) card)
+                        onDragEnd=(fn (or @onCardDragEnd (noop)) card)
+                        onUpdate=(fn (or @onCardUpdate (noop)) card)
+                        onDelete=(fn (or @onCardDelete (noop)) card)
+                        readonly=@readonly
+                        disabled=@disabled
+                        template=@cardTemplate
+                    )
+                    card
+                    index
+                }}
+            {{/each}}
+
+            {{#if (and this.isDragOver (eq this.dragOverPosition this.cards.length))}}
+                <div class="kanban-drop-indicator"></div>
+            {{/if}}
+        {{else}}
+            {{#each this.cards as |card index|}}
+                {{#if (and this.isDragOver (eq this.dragOverPosition index))}}
+                    <div class="kanban-drop-indicator"></div>
+                {{/if}}
+
+                <Kanban::Card
+                    @card={{card}}
+                    @isDragging={{eq @draggedCard card}}
+                    @onDragStart={{fn (or @onCardDragStart (noop)) card}}
+                    @onDragEnd={{fn (or @onCardDragEnd (noop)) card}}
+                    @onUpdate={{fn (or @onCardUpdate (noop)) card}}
+                    @onDelete={{fn (or @onCardDelete (noop)) card}}
+                    @readonly={{@readonly}}
+                    @disabled={{@disabled}}
+                    @template={{@cardTemplate}}
+                />
+            {{/each}}
+
+            {{#if (and this.isDragOver (eq this.dragOverPosition this.cards.length))}}
+                <div class="kanban-drop-indicator"></div>
+            {{/if}}
+
+        {{/if}}
+
+        {{#unless this.cards.length}}
+            <div class="kanban-column-empty">
+                <p class="kanban-empty-text">No {{pluralize (or @subject "card")}} yet</p>
+            </div>
+        {{/unless}}
+    </div>
+
+    {{#unless @readonly}}
+        <div class="kanban-column-footer">
+            <button type="button" class="kanban-add-card-button" {{on "click" this.onCreateCard}} disabled={{@disabled}}>
+                + Add a {{or @subject "card"}}
+            </button>
+        </div>
+    {{/unless}}
+</div>

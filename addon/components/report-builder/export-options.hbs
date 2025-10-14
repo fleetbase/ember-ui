@@ -1,0 +1,15 @@
+<div class="flex items-center gap-2">
+    <div class="fleetbase-model-select fleetbase-power-select ember-model-select">
+        <PowerSelect
+            @options={{this.exportOptions}}
+            @selected={{this.format}}
+            @onChange={{this.setFormat}}
+            @placeholder="Export format..."
+            @triggerClass="form-select form-input form-input-sm"
+            as |option|
+        >
+            {{option.label}}
+        </PowerSelect>
+    </div>
+    <Button @text="Export" @icon="download" @size="sm" @type="default" @disabled={{@disabled}} @onClick={{this.export}} />
+</div>

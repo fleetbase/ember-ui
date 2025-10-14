@@ -1,0 +1,59 @@
+.resource-context-panel-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    cursor: pointer;
+}
+
+/* Tab content animations */
+.resource-context-panel-tab-content {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.resource-context-panel-content {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .resource-context-panel-tabs .tab-navigation .tab-item {
+        border: 1px solid transparent;
+    }
+    
+    .resource-context-panel-tabs .tab-navigation .tab-item:hover,
+    .resource-context-panel-tabs .tab-navigation .tab-item.tab-item--active {
+        border-color: currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .resource-context-panel-tab-content,
+    .resource-context-panel-content {
+        animation: none;
+    }
+    
+    .resource-context-panel-tabs .tab-navigation .tab-item {
+        transition: none;
+    }
+}
+
+/* Dark mode support */
+body[data-theme='dark'] .resource-context-panel-backdrop {
+    background-color: rgba(0, 0, 0, 0.3);
+}

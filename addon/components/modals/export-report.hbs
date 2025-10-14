@@ -1,0 +1,46 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}} as |options|>
+    <div class="modal-body-container">
+        <div class="mb-4">
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+                Export
+                {{@options.rowCount}}
+                rows of data in your preferred format.
+            </p>
+        </div>
+
+        <InputGroup @name="Export Format" @required={{true}}>
+            <Select @value={{@options.format}} @options={{@options.formatOptions}} @placeholder="Select export format..." @onChange={{@options.setFormat}} class="form-input" />
+        </InputGroup>
+
+        {{#if (eq @options.format "csv")}}
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <div class="flex items-start">
+                    <FaIcon @icon="info-circle" class="text-blue-500 mt-0.5 mr-2" />
+                    <div class="text-sm text-blue-700 dark:text-blue-300">
+                        <p class="font-medium">CSV Export Options</p>
+                        <p>Data will be exported as comma-separated values, suitable for Excel and other spreadsheet applications.</p>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+
+        {{#if (eq @options.format "json")}}
+            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                <div class="flex items-start">
+                    <FaIcon @icon="info-circle" class="text-green-500 mt-0.5 mr-2" />
+                    <div class="text-sm text-green-700 dark:text-green-300">
+                        <p class="font-medium">JSON Export Options</p>
+                        <p>Data will be exported as structured JSON, suitable for API consumption and data processing.</p>
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+
+        <InputGroup @name="File Name">
+            <Input @value={{@options.fileName}} placeholder="report-export" class="form-input" />
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                File extension will be added automatically
+            </div>
+        </InputGroup>
+    </div>
+</Modal::Default>

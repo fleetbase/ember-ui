@@ -1,4 +1,15 @@
-<Modal class="flb--default-modal {{@options.modalClass}}" @modalIsOpened={{@modalIsOpened}} @onClose={{@decline}} @onSubmit={{@confirm}} @onOpen={{@onOpen}} ...attributes as |modal|>
+<Modal
+    class="flb--default-modal {{@modalClass}} {{@options.modalClass}}"
+    @modalIsOpened={{@modalIsOpened}}
+    @modalId={{@modalId}}
+    @zIndex={{this.modalZIndex}}
+    @onClose={{@decline}}
+    @onSubmit={{@confirm}}
+    @onOpen={{@onOpen}}
+    @options={{@options}}
+    ...attributes
+    as |modal|
+>
     <modal.header class={{@options.modalHeaderClass}} @onClose={{modal.close}} @closeButton={{if (eq @options.closeButton false) false true}}>
         {{#if @options.titleComponent}}
             {{component @options.titleComponent options=@options modal=modal}}
@@ -25,7 +36,7 @@
                 <div class="modal-footer-actions {{@options.modalFooterActionsClass}}">
                     <Button
                         class="mr-2 {{if @options.hideDeclineButton 'hidden'}}"
-                        @type={{or @options.declineButtonScheme "default"}}
+                        @type={{or @options.declineButtonScheme @options.declineButtonType "default"}}
                         @size={{or @options.buttonSize "md"}}
                         @icon={{or @options.declineButtonIcon "times"}}
                         @iconPrefix={{@options.declineButtonIconPrefix}}
@@ -35,7 +46,7 @@
                     />
                     <Button
                         class="{{if @options.hideAcceptButton 'hidden'}}"
-                        @type={{or @options.acceptButtonScheme "primary"}}
+                        @type={{or @options.acceptButtonScheme @options.acceptButtonType "primary"}}
                         @size={{or @options.buttonSize "md"}}
                         @icon={{or @options.acceptButtonIcon "check"}}
                         @iconPrefix={{@options.acceptButtonIconPrefix}}

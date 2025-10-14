@@ -2,9 +2,9 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import { isArray } from '@ember/array';
-
-const { assign } = Object;
+import { task } from 'ember-concurrency';
 
 export default class FilterSelectComponent extends Component {
     @service fetch;
@@ -13,19 +13,15 @@ export default class FilterSelectComponent extends Component {
     @tracked optionValue;
     @tracked placeholder;
     @tracked options = [];
-    @tracked isLoading = false;
 
-    constructor() {
+    constructor(owner, { value, options = [], fetchUri, fetchParams = {} }) {
         super(...arguments);
-        this.value = this.args.value;
-        this.options = isArray(this.args.options) ? this.args.options : [];
+        this.value = value;
+        this.options = isArray(options) ? options : [];
         this.optionLabel = this.args.optionLabel ?? this.args.filterOptionLabel;
         this.optionValue = this.args.optionValue ?? this.args.filterOptionValue;
         this.placeholder = this.args.placeholder ?? this.args.filterPlaceholder;
-
-        if (typeof this.args.filter?.filterFetchOptions === 'string') {
-            this.fetchOptions(this.args.filter?.filterFetchOptions);
-        }
+        this.fetchOptions.perform(fetchUri, fetchParams);
     }
 
     @action onChange(selection) {
@@ -38,18 +34,17 @@ export default class FilterSelectComponent extends Component {
         }
     }
 
-    @action fetchOptions(uri, params = {}) {
-        const { fetchParams } = this.args;
-        const queryParams = assign(params, fetchParams ?? {});
+    @task *fetchOptions(uri, params = {}) {
+        if (!uri) return;
 
-        this.isLoading = true;
-        this.fetch
-            .get(uri, queryParams)
-            .then((options) => {
-                this.options = options;
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+        const { fetchParams } = this.args;
+        const queryParams = Object.assign(params, fetchParams ?? {});
+
+        try {
+            const options = yield this.fetch.get(uri, queryParams);
+            this.options = options;
+        } catch (err) {
+            debug('Error loading options: ' + err.message);
+        }
     }
 }

@@ -1,0 +1,28 @@
+<div class="card-grid-container" ...attributes>
+    {{#if this.hasData}}
+        <div class={{this.containerClass}}>
+            {{#each this.data as |model index|}}
+                {{yield (hash card=(component "layout/resource/card" model=model index=index class=this.cardClass) model=model index=index)}}
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="text-center py-12">
+            <FaIcon @icon="inbox" class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
+            <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">No {{pluralize @resource}}</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {{or @emptyStateText (concat "No " (pluralize @resource) " to display")}}
+            </p>
+            {{#if @onCreateNew}}
+                <div class="mt-6">
+                    <Button @text={{or @createButtonText "Create New"}} @icon="plus" @type="primary" @onClick={{@onCreateNew}} />
+                </div>
+            {{/if}}
+        </div>
+    {{/if}}
+</div>
+
+{{#if (and this.showPagination this.hasData)}}
+    <div class="card-grid-pagination-container">
+        <Pagination @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
+    </div>
+{{/if}}
