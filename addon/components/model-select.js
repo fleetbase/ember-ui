@@ -310,7 +310,7 @@ export default class ModelSelectComponent extends Component {
             }
 
             if (typeof onChangeId === 'function') {
-                onChangeId(model.id, select);
+                onChangeId(model?.id ?? null, select);
             }
         }
     }
