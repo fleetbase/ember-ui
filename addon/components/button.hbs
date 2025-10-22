@@ -17,7 +17,7 @@
                 </span>
             {{/if}}
             {{#if this.showIcon}}
-                <span class="btn-icon-wrapper" data-icon-prefix={{@iconPrefix}}>
+                <span class="btn-icon-wrapper {{@buttonIconWrapperClass}}" data-icon-prefix={{@iconPrefix}}>
                     <FaIcon
                         @prefix={{@iconPrefix}}
                         @icon={{@icon}}
