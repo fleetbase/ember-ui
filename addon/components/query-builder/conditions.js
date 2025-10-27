@@ -379,8 +379,7 @@ export default class QueryBuilderConditionsComponent extends Component {
         });
     }
 
-    @action
-    updateGroupOperator(groupIndex, operator) {
+    @action updateGroupOperator(groupIndex, operator) {
         // same immutable pattern for the group object
         const groups = [...this.conditionGroups];
         groups[groupIndex] = { ...groups[groupIndex], operator };
@@ -388,8 +387,7 @@ export default class QueryBuilderConditionsComponent extends Component {
         this.notifyChange();
     }
 
-    @action
-    reorderConditionGroups({ sourceList, sourceIndex, targetList, targetIndex }) {
+    @action reorderConditionGroups({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 

@@ -23,12 +23,12 @@ export default class DashboardComponent extends Component {
      * Creates an instance of DashboardComponent.
      * @memberof DashboardComponent
      */
-    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false }) {
+    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' }) {
         super(...arguments);
         this.dashboard.reset(); // ensure service is reset when re-rendering
         next(() => {
             this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
-            this.dashboard.loadDashboards.perform(defaultDashboardId, defaultDashboardName);
+            this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
         });
     }
 
@@ -63,7 +63,7 @@ export default class DashboardComponent extends Component {
                 // Get the name from the modal options
                 const { name } = modal.getOptions();
 
-                await this.dashboard.createDashboard.perform(name);
+                await this.dashboard.createDashboard.perform(name, { extension: this.args.extension });
                 done();
             },
             ...options,

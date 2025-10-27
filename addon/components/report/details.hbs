@@ -1,6 +1,6 @@
 <div class="details-wrapper" ...attributes>
     <ContentPanel @title="Report Details" @open={{true}} @wrapperClass="bordered-top">
-        <div class="grid grid-cols-2 gap-2 text-xs dark:text-gray-100 px-1.5">
+        <div class="grid grid-cols-2 gap-2 text-xs dark:text-gray-100">
             <div class="field-info-container">
                 <div class="field-name">Title</div>
                 <div class="field-value">{{n-a @resource.title}}</div>
@@ -8,12 +8,6 @@
             <div class="field-info-container">
                 <div class="field-name">Description</div>
                 <div class="field-value">{{n-a @resource.description}}</div>
-            </div>
-            <div class="field-info-container">
-                <div class="field-name">Status</div>
-                <div class="field-value">
-                    <Badge @status={{@resource.status}} />
-                </div>
             </div>
             <div class="field-info-container">
                 <div class="field-name">Date Created</div>
@@ -24,6 +18,8 @@
                 <div class="field-value flex flex-row items-center space-x-1">
                     {{#each @resource.tags as |tag|}}
                         <div class="rounded-xl border text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-0.5 flex items-center justify-center">{{tag}}</div>
+                    {{else}}
+                        <div>-</div>
                     {{/each}}
                 </div>
             </div>

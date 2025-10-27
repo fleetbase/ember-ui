@@ -79,12 +79,14 @@
 
 .status-badge.ready-status-badge > span,
 .status-badge.verified-status-badge > span,
+.status-badge.allocated-status-badge > span,
 .status-badge.emerald-status-badge > span {
     @apply bg-emerald-800 border-emerald-700 text-emerald-100;
 }
 
 .status-badge.ready-status-badge > span svg,
 .status-badge.verified-status-badge > span svg,
+.status-badge.allocated-status-badge > span svg,
 .status-badge.emerald-status-badge > span svg {
     @apply text-emerald-300;
 }
@@ -123,16 +125,21 @@
     @apply text-slate-300;
 }
 
+.status-badge.disabled-status-badge > span,
 .status-badge.gray-status-badge > span {
     @apply bg-gray-800 border-gray-700 text-gray-100;
 }
 
+.status-badge.disabled-status-badge > span svg,
 .status-badge.gray-status-badge > span svg {
     @apply text-gray-300;
 }
 
 .status-badge[class*='5'] > span,
 .status-badge.red-status-badge > span,
+.status-badge.faulty-status-badge > span,
+.status-badge.degraded-status-badge > span,
+.status-badge.error-status-badge > span,
 .status-badge.escalated-status-badge > span,
 .status-badge.high-status-badge > span,
 .status-badge.rejected-status-badge > span,
@@ -147,6 +154,9 @@
 
 .status-badge[class*='5'] > span svg,
 .status-badge.red-status-badge > span svg,
+.status-badge.faulty-status-badge > span svg,
+.status-badge.degraded-status-badge > span svg,
+.status-badge.error-status-badge > span svg,
 .status-badge.escalated-status-badge > span svg,
 .status-badge.high-status-badge > span svg,
 .status-badge.rejected-status-badge > span svg,
@@ -161,6 +171,7 @@
 }
 
 .status-badge[class*='4'] > span,
+.status-badge.idle-status-badge > span,
 .status-badge.draft-status-badge > span,
 .status-badge.yellow-status-badge > span,
 .status-badge.re-opened-status-badge > span,
@@ -168,8 +179,10 @@
 .status-badge.driver-enroute-status-badge > span,
 .status-badge.offline-status-badge > span,
 .status-badge.pending-review-status-badge > span,
+.status-badge.pending-activation-status-badge > span,
 .status-badge.awaiting-review-status-badge > span,
 .status-badge.scheduled-maintenance-status-badge > span,
+.status-badge.maintenance-status-badge > span,
 .status-badge.test-status-badge > span,
 .status-badge.warning-status-badge > span,
 .status-badge.preparing-status-badge > span,
@@ -181,6 +194,7 @@
 }
 
 .status-badge[class*='4'] > span svg,
+.status-badge.idle-status-badge > span svg,
 .status-badge.draft-status-badge > span svg,
 .status-badge.yellow-status-badge > span svg,
 .status-badge.re-opened-status-badge > span svg,
@@ -188,8 +202,10 @@
 .status-badge.driver-enroute-status-badge > span svg,
 .status-badge.offline-status-badge > span svg,
 .status-badge.pending-review-status-badge > span svg,
+.status-badge.pending-activation-status-badge > span svg,
 .status-badge.awaiting-review-status-badge > span svg,
 .status-badge.scheduled-maintenance-status-badge > span svg,
+.status-badge.maintenance-status-badge > span svg,
 .status-badge.test-status-badge > span svg,
 .status-badge.warning-status-badge > span svg,
 .status-badge.preparing-status-badge > span svg,
@@ -201,6 +217,7 @@
 }
 
 .status-badge.indigo-status-badge > span,
+.status-badge.initialized-status-badge > span,
 .status-badge.operational-suggestion-status-badge > span,
 .status-badge.dispatched-status-badge > span,
 .status-badge.matched-status-badge > span,
@@ -209,6 +226,7 @@
 }
 
 .status-badge.indigo-status-badge > span svg,
+.status-badge.initialized-status-badge > span svg,
 .status-badge.operational-suggestion-status-badge > span svg,
 .status-badge.dispatched-status-badge > span svg,
 .status-badge.matched-status-badge > span svg,
@@ -217,6 +235,9 @@
 }
 
 .status-badge.orange-status-badge > span,
+.status-badge.decommissioned-status-badge > span,
+.status-badge.disconnected-status-badge > span,
+.status-badge.calibrating-status-badge > span,
 .status-badge.awaiting-parts-status-badge > span,
 .status-badge.monitoring-status-badge > span,
 .status-badge.triage-status-badge > span,
@@ -227,6 +248,9 @@
 }
 
 .status-badge.orange-status-badge > span svg,
+.status-badge.decommissioned-status-badge > span svg,
+.status-badge.disconnected-status-badge > span svg,
+.status-badge.calibrating-status-badge > span svg,
 .status-badge.awaiting-parts-status-badge > span svg,
 .status-badge.monitoring-status-badge > span svg,
 .status-badge.triage-status-badge > span svg,

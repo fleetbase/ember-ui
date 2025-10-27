@@ -11,10 +11,8 @@
 
     <div class="query-builder-panel-content">
         {{#if this.canGroup}}
-
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-
                     <div>
                         <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Group By Column
@@ -92,7 +90,7 @@
                     @icon="save"
                     @size="xs"
                     @onClick={{this.addGroupBy}}
-                    @disabled={{not (and this.selectedGroupBy this.selectedAggregateFn this.selectedAggregateBy)}}
+                    @disabled={{this.isAddGroupingDisabled}}
                 />
             </div>
 
@@ -102,7 +100,7 @@
                         Active Groupings
                     </div>
 
-                    <DragSortList @items={{this.groupByItems}} @onChange={{this.reorderGroupBy}} @dragEndAction={{this.reorderGroupBy}} class="drag-sort-list" as |item index|>
+                    <DragSortList @items={{this.groupByItems}} @dragEndAction={{this.reorderGroupBy}} class="drag-sort-list" as |item index|>
                         <div class="group-sort-item">
                             <div class="drag-handle">
                                 <FaIcon @icon="grip-vertical" @size="sm" />

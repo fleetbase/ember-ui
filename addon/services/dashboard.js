@@ -53,10 +53,10 @@ export default class DashboardService extends Service {
     /**
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
      */
-    @task *loadDashboards(defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard') {
+    @task *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
         this.universe.registerDashboard(defaultDashboardId);
 
-        const dashboards = yield this.store.findAll('dashboard');
+        const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
         if (isArray(dashboards)) {
             this.dashboards = typeof dashboards.toArray === 'function' ? dashboards.toArray() : dashboards;
 
@@ -98,16 +98,18 @@ export default class DashboardService extends Service {
      * Task for creating a new dashboard. It handles dashboard creation, success notification, and dashboard selection.
      * @param {string} name - Name of the new dashboard.
      */
-    @task *createDashboard(name) {
-        const dashboardRecord = this.store.createRecord('dashboard', { name, is_default: true });
-        const dashboard = yield dashboardRecord.save().catch((error) => {
-            this.notifications.serverError(error);
-        });
+    @task *createDashboard(name, attributes = {}) {
+        try {
+            const dashboardRecord = this.store.createRecord('dashboard', { name, is_default: true, ...attributes });
+            const dashboard = yield dashboardRecord.save();
 
-        if (dashboard) {
-            this.notifications.success(this.intl.t('services.dashboard-service.create-dashboard-success-notification', { dashboardName: dashboard.name }));
-            this.selectDashboard.perform(dashboard);
-            this.dashboards.pushObject(dashboard);
+            if (dashboard) {
+                this.notifications.success(this.intl.t('services.dashboard-service.create-dashboard-success-notification', { dashboardName: dashboard.name }));
+                this.selectDashboard.perform(dashboard);
+                this.dashboards.pushObject(dashboard);
+            }
+        } catch (err) {
+            this.notifications.serverError(err);
         }
     }
 

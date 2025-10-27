@@ -5,25 +5,21 @@ import { tracked } from '@glimmer/tracking';
 
 export default class LayoutHeaderSidebarToggleComponent extends Component {
     @service universe;
+    @service sidebar;
     @tracked isSidebarVisible = true;
 
     @action toggleSidebar() {
-        if (this.args.disabled === true) {
-            return;
-        }
-
-        const sidebar = this.universe.sidebarContext;
+        if (this.args.disabled === true) return;
 
         if (this.isSidebarVisible) {
-            sidebar.hideNow();
+            this.sidebar.hideNow();
         } else {
-            sidebar.show();
+            this.sidebar.show();
         }
 
         this.isSidebarVisible = !this.isSidebarVisible;
-
         if (typeof this.args.onToggle === 'function') {
-            this.args.onToggle(sidebar, this.isSidebarVisible);
+            this.args.onToggle(this.sidebar, this.isSidebarVisible);
         }
     }
 }
