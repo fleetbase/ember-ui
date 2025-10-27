@@ -50,22 +50,25 @@ export default class QueryBuilderGroupByComponent extends Component {
     get availableAggregateColumns() {
         if (!this.selectedAggregateFn) return [];
 
-        // Use allSelectedColumns from parent if available
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
+        const fn = this.selectedAggregateFn.value;
 
-        // For COUNT, we can use any selected column or *
-        if (this.selectedAggregateFn.value === 'count') {
+        if (fn === 'count') {
             return [{ name: '*', label: 'All Records', type: 'count', full: '*' }, ...columnsToUse];
         }
 
-        // For SUM, AVG, MIN, MAX - only numeric columns from selected columns
-        if (['sum', 'avg', 'min', 'max'].includes(this.selectedAggregateFn.value)) {
-            return columnsToUse.filter((column) => ['number', 'integer', 'decimal', 'float'].includes(column.type));
+        if (fn === 'sum' || fn === 'avg') {
+            // numeric only
+            return columnsToUse.filter((c) => ['integer', 'decimal', 'number', 'float'].includes(c.type));
         }
 
-        // For GROUP_CONCAT - string columns from selected columns
-        if (this.selectedAggregateFn.value === 'group_concat') {
-            return columnsToUse.filter((column) => ['string', 'text'].includes(column.type));
+        if (fn === 'min' || fn === 'max') {
+            // numeric + datetime + date + string
+            return columnsToUse.filter((c) => ['integer', 'decimal', 'number', 'float', 'date', 'datetime', 'timestamp', 'string', 'text'].includes(c.type));
+        }
+
+        if (fn === 'group_concat') {
+            return columnsToUse.filter((c) => ['string', 'text'].includes(c.type));
         }
 
         return columnsToUse;
@@ -93,24 +96,49 @@ export default class QueryBuilderGroupByComponent extends Component {
         return null;
     }
 
-    @action
-    selectGroupBy(column) {
+    get isAddGroupingDisabled() {
+        const hasGroupBy = !!this.selectedGroupBy;
+        const fn = this.selectedAggregateFn?.value;
+        const hasFn = !!fn;
+        const hasBy = !!this.selectedAggregateBy;
+
+        if (!hasGroupBy || !hasFn) {
+            return true;
+        }
+
+        // COUNT requires a selection: either "*" or a column (you can auto-select "*" elsewhere)
+        if (fn === 'count') {
+            return !hasBy;
+        }
+
+        // For SUM/AVG/MIN/MAX/GROUP_CONCAT we need:
+        // - at least one compatible column available
+        // - a selected "aggregate by" column
+        const avail = this.availableAggregateColumns ?? [];
+        const hasCompatible = avail.length > 0;
+
+        return !(hasCompatible && hasBy);
+    }
+
+    @action selectGroupBy(column) {
         this.selectedGroupBy = column;
     }
 
-    @action
-    selectAggregateFn(fn) {
+    @action selectAggregateFn(fn) {
         this.selectedAggregateFn = fn;
-        this.selectedAggregateBy = null; // Reset aggregate column when function changes
+        // Optional UX: auto-select "*" when choosing COUNT
+        if (fn?.value === 'count') {
+            this.selectedAggregateBy = { name: '*', label: 'All Records', type: 'count', full: '*' };
+        } else {
+            this.selectedAggregateBy = null;
+        }
     }
 
-    @action
-    selectAggregateBy(column) {
+    @action selectAggregateBy(column) {
         this.selectedAggregateBy = column;
     }
 
-    @action
-    addGroupBy() {
+    @action addGroupBy() {
         if (this.selectedGroupBy && this.selectedAggregateFn && this.selectedAggregateBy) {
             // Validate that the groupBy column is actually selected
             const isGroupByColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedGroupBy.full);
@@ -138,23 +166,35 @@ export default class QueryBuilderGroupByComponent extends Component {
         }
     }
 
-    @action
-    removeGroupBy(index) {
+    @action removeGroupBy(index) {
         this.groupByItems = this.groupByItems.filter((_, i) => i !== index);
         this.notifyChange();
     }
 
-    @action
-    reorderGroupBy(newOrder) {
-        this.groupByItems = newOrder;
+    // @action reorderGroupBy(newOrder) {
+    //     this.groupByItems = newOrder;
+    //     this.notifyChange();
+    // }
+
+    @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
+        // no change? bail
+        if (sourceList === targetList && sourceIndex === targetIndex) return;
+
+        // mutate the EmberArray in-place (per README)
+        const item = sourceList.objectAt(sourceIndex);
+        sourceList.removeAt(sourceIndex);
+        targetList.insertAt(targetIndex, item);
+
+        // ensure Glimmer sees a change even if it misses EmberArray observers
+        this.groupByItems = [...this.groupByItems];
+
         this.notifyChange();
     }
 
     /**
      * Validate existing group by items when selected columns change
      */
-    @action
-    validateGroupByItems() {
+    @action validateGroupByItems() {
         if (!this.args.selectedColumns?.length) {
             // Clear all grouping if no columns selected
             if (this.groupByItems.length > 0) {

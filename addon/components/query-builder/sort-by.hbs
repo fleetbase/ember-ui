@@ -68,7 +68,7 @@
                         Sort Order (drag to reorder)
                     </div>
 
-                    <DragSortList @items={{this.sortByItems}} @onChange={{this.reorderSortBy}} @dragEndAction={{this.reorderSortBy}} class="drag-sort-list" as |item index|>
+                    <DragSortList @items={{this.sortByItems}} @dragEndAction={{this.reorderSortBy}} class="drag-sort-list" as |item index|>
                         <div class="group-sort-item">
                             <div class="drag-handle">
                                 <FaIcon @icon="grip-vertical" @size="sm" />

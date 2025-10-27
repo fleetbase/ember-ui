@@ -62,18 +62,15 @@ export default class QueryBuilderSortByComponent extends Component {
         return null;
     }
 
-    @action
-    selectSortColumn(column) {
+    @action selectSortColumn(column) {
         this.selectedSortBy = column;
     }
 
-    @action
-    selectSortDirection(direction) {
+    @action selectSortDirection(direction) {
         this.selectedSortDirection = direction;
     }
 
-    @action
-    addSortBy() {
+    @action addSortBy() {
         if (this.selectedSortBy && this.selectedSortDirection) {
             // Validate that the sort column is actually selected
             const isSortColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedSortBy.full);
@@ -113,20 +110,32 @@ export default class QueryBuilderSortByComponent extends Component {
         }
     }
 
-    @action
-    removeSortBy(index) {
+    @action removeSortBy(index) {
         this.sortByItems = this.sortByItems.filter((_, i) => i !== index);
         this.notifyChange();
     }
 
-    @action
-    reorderSortBy(newOrder) {
-        this.sortByItems = newOrder;
+    // @action reorderSortBy(newOrder) {
+    //     this.sortByItems = newOrder;
+    //     this.notifyChange();
+    // }
+
+    @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
+        // no change? bail
+        if (sourceList === targetList && sourceIndex === targetIndex) return;
+
+        // mutate the EmberArray in-place (per README)
+        const item = sourceList.objectAt(sourceIndex);
+        sourceList.removeAt(sourceIndex);
+        targetList.insertAt(targetIndex, item);
+
+        // ensure Glimmer sees a change even if it misses EmberArray observers
+        this.sortByItems = [...this.sortByItems];
+
         this.notifyChange();
     }
 
-    @action
-    toggleSortDirection(index) {
+    @action toggleSortDirection(index) {
         const updatedItems = [...this.sortByItems];
         const currentDirection = updatedItems[index].direction.value;
         const newDirection = currentDirection === 'asc' ? this.directions[1] : this.directions[0];
@@ -143,8 +152,7 @@ export default class QueryBuilderSortByComponent extends Component {
     /**
      * Validate existing sort items when selected columns change
      */
-    @action
-    validateSortItems() {
+    @action validateSortItems() {
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
 
         if (!columnsToUse.length) {

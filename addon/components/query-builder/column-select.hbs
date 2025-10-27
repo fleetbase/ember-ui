@@ -1,8 +1,11 @@
 <div class="query-builder-panel" ...attributes>
     <div class="query-builder-panel-header">
-        <div class="query-builder-panel-title">
-            <FaIcon @icon="columns" @size="sm" class="mr-2" />
-            Select fields
+        <div class="flex flex-row items-center space-x-2">
+            <div class="query-builder-panel-title">
+                <FaIcon @icon="columns" @size="sm" class="mr-2" />
+                Select fields
+            </div>
+            <Input @value={{this.searchQuery}} class="form-input form-input-sm" placeholder="Search for a column" />
         </div>
         <div class="text-xs text-gray-500">
             {{if this.selectedColumns.length (concat this.selectedColumns.length " selected") "None selected"}}
@@ -11,7 +14,7 @@
 
     <div class="query-builder-panel-content no-padding">
         <div class="{{if @columns 'max-h-80 overflow-y-auto' ''}} grid grid-cols-1 gap-2 lg:grid-cols-2 px-2 py-3">
-            {{#each @columns as |column|}}
+            {{#each this.filteredColumns as |column|}}
                 <div class="column-item {{if (includes column.name (map-by 'name' this.selectedColumns)) 'selected'}}">
                     <div class="column-checkbox-wrapper">
                         <Checkbox @checked={{includes column.name (map-by "name" this.selectedColumns)}} @onToggle={{fn this.selectColumn column}} />

@@ -5,6 +5,22 @@ import { action } from '@ember/object';
 export default class QueryBuilderColumnSelectComponent extends Component {
     @tracked selectedColumns = [];
     @tracked columnAliases = {};
+    @tracked searchQuery = '';
+
+    get filteredColumns() {
+        const columns = this.args.columns ?? [];
+        const query = (this.searchQuery ?? '').trim().toLowerCase();
+
+        if (!query) {
+            return columns;
+        }
+
+        return columns.filter((col) => {
+            const name = String(col.name ?? '').toLowerCase();
+            const label = String(col.label ?? '').toLowerCase();
+            return name.includes(query) || label.includes(query);
+        });
+    }
 
     constructor() {
         super(...arguments);
@@ -12,8 +28,7 @@ export default class QueryBuilderColumnSelectComponent extends Component {
         this.columnAliases = this.args.columnAliases || {};
     }
 
-    @action
-    selectColumn(column) {
+    @action selectColumn(column) {
         const isSelected = this.selectedColumns.includes(column);
 
         if (isSelected) {
@@ -29,8 +44,7 @@ export default class QueryBuilderColumnSelectComponent extends Component {
         this.notifyChange();
     }
 
-    @action
-    updateAlias(columnName, event) {
+    @action updateAlias(columnName, event) {
         const aliasValue = event.target.value.trim();
 
         if (aliasValue) {
@@ -48,16 +62,14 @@ export default class QueryBuilderColumnSelectComponent extends Component {
         this.notifyChange();
     }
 
-    @action
-    selectAllColumns() {
+    @action selectAllColumns() {
         if (this.args.columns) {
             this.selectedColumns = [...this.args.columns];
             this.notifyChange();
         }
     }
 
-    @action
-    clearAllColumns() {
+    @action clearAllColumns() {
         this.selectedColumns = [];
         this.columnAliases = {};
         this.notifyChange();

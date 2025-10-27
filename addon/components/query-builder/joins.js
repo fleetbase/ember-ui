@@ -19,71 +19,12 @@ export default class QueryBuilderJoinsComponent extends Component {
                 key,
                 table: key,
                 ...relationship,
-                columns: this.getColumnsForTable(key),
             };
         });
     }
 
     get totalJoinedColumns() {
         return this.joins.reduce((total, join) => total + (join.selectedColumns?.length || 0), 0);
-    }
-
-    getColumnsForTable(tableName) {
-        // Get columns from the schema registry or args
-        if (this.args.getTableColumns) {
-            return this.args.getTableColumns(tableName);
-        }
-
-        // Fallback to mock columns for development
-        const mockColumns = {
-            drivers: [
-                { name: 'uuid', label: 'ID', type: 'string' },
-                { name: 'name', label: 'Driver Name', type: 'string' },
-                { name: 'email', label: 'Email', type: 'string' },
-                { name: 'phone', label: 'Phone', type: 'string' },
-                { name: 'status', label: 'Status', type: 'string' },
-                { name: 'online', label: 'Online Status', type: 'boolean' },
-                { name: 'created_at', label: 'Created At', type: 'datetime' },
-                { name: 'updated_at', label: 'Updated At', type: 'datetime' },
-            ],
-            vehicles: [
-                { name: 'uuid', label: 'ID', type: 'string' },
-                { name: 'make', label: 'Make', type: 'string' },
-                { name: 'model', label: 'Model', type: 'string' },
-                { name: 'year', label: 'Year', type: 'number' },
-                { name: 'vin', label: 'VIN', type: 'string' },
-                { name: 'plate_number', label: 'Plate Number', type: 'string' },
-                { name: 'status', label: 'Status', type: 'string' },
-                { name: 'created_at', label: 'Created At', type: 'datetime' },
-            ],
-            contacts: [
-                { name: 'uuid', label: 'ID', type: 'string' },
-                { name: 'name', label: 'Contact Name', type: 'string' },
-                { name: 'email', label: 'Email', type: 'string' },
-                { name: 'phone', label: 'Phone', type: 'string' },
-                { name: 'type', label: 'Contact Type', type: 'string' },
-                { name: 'created_at', label: 'Created At', type: 'datetime' },
-            ],
-            places: [
-                { name: 'uuid', label: 'ID', type: 'string' },
-                { name: 'name', label: 'Place Name', type: 'string' },
-                { name: 'street1', label: 'Street Address', type: 'string' },
-                { name: 'city', label: 'City', type: 'string' },
-                { name: 'province', label: 'Province/State', type: 'string' },
-                { name: 'country', label: 'Country', type: 'string' },
-                { name: 'postal_code', label: 'Postal Code', type: 'string' },
-            ],
-        };
-
-        return mockColumns[tableName] || [];
-    }
-
-    getCommonColumns(tableName) {
-        // Return commonly used columns for quick selection
-        const commonColumnNames = ['name', 'status', 'email', 'phone', 'created_at'];
-        const allColumns = this.getColumnsForTable(tableName);
-
-        return allColumns.filter((column) => commonColumnNames.includes(column.name) || column.name.includes('name') || column.name.includes('status'));
     }
 
     @action
@@ -180,27 +121,6 @@ export default class QueryBuilderJoinsComponent extends Component {
 
         join.selectedColumns = [];
         join.columnAliases = {};
-
-        updatedJoins[joinIndex] = join;
-        this.joins = updatedJoins;
-        this.notifyChange();
-    }
-
-    @action
-    selectCommonJoinColumns(relationshipKey) {
-        const joinIndex = this.joins.findIndex((join) => join.key === relationshipKey);
-        if (joinIndex === -1) return;
-
-        const updatedJoins = [...this.joins];
-        const join = { ...updatedJoins[joinIndex] };
-        const commonColumns = this.getCommonColumns(relationshipKey);
-
-        join.selectedColumns = commonColumns.map((column) => ({
-            ...column,
-            table: relationshipKey,
-            full: `${relationshipKey}.${column.name}`,
-            label: `${join.label} - ${column.label || column.name}`,
-        }));
 
         updatedJoins[joinIndex] = join;
         this.joins = updatedJoins;
