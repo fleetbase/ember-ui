@@ -23,7 +23,7 @@ export default class DashboardComponent extends Component {
      * Creates an instance of DashboardComponent.
      * @memberof DashboardComponent
      */
-    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' }) {
+    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' } = {}) {
         super(...arguments);
         this.dashboard.reset(); // ensure service is reset when re-rendering
         next(() => {

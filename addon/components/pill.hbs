@@ -1,0 +1,48 @@
+<div class="fleetbase-pill" ...attributes>
+    <a href="javascript:;" class="flex flex-row space-x-2 {{@anchorClass}}" {{on "click" this.handleClick}}>
+        <div class="relative shrink-0 {{@imageWrapperClass}}">
+            {{#if (has-block "image")}}
+                {{yield @resource to="image"}}
+            {{else}}
+                <Image
+                    src={{@imageSrc}}
+                    @fallbackSrc={{or @imageFallback (config (concat "defaultValues." @fallbackImageType)) (config "defaultValues.placeholderImage")}}
+                    width={{or @imageSize @imageWidth "28"}}
+                    height={{or @imageSize @imageHeight "28"}}
+                    class="w-7 h-7 rounded-full ring-2 ring-gray-800 dark:ring-gray-700 shadow transition-shadow hover:shadow-md focus:shadow-md {{@imageClass}}"
+                    alt={{or @imageAlt this.resourceName}}
+                />
+                {{#if @showOnlineIndicator}}
+                    <FaIcon
+                        @icon="circle"
+                        @size="2xs"
+                        class="absolute left-0 top-0 h-2 w-2 {{if (get @resource (or @onlinePath 'online')) 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}"
+                    />
+                {{/if}}
+                {{yield @resource to="image"}}
+            {{/if}}
+        </div>
+        <div class={{@contentWrapperClass}}>
+            {{#if (has-block)}}
+                {{yield @resource}}
+            {{else}}
+                <div class="text-sm {{@titleClass}}">{{n-a @title this.resourceName}}</div>
+                {{#if @subtitle}}
+                    <div class="text-xs text-gray-400 dark:text-gray-500 {{@subtitleClass}}">{{n-a @subtitle}}</div>
+                {{/if}}
+                {{yield @resource}}
+            {{/if}}
+        </div>
+        {{#if (has-block "tooltip")}}
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+                <InputInfo>
+                    {{yield @resource to="tooltip"}}
+                </InputInfo>
+            </Attach::Tooltip>
+        {{else if @tooltipComponent}}
+            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+                {{component @tooltipComponent}}
+            </Attach::Tooltip>
+        {{/if}}
+    </a>
+</div>
