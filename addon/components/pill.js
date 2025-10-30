@@ -3,6 +3,7 @@ import { action, get } from '@ember/object';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 
 export default class PillComponent extends Component {
+    /* eslint-disable ember/no-get */
     get resourceName() {
         const record = this.args.resource;
         if (!record) return 'resource';
