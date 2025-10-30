@@ -62,7 +62,7 @@ export default class CustomFieldsManagerComponent extends Component {
 
         // Skip the first subject as it's loaded in constructor
         const subjectsToRestore = this.subjects.slice(1);
-        
+
         for (const subject of subjectsToRestore) {
             try {
                 const company = await this.currentUser.loadCompany();
@@ -73,7 +73,7 @@ export default class CustomFieldsManagerComponent extends Component {
 
                 // Check if we have a cached manager for this subject
                 const cachedManager = this.customFieldsRegistry.forSubject(company, { loadOptions });
-                
+
                 // Only restore if we have cached groups data
                 if (cachedManager && cachedManager.groups && cachedManager.groups.length > 0) {
                     this.#updateSubject(subject, (s) => {
@@ -98,7 +98,7 @@ export default class CustomFieldsManagerComponent extends Component {
                     fieldFor: subject.type,
                 },
             });
-            
+
             this.#updateSubject(subject, (s) => {
                 return { ...s, groups: customFieldsManager.customFieldGroups };
             });
