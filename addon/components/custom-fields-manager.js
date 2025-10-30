@@ -33,7 +33,8 @@ export default class CustomFieldsManagerComponent extends Component {
         super(...arguments);
         this.subjects = subjects ?? [];
         next(() => {
-            if (!this.subjects) return;
+            if (!this.subjects || this.subjects.length === 0) return;
+            // Load the first subject immediately
             this.loadCustomFields.perform(this.subjects[0]);
         });
     }
@@ -51,7 +52,44 @@ export default class CustomFieldsManagerComponent extends Component {
         }
     }
 
+    /**
+     * Restore custom fields from cache for subjects that haven't been loaded yet
+     * This method checks the CustomFieldsRegistry service cache and restores
+     * previously loaded data to avoid losing it during navigation
+     */
+    async restoreFromCache() {
+        if (!this.subjects || this.subjects.length <= 1) return;
+
+        // Skip the first subject as it's loaded in constructor
+        const subjectsToRestore = this.subjects.slice(1);
+        
+        for (const subject of subjectsToRestore) {
+            try {
+                const company = await this.currentUser.loadCompany();
+                const loadOptions = {
+                    groupedFor: `${underscore(subject.model)}_custom_field_group`,
+                    fieldFor: subject.type,
+                };
+
+                // Check if we have a cached manager for this subject
+                const cachedManager = this.customFieldsRegistry.forSubject(company, { loadOptions });
+                
+                // Only restore if we have cached groups data
+                if (cachedManager && cachedManager.groups && cachedManager.groups.length > 0) {
+                    this.#updateSubject(subject, (s) => {
+                        return { ...s, groups: cachedManager.groups };
+                    });
+                }
+            } catch (err) {
+                // Silently continue if cache restore fails for a subject
+                console.warn(`Failed to restore cache for subject ${subject.model}:`, err);
+            }
+        }
+    }
+
     @task *loadCustomFields(subject) {
+        if (!subject) return;
+
         try {
             const company = yield this.currentUser.loadCompany();
             const customFieldsManager = yield this.customFieldsRegistry.loadSubjectCustomFields.perform(company, {
@@ -60,12 +98,14 @@ export default class CustomFieldsManagerComponent extends Component {
                     fieldFor: subject.type,
                 },
             });
+            
             this.#updateSubject(subject, (s) => {
                 return { ...s, groups: customFieldsManager.customFieldGroups };
             });
 
             return customFieldsManager;
         } catch (err) {
+            console.error(`❌ Failed to load custom fields for ${subject.model}:`, err);
             this.notifications.serverError(err);
         }
     }
@@ -127,7 +167,7 @@ export default class CustomFieldsManagerComponent extends Component {
 
                 try {
                     await group.destroyRecord();
-                    await this.loadCustomFields.perform(subject);
+                    await this.loadCustomFields.perform(subject, true); // Force reload after deletion
                     modal.done();
                 } catch (error) {
                     this.notifications.serverError(error);
@@ -151,7 +191,7 @@ export default class CustomFieldsManagerComponent extends Component {
 
                 try {
                     await customField.destroyRecord();
-                    await this.loadCustomFields.perform(subject);
+                    await this.loadCustomFields.perform(subject, true); // Force reload after deletion
                     modal.done();
                 } catch (error) {
                     this.notifications.serverError(error);
@@ -159,6 +199,13 @@ export default class CustomFieldsManagerComponent extends Component {
                 }
             },
         });
+    }
+
+    @action onTabChange(subject) {
+        // Ensure custom fields are loaded when switching tabs
+        if (subject && (!subject.groups || subject.groups.length === 0)) {
+            this.loadCustomFields.perform(subject);
+        }
     }
 
     #addCustomFieldToGroup(subject, customField, group) {
@@ -207,12 +254,8 @@ export default class CustomFieldsManagerComponent extends Component {
     #updateSubject(subject, updater) {
         if (!subject) return;
 
-        // Try to locate by object identity first; fallback to stable keys
-        const idKey = 'id' in subject ? 'id' : 'model' in subject ? 'model' : null;
-        const idx = this.subjects.findIndex((s) => {
-            if (s === subject) return true;
-            return idKey ? s?.[idKey] === subject?.[idKey] : false;
-        });
+        // Find by model property since tab objects have extra properties
+        const idx = this.subjects.findIndex((s) => s?.model === subject?.model);
 
         if (idx === -1) return;
 
