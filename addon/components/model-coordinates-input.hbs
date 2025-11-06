@@ -1,6 +1,6 @@
 <CoordinatesInput
     @value={{if @locationProperty (get @model @locationProperty) @model.location}}
-    @onChange={{this.updatePlaceCoordinates}}
+    @onChange={{this.updateCoordinates}}
     @onGeocode={{this.onAutocomplete}}
     @onUpdatedFromMap={{perform this.reverseGeocode}}
     @onInit={{this.setCoordinatesInput}}

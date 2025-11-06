@@ -2053,7 +2053,7 @@ body[data-theme='light'] .next-table-wrapper table tfoot tr td {
 }
 
 .field-info-container > .field-name {
-    @apply font-semibold text-gray-700;
+    @apply text-[11px] tracking-wide uppercase font-semibold text-gray-700;
 }
 
 .field-info-container > .field-value {
@@ -2061,7 +2061,7 @@ body[data-theme='light'] .next-table-wrapper table tfoot tr td {
 }
 
 body[data-theme='dark'] .field-info-container > .field-name {
-    @apply text-gray-400;
+    @apply text-gray-500;
 }
 
 body[data-theme='dark'] .field-info-container > .field-value {

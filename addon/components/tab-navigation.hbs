@@ -2,11 +2,15 @@
 <div class="tab-navigation {{@containerClass}}" data-style={{or @style "github"}} data-size={{or @size "md"}}>
     <div class="tab-list justify-between {{@tablistClass}}" role="tablist">
         <div class="flex flex-row items-center" role="tablist">
+            {{#if (has-block "title")}}
+                <div id="tab-navigation-title" class="tab-navigation-title {{@tabTitleWrapperClass}}">
+                    {{yield to="title"}}
+                </div>
+            {{/if}}
             {{#if (has-block "tabs")}}
                 {{yield this to="tabs"}}
             {{else if @tabs}}
                 {{#each this.enhancedTabs as |tab|}}
-
                     {{#if tab.route}}
                         <LinkTo
                             @route={{tab.route}}
