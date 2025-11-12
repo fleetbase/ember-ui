@@ -1691,6 +1691,10 @@ body[data-theme='dark']
     @apply text-sm flex flex-row items-center px-3 py-0.5 rounded-md my-1;
 }
 
+.next-dd-menu .next-dd-item.xs-text {
+    @apply text-xs;
+}
+
 .next-dd-menu .next-dd-item > .next-nav-item-icon-container {
     width: 1rem;
 }

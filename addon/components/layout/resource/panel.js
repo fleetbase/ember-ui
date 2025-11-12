@@ -18,12 +18,27 @@ export default class LayoutResourcePanelComponent extends Component {
     @service hostRouter;
     @service contextPanel;
     @tracked overlayContext;
-    @tracked resource;
-    @tracked controller;
-    @tracked width = '600px';
-    @tracked isResizable = true;
-    // fleet-ops is default auth schema
-    @tracked authSchema = 'fleet-ops';
+
+    // Mirror args (reactive)
+    get resource() {
+        return this.args.resource;
+    }
+
+    get controller() {
+        return this.args.controller;
+    }
+
+    get width() {
+        return this.args.width ?? '600px';
+    }
+
+    get isResizable() {
+        return this.args.isResizable ?? true;
+    }
+
+    get authSchema() {
+        return this.args.authSchema ?? 'fleet-ops';
+    }
 
     get resourceName() {
         return this.resource?.name ?? this.resource?.displayName ?? this.resource?.display_name;
@@ -46,13 +61,8 @@ export default class LayoutResourcePanelComponent extends Component {
         return 'Save Changes';
     }
 
-    constructor(owner, { resource, controller, width = '600px', isResizable = true, authSchema = 'fleet-ops' }) {
+    constructor() {
         super(...arguments);
-        this.resource = resource;
-        this.controller = controller;
-        this.width = width;
-        this.isResizable = isResizable;
-        this.authSchema = authSchema;
         applyContextComponentArguments(this);
     }
 

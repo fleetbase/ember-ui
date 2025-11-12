@@ -1,28 +1,42 @@
 .file-icon {
-    display: flex;
-    align-items: center;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
+    @apply flex flex-col items-center justify-center;
 }
 
-.file-icon.file-icon-xlsb,
-.file-icon.file-icon-xlsm,
-.file-icon.file-icon-xlsx,
-.file-icon.file-icon-xls {
-    color: #3b8530;
+/* Optional: Custom file type colors */
+.file-icon-pdf > svg {
+    @apply text-red-500;
 }
 
-.file-icon.file-icon-doc,
-.file-icon.file-icon-docx,
-.file-icon.file-icon-docm {
-    color: #2e5ea7;
+.file-icon-xlsx > svg,
+.file-icon-xls > svg,
+.file-icon-csv > svg {
+    @apply text-green-600;
 }
 
-.file-icon.file-icon-pdf {
-    color: #ad311a;
+.file-icon-docx > svg,
+.file-icon-doc > svg {
+    @apply text-blue-600;
 }
 
-.file-icon .file-extension {
-    @apply mx-1 capitalize font-semibold;
+.file-icon-pptx > svg,
+.file-icon-ppt > svg {
+    @apply text-orange-500;
+}
+
+.file-icon-zip > svg,
+.file-icon-rar > svg {
+    @apply text-yellow-600;
+}
+
+/* Smooth image loading */
+.file-preview-image {
+    @apply transition-opacity duration-200;
+}
+
+.file-preview-image[loading] {
+    @apply opacity-0;
+}
+
+.file-preview-image[loaded] {
+    @apply opacity-100;
 }
