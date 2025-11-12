@@ -74,7 +74,7 @@
                         @onFileAdded={{this.onFileAddedHandler}}
                     >
                         <a tabindex={{0}} class="btn btn-default btn-xs cursor-pointer">
-                            <FaIcon @icon="upload" @size="sm" class="mr-2" />{{t "common.select-file"}}
+                            <FaIcon @icon="upload" @size="sm" class="mr-2" />{{t "common.select-field" field=(t "common.file")}}
                         </a>
                     </FileUpload>
                     {{#if this.file}}
