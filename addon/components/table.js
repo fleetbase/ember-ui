@@ -11,6 +11,8 @@ export default class TableComponent extends Component {
     @service tableContext;
     @tracked tableNode;
     @tracked allRowsToggled = false;
+    @tracked sortBy = this.args.sortBy;
+    @tracked sortOrder = this.args.sortOrder;
     @alias('args.rows') rows;
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
@@ -109,5 +111,24 @@ export default class TableComponent extends Component {
 
     getSelectedIds() {
         return this.selectedRows.map((_) => _.id);
+    }
+
+    @action handleSort(column) {
+        if (!column.sortable) {
+            return;
+        }
+
+        const sortParam = column.sortParam || column.valuePath;
+
+        if (this.sortBy === sortParam) {
+            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortBy = sortParam;
+            this.sortOrder = 'asc';
+        }
+
+        if (typeof this.args.onSort === 'function') {
+            this.args.onSort(this.sortBy, this.sortOrder);
+        }
     }
 }
