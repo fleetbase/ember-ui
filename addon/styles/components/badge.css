@@ -30,6 +30,8 @@
 }
 
 .status-badge[class*='2'] > span,
+.status-badge.confirmed-status-badge > span,
+.status-badge.confirm-status-badge > span,
 .status-badge.green-status-badge > span,
 .status-badge.resolved-status-badge > span,
 .status-badge.published-status-badge > span,
@@ -49,6 +51,8 @@
 }
 
 .status-badge[class*='2'] > span svg,
+.status-badge.confirmed-status-badge > span svg,
+.status-badge.confirm-status-badge > span svg,
 .status-badge.green-status-badge > span svg,
 .status-badge.resolved-status-badge > span svg,
 .status-badge.published-status-badge > span svg,
@@ -148,6 +152,7 @@
 .status-badge.disputed-status-badge > span,
 .status-badge.inactive-status-badge > span,
 .status-badge.failed-status-badge > span,
+.status-badge.cancelled-status-badge > span,
 .status-badge.canceled-status-badge > span {
     @apply bg-red-800 border-red-700 text-red-100;
 }
@@ -166,6 +171,7 @@
 .status-badge.disabled-status-badge > span svg,
 .status-badge.disputed-status-badge > span svg,
 .status-badge.failed-status-badge > span svg,
+.status-badge.cancelled-status-badge > span svg,
 .status-badge.canceled-status-badge > span svg {
     @apply text-red-300;
 }

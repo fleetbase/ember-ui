@@ -345,7 +345,11 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 }
 
 .table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
-    @apply text-xs font-semibold text-blue-500 bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center;
+    @apply font-semibold text-blue-500 bg-blue-100 rounded-full flex items-center justify-center;
+    height: 0.75rem;
+    width: 0.75rem;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
 }
 
 .table-wrapper table thead tr th .sort-icon-wrapper > div:last-child {
@@ -357,7 +361,7 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 }
 
 .table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
-    @apply text-gray-600;
+    @apply text-blue-400;
 }
 
 .table-wrapper table thead tr th .sort-icon {
@@ -381,19 +385,23 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 }
 
 .next-table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
-    @apply text-xs font-semibold text-blue-500 bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center;
+    @apply font-semibold text-blue-500 bg-blue-100 rounded-full flex items-center justify-center;
+    height: 0.75rem;
+    width: 0.75rem;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
 }
 
 .next-table-wrapper table thead tr th .sort-icon-wrapper > div:last-child {
     @apply w-4 h-4 flex flex-col items-center justify-center;
 }
 
-.next-table-wrapper table thead tr th .sort-icon-wrapper > .sort-icon:first-child {
+.next-table-wrapper table thead tr th .sort-icon-wrapper .sort-icon:first-child {
     margin-bottom: -7px;
 }
 
 .next-table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
-    @apply text-gray-600;
+    @apply text-blue-400;
 }
 
 .next-table-wrapper table thead tr th .sort-icon {
