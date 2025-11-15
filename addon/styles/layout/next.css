@@ -1790,7 +1790,7 @@ section.next-view-section {
 
 .next-table-wrapper {
     overflow: auto;
-    overflow-x: auto;
+    overflow-x: scroll;  /* Always show horizontal scrollbar */
     overflow-y: scroll;
     height: 100vh;
     @apply grid grid-cols-1;
