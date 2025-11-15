@@ -18,7 +18,7 @@ export default class TableCellResizerComponent extends Component {
     }
 
     @action setupTableCellNode(tableCellNode) {
-        tableCellNode.style.position = 'relative';
+        tableCellNode.style.position = 'sticky';
         tableCellNode.setAttribute('nowrap', '');
     }
 

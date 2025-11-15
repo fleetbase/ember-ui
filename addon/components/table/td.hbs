@@ -1,4 +1,4 @@
-<Table::Cell class={{@column.cellClassNames}} ...attributes>
+<Table::Cell class={{@column.cellClassNames}} {{did-insert this.setupComponent}} ...attributes>
     {{#if (has-block)}}
         {{yield}}
     {{else}}

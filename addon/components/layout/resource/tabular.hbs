@@ -121,6 +121,7 @@
     {{#if (has-block)}}
         {{yield @data}}
     {{else}}
+        {{log "this.checkboxSticky" this.checkboxSticky}}
         <Table
             @rows={{@data}}
             @columns={{this.columns}}
@@ -134,6 +135,7 @@
             @tfootVerticalOffset={{@tfootVerticalOffset}}
             @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}
             @onSort={{this.handleSort}}
+            @checkboxSticky={{this.checkboxSticky}}
         />
     {{/if}}
 </Layout::Section::Body>

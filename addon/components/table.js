@@ -71,6 +71,12 @@ export default class TableComponent extends Component {
         this.tableNode = tableNode;
         this.tableContext.node = tableNode;
         this.tableContext.table = this;
+        
+        // Delay sticky offset calculation to ensure DOM is fully rendered
+        later(this, () => {
+            this.calculateStickyOffsets();
+            this.setupScrollListener();
+        }, 50);
 
         later(
             this,
@@ -81,6 +87,175 @@ export default class TableComponent extends Component {
             },
             100
         );
+    }
+
+    @action setupScrollListener() {
+        // Find the scrollable wrapper
+        const wrapper = this.tableNode?.closest('.next-table-wrapper');
+        if (!wrapper) return;
+
+        // Add scroll event listener to toggle shadow visibility
+        wrapper.addEventListener('scroll', () => {
+            this.updateStickyShadows(wrapper);
+        });
+
+        // Initial check
+        this.updateStickyShadows(wrapper);
+    }
+
+    updateStickyShadows(wrapper) {
+        const scrollLeft = wrapper.scrollLeft;
+        const scrollWidth = wrapper.scrollWidth;
+        const clientWidth = wrapper.clientWidth;
+        const maxScrollLeft = scrollWidth - clientWidth;
+
+        // Check if scrolled to the start (hide left shadows)
+        const isAtStart = scrollLeft <= 1;
+        // Check if scrolled to the end (hide right shadows)
+        const isAtEnd = scrollLeft >= maxScrollLeft - 1;
+
+        // Update left sticky columns
+        const leftStickyColumns = wrapper.querySelectorAll('.sticky-left');
+        leftStickyColumns.forEach(cell => {
+            if (isAtStart) {
+                cell.classList.add('at-natural-position');
+            } else {
+                cell.classList.remove('at-natural-position');
+            }
+        });
+
+        // Update right sticky columns
+        const rightStickyColumns = wrapper.querySelectorAll('.sticky-right');
+        rightStickyColumns.forEach(cell => {
+            if (isAtEnd) {
+                cell.classList.add('at-natural-position');
+            } else {
+                cell.classList.remove('at-natural-position');
+            }
+        });
+    }
+
+    @action calculateStickyOffsets() {
+        if (!this.tableNode || !this.visibleColumns) {
+            return;
+        }
+
+        // Calculate left offsets for left-sticky columns
+        let leftOffset = 0;
+        
+        // Account for checkbox column if it's sticky
+        if (this.args.checkboxSticky) {
+            // Find checkbox column (first th without data-column-id)
+            const allThs = this.tableNode?.querySelectorAll('thead th');
+            const checkboxTh = allThs?.[0];
+            
+            if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
+                // This is the checkbox column - get its actual width
+                const width = checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
+                leftOffset += width;
+            }
+        }
+        
+        const leftStickyColumns = this.visibleColumns.filter(col => col.sticky === true || col.sticky === 'left');
+        
+        leftStickyColumns.forEach((column) => {
+            column._stickyOffset = leftOffset;
+            column._stickyPosition = 'left';
+            column._stickyZIndex = 15;
+            
+            // Get column width from DOM if available
+            const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
+            if (th) {
+                leftOffset += th.offsetWidth;
+            } else {
+                // Fallback to column width property or default
+                leftOffset += column.width || 150;
+            }
+        });
+
+        // Calculate right offsets for right-sticky columns
+        let rightOffset = 0;
+        const rightStickyColumns = this.visibleColumns.filter(col => col.sticky === 'right').reverse();
+        
+        rightStickyColumns.forEach((column, index) => {
+            column._stickyOffset = rightOffset;
+            column._stickyPosition = 'right';
+            column._stickyZIndex = 15;
+            
+            // Get column width from DOM if available
+            const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
+            if (th) {
+                const width = th.offsetWidth;
+                rightOffset += width;
+            } else {
+                // Fallback to column width property or default
+                rightOffset += column.width || 150;
+            }
+        });
+
+        // Note: visibleColumns is a computed property and doesn't need manual reactivity triggering
+        // The column objects are mutated directly with _sticky* properties
+        
+        // Update all sticky cells with the calculated offsets
+        this.updateStickyCellStyles();
+    }
+    
+    @action updateStickyCellStyles() {
+        if (!this.tableNode) {
+            return;
+        }
+        
+        // Update header cells
+        const allThs = this.tableNode.querySelectorAll('thead th');
+        allThs.forEach((th) => {
+            const columnId = th.getAttribute('data-column-id');
+            
+            if (th.classList.contains('is-sticky')) {
+                // CRITICAL: Always ensure top: 0 for vertical stickiness
+                th.style.top = '0';
+                
+                if (!columnId) {
+                    // Checkbox column - always at left: 0
+                    th.style.left = '0px';
+                } else {
+                    // Find the column object
+                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    if (column && column._stickyOffset !== undefined) {
+                        const position = column._stickyPosition || 'left';
+                        const offset = column._stickyOffset;
+                        th.style[position] = `${offset}px`;
+                    }
+                }
+            }
+        });
+        
+        // Update body cells
+        const allTds = this.tableNode.querySelectorAll('tbody td');
+        allTds.forEach((td) => {
+            const columnId = td.getAttribute('data-column-id');
+            
+            if (td.classList.contains('is-sticky')) {
+                if (!columnId) {
+                    // Checkbox column - always at left: 0
+                    td.style.left = '0px';
+                } else {
+                    // Find the column object
+                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    if (column && column._stickyOffset !== undefined) {
+                        const position = column._stickyPosition || 'left';
+                        const offset = column._stickyOffset;
+                        td.style[position] = `${offset}px`;
+                    }
+                }
+            }
+        });
+    }
+
+    @action onColumnResize() {
+        // Recalculate sticky offsets when columns are resized
+        later(this, () => {
+            this.calculateStickyOffsets();
+        }, 50);
     }
 
     @action addRow(row) {

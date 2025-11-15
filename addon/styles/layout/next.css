@@ -1789,15 +1789,18 @@ section.next-view-section {
 }
 
 .next-table-wrapper {
-    overflow: scroll;
+    overflow: auto;
+    overflow-x: scroll;  /* Always show horizontal scrollbar */
+    overflow-y: scroll;
     height: 100vh;
     @apply grid grid-cols-1;
 }
 
 .next-table-wrapper > table {
-    @apply table-fixed w-full h-screen;
+    @apply table-auto min-w-full h-screen;
     border-collapse: separate;
     border-spacing: 0;
+    width: max-content;
 }
 
 .next-table-wrapper table > tbody:after {
@@ -1808,8 +1811,8 @@ section.next-view-section {
 }
 
 .next-table-wrapper table > thead {
-    position: sticky;
-    top: 0;
+    /* Removed position: sticky to avoid conflict with sticky th elements */
+    /* Individual th elements handle their own sticky positioning */
     z-index: 12;
 }
 
@@ -1871,6 +1874,9 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     height: 53px;
     min-width: 100%;
     max-width: 100%;
+    position: sticky;
+    left: 0;
+    right: 0;
 }
 
 .next-table-wrapper
@@ -1939,6 +1945,10 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     max-height: 40px;
 }
 
+.next-table-wrapper table tfoot {
+    z-index: 30;
+}
+
 .next-table-wrapper table tfoot tr td,
 .next-table-wrapper table tbody tr td {
     @apply px-2 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;
@@ -1962,6 +1972,81 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 
 .next-table-wrapper > table > tbody > tr:first-child > td {
     border-top: 0;
+}
+
+/* Sticky Column Styles */
+.next-table-wrapper table thead th.is-sticky,
+.next-table-wrapper table tbody td.is-sticky {
+    position: sticky;
+    @apply bg-white;
+}
+
+.next-table-wrapper table thead th.is-sticky {
+    z-index: 20;
+    top: 0;
+}
+
+.next-table-wrapper table tbody td.is-sticky {
+    z-index: 15;
+}
+
+.next-table-wrapper table thead th.is-sticky.sticky-left {
+    left: 0;
+    top: 0;
+    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table tbody td.is-sticky.sticky-left {
+    left: 0;
+    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table thead th.is-sticky.sticky-right {
+    right: 0;
+    top: 0;
+    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.15), -2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table tbody td.is-sticky.sticky-right {
+    right: 0;
+    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.15), -2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide shadows when sticky columns are at their natural position */
+.next-table-wrapper table thead th.is-sticky.at-natural-position,
+.next-table-wrapper table tbody td.is-sticky.at-natural-position {
+    box-shadow: none !important;
+}
+
+/* Ensure sticky columns have proper background on hover */
+.next-table-wrapper table tbody tr:hover td.is-sticky {
+    @apply bg-white;
+}
+
+/* Dark theme support for sticky columns */
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .next-table-wrapper table tbody tr:hover td.is-sticky {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.sticky-left,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.sticky-left {
+    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.4), 2px 0 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.sticky-right,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.sticky-right {
+    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.4), -2px 0 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme - hide shadows when at natural position */
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.at-natural-position,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.at-natural-position {
+    box-shadow: none !important;
 }
 
 body[data-theme='dark'] .next-table-wrapper table tfoot tr td {
