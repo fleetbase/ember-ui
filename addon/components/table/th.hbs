@@ -1,1 +1,13 @@
-<Table::Cell @inHead={{true}} @resizable={{@resizable}} {{did-insert this.setupComponent}} ...attributes>{{yield}}</Table::Cell>
+<Table::Cell 
+    @inHead={{true}} 
+    @resizable={{@resizable}} 
+    @sortable={{@sortable}} 
+    @isSorted={{this.isSorted}}
+    @isAscending={{this.isAscending}}
+    @isDescending={{this.isDescending}}
+    {{on "click" this.onClick}} 
+    {{did-insert this.setupComponent}} 
+    ...attributes
+>
+    {{yield}}
+</Table::Cell>
