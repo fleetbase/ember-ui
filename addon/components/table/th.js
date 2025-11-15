@@ -91,6 +91,7 @@ export default class TableThComponent extends TableCellComponent {
         // Apply sticky positioning
         if (this.isSticky) {
             tableCellNode.style.position = 'sticky';
+            tableCellNode.style.top = '0';
             tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;
             tableCellNode.style.zIndex = this.stickyZIndex;
             tableCellNode.classList.add('is-sticky', `sticky-${this.stickyPosition}`);

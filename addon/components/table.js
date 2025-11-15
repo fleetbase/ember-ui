@@ -71,8 +71,12 @@ export default class TableComponent extends Component {
         this.tableNode = tableNode;
         this.tableContext.node = tableNode;
         this.tableContext.table = this;
-        this.calculateStickyOffsets();
-        this.setupScrollListener();
+        
+        // Delay sticky offset calculation to ensure DOM is fully rendered
+        later(this, () => {
+            this.calculateStickyOffsets();
+            this.setupScrollListener();
+        }, 50);
 
         later(
             this,
@@ -141,10 +145,15 @@ export default class TableComponent extends Component {
         
         // Account for checkbox column if it's sticky
         if (this.args.checkboxSticky) {
-            const checkboxTh = this.tableNode?.querySelector('th:first-child');
+            // Find checkbox column (first th without data-column-id)
+            const allThs = this.tableNode?.querySelectorAll('thead th');
+            const checkboxTh = allThs?.[0];
+            
             if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
-                // This is the checkbox column
-                leftOffset += checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
+                // This is the checkbox column - get its actual width
+                const width = checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
+                leftOffset += width;
+                console.log('Checkbox column width:', width, 'leftOffset now:', leftOffset);
             }
         }
         
