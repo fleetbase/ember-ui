@@ -1,16 +1,11 @@
 {{#if @inHead}}
-    <th class="{{if @sortable "is-sortable"}}" ...attributes {{did-insert this.setupComponent}}>
+    <th class="{{if @sortable 'is-sortable'}}" ...attributes {{did-insert this.setupComponent}}>
         <div class="th-inner-wrapper">
             <span class="th-content">{{yield}}</span>
             {{#if @sortable}}
                 <span class="sort-icon-wrapper">
-                    {{#if @isAscending}}
-                        <FaIcon @icon="arrow-up" class="sort-icon" />
-                    {{else if @isDescending}}
-                        <FaIcon @icon="arrow-down" class="sort-icon" />
-                    {{else}}
-                        <FaIcon @icon="sort" class="sort-icon sort-icon-default" />
-                    {{/if}}
+                    <FaIcon @icon="caret-up" class="sort-icon" class={{unless @isAscending "opacity-50"}} />
+                    <FaIcon @icon="caret-down" class="sort-icon" class={{unless @isDescending "opacity-50"}} />
                 </span>
             {{/if}}
         </div>

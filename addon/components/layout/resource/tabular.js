@@ -19,4 +19,20 @@ export default class LayoutResourceTabularComponent extends Component {
             this.args.setupTable(table);
         }
     }
+
+    @action handleSort(sortBy, sortDirection) {
+        const sortValue = sortDirection === 'asc' ? sortBy : `-${sortBy}`;
+
+        if (this.args.controller && this.args.controller.sort) {
+            this.args.controller.sort = sortValue;
+        }
+
+        if (typeof this.args.onSort === 'function') {
+            this.args.onSort({
+                sortBy,
+                sortDirection,
+                sortValue,
+            });
+        }
+    }
 }

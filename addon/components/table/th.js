@@ -11,15 +11,15 @@ export default class TableThComponent extends TableCellComponent {
             return false;
         }
         const sortParam = column.sortParam || column.valuePath;
-        return this.tableContext.table.sortBy === sortParam;
+        return this.tableContext.table?.sortBy === sortParam;
     }
 
     get isAscending() {
-        return this.isSorted && this.tableContext.table.sortOrder === 'asc';
+        return this.isSorted && this.tableContext.table?.sortOrder === 'asc';
     }
 
     get isDescending() {
-        return this.isSorted && this.tableContext.table.sortOrder === 'desc';
+        return this.isSorted && this.tableContext.table?.sortOrder === 'desc';
     }
 
     @action setupComponent(tableCellNode) {

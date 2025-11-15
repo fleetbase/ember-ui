@@ -341,7 +341,11 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 }
 
 .table-wrapper table thead tr th .sort-icon-wrapper {
-    @apply ml-2 w-4 h-4 flex items-center justify-center text-gray-400;
+    @apply ml-2 w-4 h-4 flex flex-col items-center justify-center text-gray-400;
+}
+
+.table-wrapper table thead tr th .sort-icon-wrapper > .sort-icon:first-child {
+    margin-bottom: -7px;
 }
 
 .table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
@@ -365,7 +369,11 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 }
 
 .next-table-wrapper table thead tr th .sort-icon-wrapper {
-    @apply ml-2 w-4 h-4 flex items-center justify-center text-gray-400;
+    @apply ml-2 w-4 h-4 flex flex-col items-center justify-center text-gray-400;
+}
+
+.next-table-wrapper table thead tr th .sort-icon-wrapper > .sort-icon:first-child {
+    margin-bottom: -7px;
 }
 
 .next-table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
