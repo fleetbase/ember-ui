@@ -1,0 +1,39 @@
+<div
+    class="schedule-item-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 hover:shadow-md transition-shadow cursor-pointer"
+    {{on "click" this.handleClick}}
+    ...attributes
+>
+    <div class="flex items-start justify-between">
+        <div class="flex-1 min-w-0">
+            {{#if (has-block "content")}}
+                {{yield (hash item=@item) to="content"}}
+            {{else}}
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-{{this.statusBadgeColor}}-100 text-{{this.statusBadgeColor}}-800">
+                        {{capitalize @item.status}}
+                    </span>
+                </div>
+
+                <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{@item.title}}
+                </div>
+
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{this.timeRange}}
+                </div>
+
+                {{#if @item.duration}}
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        Duration: {{@item.duration}} min
+                    </div>
+                {{/if}}
+            {{/if}}
+        </div>
+
+        {{#if (has-block "actions")}}
+            <div class="ml-2 flex-shrink-0">
+                {{yield (hash item=@item) to="actions"}}
+            </div>
+        {{/if}}
+    </div>
+</div>
