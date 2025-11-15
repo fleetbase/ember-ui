@@ -71,6 +71,7 @@ export default class TableComponent extends Component {
         this.tableNode = tableNode;
         this.tableContext.node = tableNode;
         this.tableContext.table = this;
+        this.calculateStickyOffsets();
 
         later(
             this,
@@ -81,6 +82,62 @@ export default class TableComponent extends Component {
             },
             100
         );
+    }
+
+    @action calculateStickyOffsets() {
+        if (!this.tableNode || !this.visibleColumns) {
+            return;
+        }
+
+        // Calculate left offsets for left-sticky columns
+        let leftOffset = 0;
+        const leftStickyColumns = this.visibleColumns.filter(col => col.sticky === true || col.sticky === 'left');
+        
+        leftStickyColumns.forEach((column, index) => {
+            column._stickyOffset = leftOffset;
+            column._stickyPosition = 'left';
+            column._stickyZIndex = 15;
+            
+            // Get column width from DOM if available
+            const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
+            if (th) {
+                const width = th.offsetWidth;
+                leftOffset += width;
+            } else {
+                // Fallback to column width property or default
+                leftOffset += column.width || 150;
+            }
+        });
+
+        // Calculate right offsets for right-sticky columns
+        let rightOffset = 0;
+        const rightStickyColumns = this.visibleColumns.filter(col => col.sticky === 'right').reverse();
+        
+        rightStickyColumns.forEach((column, index) => {
+            column._stickyOffset = rightOffset;
+            column._stickyPosition = 'right';
+            column._stickyZIndex = 15;
+            
+            // Get column width from DOM if available
+            const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
+            if (th) {
+                const width = th.offsetWidth;
+                rightOffset += width;
+            } else {
+                // Fallback to column width property or default
+                rightOffset += column.width || 150;
+            }
+        });
+
+        // Trigger reactivity
+        this.visibleColumns = [...this.visibleColumns];
+    }
+
+    @action onColumnResize() {
+        // Recalculate sticky offsets when columns are resized
+        later(this, () => {
+            this.calculateStickyOffsets();
+        }, 50);
     }
 
     @action addRow(row) {

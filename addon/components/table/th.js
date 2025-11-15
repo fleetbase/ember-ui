@@ -39,6 +39,27 @@ export default class TableThComponent extends TableCellComponent {
         return this.isSorted && this.sortPriority > 1;
     }
 
+    get isSticky() {
+        const { column } = this.args;
+        return column?.sticky === true || column?.sticky === 'left' || column?.sticky === 'right';
+    }
+
+    get stickyPosition() {
+        const { column } = this.args;
+        return column?._stickyPosition || (column?.sticky === 'right' ? 'right' : 'left');
+    }
+
+    get stickyOffset() {
+        const { column } = this.args;
+        return column?._stickyOffset || 0;
+    }
+
+    get stickyZIndex() {
+        const { column } = this.args;
+        // Header cells need higher z-index than body cells
+        return (column?._stickyZIndex || 15) + 5;
+    }
+
     @action setupComponent(tableCellNode) {
         this.tableCellNode = tableCellNode;
         this.setupTableCellNode(tableCellNode);
@@ -53,6 +74,19 @@ export default class TableThComponent extends TableCellComponent {
 
         if (width) {
             tableCellNode.style.width = typeof width === 'number' ? `${width}px` : width;
+        }
+
+        // Apply sticky positioning
+        if (this.isSticky) {
+            tableCellNode.style.position = 'sticky';
+            tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;
+            tableCellNode.style.zIndex = this.stickyZIndex;
+            tableCellNode.classList.add('is-sticky', `sticky-${this.stickyPosition}`);
+            
+            // Add data attribute for column identification
+            if (column?.valuePath) {
+                tableCellNode.setAttribute('data-column-id', column.valuePath);
+            }
         }
     }
 
