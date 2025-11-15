@@ -36,7 +36,7 @@
             <Table::Head @canSelectAll={{@canSelectAll}} @columns={{this.visibleColumns}}>
                 <Table::Row>
                     {{#if @canSelectAll}}
-                        <Table::Th @width={{or @selectAllColumnWidth 40}} @resizable={{false}} @checkboxSticky={{@checkboxSticky}}>
+                        <Table::Th @width={{or @selectAllColumnWidth 40}} @resizable={{false}} @sticky={{@checkboxSticky}}>
                             <Table::Cell::Checkbox @value={{this.allRowsToggled}} @onToggle={{this.selectAllRows}} />
                         </Table::Th>
                     {{/if}}
@@ -49,7 +49,7 @@
                 {{#each @rows as |row|}}
                     <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
                         {{#if @selectable}}
-                            <Table::Td @checkboxSticky={{@checkboxSticky}}>
+                            <Table::Td @sticky={{@checkboxSticky}}>
                                 <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
                             </Table::Td>
                         {{/if}}

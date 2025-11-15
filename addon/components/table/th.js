@@ -40,27 +40,27 @@ export default class TableThComponent extends TableCellComponent {
     }
 
     get isSticky() {
-        const { column, checkboxSticky } = this.args;
+        const { column, sticky } = this.args;
         // Support sticky for checkbox column or regular columns
-        if (checkboxSticky && !column) {
+        if (sticky && !column) {
             return true;
         }
         return column?.sticky === true || column?.sticky === 'left' || column?.sticky === 'right';
     }
 
     get stickyPosition() {
-        const { column, checkboxSticky } = this.args;
+        const { column, sticky } = this.args;
         // Checkbox column defaults to left
-        if (checkboxSticky && !column) {
+        if (sticky && !column) {
             return 'left';
         }
         return column?._stickyPosition || (column?.sticky === 'right' ? 'right' : 'left');
     }
 
     get stickyOffset() {
-        const { column, checkboxSticky } = this.args;
+        const { column, sticky } = this.args;
         // Checkbox column is always first (offset 0)
-        if (checkboxSticky && !column) {
+        if (sticky && !column) {
             return 0;
         }
         return column?._stickyOffset || 0;
