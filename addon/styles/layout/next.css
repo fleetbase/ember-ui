@@ -1811,8 +1811,8 @@ section.next-view-section {
 }
 
 .next-table-wrapper table > thead {
-    position: sticky;
-    top: 0;
+    /* Removed position: sticky to avoid conflict with sticky th elements */
+    /* Individual th elements handle their own sticky positioning */
     z-index: 12;
 }
 
