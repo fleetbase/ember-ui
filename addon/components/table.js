@@ -11,13 +11,59 @@ export default class TableComponent extends Component {
     @service tableContext;
     @tracked tableNode;
     @tracked allRowsToggled = false;
-    @tracked sortBy = this.args.sortBy;
-    @tracked sortOrder = this.args.sortOrder;
+    @tracked sortColumns = [];
     @alias('args.rows') rows;
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
     @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
     @isEqual('selectedRows.length', 'rows.length') allRowsSelected;
+
+    constructor() {
+        super(...arguments);
+        // Initialize sort columns from args if provided
+        this.initializeSortColumns();
+    }
+
+    initializeSortColumns() {
+        const { sortBy, sortOrder } = this.args;
+        
+        if (sortBy) {
+            // Parse comma-delimited sort string if provided
+            if (typeof sortBy === 'string' && sortBy.includes(',')) {
+                this.sortColumns = this.parseSortString(sortBy);
+            } else if (typeof sortBy === 'string') {
+                // Single sort column
+                const direction = sortBy.startsWith('-') ? 'desc' : sortOrder || 'asc';
+                const param = sortBy.startsWith('-') ? sortBy.substring(1) : sortBy;
+                this.sortColumns = [{ param, direction }];
+            }
+        }
+    }
+
+    parseSortString(sortString) {
+        return sortString.split(',').map(part => {
+            const trimmed = part.trim();
+            if (trimmed.startsWith('-')) {
+                return { param: trimmed.substring(1), direction: 'desc' };
+            }
+            return { param: trimmed, direction: 'asc' };
+        });
+    }
+
+    buildSortString() {
+        return this.sortColumns.map(col => {
+            return col.direction === 'desc' ? `-${col.param}` : col.param;
+        }).join(',');
+    }
+
+    getSortColumn(param) {
+        return this.sortColumns.find(col => col.param === param);
+    }
+
+    getSortPriority(param) {
+        const index = this.sortColumns.findIndex(col => col.param === param);
+        return index >= 0 ? index + 1 : null;
+    }
 
     @action setupComponent(tableNode) {
         const { onSetup } = this.args;
@@ -113,22 +159,58 @@ export default class TableComponent extends Component {
         return this.selectedRows.map((_) => _.id);
     }
 
-    @action handleSort(column) {
+    @action handleSort(column, event) {
         if (!column.sortable) {
             return;
         }
 
         const sortParam = column.sortParam || column.valuePath;
-
-        if (this.sortBy === sortParam) {
-            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+        const isMultiSort = event?.shiftKey || false;
+        
+        // Find existing sort for this column
+        const existingIndex = this.sortColumns.findIndex(col => col.param === sortParam);
+        
+        if (isMultiSort) {
+            // Multi-column sort mode (Shift+Click)
+            if (existingIndex >= 0) {
+                // Column already sorted - toggle direction or remove
+                const currentSort = this.sortColumns[existingIndex];
+                if (currentSort.direction === 'asc') {
+                    // Change to descending
+                    this.sortColumns[existingIndex] = { param: sortParam, direction: 'desc' };
+                } else {
+                    // Remove from sort
+                    this.sortColumns.splice(existingIndex, 1);
+                }
+            } else {
+                // Add new sort column
+                this.sortColumns.push({ param: sortParam, direction: 'asc' });
+            }
         } else {
-            this.sortBy = sortParam;
-            this.sortOrder = 'asc';
+            // Single column sort mode (Regular Click)
+            if (existingIndex >= 0 && this.sortColumns.length === 1) {
+                // Only this column is sorted - toggle direction
+                const currentSort = this.sortColumns[0];
+                if (currentSort.direction === 'asc') {
+                    this.sortColumns = [{ param: sortParam, direction: 'desc' }];
+                } else {
+                    // Remove sort
+                    this.sortColumns = [];
+                }
+            } else {
+                // Replace all sorts with this column
+                this.sortColumns = [{ param: sortParam, direction: 'asc' }];
+            }
         }
 
+        // Trigger reactivity
+        this.sortColumns = [...this.sortColumns];
+
+        // Build sort string and call callback
+        const sortString = this.buildSortString();
+        
         if (typeof this.args.onSort === 'function') {
-            this.args.onSort(this.sortBy, this.sortOrder);
+            this.args.onSort(sortString, this.sortColumns);
         }
     }
 }

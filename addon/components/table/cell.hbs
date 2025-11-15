@@ -4,8 +4,13 @@
             <span class="th-content">{{yield}}</span>
             {{#if @sortable}}
                 <span class="sort-icon-wrapper">
-                    <FaIcon @icon="caret-up" class="sort-icon" class={{unless @isAscending "opacity-50"}} />
-                    <FaIcon @icon="caret-down" class="sort-icon" class={{unless @isDescending "opacity-50"}} />
+                    {{#if @showSortPriority}}
+                        <span class="sort-priority-badge">{{@sortPriority}}</span>
+                    {{/if}}
+                    <div>
+                        <FaIcon @icon="caret-up" class="sort-icon" class={{unless @isAscending "opacity-50"}} />
+                        <FaIcon @icon="caret-down" class="sort-icon" class={{unless @isDescending "opacity-50"}} />
+                    </div>
                 </span>
             {{/if}}
         </div>
