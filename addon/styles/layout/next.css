@@ -1899,7 +1899,7 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 }
 
 .next-table-wrapper table thead tr th {
-    @apply px-2 py-3 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200 bg-white;
+    @apply px-2 py-2 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200 bg-white;
     text-overflow: ellipsis;
 }
 
