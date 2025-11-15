@@ -1872,9 +1872,11 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     @apply grid grid-cols-1;
     padding: 0px 24px 0px 36px;
     height: 53px;
-    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
     position: sticky;
     left: 0;
+    right: 0;
 }
 
 .next-table-wrapper

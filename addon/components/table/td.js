@@ -53,18 +53,6 @@ export default class TableTdComponent extends TableCellComponent {
 
         // Apply sticky positioning
         if (this.isSticky) {
-            console.log('[Table::Td] Setting up sticky body cell:', {
-                columnPath: column?.valuePath || 'checkbox',
-                isSticky: this.isSticky,
-                stickyPosition: this.stickyPosition,
-                stickyOffset: this.stickyOffset,
-                stickyZIndex: this.stickyZIndex,
-                stickyArg: sticky,
-                columnSticky: column?.sticky,
-                column_stickyOffset: column?._stickyOffset,
-                column_stickyPosition: column?._stickyPosition
-            });
-            
             tableCellNode.style.position = 'sticky';
             // Body cells don't need top positioning (only horizontal sticky)
             tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;

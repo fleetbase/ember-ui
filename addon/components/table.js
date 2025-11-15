@@ -136,13 +136,7 @@ export default class TableComponent extends Component {
     }
 
     @action calculateStickyOffsets() {
-        console.log('=== calculateStickyOffsets START ===');
-        console.log('tableNode:', this.tableNode);
-        console.log('visibleColumns:', this.visibleColumns);
-        console.log('checkboxSticky:', this.args.checkboxSticky);
-        
         if (!this.tableNode || !this.visibleColumns) {
-            console.log('Early return: missing tableNode or visibleColumns');
             return;
         }
 
@@ -151,61 +145,33 @@ export default class TableComponent extends Component {
         
         // Account for checkbox column if it's sticky
         if (this.args.checkboxSticky) {
-            console.log('Checkbox is sticky, finding checkbox column...');
             // Find checkbox column (first th without data-column-id)
             const allThs = this.tableNode?.querySelectorAll('thead th');
-            console.log('All thead th elements:', allThs);
             const checkboxTh = allThs?.[0];
-            console.log('First th (checkbox):', checkboxTh);
-            console.log('Has data-column-id?', checkboxTh?.hasAttribute('data-column-id'));
             
             if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
                 // This is the checkbox column - get its actual width
                 const width = checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
-                console.log('Checkbox offsetWidth:', checkboxTh.offsetWidth);
-                console.log('selectAllColumnWidth arg:', this.args.selectAllColumnWidth);
-                console.log('Final checkbox width:', width);
                 leftOffset += width;
-                console.log('✅ Checkbox column width added. leftOffset now:', leftOffset);
-            } else {
-                console.log('❌ Checkbox column not found or has data-column-id');
             }
-        } else {
-            console.log('Checkbox is NOT sticky');
         }
         
         const leftStickyColumns = this.visibleColumns.filter(col => col.sticky === true || col.sticky === 'left');
-        console.log('Left sticky columns found:', leftStickyColumns.length);
-        console.log('Left sticky columns:', leftStickyColumns.map(c => c.valuePath));
         
-        leftStickyColumns.forEach((column, index) => {
-            console.log(`\n--- Processing sticky column ${index + 1}: ${column.valuePath} ---`);
-            console.log('Current leftOffset:', leftOffset);
-            
+        leftStickyColumns.forEach((column) => {
             column._stickyOffset = leftOffset;
             column._stickyPosition = 'left';
             column._stickyZIndex = 15;
             
-            console.log('Set _stickyOffset to:', column._stickyOffset);
-            
             // Get column width from DOM if available
             const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
-            console.log('Found th element:', th);
             if (th) {
-                const width = th.offsetWidth;
-                console.log('th.offsetWidth:', width);
-                leftOffset += width;
-                console.log('New leftOffset after adding width:', leftOffset);
+                leftOffset += th.offsetWidth;
             } else {
                 // Fallback to column width property or default
-                const fallbackWidth = column.width || 150;
-                console.log('Using fallback width:', fallbackWidth);
-                leftOffset += fallbackWidth;
-                console.log('New leftOffset after fallback:', leftOffset);
+                leftOffset += column.width || 150;
             }
         });
-        
-        console.log('=== calculateStickyOffsets END ===\n');
 
         // Calculate right offsets for right-sticky columns
         let rightOffset = 0;
@@ -235,16 +201,13 @@ export default class TableComponent extends Component {
     }
     
     @action updateStickyCellStyles() {
-        console.log('\n=== updateStickyCellStyles START ===');
-        
         if (!this.tableNode) {
-            console.log('No tableNode, skipping update');
             return;
         }
         
         // Update header cells
         const allThs = this.tableNode.querySelectorAll('thead th');
-        allThs.forEach((th, index) => {
+        allThs.forEach((th) => {
             const columnId = th.getAttribute('data-column-id');
             
             if (th.classList.contains('is-sticky')) {
@@ -253,7 +216,6 @@ export default class TableComponent extends Component {
                 
                 if (!columnId) {
                     // Checkbox column - always at left: 0
-                    console.log('Updating checkbox th: left: 0px, top: 0');
                     th.style.left = '0px';
                 } else {
                     // Find the column object
@@ -261,7 +223,6 @@ export default class TableComponent extends Component {
                     if (column && column._stickyOffset !== undefined) {
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
-                        console.log(`Updating th ${columnId}: ${position}: ${offset}px, top: 0`);
                         th.style[position] = `${offset}px`;
                     }
                 }
@@ -288,8 +249,6 @@ export default class TableComponent extends Component {
                 }
             }
         });
-        
-        console.log('=== updateStickyCellStyles END ===\n');
     }
 
     @action onColumnResize() {
