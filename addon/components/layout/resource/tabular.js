@@ -13,7 +13,7 @@ export default class LayoutResourceTabularComponent extends Component {
         if (!isNone(this.args.checkboxSticky)) return this.args.checkboxSticky;
 
         const columns = this.args.columns ?? this.columns;
-        return columns.some((c) => !isNone(c?.sticky)) === true ? 'left' : null;
+        return columns.some((c) => !isNone(c?.sticky));
     }
 
     constructor(owner, { columns = [] }) {

@@ -121,7 +121,7 @@
     {{#if (has-block)}}
         {{yield @data}}
     {{else}}
-        {{log "@checkboxSticky" @checkboxSticky}}
+        {{log "this.checkboxSticky" this.checkboxSticky}}
         <Table
             @rows={{@data}}
             @columns={{this.columns}}
