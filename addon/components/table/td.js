@@ -41,7 +41,7 @@ export default class TableTdComponent extends TableCellComponent {
     }
 
     @action setupTableCellNode(tableCellNode) {
-        const { column, width } = this.args;
+        const { column, width, sticky } = this.args;
 
         if (column?.width) {
             tableCellNode.style.width = typeof column.width === 'number' ? `${column.width}px` : column.width;
@@ -53,7 +53,20 @@ export default class TableTdComponent extends TableCellComponent {
 
         // Apply sticky positioning
         if (this.isSticky) {
+            console.log('[Table::Td] Setting up sticky body cell:', {
+                columnPath: column?.valuePath || 'checkbox',
+                isSticky: this.isSticky,
+                stickyPosition: this.stickyPosition,
+                stickyOffset: this.stickyOffset,
+                stickyZIndex: this.stickyZIndex,
+                stickyArg: sticky,
+                columnSticky: column?.sticky,
+                column_stickyOffset: column?._stickyOffset,
+                column_stickyPosition: column?._stickyPosition
+            });
+            
             tableCellNode.style.position = 'sticky';
+            // Body cells don't need top positioning (only horizontal sticky)
             tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;
             tableCellNode.style.zIndex = this.stickyZIndex;
             tableCellNode.classList.add('is-sticky', `sticky-${this.stickyPosition}`);

@@ -78,7 +78,7 @@ export default class TableThComponent extends TableCellComponent {
     }
 
     @action setupTableCellNode(tableCellNode) {
-        const { column, width } = this.args;
+        const { column, width, sticky } = this.args;
 
         if (column?.width) {
             tableCellNode.style.width = typeof column.width === 'number' ? `${column.width}px` : column.width;
@@ -90,11 +90,30 @@ export default class TableThComponent extends TableCellComponent {
 
         // Apply sticky positioning
         if (this.isSticky) {
+            console.log('\n[Table::Th] Setting up sticky header:', {
+                columnPath: column?.valuePath || 'checkbox',
+                isSticky: this.isSticky,
+                stickyPosition: this.stickyPosition,
+                stickyOffset: this.stickyOffset,
+                stickyZIndex: this.stickyZIndex,
+                stickyArg: sticky,
+                columnSticky: column?.sticky,
+                column_stickyOffset: column?._stickyOffset,
+                column_stickyPosition: column?._stickyPosition
+            });
+            
             tableCellNode.style.position = 'sticky';
             tableCellNode.style.top = '0';
             tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;
             tableCellNode.style.zIndex = this.stickyZIndex;
             tableCellNode.classList.add('is-sticky', `sticky-${this.stickyPosition}`);
+            
+            console.log('[Table::Th] Applied styles:', {
+                position: tableCellNode.style.position,
+                top: tableCellNode.style.top,
+                [this.stickyPosition]: tableCellNode.style[this.stickyPosition],
+                zIndex: tableCellNode.style.zIndex
+            });
             
             // Add data attribute for column identification
             if (column?.valuePath) {
