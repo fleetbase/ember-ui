@@ -1942,6 +1942,10 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     max-height: 40px;
 }
 
+.next-table-wrapper table tfoot {
+    z-index: 30;
+}
+
 .next-table-wrapper table tfoot tr td,
 .next-table-wrapper table tbody tr td {
     @apply px-2 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;
