@@ -3,17 +3,29 @@ import { action } from '@ember/object';
 
 export default class TableTdComponent extends TableCellComponent {
     get isSticky() {
-        const { column } = this.args;
+        const { column, checkboxSticky } = this.args;
+        // Support sticky for checkbox column or regular columns
+        if (checkboxSticky && !column) {
+            return true;
+        }
         return column?.sticky === true || column?.sticky === 'left' || column?.sticky === 'right';
     }
 
     get stickyPosition() {
-        const { column } = this.args;
+        const { column, checkboxSticky } = this.args;
+        // Checkbox column defaults to left
+        if (checkboxSticky && !column) {
+            return 'left';
+        }
         return column?._stickyPosition || (column?.sticky === 'right' ? 'right' : 'left');
     }
 
     get stickyOffset() {
-        const { column } = this.args;
+        const { column, checkboxSticky } = this.args;
+        // Checkbox column is always first (offset 0)
+        if (checkboxSticky && !column) {
+            return 0;
+        }
         return column?._stickyOffset || 0;
     }
 

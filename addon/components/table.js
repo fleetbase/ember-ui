@@ -72,6 +72,7 @@ export default class TableComponent extends Component {
         this.tableContext.node = tableNode;
         this.tableContext.table = this;
         this.calculateStickyOffsets();
+        this.setupScrollListener();
 
         later(
             this,
@@ -82,6 +83,52 @@ export default class TableComponent extends Component {
             },
             100
         );
+    }
+
+    @action setupScrollListener() {
+        // Find the scrollable wrapper
+        const wrapper = this.tableNode?.closest('.next-table-wrapper');
+        if (!wrapper) return;
+
+        // Add scroll event listener to toggle shadow visibility
+        wrapper.addEventListener('scroll', () => {
+            this.updateStickyShadows(wrapper);
+        });
+
+        // Initial check
+        this.updateStickyShadows(wrapper);
+    }
+
+    updateStickyShadows(wrapper) {
+        const scrollLeft = wrapper.scrollLeft;
+        const scrollWidth = wrapper.scrollWidth;
+        const clientWidth = wrapper.clientWidth;
+        const maxScrollLeft = scrollWidth - clientWidth;
+
+        // Check if scrolled to the start (hide left shadows)
+        const isAtStart = scrollLeft <= 1;
+        // Check if scrolled to the end (hide right shadows)
+        const isAtEnd = scrollLeft >= maxScrollLeft - 1;
+
+        // Update left sticky columns
+        const leftStickyColumns = wrapper.querySelectorAll('.sticky-left');
+        leftStickyColumns.forEach(cell => {
+            if (isAtStart) {
+                cell.classList.add('at-natural-position');
+            } else {
+                cell.classList.remove('at-natural-position');
+            }
+        });
+
+        // Update right sticky columns
+        const rightStickyColumns = wrapper.querySelectorAll('.sticky-right');
+        rightStickyColumns.forEach(cell => {
+            if (isAtEnd) {
+                cell.classList.add('at-natural-position');
+            } else {
+                cell.classList.remove('at-natural-position');
+            }
+        });
     }
 
     @action calculateStickyOffsets() {
