@@ -1,0 +1,16 @@
+<div class="filter-multi-input" ...attributes>
+    <TagInput
+        class="form-input form-input-sm flex-1"
+        @placeholder={{or @placeholder "Add values..."}}
+        @allowSpacesInTags={{or @allowSpacesInTags true}}
+        @tags={{this.tags}}
+        @addTag={{this.addTag}}
+        @removeTagAtIndex={{this.removeTag}}
+        as |tag|
+    >
+        {{tag}}
+    </TagInput>
+    <button type="button" class="clear-button" disabled={{not this.tags.length}} alt="Clear" {{on "click" this.clear}}>
+        <FaIcon @icon="times" />
+    </button>
+</div>

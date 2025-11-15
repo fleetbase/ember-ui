@@ -19,4 +19,24 @@ export default class LayoutResourceTabularComponent extends Component {
             this.args.setupTable(table);
         }
     }
+
+    @action handleSort(sortString, sortColumns) {
+        // sortString is comma-delimited format: "created_at,-order_date,status"
+        // sortColumns is array format: [{ param: 'created_at', direction: 'asc' }, ...]
+        
+        if (this.args.controller && this.args.controller.sort !== undefined) {
+            this.args.controller.sort = sortString;
+        }
+
+        if (typeof this.args.onSort === 'function') {
+            this.args.onSort({
+                sortString,
+                sortColumns,
+                // Legacy support for single column callbacks
+                sortBy: sortColumns.length > 0 ? sortColumns[0].param : null,
+                sortDirection: sortColumns.length > 0 ? sortColumns[0].direction : null,
+                sortValue: sortString,
+            });
+        }
+    }
 }
