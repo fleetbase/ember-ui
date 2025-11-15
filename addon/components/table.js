@@ -229,6 +229,64 @@ export default class TableComponent extends Component {
 
         // Note: visibleColumns is a computed property and doesn't need manual reactivity triggering
         // The column objects are mutated directly with _sticky* properties
+        
+        // Update all sticky cells with the calculated offsets
+        this.updateStickyCellStyles();
+    }
+    
+    @action updateStickyCellStyles() {
+        console.log('\n=== updateStickyCellStyles START ===');
+        
+        if (!this.tableNode) {
+            console.log('No tableNode, skipping update');
+            return;
+        }
+        
+        // Update header cells
+        const allThs = this.tableNode.querySelectorAll('thead th');
+        allThs.forEach((th, index) => {
+            const columnId = th.getAttribute('data-column-id');
+            
+            if (th.classList.contains('is-sticky')) {
+                if (!columnId) {
+                    // Checkbox column - always at left: 0
+                    console.log('Updating checkbox th: left: 0px');
+                    th.style.left = '0px';
+                } else {
+                    // Find the column object
+                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    if (column && column._stickyOffset !== undefined) {
+                        const position = column._stickyPosition || 'left';
+                        const offset = column._stickyOffset;
+                        console.log(`Updating th ${columnId}: ${position}: ${offset}px`);
+                        th.style[position] = `${offset}px`;
+                    }
+                }
+            }
+        });
+        
+        // Update body cells
+        const allTds = this.tableNode.querySelectorAll('tbody td');
+        allTds.forEach((td) => {
+            const columnId = td.getAttribute('data-column-id');
+            
+            if (td.classList.contains('is-sticky')) {
+                if (!columnId) {
+                    // Checkbox column - always at left: 0
+                    td.style.left = '0px';
+                } else {
+                    // Find the column object
+                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    if (column && column._stickyOffset !== undefined) {
+                        const position = column._stickyPosition || 'left';
+                        const offset = column._stickyOffset;
+                        td.style[position] = `${offset}px`;
+                    }
+                }
+            }
+        });
+        
+        console.log('=== updateStickyCellStyles END ===\n');
     }
 
     @action onColumnResize() {
