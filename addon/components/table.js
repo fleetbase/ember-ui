@@ -129,8 +129,8 @@ export default class TableComponent extends Component {
             }
         });
 
-        // Trigger reactivity
-        this.visibleColumns = [...this.visibleColumns];
+        // Note: visibleColumns is a computed property and doesn't need manual reactivity triggering
+        // The column objects are mutated directly with _sticky* properties
     }
 
     @action onColumnResize() {
