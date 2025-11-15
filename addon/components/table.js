@@ -138,6 +138,16 @@ export default class TableComponent extends Component {
 
         // Calculate left offsets for left-sticky columns
         let leftOffset = 0;
+        
+        // Account for checkbox column if it's sticky
+        if (this.args.checkboxSticky) {
+            const checkboxTh = this.tableNode?.querySelector('th:first-child');
+            if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
+                // This is the checkbox column
+                leftOffset += checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
+            }
+        }
+        
         const leftStickyColumns = this.visibleColumns.filter(col => col.sticky === true || col.sticky === 'left');
         
         leftStickyColumns.forEach((column, index) => {

@@ -1872,11 +1872,9 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     @apply grid grid-cols-1;
     padding: 0px 24px 0px 36px;
     height: 53px;
-    min-width: 100%;
-    max-width: 100%;
+    width: 100%;
     position: sticky;
     left: 0;
-    right: 0;
 }
 
 .next-table-wrapper
@@ -1885,7 +1883,7 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     > .fleetbase-pagination-meta-info-wrapper
     > .fleetbase-pagination-meta-info-paging-wrapper
     > .fleetbase-pagination-meta-info-paging-inner {
-    position: absolute;
+    position: fixed;
     right: 0;
     bottom: 0;
     padding-bottom: 11px;
@@ -1983,19 +1981,30 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 
 .next-table-wrapper table thead th.is-sticky {
     z-index: 20;
+    top: 0;
 }
 
 .next-table-wrapper table tbody td.is-sticky {
     z-index: 15;
 }
 
-.next-table-wrapper table thead th.is-sticky.sticky-left,
+.next-table-wrapper table thead th.is-sticky.sticky-left {
+    left: 0;
+    top: 0;
+    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
 .next-table-wrapper table tbody td.is-sticky.sticky-left {
     left: 0;
     box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.1);
 }
 
-.next-table-wrapper table thead th.is-sticky.sticky-right,
+.next-table-wrapper table thead th.is-sticky.sticky-right {
+    right: 0;
+    top: 0;
+    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.15), -2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
 .next-table-wrapper table tbody td.is-sticky.sticky-right {
     right: 0;
     box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.15), -2px 0 4px -1px rgba(0, 0, 0, 0.1);
