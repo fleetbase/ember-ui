@@ -248,9 +248,12 @@ export default class TableComponent extends Component {
             const columnId = th.getAttribute('data-column-id');
             
             if (th.classList.contains('is-sticky')) {
+                // CRITICAL: Always ensure top: 0 for vertical stickiness
+                th.style.top = '0';
+                
                 if (!columnId) {
                     // Checkbox column - always at left: 0
-                    console.log('Updating checkbox th: left: 0px');
+                    console.log('Updating checkbox th: left: 0px, top: 0');
                     th.style.left = '0px';
                 } else {
                     // Find the column object
@@ -258,7 +261,7 @@ export default class TableComponent extends Component {
                     if (column && column._stickyOffset !== undefined) {
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
-                        console.log(`Updating th ${columnId}: ${position}: ${offset}px`);
+                        console.log(`Updating th ${columnId}: ${position}: ${offset}px, top: 0`);
                         th.style[position] = `${offset}px`;
                     }
                 }
