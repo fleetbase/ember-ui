@@ -2,11 +2,19 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { isNone } from '@ember/utils';
 
 export default class LayoutResourceTabularComponent extends Component {
     @service filters;
     @tracked table;
     @tracked columns = [];
+
+    get checkboxSticky() {
+        if (!isNone(this.args.checkboxSticky)) return this.args.checkboxSticky;
+
+        const columns = this.args.columns ?? this.columns;
+        return columns.some((c) => !isNone(c?.sticky));
+    }
 
     constructor(owner, { columns = [] }) {
         super(...arguments);
