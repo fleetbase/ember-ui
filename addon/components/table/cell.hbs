@@ -3,15 +3,15 @@
         <div class="th-inner-wrapper">
             <span class="th-content">{{yield}}</span>
             {{#if @sortable}}
-                <span class="sort-icon-wrapper">
+                <a href="javascript:;" class="sort-icon-wrapper" {{on "click" this.triggerSort}}>
                     {{#if @showSortPriority}}
                         <span class="sort-priority-badge">{{@sortPriority}}</span>
                     {{/if}}
                     <div>
-                        <FaIcon @icon="caret-up" class="sort-icon {{unless @isAscending 'sort-icon-default opacity-50'}}" />
-                        <FaIcon @icon="caret-down" class="sort-icon {{unless @isDescending 'sort-icon-default opacity-50'}}" />
+                        <FaIcon @icon="caret-up" class="sort-icon sort-icon-default {{if this.isAscending 'is-ascending'}}" />
+                        <FaIcon @icon="caret-down" class="sort-icon sort-icon-default {{if this.isDescending 'is-descending'}}" />
                     </div>
-                </span>
+                </a>
             {{/if}}
         </div>
         {{#if @resizable}}

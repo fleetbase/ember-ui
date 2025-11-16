@@ -102,11 +102,4 @@ export default class TableThComponent extends TableCellComponent {
             }
         }
     }
-
-    @action onClick(event) {
-        const { column } = this.args;
-        if (column && column.sortable) {
-            this.tableContext.table.handleSort(column, event);
-        }
-    }
 }

@@ -1,26 +1,26 @@
 <div class="filter-range" ...attributes>
     <div class="filter-range-inputs">
         <div class="filter-range-input-group">
-            <label class="filter-range-label">{{or @minLabel "Min"}}</label>
+            <label class="filter-range-label">{{or @filter.minLabel "Min"}}</label>
             <Input 
                 @type="number" 
                 @value={{this.minValue}} 
-                min={{or @min 0}} 
-                max={{or @max 100}} 
-                step={{or @step 1}}
+                min={{or @filter.min 0}} 
+                max={{or @filter.max 100}} 
+                step={{or @filter.step 1}}
                 {{on "input" this.onMinChange}} 
                 class="form-input form-input-sm" 
             />
         </div>
         <div class="filter-range-separator">-</div>
         <div class="filter-range-input-group">
-            <label class="filter-range-label">{{or @maxLabel "Max"}}</label>
+            <label class="filter-range-label">{{or @filter.maxLabel "Max"}}</label>
             <Input 
                 @type="number" 
                 @value={{this.maxValue}} 
-                min={{or @min 0}} 
-                max={{or @max 100}} 
-                step={{or @step 1}}
+                min={{or @filter.min 0}} 
+                max={{or @filter.max 100}} 
+                step={{or @filter.step 1}}
                 {{on "input" this.onMaxChange}} 
                 class="form-input form-input-sm" 
             />
@@ -30,18 +30,18 @@
         <input 
             type="range" 
             value={{this.minValue}} 
-            min={{or @min 0}} 
-            max={{or @max 100}} 
-            step={{or @step 1}}
+            min={{or @filter.min 0}} 
+            max={{or @filter.max 100}} 
+            step={{or @filter.step 1}}
             {{on "input" this.onMinChange}} 
             class="filter-range-slider filter-range-slider-min" 
         />
         <input 
             type="range" 
             value={{this.maxValue}} 
-            min={{or @min 0}} 
-            max={{or @max 100}} 
-            step={{or @step 1}}
+            min={{or @filter.min 0}} 
+            max={{or @filter.max 100}} 
+            step={{or @filter.step 1}}
             {{on "input" this.onMaxChange}} 
             class="filter-range-slider filter-range-slider-max" 
         />

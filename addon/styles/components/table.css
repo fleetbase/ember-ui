@@ -360,12 +360,17 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
     margin-bottom: -7px;
 }
 
-.table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
-    @apply text-blue-400;
+.table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
 }
 
-.table-wrapper table thead tr th .sort-icon {
-    @apply text-blue-500;
+.table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-300;
+}
+
+.table-wrapper table thead tr th .sort-icon.is-ascending,
+.table-wrapper table thead tr th .sort-icon.is-descending {
+    @apply text-blue-400;
 }
 
 .next-table-wrapper table thead tr th.is-sortable {
@@ -400,20 +405,30 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
     margin-bottom: -7px;
 }
 
-.next-table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
+.next-table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
+}
+
+.next-table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-300;
+}
+
+.next-table-wrapper table thead tr th .sort-icon.is-ascending,
+.next-table-wrapper table thead tr th .sort-icon.is-descending {
     @apply text-blue-400;
 }
 
-.next-table-wrapper table thead tr th .sort-icon {
-    @apply text-blue-500;
-}
-
 /* Dark theme sortable column styles */
-[data-theme='dark'] .table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
-    @apply text-gray-200;
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
 }
 
-[data-theme='dark'] .table-wrapper table thead tr th .sort-icon {
+[data-theme='dark'] .table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-100;
+}
+
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon.is-ascending,
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon.is-descending {
     @apply text-blue-400;
 }
 
@@ -421,11 +436,16 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
     @apply text-blue-100 bg-blue-900;
 }
 
-[data-theme='dark'] .next-table-wrapper table thead tr th.is-sortable:hover .sort-icon-wrapper .sort-icon-default {
-    @apply text-gray-200;
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
 }
 
-[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon {
+[data-theme='dark'] .next-table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-100;
+}
+
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon.is-ascending,
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon.is-descending {
     @apply text-blue-400;
 }
 

@@ -457,6 +457,14 @@ body[data-theme='dark'] .money-input-currency-selector .ember-basic-dropdown-con
     line-height: 1rem;
 }
 
+.emberTagInput.form-input-sm {
+    height: 34px;
+}
+
+.emberTagInput.form-input-sm .emberTagInput-new > input.emberTagInput-input {
+    padding: 0.1rem;
+}
+
 body[data-theme='dark'] .emberTagInput.form-input:disabled,
 body[data-theme='dark'] .emberTagInput.form-input.disabled,
 body[data-theme='dark'] .emberTagInput:disabled,

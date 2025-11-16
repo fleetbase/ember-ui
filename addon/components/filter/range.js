@@ -12,7 +12,8 @@ export default class FilterRangeComponent extends Component {
     }
 
     parseValue(value) {
-        const { min = 0, max = 100 } = this.args;
+        const { filter } = this.args;
+        const { min = 0, max = 100 } = filter;
 
         if (typeof value === 'string' && value.includes(',')) {
             const [minVal, maxVal] = value.split(',').map((v) => parseFloat(v.trim()));
@@ -61,10 +62,10 @@ export default class FilterRangeComponent extends Component {
     }
 
     @action clear() {
-        const { onClear, filter, min = 0, max = 100 } = this.args;
+        const { onClear, filter } = this.args;
 
-        this.minValue = min;
-        this.maxValue = max;
+        this.minValue = filter.min ?? 0;
+        this.maxValue = filter.max ?? 100;
 
         if (typeof onClear === 'function') {
             onClear(filter);
