@@ -5,11 +5,11 @@ import { inject as service } from '@ember/service';
 
 /**
  * ScheduleCalendar Component
- * 
+ *
  * A reusable calendar component for displaying and managing schedules.
  * Uses FullCalendar for rendering and supports drag-and-drop, resource views,
  * and custom event rendering.
- * 
+ *
  * @example
  * <ScheduleCalendar
  *   @resources={{this.drivers}}

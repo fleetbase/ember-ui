@@ -31,7 +31,7 @@ export default class LayoutResourceTabularComponent extends Component {
     @action handleSort(sortString, sortColumns) {
         // sortString is comma-delimited format: "created_at,-order_date,status"
         // sortColumns is array format: [{ param: 'created_at', direction: 'asc' }, ...]
-        
+
         if (this.args.controller && this.args.controller.sort !== undefined) {
             this.args.controller.sort = sortString;
         }

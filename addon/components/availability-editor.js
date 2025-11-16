@@ -5,9 +5,9 @@ import { inject as service } from '@ember/service';
 
 /**
  * AvailabilityEditor Component
- * 
+ *
  * Allows users to set and manage availability windows for resources.
- * 
+ *
  * @example
  * <AvailabilityEditor
  *   @subjectType="driver"

@@ -1,21 +1,20 @@
-<div class="query-builder-computed-columns">
-    <div class="flex items-center justify-between mb-4">
-        <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Computed Columns
-        </h5>
-        <Button
-            @text="Add Computed Column"
-            @icon="plus"
-            @type="default"
-            @size="xs"
-            @onClick={{this.addComputedColumn}}
-        />
+<div class="query-builder-panel query-builder-computed-columns" ...attributes>
+    <div class="query-builder-panel-header">
+        <div class="flex flex-row items-center space-x-2">
+            <div class="query-builder-panel-title">
+                <FaIcon @icon="superscript" @size="sm" class="mr-2" />
+                Computed Columns
+            </div>
+        </div>
+        <Button @text="Add Computed Column" @icon="plus" @type="default" @size="xs" @onClick={{this.addComputedColumn}} />
     </div>
 
     {{#if this.hasComputedColumns}}
         <div class="space-y-2">
             {{#each this.computedColumns as |column|}}
-                <div class="computed-column-item flex items-start justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 transition-colors">
+                <div
+                    class="computed-column-item flex items-start justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 transition-colors"
+                >
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <FaIcon @icon={{this.getTypeIcon column.type}} class="text-gray-400 text-xs" />
@@ -35,40 +34,26 @@
                         {{/if}}
                     </div>
                     <div class="flex items-center gap-1 ml-3">
-                        <Button
-                            @icon="edit"
-                            @type="ghost"
-                            @size="xs"
-                            @onClick={{fn this.editComputedColumn column}}
-                            @helpText="Edit computed column"
-                        />
-                        <Button
-                            @icon="trash"
-                            @type="danger"
-                            @size="xs"
-                            @onClick={{fn this.removeComputedColumn column}}
-                            @helpText="Remove computed column"
-                        />
+                        <Button @icon="edit" @type="ghost" @size="xs" @onClick={{fn this.editComputedColumn column}} @helpText="Edit computed column" />
+                        <Button @icon="trash" @type="danger" @size="xs" @onClick={{fn this.removeComputedColumn column}} @helpText="Remove computed column" />
                     </div>
                 </div>
             {{/each}}
         </div>
     {{else}}
-        <div class="empty-state text-center py-8 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-            <FaIcon @icon="function" @size="2x" class="text-gray-400 mb-3" />
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                No computed columns defined yet
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-500 mb-4">
-                Computed columns allow you to create calculated fields using SQL expressions
-            </p>
-            <Button
-                @text="Add Your First Computed Column"
-                @icon="plus"
-                @type="primary"
-                @size="sm"
-                @onClick={{this.addComputedColumn}}
-            />
+        <div class="min-h-24 p-4 col-span-2">
+            <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
+                <div class="flex flex-col items-center justify-center text-center">
+                    <FaIcon @icon="function" @size="2x" class="text-gray-400 mb-2" />
+                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        No computed columns defined yet
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500 mt-1 mb-2">
+                        Computed columns allow you to create calculated fields using SQL expressions
+                    </p>
+                    <Button @text="Add Your First Computed Column" @icon="plus" @size="xs" @onClick={{this.addComputedColumn}} />
+                </div>
+            </div>
         </div>
     {{/if}}
 </div>

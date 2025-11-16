@@ -17,7 +17,10 @@ export default class FilterMultiInputComponent extends Component {
         }
 
         if (typeof value === 'string' && value.includes(',')) {
-            return value.split(',').map(v => v.trim()).filter(Boolean);
+            return value
+                .split(',')
+                .map((v) => v.trim())
+                .filter(Boolean);
         }
 
         if (value) {
@@ -33,7 +36,7 @@ export default class FilterMultiInputComponent extends Component {
 
     @action addTag(tag) {
         const { onChange, filter } = this.args;
-        
+
         this.tags.pushObject(tag);
         const value = this.buildValue();
 
@@ -44,7 +47,7 @@ export default class FilterMultiInputComponent extends Component {
 
     @action removeTag(index) {
         const { onChange, filter } = this.args;
-        
+
         this.tags.removeAt(index);
         const value = this.buildValue();
 

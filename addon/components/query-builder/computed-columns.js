@@ -5,7 +5,6 @@ import { inject as service } from '@ember/service';
 
 export default class QueryBuilderComputedColumnsComponent extends Component {
     @service modalsManager;
-
     @tracked computedColumns = [];
 
     constructor() {
@@ -21,39 +20,42 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         return this.computedColumns.length > 0;
     }
 
-    @action
-    openEditor(computedColumn = null) {
+    @action openEditor(computedColumn = null) {
         this.modalsManager.show('modals/query-builder-computed-column-editor', {
             title: computedColumn ? 'Edit Computed Column' : 'Add Computed Column',
             acceptButtonText: computedColumn ? 'Update' : 'Add',
             computedColumn,
             tableName: this.args.tableName,
-            confirm: (modal) => {
+            keepOpen: true,
+            confirm: async (modal) => {
                 modal.startLoading();
 
                 const editorComponent = modal.getOption('modalComponentInstance');
+                console.log('[editorComponent]', editorComponent);
                 if (editorComponent) {
-                    this.saveComputedColumn(editorComponent.computedColumn);
+                    const isValid = await editorComponent.validateExpression();
+                    console.log('[isValid]', isValid);
+                    if (isValid) {
+                        const computedColumn = editorComponent.save();
+                        this.saveComputedColumn(computedColumn);
+                        return modal.done();
+                    }
                 }
 
                 modal.stopLoading();
-                modal.done();
             },
         });
     }
 
-    @action
-    addComputedColumn() {
+    @action addComputedColumn() {
         this.openEditor();
     }
 
-    @action
-    editComputedColumn(computedColumn) {
+    @action editComputedColumn(computedColumn) {
         this.openEditor(computedColumn);
     }
 
-    @action
-    saveComputedColumn(computedColumn) {
+    @action saveComputedColumn(computedColumn) {
         // Check if we're editing an existing column
         const existingIndex = this.computedColumns.findIndex((col) => col.name === computedColumn.name);
 
@@ -71,8 +73,7 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         }
     }
 
-    @action
-    removeComputedColumn(computedColumn) {
+    @action removeComputedColumn(computedColumn) {
         this.computedColumns = this.computedColumns.filter((col) => col.name !== computedColumn.name);
 
         // Notify parent component
@@ -81,8 +82,7 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         }
     }
 
-    @action
-    getTypeIcon(type) {
+    @action getTypeIcon(type) {
         const iconMap = {
             string: 'text',
             integer: 'hashtag',
@@ -95,8 +95,7 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         return iconMap[type] || 'question';
     }
 
-    @action
-    getTypeLabel(type) {
+    @action getTypeLabel(type) {
         const labelMap = {
             string: 'Text',
             integer: 'Integer',

@@ -3,9 +3,9 @@ import { action } from '@ember/object';
 
 /**
  * ScheduleItemCard Component
- * 
+ *
  * Displays a schedule item in a card format with customizable content via named blocks.
- * 
+ *
  * @example
  * <ScheduleItemCard @item={{this.scheduleItem}} @onClick={{this.handleClick}}>
  *   <:content>

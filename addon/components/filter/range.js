@@ -13,9 +13,9 @@ export default class FilterRangeComponent extends Component {
 
     parseValue(value) {
         const { min = 0, max = 100 } = this.args;
-        
+
         if (typeof value === 'string' && value.includes(',')) {
-            const [minVal, maxVal] = value.split(',').map(v => parseFloat(v.trim()));
+            const [minVal, maxVal] = value.split(',').map((v) => parseFloat(v.trim()));
             this.minValue = isNaN(minVal) ? min : minVal;
             this.maxValue = isNaN(maxVal) ? max : maxVal;
         } else {
@@ -31,7 +31,7 @@ export default class FilterRangeComponent extends Component {
     @action onMinChange(event) {
         const { onChange, filter } = this.args;
         const value = parseFloat(event.target.value);
-        
+
         this.minValue = value;
 
         // Ensure min doesn't exceed max
@@ -47,7 +47,7 @@ export default class FilterRangeComponent extends Component {
     @action onMaxChange(event) {
         const { onChange, filter } = this.args;
         const value = parseFloat(event.target.value);
-        
+
         this.maxValue = value;
 
         // Ensure max doesn't go below min

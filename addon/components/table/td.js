@@ -58,7 +58,7 @@ export default class TableTdComponent extends TableCellComponent {
             tableCellNode.style[this.stickyPosition] = `${this.stickyOffset}px`;
             tableCellNode.style.zIndex = this.stickyZIndex;
             tableCellNode.classList.add('is-sticky', `sticky-${this.stickyPosition}`);
-            
+
             // Add data attribute for column identification
             if (column?.valuePath) {
                 tableCellNode.setAttribute('data-column-id', column.valuePath);

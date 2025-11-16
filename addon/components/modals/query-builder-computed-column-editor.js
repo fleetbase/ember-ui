@@ -3,10 +3,10 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 
-export default class QueryBuilderComputedColumnEditorComponent extends Component {
+export default class ModalsQueryBuilderComputedColumnEditorComponent extends Component {
     @service fetch;
     @service notifications;
-
+    @service modalsManager;
     @tracked name = '';
     @tracked label = '';
     @tracked expression = '';
@@ -19,14 +19,17 @@ export default class QueryBuilderComputedColumnEditorComponent extends Component
     constructor() {
         super(...arguments);
 
+        const computedColumn = this.modalsManager.getOption('computedColumn', {});
         // If editing existing computed column, load its values
-        if (this.args.computedColumn) {
-            this.name = this.args.computedColumn.name || '';
-            this.label = this.args.computedColumn.label || '';
-            this.expression = this.args.computedColumn.expression || '';
-            this.description = this.args.computedColumn.description || '';
-            this.type = this.args.computedColumn.type || 'string';
+        if (computedColumn) {
+            this.name = computedColumn.name || '';
+            this.label = computedColumn.label || '';
+            this.expression = computedColumn.expression || '';
+            this.description = computedColumn.description || '';
+            this.type = computedColumn.type || 'string';
         }
+
+        this.modalsManager.setOption('modalComponentInstance', this);
     }
 
     get typeOptions() {
@@ -87,42 +90,21 @@ export default class QueryBuilderComputedColumnEditorComponent extends Component
     }
 
     get canSave() {
-        return this.name && this.label && this.expression && !this.isValidating;
+        const canSave = this.name && this.label && this.expression && !this.isValidating;
+        this.modalsManager.setOption('canSave', canSave);
+        return canSave;
     }
 
-    @action
-    updateName(event) {
-        this.name = event.target.value;
+    @action useExample(example) {
+        this.expression = example.expression;
         this.validateExpression();
     }
 
-    @action
-    updateLabel(event) {
-        this.label = event.target.value;
-    }
-
-    @action
-    updateExpression(event) {
-        this.expression = event.target.value;
-        this.validateExpression();
-    }
-
-    @action
-    updateDescription(event) {
-        this.description = event.target.value;
-    }
-
-    @action
-    updateType(value) {
-        this.type = value;
-    }
-
-    @action
-    async validateExpression() {
-        if (!this.expression || !this.args.tableName) {
+    @action async validateExpression() {
+        if (!this.expression || !this.modalsManager.getOption('tableName')) {
             this.validationErrors = [];
             this.isValid = false;
-            return;
+            return this.isValid;
         }
 
         this.isValidating = true;
@@ -141,26 +123,20 @@ export default class QueryBuilderComputedColumnEditorComponent extends Component
                 this.isValid = false;
                 this.validationErrors = response.errors || ['Expression is invalid'];
             }
+
+            return this.isValid;
         } catch (error) {
             this.isValid = false;
             this.validationErrors = ['Failed to validate expression'];
             console.error('Validation error:', error);
+            return this.isValid;
         } finally {
             this.isValidating = false;
         }
     }
 
-    @action
-    useExample(example) {
-        this.expression = example.expression;
-        this.validateExpression();
-    }
-
-    @action
-    save() {
-        if (!this.canSave) {
-            return;
-        }
+    @action save() {
+        if (!this.canSave) return
 
         const computedColumn = {
             name: this.name,
@@ -170,15 +146,7 @@ export default class QueryBuilderComputedColumnEditorComponent extends Component
             type: this.type,
         };
 
-        if (this.args.onSave) {
-            this.args.onSave(computedColumn);
-        }
-    }
-
-    @action
-    cancel() {
-        if (this.args.onCancel) {
-            this.args.onCancel();
-        }
+        this.modalsManager.setOption('computedColumn', computedColumn);
+        return computedColumn;
     }
 }

@@ -26,7 +26,7 @@ export default class TableComponent extends Component {
 
     initializeSortColumns() {
         const { sortBy, sortOrder } = this.args;
-        
+
         if (sortBy) {
             // Parse comma-delimited sort string if provided
             if (typeof sortBy === 'string' && sortBy.includes(',')) {
@@ -41,7 +41,7 @@ export default class TableComponent extends Component {
     }
 
     parseSortString(sortString) {
-        return sortString.split(',').map(part => {
+        return sortString.split(',').map((part) => {
             const trimmed = part.trim();
             if (trimmed.startsWith('-')) {
                 return { param: trimmed.substring(1), direction: 'desc' };
@@ -51,17 +51,19 @@ export default class TableComponent extends Component {
     }
 
     buildSortString() {
-        return this.sortColumns.map(col => {
-            return col.direction === 'desc' ? `-${col.param}` : col.param;
-        }).join(',');
+        return this.sortColumns
+            .map((col) => {
+                return col.direction === 'desc' ? `-${col.param}` : col.param;
+            })
+            .join(',');
     }
 
     getSortColumn(param) {
-        return this.sortColumns.find(col => col.param === param);
+        return this.sortColumns.find((col) => col.param === param);
     }
 
     getSortPriority(param) {
-        const index = this.sortColumns.findIndex(col => col.param === param);
+        const index = this.sortColumns.findIndex((col) => col.param === param);
         return index >= 0 ? index + 1 : null;
     }
 
@@ -71,12 +73,16 @@ export default class TableComponent extends Component {
         this.tableNode = tableNode;
         this.tableContext.node = tableNode;
         this.tableContext.table = this;
-        
+
         // Delay sticky offset calculation to ensure DOM is fully rendered
-        later(this, () => {
-            this.calculateStickyOffsets();
-            this.setupScrollListener();
-        }, 50);
+        later(
+            this,
+            () => {
+                this.calculateStickyOffsets();
+                this.setupScrollListener();
+            },
+            50
+        );
 
         later(
             this,
@@ -116,7 +122,7 @@ export default class TableComponent extends Component {
 
         // Update left sticky columns
         const leftStickyColumns = wrapper.querySelectorAll('.sticky-left');
-        leftStickyColumns.forEach(cell => {
+        leftStickyColumns.forEach((cell) => {
             if (isAtStart) {
                 cell.classList.add('at-natural-position');
             } else {
@@ -126,7 +132,7 @@ export default class TableComponent extends Component {
 
         // Update right sticky columns
         const rightStickyColumns = wrapper.querySelectorAll('.sticky-right');
-        rightStickyColumns.forEach(cell => {
+        rightStickyColumns.forEach((cell) => {
             if (isAtEnd) {
                 cell.classList.add('at-natural-position');
             } else {
@@ -142,27 +148,27 @@ export default class TableComponent extends Component {
 
         // Calculate left offsets for left-sticky columns
         let leftOffset = 0;
-        
+
         // Account for checkbox column if it's sticky
         if (this.args.checkboxSticky) {
             // Find checkbox column (first th without data-column-id)
             const allThs = this.tableNode?.querySelectorAll('thead th');
             const checkboxTh = allThs?.[0];
-            
+
             if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
                 // This is the checkbox column - get its actual width
                 const width = checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
                 leftOffset += width;
             }
         }
-        
-        const leftStickyColumns = this.visibleColumns.filter(col => col.sticky === true || col.sticky === 'left');
-        
+
+        const leftStickyColumns = this.visibleColumns.filter((col) => col.sticky === true || col.sticky === 'left');
+
         leftStickyColumns.forEach((column) => {
             column._stickyOffset = leftOffset;
             column._stickyPosition = 'left';
             column._stickyZIndex = 15;
-            
+
             // Get column width from DOM if available
             const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
             if (th) {
@@ -175,13 +181,13 @@ export default class TableComponent extends Component {
 
         // Calculate right offsets for right-sticky columns
         let rightOffset = 0;
-        const rightStickyColumns = this.visibleColumns.filter(col => col.sticky === 'right').reverse();
-        
+        const rightStickyColumns = this.visibleColumns.filter((col) => col.sticky === 'right').reverse();
+
         rightStickyColumns.forEach((column, index) => {
             column._stickyOffset = rightOffset;
             column._stickyPosition = 'right';
             column._stickyZIndex = 15;
-            
+
             // Get column width from DOM if available
             const th = this.tableNode?.querySelector(`th[data-column-id="${column.valuePath}"]`);
             if (th) {
@@ -195,31 +201,31 @@ export default class TableComponent extends Component {
 
         // Note: visibleColumns is a computed property and doesn't need manual reactivity triggering
         // The column objects are mutated directly with _sticky* properties
-        
+
         // Update all sticky cells with the calculated offsets
         this.updateStickyCellStyles();
     }
-    
+
     @action updateStickyCellStyles() {
         if (!this.tableNode) {
             return;
         }
-        
+
         // Update header cells
         const allThs = this.tableNode.querySelectorAll('thead th');
         allThs.forEach((th) => {
             const columnId = th.getAttribute('data-column-id');
-            
+
             if (th.classList.contains('is-sticky')) {
                 // CRITICAL: Always ensure top: 0 for vertical stickiness
                 th.style.top = '0';
-                
+
                 if (!columnId) {
                     // Checkbox column - always at left: 0
                     th.style.left = '0px';
                 } else {
                     // Find the column object
-                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    const column = this.visibleColumns.find((c) => c.valuePath === columnId);
                     if (column && column._stickyOffset !== undefined) {
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
@@ -228,19 +234,19 @@ export default class TableComponent extends Component {
                 }
             }
         });
-        
+
         // Update body cells
         const allTds = this.tableNode.querySelectorAll('tbody td');
         allTds.forEach((td) => {
             const columnId = td.getAttribute('data-column-id');
-            
+
             if (td.classList.contains('is-sticky')) {
                 if (!columnId) {
                     // Checkbox column - always at left: 0
                     td.style.left = '0px';
                 } else {
                     // Find the column object
-                    const column = this.visibleColumns.find(c => c.valuePath === columnId);
+                    const column = this.visibleColumns.find((c) => c.valuePath === columnId);
                     if (column && column._stickyOffset !== undefined) {
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
@@ -253,9 +259,13 @@ export default class TableComponent extends Component {
 
     @action onColumnResize() {
         // Recalculate sticky offsets when columns are resized
-        later(this, () => {
-            this.calculateStickyOffsets();
-        }, 50);
+        later(
+            this,
+            () => {
+                this.calculateStickyOffsets();
+            },
+            50
+        );
     }
 
     @action addRow(row) {
@@ -341,10 +351,10 @@ export default class TableComponent extends Component {
 
         const sortParam = column.sortParam || column.valuePath;
         const isMultiSort = event?.shiftKey || false;
-        
+
         // Find existing sort for this column
-        const existingIndex = this.sortColumns.findIndex(col => col.param === sortParam);
-        
+        const existingIndex = this.sortColumns.findIndex((col) => col.param === sortParam);
+
         if (isMultiSort) {
             // Multi-column sort mode (Shift+Click)
             if (existingIndex >= 0) {
@@ -383,7 +393,7 @@ export default class TableComponent extends Component {
 
         // Build sort string and call callback
         const sortString = this.buildSortString();
-        
+
         if (typeof this.args.onSort === 'function') {
             this.args.onSort(sortString, this.sortColumns);
         }
