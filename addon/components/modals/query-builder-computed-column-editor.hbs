@@ -15,6 +15,7 @@
                     rows="4"
                     placeholder="e.g., DATEDIFF(end_date, start_date) + 1"
                     disabled={{this.isValidating}}
+                    {{on "blur" this.validateExpression}}
                 />
 
                 {{#if this.isValidating}}

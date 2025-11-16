@@ -11,7 +11,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     @tracked label = '';
     @tracked expression = '';
     @tracked description = '';
-    @tracked type = 'string';
+    @tracked type = this.typeOptions[0];
     @tracked isValidating = false;
     @tracked validationErrors = [];
     @tracked isValid = false;
@@ -26,7 +26,8 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             this.label = computedColumn.label || '';
             this.expression = computedColumn.expression || '';
             this.description = computedColumn.description || '';
-            this.type = computedColumn.type || 'string';
+            const type = computedColumn.type || 'string';
+            this.type = this.typeOptions.find((t) => t.value === type);
         }
 
         this.modalsManager.setOption('modalComponentInstance', this);
@@ -111,24 +112,27 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
         this.validationErrors = [];
 
         try {
-            const response = await this.fetch.post('reports/validate-computed-column', {
-                expression: this.expression,
-                table_name: this.args.tableName,
-            });
+            const response = await this.fetch.post(
+                'reports/validate-computed-column',
+                {
+                    expression: this.expression,
+                    table_name: this.modalsManager.getOption('tableName'),
+                },
+                { rawError: true }
+            );
 
             if (response.valid) {
                 this.isValid = true;
                 this.validationErrors = [];
             } else {
                 this.isValid = false;
-                this.validationErrors = response.errors || ['Expression is invalid'];
+                this.validationErrors = response.errors ?? ['Expression is invalid'];
             }
 
             return this.isValid;
         } catch (error) {
             this.isValid = false;
-            this.validationErrors = ['Failed to validate expression'];
-            console.error('Validation error:', error);
+            this.validationErrors = error.errors ?? ['Failed to validate expression'];
             return this.isValid;
         } finally {
             this.isValidating = false;
@@ -136,14 +140,14 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     }
 
     @action save() {
-        if (!this.canSave) return
+        if (!this.canSave) return;
 
         const computedColumn = {
             name: this.name,
             label: this.label,
             expression: this.expression,
             description: this.description,
-            type: this.type,
+            type: this.type?.value ?? 'string',
         };
 
         this.modalsManager.setOption('computedColumn', computedColumn);

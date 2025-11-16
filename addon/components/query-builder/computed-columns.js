@@ -7,6 +7,28 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
     @service modalsManager;
     @tracked computedColumns = [];
 
+    get typeLabels() {
+        return {
+            string: 'Text',
+            integer: 'Integer',
+            decimal: 'Decimal',
+            date: 'Date',
+            datetime: 'Date & Time',
+            boolean: 'Boolean',
+        };
+    }
+
+    get typeIcons() {
+        return {
+            string: 'text',
+            integer: 'hashtag',
+            decimal: 'calculator',
+            date: 'calendar',
+            datetime: 'clock',
+            boolean: 'toggle-on',
+        };
+    }
+
     constructor() {
         super(...arguments);
 
@@ -25,7 +47,7 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
             title: computedColumn ? 'Edit Computed Column' : 'Add Computed Column',
             acceptButtonText: computedColumn ? 'Update' : 'Add',
             computedColumn,
-            tableName: this.args.tableName,
+            tableName: this.args.tableName ?? this.args.table?.name,
             keepOpen: true,
             confirm: async (modal) => {
                 modal.startLoading();
@@ -80,31 +102,5 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         if (this.args.onChange) {
             this.args.onChange(this.computedColumns);
         }
-    }
-
-    @action getTypeIcon(type) {
-        const iconMap = {
-            string: 'text',
-            integer: 'hashtag',
-            decimal: 'calculator',
-            date: 'calendar',
-            datetime: 'clock',
-            boolean: 'toggle-on',
-        };
-
-        return iconMap[type] || 'question';
-    }
-
-    @action getTypeLabel(type) {
-        const labelMap = {
-            string: 'Text',
-            integer: 'Integer',
-            decimal: 'Decimal',
-            date: 'Date',
-            datetime: 'Date & Time',
-            boolean: 'Boolean',
-        };
-
-        return labelMap[type] || type;
     }
 }
