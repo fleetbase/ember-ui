@@ -11,6 +11,7 @@ export default class QueryBuilderComponent extends Component {
     @tracked groupBy = [];
     @tracked sortBy = [];
     @tracked limit = null;
+    @tracked computedColumns = [];
     @tracked showQueryPreview = false;
 
     constructor() {
@@ -83,6 +84,7 @@ export default class QueryBuilderComponent extends Component {
                 ...column,
                 alias: this.columnAliases[column.name] || null,
             })),
+            computed_columns: this.computedColumns,
             joins: this.joins,
             conditions: this.conditions,
             groupBy: this.groupBy,
@@ -121,6 +123,9 @@ export default class QueryBuilderComponent extends Component {
                 break;
             case 'sortBy':
                 this.sortBy = value;
+                break;
+            case 'computedColumns':
+                this.computedColumns = value;
                 break;
             case 'limit':
                 this.limit = value;
