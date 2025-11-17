@@ -177,6 +177,7 @@
 }
 
 .status-badge[class*='4'] > span,
+.status-badge.in-transit-status-badge > span,
 .status-badge.idle-status-badge > span,
 .status-badge.draft-status-badge > span,
 .status-badge.yellow-status-badge > span,
@@ -200,6 +201,7 @@
 }
 
 .status-badge[class*='4'] > span svg,
+.status-badge.in-transit-status-badge > span svg,
 .status-badge.idle-status-badge > span svg,
 .status-badge.draft-status-badge > span svg,
 .status-badge.yellow-status-badge > span svg,
