@@ -78,7 +78,7 @@ export default class TableThComponent extends TableCellComponent {
     }
 
     @action setupTableCellNode(tableCellNode) {
-        const { column, width, sticky } = this.args;
+        const { column, width } = this.args;
 
         if (column?.width) {
             tableCellNode.style.width = typeof column.width === 'number' ? `${column.width}px` : column.width;

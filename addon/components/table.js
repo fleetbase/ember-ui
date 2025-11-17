@@ -183,7 +183,7 @@ export default class TableComponent extends Component {
         let rightOffset = 0;
         const rightStickyColumns = this.visibleColumns.filter((col) => col.sticky === 'right').reverse();
 
-        rightStickyColumns.forEach((column, index) => {
+        rightStickyColumns.forEach((column) => {
             column._stickyOffset = rightOffset;
             column._stickyPosition = 'right';
             column._stickyZIndex = 15;
