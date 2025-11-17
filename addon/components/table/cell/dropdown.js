@@ -1,7 +1,9 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action, computed } from '@ember/object';
 
 export default class TableCellDropdownComponent extends Component {
+    @tracked tableCellNode;
     defaultButtonText = 'Actions';
 
     @computed('args.column.ddButtonText', 'defaultButtonText') get buttonText() {
@@ -21,6 +23,15 @@ export default class TableCellDropdownComponent extends Component {
     @action setupComponent(dropdownWrapperNode) {
         const tableCellNode = this.getOwnerTableCell(dropdownWrapperNode);
         tableCellNode.style.overflow = 'visible';
+        this.tableCellNode = tableCellNode;
+    }
+
+    @action onOpen() {
+        this.tableCellNode.style.zIndex = parseInt(this.tableCellNode.style.zIndex) + 1;
+    }
+
+    @action onClose() {
+        this.tableCellNode.style.zIndex = parseInt(this.tableCellNode.style.zIndex) - 1;
     }
 
     @action getOwnerTableCell(dropdownWrapperNode) {

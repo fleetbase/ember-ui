@@ -1,0 +1,80 @@
+<Modal::Default @modalIsOpened={{@modalIsOpened}} @options={{@options}} @confirm={{@onConfirm}} @decline={{@onDecline}}>
+    <div class="modal-body-container">
+        <div class="space-y-2">
+            <InputGroup @name="Column Name" @value={{this.name}} @disabled={{this.isValidating}} @helpText="The internal name for this column (lowercase, underscores only)" />
+            <InputGroup @name="Display Label" @value={{this.label}} @disabled={{this.isValidating}} @helpText="The human-readable label shown in reports" />
+            <InputGroup @name="Data Type" @helpText="The expected data type of the computed value">
+                <PowerSelect @options={{this.typeOptions}} @selected={{this.type}} @onChange={{fn (mut this.type)}} @searchEnabled={{false}} @placeholder="Select data type" @triggerClass="form-select form-input" as |option|>
+                    {{option.label}}
+                </PowerSelect>
+            </InputGroup>
+            <InputGroup @name="Expression" @helpText="SQL expression using allowed functions and column references">
+                <Textarea
+                    @value={{this.expression}}
+                    class="form-input font-mono w-full text-sm"
+                    rows="4"
+                    placeholder="e.g., DATEDIFF(end_date, start_date) + 1"
+                    disabled={{this.isValidating}}
+                    {{on "blur" this.validateExpression}}
+                />
+
+                {{#if this.isValidating}}
+                    <div class="flex items-center text-blue-600">
+                        <FaIcon @icon="spinner" @spin={{true}} class="mr-2" />
+                        <span class="text-sm">Validating expression...</span>
+                    </div>
+                {{else if this.isValid}}
+                    <div class="flex items-center text-green-600">
+                        <FaIcon @icon="check-circle" class="mr-2" />
+                        <span class="text-sm">Expression is valid</span>
+                    </div>
+                {{else if this.validationErrors.length}}
+                    <div>
+                        {{#each this.validationErrors as |error|}}
+                            <div class="flex items-start text-red-600 text-sm mb-1">
+                                <FaIcon @icon="exclamation-circle" class="mr-2 mt-0.5" />
+                                <span>{{error}}</span>
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/if}}
+            </InputGroup>
+            <InputGroup @name="Description" @value={{this.description}} @disabled={{this.isValidating}} @helpText="Optional description of what this column calculates" />
+
+            {{! Allowed Functions Reference }}
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h5 class="font-semibold mb-2 text-sm text-gray-800 dark:text-gray-200">Allowed Functions</h5>
+                <div class="flex flex-wrap gap-2">
+                    {{#each this.allowedFunctions as |func|}}
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-mono bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            {{func}}
+                        </span>
+                    {{/each}}
+                </div>
+            </div>
+
+            {{! Example Expressions }}
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                <h5 class="font-semibold mb-3 text-sm text-gray-800 dark:text-gray-200">Example Expressions</h5>
+                <div class="space-y-3">
+                    {{#each this.exampleExpressions as |example|}}
+                        <div class="border-l-2 border-blue-400 pl-3">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p class="font-medium text-sm text-gray-800 dark:text-gray-200">{{example.name}}</p>
+                                    <code class="text-xs bg-white dark:bg-gray-800 px-2 py-1 rounded mt-1 block text-gray-900 dark:text-gray-100">
+                                        {{example.expression}}
+                                    </code>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        {{example.description}}
+                                    </p>
+                                </div>
+                                <Button @text="Use" @type="default" @size="xs" @onClick={{fn this.useExample example}} class="ml-2" />
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</Modal::Default>

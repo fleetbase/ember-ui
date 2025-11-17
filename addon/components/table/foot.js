@@ -29,7 +29,7 @@ export default class TableFootComponent extends Component {
 
     calculateTableFooterVerticalOffset() {
         const offsetElements = ['#next-view-section-subheader', '.next-table-wrapper > table > thead'];
-        const offsetContant = 7;
+        const offsetContant = 4;
         let calculatedOffset = 0;
 
         for (let i = 0; i < offsetElements.length; i++) {

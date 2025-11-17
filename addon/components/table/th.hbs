@@ -1,1 +1,15 @@
-<Table::Cell @inHead={{true}} @resizable={{@resizable}} {{did-insert this.setupComponent}} ...attributes>{{yield}}</Table::Cell>
+<Table::Cell 
+    @inHead={{true}} 
+    @resizable={{@resizable}} 
+    @sortable={{@sortable}} 
+    @column={{@column}} 
+    @isSorted={{this.isSorted}}
+    @isAscending={{this.isAscending}}
+    @isDescending={{this.isDescending}}
+    @sortPriority={{this.sortPriority}}
+    @showSortPriority={{this.showSortPriority}}
+    {{did-insert this.setupComponent}} 
+    ...attributes
+>
+    {{yield}}
+</Table::Cell>

@@ -326,3 +326,129 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
 .next-table-wrapper.auto-height > table > tbody > tr:last-child > td:last-child {
     border-bottom-right-radius: 0.25rem;
 }
+
+/* Sortable column styles */
+.table-wrapper table thead tr th.is-sortable {
+    @apply cursor-pointer select-none;
+}
+
+.table-wrapper table thead tr th .th-inner-wrapper {
+    @apply flex items-center justify-between;
+}
+
+.table-wrapper table thead tr th .th-content {
+    @apply flex-grow;
+}
+
+.table-wrapper table thead tr th .sort-icon-wrapper {
+    @apply ml-2 flex items-center gap-1 text-gray-400;
+}
+
+.table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
+    @apply font-semibold text-blue-500 bg-blue-100 rounded-full flex items-center justify-center;
+    height: 0.75rem;
+    width: 0.75rem;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
+}
+
+.table-wrapper table thead tr th .sort-icon-wrapper > div:last-child {
+    @apply w-4 h-4 flex flex-col items-center justify-center;
+}
+
+.table-wrapper table thead tr th .sort-icon-wrapper > .sort-icon:first-child {
+    margin-bottom: -7px;
+}
+
+.table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
+}
+
+.table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-300;
+}
+
+.table-wrapper table thead tr th .sort-icon.is-ascending,
+.table-wrapper table thead tr th .sort-icon.is-descending {
+    @apply text-blue-400;
+}
+
+.next-table-wrapper table thead tr th.is-sortable {
+    @apply cursor-pointer select-none;
+}
+
+.next-table-wrapper table thead tr th .th-inner-wrapper {
+    @apply flex items-center justify-between;
+}
+
+.next-table-wrapper table thead tr th .th-content {
+    @apply flex-grow;
+}
+
+.next-table-wrapper table thead tr th .sort-icon-wrapper {
+    @apply ml-2 flex items-center gap-1 text-gray-400;
+}
+
+.next-table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
+    @apply font-semibold text-blue-500 bg-blue-100 rounded-full flex items-center justify-center;
+    height: 0.75rem;
+    width: 0.75rem;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
+}
+
+.next-table-wrapper table thead tr th .sort-icon-wrapper > div:last-child {
+    @apply w-4 h-4 flex flex-col items-center justify-center;
+}
+
+.next-table-wrapper table thead tr th .sort-icon-wrapper .sort-icon:first-child {
+    margin-bottom: -7px;
+}
+
+.next-table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
+}
+
+.next-table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-300;
+}
+
+.next-table-wrapper table thead tr th .sort-icon.is-ascending,
+.next-table-wrapper table thead tr th .sort-icon.is-descending {
+    @apply text-blue-400;
+}
+
+/* Dark theme sortable column styles */
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
+}
+
+[data-theme='dark'] .table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-100;
+}
+
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon.is-ascending,
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon.is-descending {
+    @apply text-blue-400;
+}
+
+[data-theme='dark'] .table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
+    @apply text-blue-100 bg-blue-900;
+}
+
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon {
+    @apply text-gray-400;
+}
+
+[data-theme='dark'] .next-table-wrapper table thead tr th:hover .sort-icon {
+    @apply text-gray-100;
+}
+
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon.is-ascending,
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon.is-descending {
+    @apply text-blue-400;
+}
+
+[data-theme='dark'] .next-table-wrapper table thead tr th .sort-icon-wrapper > .sort-priority-badge {
+    @apply text-blue-100 bg-blue-900;
+}

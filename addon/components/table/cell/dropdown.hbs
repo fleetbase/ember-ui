@@ -7,6 +7,8 @@
         @horizontalPosition="left"
         @calculatePosition={{this.calculatePosition}}
         @renderInPlace={{true}}
+        @onOpen={{this.onOpen}}
+        @onClose={{this.onClose}}
         as |dd|
     >
         <div class="next-dd-menu next-dd-menu-table-dd mt-0i {{@column.ddMenuWrapperClass}}" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">

@@ -91,25 +91,32 @@ export default class FiltersPickerComponent extends Component {
             this.args.onClear(...args);
         }
 
-        // Build a clean query-param bag
+        // Build a qp bag that explicitly clears the filter params
         const qp = { ...this.hostRouter.currentRoute.queryParams };
+
         (this.args.columns ?? [])
             .filter((c) => c.filterable)
             .forEach((c) => {
                 const key = c.filterParam ?? c.valuePath;
-                delete qp[key];
-                delete qp[`${key}[]`];
+
+                // Explicitly clear them instead of deleting
+                if (key in qp) {
+                    qp[key] = null; // will remove from URL if default is null
+                }
+
+                const arrayKey = `${key}[]`;
+                if (arrayKey in qp) {
+                    qp[arrayKey] = null;
+                }
             });
 
-        // Transition – routeDidChange listener will rebuild afterwards
         try {
             await this.hostRouter.transitionTo(this.hostRouter.currentRouteName, {
                 queryParams: qp,
             });
         } catch (error) {
-            // Ignore only the "transition aborted" case
             if (error?.name !== 'TransitionAborted') {
-                throw error; // real error → rethrow
+                throw error;
             }
         }
     }

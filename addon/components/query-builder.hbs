@@ -6,6 +6,9 @@
             columns=(component
                 "query-builder/column-select" columns=this.table.columns selectedColumns=this.selectedColumns columnAliases=this.columnAliases onChange=(fn this.callbackChange "columns")
             )
+            computedColumns=(component
+                "query-builder/computed-columns" computedColumns=this.computedColumns table=this.table tableName=this.table.name onChange=(fn this.callbackChange "computedColumns")
+            )
             group=(component
                 "query-builder/group-by"
                 groupBy=this.groupBy
@@ -46,6 +49,13 @@
                 @selectedColumns={{this.selectedColumns}}
                 @columnAliases={{this.columnAliases}}
                 @onChange={{fn this.callbackChange "columns"}}
+                class="col-span-2"
+            />
+            <QueryBuilder::ComputedColumns
+                @computedColumns={{this.computedColumns}}
+                @table={{this.table}}
+                @tableName={{this.table.name}}
+                @onChange={{fn this.callbackChange "computedColumns"}}
                 class="col-span-2"
             />
             <QueryBuilder::GroupBy

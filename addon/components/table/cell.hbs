@@ -1,6 +1,19 @@
 {{#if @inHead}}
-    <th ...attributes {{did-insert this.setupComponent}}>
-        {{yield}}
+    <th class="{{if @sortable 'is-sortable'}}" ...attributes {{did-insert this.setupComponent}}>
+        <div class="th-inner-wrapper">
+            <span class="th-content">{{yield}}</span>
+            {{#if @sortable}}
+                <a href="javascript:;" class="sort-icon-wrapper" {{on "click" this.triggerSort}}>
+                    {{#if @showSortPriority}}
+                        <span class="sort-priority-badge">{{@sortPriority}}</span>
+                    {{/if}}
+                    <div>
+                        <FaIcon @icon="caret-up" class="sort-icon sort-icon-default {{if this.isAscending 'is-ascending'}}" />
+                        <FaIcon @icon="caret-down" class="sort-icon sort-icon-default {{if this.isDescending 'is-descending'}}" />
+                    </div>
+                </a>
+            {{/if}}
+        </div>
         {{#if @resizable}}
             <Table::Cell::Resizer />
         {{/if}}

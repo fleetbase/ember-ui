@@ -695,33 +695,33 @@ body[data-theme='dark'] .next-map-container.next-map-container-layout-map .next-
     @apply mb-0;
 }
 
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-control-zoom.leaflet-bar.leaflet-control > a[role="button"].leaflet-control-zoom-out {
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-control-zoom.leaflet-bar.leaflet-control > a[role='button'].leaflet-control-zoom-out {
     @apply mb-0;
 }
 
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"] {
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button'] {
     @apply bg-transparent flex items-center justify-center rounded-full w-8 h-8 m-auto mb-2 border-0 outline-0;
 }
 
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"].is-action:hover {
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button'].is-action:hover {
     @apply bg-blue-500;
 }
 
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"]:focus,
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"]:active,
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"]:hover {
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button']:focus,
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button']:active,
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button']:hover {
     @apply outline-none;
 }
 
-.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"]:hover {
+.fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button']:hover {
     @apply bg-gray-600;
 }
 
-body[data-theme='light'] .fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"] svg {
+body[data-theme='light'] .fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button'] svg {
     @apply text-gray-800;
 }
 
-body[data-theme='light'] .fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role="button"]:hover {
+body[data-theme='light'] .fleetbase-leaflet-map-container .leaflet-control-container .leaflet-bar.leaflet-control > a[role='button']:hover {
     @apply bg-gray-200;
 }
 
@@ -1058,7 +1058,7 @@ body[data-theme='dark'] .next-view-header-item.is-open {
     @apply rounded-md;
 }
 
-body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
+body[data-theme='dark'] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply shadow-sm text-gray-200;
 }
 
@@ -1067,7 +1067,7 @@ body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel
     @apply border rounded-lg bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 px-3 mb-2;
 }
 
-body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
+body[data-theme='dark'] .next-content-panel-wrapper.bordered .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply shadow-sm text-gray-200;
 }
 
@@ -1084,7 +1084,7 @@ body[data-theme="dark"] .next-content-panel-wrapper.bordered .next-content-panel
     @apply border-t-0;
 }
 
-body[data-theme="dark"] .next-content-panel-wrapper.bordered-inline .next-content-panel-container .next-content-panel > .next-content-panel-header {
+body[data-theme='dark'] .next-content-panel-wrapper.bordered-inline .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply shadow-sm text-gray-200;
 }
 
@@ -1101,7 +1101,7 @@ body[data-theme="dark"] .next-content-panel-wrapper.bordered-inline .next-conten
     @apply border-t-0;
 }
 
-body[data-theme="dark"] .next-content-panel-wrapper.bordered-top .next-content-panel-container .next-content-panel > .next-content-panel-header {
+body[data-theme='dark'] .next-content-panel-wrapper.bordered-top .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply text-gray-200;
 }
 
@@ -1129,15 +1129,27 @@ body[data-theme="dark"] .next-content-panel-wrapper.bordered-top .next-content-p
     @apply w-5 h-full text-xs;
 }
 
-.next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header .next-content-panel-header-left > .next-content-panel-title-container .panel-title {
+.next-content-panel-wrapper
+    .next-content-panel-container
+    .next-content-panel
+    > .next-content-panel-header
+    .next-content-panel-header-left
+    > .next-content-panel-title-container
+    .panel-title {
     @apply text-sm font-semibold uppercase;
 }
 
-.next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header.bordered .next-content-panel-header-left > .next-content-panel-title-container .panel-title {
+.next-content-panel-wrapper
+    .next-content-panel-container
+    .next-content-panel
+    > .next-content-panel-header.bordered
+    .next-content-panel-header-left
+    > .next-content-panel-title-container
+    .panel-title {
     @apply font-normal;
 }
 
-body[data-theme="light"] .details-wrapper .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header {
+body[data-theme='light'] .details-wrapper .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header {
     @apply bg-white;
 }
 
@@ -1449,8 +1461,21 @@ body[data-theme='light'] .next-sidebar .next-content-panel-wrapper .next-content
     @apply flex flex-row items-center justify-between px-3 py-0.5 rounded-md text-sm mb-1 border border-transparent;
 }
 
-.next-sidebar .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header > .next-content-panel-header-left > .next-content-panel-title-container,
-.next-sidebar .next-content-panel-wrapper .next-content-panel-container .next-content-panel > .next-content-panel-header > .next-content-panel-header-left > .next-content-panel-title-container > .panel-title {
+.next-sidebar
+    .next-content-panel-wrapper
+    .next-content-panel-container
+    .next-content-panel
+    > .next-content-panel-header
+    > .next-content-panel-header-left
+    > .next-content-panel-title-container,
+.next-sidebar
+    .next-content-panel-wrapper
+    .next-content-panel-container
+    .next-content-panel
+    > .next-content-panel-header
+    > .next-content-panel-header-left
+    > .next-content-panel-title-container
+    > .panel-title {
     @apply text-sm font-normal normal-case;
 }
 
@@ -1463,7 +1488,7 @@ body[data-theme='light'] .next-sidebar .next-content-panel-wrapper .next-content
 }
 
 .next-sidebar .next-sidebar-panel-container > .next-sidebar-panel > .next-content-panel > .next-sidebar-panel-toggle > .next-content-panel-header-left {
-    padding: 0; 
+    padding: 0;
     margin: 0;
 }
 
@@ -1789,15 +1814,18 @@ section.next-view-section {
 }
 
 .next-table-wrapper {
-    overflow: scroll;
+    overflow: auto;
+    overflow-x: scroll; /* Always show horizontal scrollbar */
+    overflow-y: scroll;
     height: 100vh;
     @apply grid grid-cols-1;
 }
 
 .next-table-wrapper > table {
-    @apply table-fixed w-full h-screen;
+    @apply table-auto min-w-full h-screen;
     border-collapse: separate;
     border-spacing: 0;
+    width: max-content;
 }
 
 .next-table-wrapper table > tbody:after {
@@ -1808,8 +1836,8 @@ section.next-view-section {
 }
 
 .next-table-wrapper table > thead {
-    position: sticky;
-    top: 0;
+    /* Removed position: sticky to avoid conflict with sticky th elements */
+    /* Individual th elements handle their own sticky positioning */
     z-index: 12;
 }
 
@@ -1840,7 +1868,7 @@ section.next-view-section {
     margin: 0 0.5rem;
 }
 
-.next-table-wrapper table tbody tr td .cell-dropdown-button span.btn-wrapper > button.btn, 
+.next-table-wrapper table tbody tr td .cell-dropdown-button span.btn-wrapper > button.btn,
 .next-table-wrapper table tbody tr td span.btn-wrapper > button.btn {
     height: 21px;
     cursor: default;
@@ -1871,6 +1899,9 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     height: 53px;
     min-width: 100%;
     max-width: 100%;
+    position: sticky;
+    left: 0;
+    right: 0;
 }
 
 .next-table-wrapper
@@ -1899,7 +1930,7 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 }
 
 .next-table-wrapper table thead tr th {
-    @apply px-4 py-2 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200 bg-white;
+    @apply px-2 py-2.5 text-xs text-left font-medium leading-4 tracking-wider text-gray-900 whitespace-nowrap uppercase border-b border-gray-200 bg-white;
     text-overflow: ellipsis;
 }
 
@@ -1939,9 +1970,13 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
     max-height: 40px;
 }
 
+.next-table-wrapper table tfoot {
+    z-index: 30;
+}
+
 .next-table-wrapper table tfoot tr td,
 .next-table-wrapper table tbody tr td {
-    @apply px-4 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;
+    @apply px-2 py-1 text-sm font-medium leading-4 tracking-wider text-gray-800 truncate whitespace-nowrap select-none border-b border-gray-200;
 }
 
 .next-table-wrapper table tfoot tr td span a,
@@ -1962,6 +1997,93 @@ body[data-theme='dark'] .next-table-wrapper .tfoot-row > td {
 
 .next-table-wrapper > table > tbody > tr:first-child > td {
     border-top: 0;
+}
+
+/* Sticky Column Styles */
+.next-table-wrapper table thead th.is-sticky,
+.next-table-wrapper table tbody td.is-sticky {
+    position: sticky;
+    @apply bg-white;
+}
+
+.next-table-wrapper table thead th.is-sticky {
+    z-index: 20;
+    top: 0;
+}
+
+.next-table-wrapper table tbody td.is-sticky {
+    z-index: 15;
+}
+
+.next-table-wrapper table thead th.is-sticky.sticky-left {
+    left: 0;
+    top: 0;
+    box-shadow:
+        4px 0 8px -2px rgba(0, 0, 0, 0.15),
+        2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table tbody td.is-sticky.sticky-left {
+    left: 0;
+    box-shadow:
+        4px 0 8px -2px rgba(0, 0, 0, 0.15),
+        2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table thead th.is-sticky.sticky-right {
+    right: 0;
+    top: 0;
+    box-shadow:
+        -4px 0 8px -2px rgba(0, 0, 0, 0.15),
+        -2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.next-table-wrapper table tbody td.is-sticky.sticky-right {
+    right: 0;
+    box-shadow:
+        -4px 0 8px -2px rgba(0, 0, 0, 0.15),
+        -2px 0 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide shadows when sticky columns are at their natural position */
+.next-table-wrapper table thead th.is-sticky.at-natural-position,
+.next-table-wrapper table tbody td.is-sticky.at-natural-position {
+    box-shadow: none !important;
+}
+
+/* Ensure sticky columns have proper background on hover */
+.next-table-wrapper table tbody tr:hover td.is-sticky {
+    @apply bg-white;
+}
+
+/* Dark theme support for sticky columns */
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .next-table-wrapper table tbody tr:hover td.is-sticky {
+    @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.sticky-left,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.sticky-left {
+    box-shadow:
+        4px 0 8px -2px rgba(0, 0, 0, 0.4),
+        2px 0 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.sticky-right,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.sticky-right {
+    box-shadow:
+        -4px 0 8px -2px rgba(0, 0, 0, 0.4),
+        -2px 0 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme - hide shadows when at natural position */
+body[data-theme='dark'] .next-table-wrapper table thead th.is-sticky.at-natural-position,
+body[data-theme='dark'] .next-table-wrapper table tbody td.is-sticky.at-natural-position {
+    box-shadow: none !important;
 }
 
 body[data-theme='dark'] .next-table-wrapper table tfoot tr td {
@@ -2045,7 +2167,7 @@ body[data-theme='light'] .next-table-wrapper table tfoot tr td {
 }
 
 .field-info-container.field-vertical-container + .field-info-container.field-vertical-container {
-    @apply mt-1.5; 
+    @apply mt-1.5;
 }
 
 .field-info-container.field-vertical-container > .field-name {
@@ -2330,6 +2452,101 @@ a.text-danger:hover {
 
 .filter-string > .filter-string-value {
     @apply flex flex-row items-center;
+}
+
+.filter-multi-input {
+    @apply flex flex-col relative;
+    height: 34px;
+}
+
+.filter-multi-input > .clear-button {
+    @apply absolute top-0 right-0 dark:text-gray-500 text-gray-700 pr-3 pt-2;
+}
+
+.filter-multi-input > .clear-button:hover {
+    @apply opacity-50;
+}
+
+.filter-range {
+    @apply flex flex-col relative;
+}
+
+.filter-range-inputs {
+    @apply flex items-center gap-2 mb-2;
+}
+
+.filter-range-input-group {
+    @apply flex flex-col flex-1;
+}
+
+.filter-range-label {
+    @apply text-xs font-medium text-gray-600 dark:text-gray-400 mb-1;
+}
+
+.filter-range-separator {
+    @apply text-gray-500 dark:text-gray-400 font-semibold mt-5;
+}
+
+.filter-range-sliders {
+    @apply relative mb-2;
+}
+
+.filter-range-slider {
+    @apply absolute w-full h-2 appearance-none bg-transparent pointer-events-none;
+}
+
+.filter-range-slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 rounded-full bg-blue-500 cursor-pointer pointer-events-auto;
+}
+
+.filter-range-slider::-moz-range-thumb {
+    @apply w-4 h-4 rounded-full bg-blue-500 cursor-pointer pointer-events-auto border-0;
+}
+
+.filter-range-slider::-webkit-slider-runnable-track {
+    @apply w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full;
+}
+
+.filter-range-slider::-moz-range-track {
+    @apply w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full;
+}
+
+.filter-range-slider-min::-webkit-slider-thumb {
+    @apply bg-blue-500;
+    z-index: 50;
+    position: relative;
+    top: -6px;
+}
+
+.filter-range-slider-max::-webkit-slider-thumb {
+    @apply bg-blue-600;
+    z-index: 50;
+    position: relative;
+    right: 0;
+    top: -6px;
+}
+
+.filter-range-slider-min::-moz-range-thumb {
+    @apply bg-blue-500;
+    z-index: 50;
+    position: relative;
+    top: -6px;
+}
+
+.filter-range-slider-max::-moz-range-thumb {
+    @apply bg-blue-600;
+    z-index: 50;
+    position: relative;
+    right: 0;
+    top: -6px;
+}
+
+.filter-range > .clear-button {
+    @apply absolute top-0 right-0 dark:text-gray-500 text-gray-700 pr-1;
+}
+
+.filter-range > .clear-button:hover {
+    @apply opacity-50;
 }
 
 .fleetbase-loader-wrapper {
