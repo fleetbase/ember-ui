@@ -17,6 +17,7 @@ export default class DashboardService extends Service {
     @service fetch;
     @service notifications;
     @service universe;
+    @service('universe/widget-service') widgetService;
     @service intl;
 
     /**
@@ -217,7 +218,7 @@ export default class DashboardService extends Service {
      * @returns {Array} An array of default dashboard widgets.
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
-        const widgets = this.universe.widgetService.getDefaultWidgets(defaultDashboardId).map((defaultWidget) => {
+        const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId).map((defaultWidget) => {
             return this.store.createRecord('dashboard-widget', defaultWidget);
         });
 
