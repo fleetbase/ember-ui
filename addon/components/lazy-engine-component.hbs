@@ -1,19 +1,30 @@
 {{#if this.isLoading}}
-    {{#if (has-block "loading")}}
-        {{yield to="loading"}}
-    {{else}}
-        <div class="flex items-center justify-center p-4">
-            <div class="text-gray-600">Loading component...</div>
-        </div>
-    {{/if}}
+  {{!-- Show loading state --}}
+  {{#if (component-exists this.loadingComponentName)}}
+    {{component this.loadingComponentName}}
+  {{else}}
+    <div class="flex items-center justify-center p-4">
+      <div class="text-gray-600">Loading component...</div>
+    </div>
+  {{/if}}
 {{else if this.error}}
-    {{#if (has-block "error")}}
-        {{yield this.error to="error"}}
-    {{else}}
-        <div class="flex items-center justify-center p-4">
-            <div class="text-red-600">Error: {{this.error}}</div>
-        </div>
-    {{/if}}
+  {{!-- Show error state --}}
+  {{#if (component-exists this.errorComponentName)}}
+    {{component this.errorComponentName error=this.error}}
+  {{else}}
+    <div class="flex items-center justify-center p-4 text-red-600">
+      <div>
+        <strong>Error loading component:</strong>
+        <p class="mt-1">{{this.error}}</p>
+      </div>
+    </div>
+  {{/if}}
 {{else if this.resolvedComponent}}
-    {{component this.resolvedComponent ...@args}}
+  {{!-- Render the resolved component with all arguments --}}
+  {{component this.resolvedComponent ...this.componentArgs}}
+{{else}}
+  {{!-- Fallback: no component to render --}}
+  <div class="flex items-center justify-center p-4 text-gray-500">
+    <span>No component to render</span>
+  </div>
 {{/if}}
