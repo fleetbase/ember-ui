@@ -1,0 +1,19 @@
+{{#if this.isLoading}}
+    {{#if (has-block "loading")}}
+        {{yield to="loading"}}
+    {{else}}
+        <div class="flex items-center justify-center p-4">
+            <div class="text-gray-600">Loading component...</div>
+        </div>
+    {{/if}}
+{{else if this.error}}
+    {{#if (has-block "error")}}
+        {{yield this.error to="error"}}
+    {{else}}
+        <div class="flex items-center justify-center p-4">
+            <div class="text-red-600">Error: {{this.error}}</div>
+        </div>
+    {{/if}}
+{{else if this.resolvedComponent}}
+    {{component this.resolvedComponent ...@args}}
+{{/if}}
