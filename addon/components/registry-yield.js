@@ -21,19 +21,12 @@ export default class RegistryYieldComponent extends Component {
         super(...arguments);
         this.yieldables = this.getYieldables();
         
-        // Listen for registry changes on the correct services
+        // Listen for registry changes on MenuService
         if (this.menuService) {
             this.menuService.on('menuItem.registered', () => {
                 this.yieldables = this.getYieldables();
             });
             this.menuService.on('menuPanel.registered', () => {
-                this.yieldables = this.getYieldables();
-            });
-        }
-        
-        // Listen for component registration (if needed in future)
-        if (this.registryService) {
-            this.registryService.on('component.registered', () => {
                 this.yieldables = this.getYieldables();
             });
         }
