@@ -28,6 +28,7 @@ import { task } from 'ember-concurrency'
 export default class LazyEngineComponent extends Component {
     @service('universe/extension-manager') extensionManager;
     @tracked resolvedComponent = null;
+    @tracked error = null;
 
     constructor() {
         super(...arguments);
@@ -76,18 +77,40 @@ export default class LazyEngineComponent extends Component {
 
                 // Clean the path and lookup the component
                 const cleanPath = componentPath.replace(/^components\//, '');
-                const component = engineInstance.lookup(`component:${cleanPath}`);
-
-                console.log('[component]', component);
-
-                if (!component) {
+                
+                // First, check if the component is registered in the engine
+                const componentKey = `component:${cleanPath}`;
+                if (!engineInstance.hasRegistration(componentKey)) {
                     throw new Error(
-                        `Component '${cleanPath}' not found in engine '${engineName}'. ` +
-                        `Make sure the component exists and is properly registered.`
+                        `Component '${cleanPath}' is not registered in engine '${engineName}'. ` +
+                        `Make sure the component exists and is properly exported.`
                     );
                 }
 
-                this.resolvedComponent = component;
+                // Lookup the component factory (not the instance)
+                const componentFactory = engineInstance.factoryFor(componentKey);
+                
+                console.log('[componentFactory]', componentFactory);
+
+                if (!componentFactory) {
+                    throw new Error(
+                        `Component factory for '${cleanPath}' not found in engine '${engineName}'. ` +
+                        `The component may be registered but not properly defined.`
+                    );
+                }
+
+                // Get the component class from the factory
+                const componentClass = componentFactory.class;
+                
+                console.log('[componentClass]', componentClass);
+
+                if (!componentClass) {
+                    throw new Error(
+                        `Component class for '${cleanPath}' is undefined in engine '${engineName}'.`
+                    );
+                }
+
+                this.resolvedComponent = componentClass;
             } catch (e) {
                 console.error('LazyEngineComponent: Error loading component:', e);
                 this.error = e.message;

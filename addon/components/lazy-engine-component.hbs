@@ -1,3 +1,11 @@
 {{#if this.resolvedComponent}}
-    {{component this.resolvedComponent}}
+    {{component this.resolvedComponent ...this.componentArgs}}
+{{else if this.error}}
+    <div class="lazy-engine-component-error">
+        <p>Error loading component: {{this.error}}</p>
+    </div>
+{{else}}
+    <div class="lazy-engine-component-loading">
+        Loading component...
+    </div>
 {{/if}}
