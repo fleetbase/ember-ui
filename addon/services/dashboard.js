@@ -218,11 +218,12 @@ export default class DashboardService extends Service {
      * @returns {Array} An array of default dashboard widgets.
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
-        const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId).map((defaultWidget) => {
+        const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId);
+        console.log(`[default widgets for ${defaultDashboardId}`, widgets);
+
+        return widgets.map((defaultWidget) => {
             return this.store.createRecord('dashboard-widget', defaultWidget);
         });
-
-        return widgets;
     }
 
     /**

@@ -17,7 +17,6 @@ export default class DashboardComponent extends Component {
     @service modalsManager;
     @service fetch;
     @service dashboard;
-    @service universe;
 
     /**
      * Creates an instance of DashboardComponent.

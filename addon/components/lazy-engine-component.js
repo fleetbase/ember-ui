@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { assert } from '@ember/debug';
+import { task } from 'ember-concurrency'
 
 /**
  * LazyEngineComponent
@@ -26,14 +27,11 @@ import { assert } from '@ember/debug';
  */
 export default class LazyEngineComponent extends Component {
     @service('universe/extension-manager') extensionManager;
-    
     @tracked resolvedComponent = null;
-    @tracked isLoading = true;
-    @tracked error = null;
 
     constructor() {
         super(...arguments);
-        this.loadComponent();
+        this.loadComponent.perform();
     }
 
     /**
@@ -42,15 +40,16 @@ export default class LazyEngineComponent extends Component {
      * @method loadComponent
      * @private
      */
-    async loadComponent() {
-        const { componentDef } = this.args;
+    @task *loadComponent() {
+        const { component: componentDef } = this.args;
 
         // Handle backward compatibility: if componentDef is already a class, use it directly
         if (typeof componentDef === 'function') {
             this.resolvedComponent = componentDef;
-            this.isLoading = false;
             return;
         }
+
+        console.log('[componentDef]', componentDef);
 
         // Handle lazy component definitions
         if (componentDef && componentDef.engine && componentDef.path) {
@@ -68,15 +67,18 @@ export default class LazyEngineComponent extends Component {
                 );
 
                 // This is the key step that triggers lazy loading
-                const engineInstance = await this.extensionManager.ensureEngineLoaded(engineName);
-
+                const engineInstance = yield this.extensionManager.ensureEngineLoaded(engineName);
                 if (!engineInstance) {
                     throw new Error(`Failed to load engine '${engineName}'`);
                 }
 
+                console.log('[engineInstance]', engineInstance);
+
                 // Clean the path and lookup the component
                 const cleanPath = componentPath.replace(/^components\//, '');
                 const component = engineInstance.lookup(`component:${cleanPath}`);
+
+                console.log('[component]', component);
 
                 if (!component) {
                     throw new Error(
@@ -89,36 +91,11 @@ export default class LazyEngineComponent extends Component {
             } catch (e) {
                 console.error('LazyEngineComponent: Error loading component:', e);
                 this.error = e.message;
-            } finally {
-                this.isLoading = false;
-            }
+            } 
         } else {
             // Invalid component definition
             this.error = 'Invalid component definition. Expected an object with engine and path properties.';
-            this.isLoading = false;
         }
-    }
-
-    /**
-     * Get the loading component name
-     * 
-     * @computed loadingComponentName
-     * @returns {String} Loading component name
-     */
-    get loadingComponentName() {
-        const { componentDef } = this.args;
-        return componentDef?.loadingComponent || 'loading-spinner';
-    }
-
-    /**
-     * Get the error component name
-     * 
-     * @computed errorComponentName
-     * @returns {String} Error component name
-     */
-    get errorComponentName() {
-        const { componentDef } = this.args;
-        return componentDef?.errorComponent || 'error-display';
     }
 
     /**
