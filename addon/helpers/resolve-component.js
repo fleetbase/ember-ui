@@ -13,11 +13,7 @@ export default class ResolveComponentHelper extends Helper {
 
         // Handle ExtensionComponent definition (lazy loading)
         if (value && typeof value === 'object' && value.engine && value.path) {
-            // Format: engine-name@component-path
-            // Ember's resolver will handle lazy loading the engine
-            const engineName = value.engine.replace('@fleetbase/', '').replace('-engine', '');
-            const componentPath = value.path.replace('components/', '');
-            return `${engineName}@${componentPath}`;
+            return value;
         }
 
         // If it has a component property, recurse

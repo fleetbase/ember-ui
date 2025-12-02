@@ -1,25 +1,26 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 import { assert } from '@ember/debug';
-import { task } from 'ember-concurrency'
+import { task } from 'ember-concurrency';
 
 /**
  * LazyEngineComponent
- * 
+ *
  * A wrapper component that handles lazy loading of components from engines.
  * This component takes an ExtensionComponent definition and:
  * 1. Triggers lazy loading of the engine if not already loaded
  * 2. Looks up the component from the loaded engine
  * 3. Renders the component with all passed arguments
- * 
+ *
  * This enables cross-engine component usage while preserving lazy loading.
- * 
+ *
  * @class LazyEngineComponent
  * @extends Component
- * 
+ *
  * @example
- * <LazyEngineComponent 
+ * <LazyEngineComponent
  *   @componentDef={{this.menuItem.component}}
  *   @model={{@model}}
  *   @onChange={{@onChange}}
@@ -28,6 +29,8 @@ import { task } from 'ember-concurrency'
 export default class LazyEngineComponent extends Component {
     @service('universe/extension-manager') extensionManager;
     @tracked resolvedComponent = null;
+    @tracked component = this.args.component;
+    @tracked params = this.args.params ?? {};
     @tracked error = null;
 
     constructor() {
@@ -35,37 +38,34 @@ export default class LazyEngineComponent extends Component {
         this.loadComponent.perform();
     }
 
+    @action handleChange(el, [component, params = {}]) {
+        this.component = component;
+        this.params = params;
+        this.loadComponent.perform();
+    }
+
     /**
      * Load the component from the engine
-     * 
+     *
      * @method loadComponent
      * @private
      */
     @task *loadComponent() {
-        const { component: componentDef } = this.args;
+        const componentDef = this.component;
 
         // Handle backward compatibility: if componentDef is already a class, use it directly
-        if (typeof componentDef === 'function') {
+        if (typeof componentDef === 'function' || typeof componentDef === 'string') {
             this.resolvedComponent = componentDef;
             return;
         }
-
-        console.log('[componentDef]', componentDef);
 
         // Handle lazy component definitions
         if (componentDef && componentDef.engine && componentDef.path) {
             try {
                 const { engine: engineName, path: componentPath } = componentDef;
 
-                assert(
-                    `LazyEngineComponent requires an engine name in componentDef`,
-                    engineName
-                );
-
-                assert(
-                    `LazyEngineComponent requires a component path in componentDef`,
-                    componentPath
-                );
+                assert(`LazyEngineComponent requires an engine name in componentDef`, engineName);
+                assert(`LazyEngineComponent requires a component path in componentDef`, componentPath);
 
                 // This is the key step that triggers lazy loading
                 const engineInstance = yield this.extensionManager.ensureEngineLoaded(engineName);
@@ -73,63 +73,35 @@ export default class LazyEngineComponent extends Component {
                     throw new Error(`Failed to load engine '${engineName}'`);
                 }
 
-                console.log('[engineInstance]', engineInstance);
-
                 // Clean the path and lookup the component
                 const cleanPath = componentPath.replace(/^components\//, '');
-                
+
                 // First, check if the component is registered in the engine
                 const componentKey = `component:${cleanPath}`;
                 if (!engineInstance.hasRegistration(componentKey)) {
-                    throw new Error(
-                        `Component '${cleanPath}' is not registered in engine '${engineName}'. ` +
-                        `Make sure the component exists and is properly exported.`
-                    );
+                    throw new Error(`Component '${cleanPath}' is not registered in engine '${engineName}'. ` + `Make sure the component exists and is properly exported.`);
                 }
 
                 // Lookup the component factory (not the instance)
                 const componentFactory = engineInstance.factoryFor(componentKey);
-                
-                console.log('[componentFactory]', componentFactory);
-
                 if (!componentFactory) {
-                    throw new Error(
-                        `Component factory for '${cleanPath}' not found in engine '${engineName}'. ` +
-                        `The component may be registered but not properly defined.`
-                    );
+                    throw new Error(`Component factory for '${cleanPath}' not found in engine '${engineName}'. ` + `The component may be registered but not properly defined.`);
                 }
 
                 // Get the component class from the factory
                 const componentClass = componentFactory.class;
-                
-                console.log('[componentClass]', componentClass);
-
                 if (!componentClass) {
-                    throw new Error(
-                        `Component class for '${cleanPath}' is undefined in engine '${engineName}'.`
-                    );
+                    throw new Error(`Component class for '${cleanPath}' is undefined in engine '${engineName}'.`);
                 }
 
                 this.resolvedComponent = componentClass;
             } catch (e) {
                 console.error('LazyEngineComponent: Error loading component:', e);
                 this.error = e.message;
-            } 
+            }
         } else {
             // Invalid component definition
             this.error = 'Invalid component definition. Expected an object with engine and path properties.';
         }
-    }
-
-    /**
-     * Get all arguments to pass to the resolved component
-     * Excludes the componentDef argument
-     * 
-     * @computed componentArgs
-     * @returns {Object} Arguments to pass to component
-     */
-    get componentArgs() {
-        const { componentDef, ...rest } = this.args;
-        return rest;
     }
 }

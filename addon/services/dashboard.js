@@ -195,9 +195,11 @@ export default class DashboardService extends Service {
 
         // check for default dashboard loaded in store
         defaultDashboard = loadedDashboards.find((dashboard) => dashboard && dashboard.id === defaultDashboardId);
-        if (defaultDashboard) {
-            return defaultDashboard;
-        }
+        if (defaultDashboard) return defaultDashboard;
+
+        // Peek existing
+        const existingDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
+        if (existingDashboard) return existingDashboard;
 
         // create new default dashboard
         defaultDashboard = this.store.createRecord('dashboard', {
@@ -219,9 +221,11 @@ export default class DashboardService extends Service {
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
         const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId);
-        console.log(`[default widgets for ${defaultDashboardId}`, widgets);
 
         return widgets.map((defaultWidget) => {
+            const existingWidget = this.store.peekRecord('dashboard-widget', defaultWidget.id);
+            if (existingWidget) return existingWidget;
+
             return this.store.createRecord('dashboard-widget', defaultWidget);
         });
     }

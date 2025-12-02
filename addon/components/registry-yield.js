@@ -42,7 +42,7 @@ export default class RegistryYieldComponent extends Component {
         const { type, registry } = this.args;
 
         // Handle menu items
-        if (['buttons', 'menu', 'menuItems'].includes(type)) {
+        if (['buttons', 'menu', 'menuItems', 'menu-item'].includes(type)) {
             return this.getMenuItems(registry);
         }
 
