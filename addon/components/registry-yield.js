@@ -1,5 +1,4 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 
 /**
@@ -15,21 +14,16 @@ export default class RegistryYieldComponent extends Component {
     @service universe;
     @service('universe/menu-service') menuService;
     @service('universe/registry-service') registryService;
-    @tracked yieldables = [];
 
-    constructor() {
-        super(...arguments);
-        this.yieldables = this.getYieldables();
-        
-        // Listen for registry changes on MenuService
-        if (this.menuService) {
-            this.menuService.on('menuItem.registered', () => {
-                this.yieldables = this.getYieldables();
-            });
-            this.menuService.on('menuPanel.registered', () => {
-                this.yieldables = this.getYieldables();
-            });
-        }
+    /**
+     * Get yieldable items from the registry
+     * Computed as a getter for automatic reactivity
+     * 
+     * @property yieldables
+     * @type {Array}
+     */
+    get yieldables() {
+        return this.getYieldables();
     }
 
     /**
