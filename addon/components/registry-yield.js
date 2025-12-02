@@ -84,10 +84,9 @@ export default class RegistryYieldComponent extends Component {
     getComponents(registry) {
         // Try new RegistryService first
         if (this.registryService) {
-            const components = this.registryService.lookup(registry);
-            if (components) {
-                // If it's a single component, wrap in array
-                return Array.isArray(components) ? components : [components];
+            const components = this.registryService.getRenderableComponents(registry);
+            if (components && components.length > 0) {
+                return components;
             }
         }
 
@@ -97,5 +96,30 @@ export default class RegistryYieldComponent extends Component {
         }
 
         return [];
+    }
+
+    /**
+     * Check if yieldables are components (vs menu items/buttons)
+     * 
+     * @property isComponent
+     * @type {Boolean}
+     */
+    get isComponent() {
+        const { type } = this.args;
+        
+        // Explicit non-component types
+        if (['buttons', 'menu', 'menuItems', 'menu-item'].includes(type)) {
+            return false;
+        }
+        
+        // Check if first yieldable is a component definition
+        if (this.yieldables.length > 0) {
+            const first = this.yieldables[0];
+            // ExtensionComponent has engine property
+            // Component classes are functions
+            return !!(first && (first.engine || typeof first === 'function'));
+        }
+        
+        return false;
     }
 }

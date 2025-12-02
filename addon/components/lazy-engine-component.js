@@ -53,55 +53,76 @@ export default class LazyEngineComponent extends Component {
     @task *loadComponent() {
         const componentDef = this.component;
 
-        // Handle backward compatibility: if componentDef is already a class, use it directly
+        // Handle backward compatibility: if componentDef is already a class or string, use it directly
         if (typeof componentDef === 'function' || typeof componentDef === 'string') {
             this.resolvedComponent = componentDef;
             return;
         }
 
-        // Handle lazy component definitions
-        if (componentDef && componentDef.engine && componentDef.path) {
+        // Handle ExtensionComponent definitions
+        if (componentDef && componentDef.engine) {
             try {
-                const { engine: engineName, path: componentPath } = componentDef;
+                const { engine: engineName, path: componentPath, class: componentClass, isClass } = componentDef;
 
                 assert(`LazyEngineComponent requires an engine name in componentDef`, engineName);
-                assert(`LazyEngineComponent requires a component path in componentDef`, componentPath);
 
-                // This is the key step that triggers lazy loading
+                // Ensure engine is loaded
                 const engineInstance = yield this.extensionManager.ensureEngineLoaded(engineName);
                 if (!engineInstance) {
                     throw new Error(`Failed to load engine '${engineName}'`);
                 }
 
-                // Clean the path and lookup the component
-                const cleanPath = componentPath.replace(/^components\//, '');
-
-                // First, check if the component is registered in the engine
-                const componentKey = `component:${cleanPath}`;
-                if (!engineInstance.hasRegistration(componentKey)) {
-                    throw new Error(`Component '${cleanPath}' is not registered in engine '${engineName}'. ` + `Make sure the component exists and is properly exported.`);
+                // Handle component class (immediate)
+                if (isClass && componentClass) {
+                    // Register component class to engine if not already registered
+                    const dasherized = componentClass.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                    const componentKey = `component:${dasherized}`;
+                    
+                    if (!engineInstance.hasRegistration(componentKey)) {
+                        engineInstance.register(componentKey, componentClass);
+                        // Also register with original name
+                        engineInstance.register(`component:${componentClass.name}`, componentClass);
+                    }
+                    
+                    this.resolvedComponent = componentClass;
+                    return;
                 }
 
-                // Lookup the component factory (not the instance)
-                const componentFactory = engineInstance.factoryFor(componentKey);
-                if (!componentFactory) {
-                    throw new Error(`Component factory for '${cleanPath}' not found in engine '${engineName}'. ` + `The component may be registered but not properly defined.`);
+                // Handle component path (lazy)
+                if (componentPath) {
+                    // Clean the path and lookup the component
+                    const cleanPath = componentPath.replace(/^components\//, '');
+
+                    // First, check if the component is registered in the engine
+                    const componentKey = `component:${cleanPath}`;
+                    if (!engineInstance.hasRegistration(componentKey)) {
+                        throw new Error(`Component '${cleanPath}' is not registered in engine '${engineName}'. ` + `Make sure the component exists and is properly exported.`);
+                    }
+
+                    // Lookup the component factory (not the instance)
+                    const componentFactory = engineInstance.factoryFor(componentKey);
+                    if (!componentFactory) {
+                        throw new Error(`Component factory for '${cleanPath}' not found in engine '${engineName}'. ` + `The component may be registered but not properly defined.`);
+                    }
+
+                    // Get the component class from the factory
+                    const resolvedClass = componentFactory.class;
+                    if (!resolvedClass) {
+                        throw new Error(`Component class for '${cleanPath}' is undefined in engine '${engineName}'.`);
+                    }
+
+                    this.resolvedComponent = resolvedClass;
+                    return;
                 }
 
-                // Get the component class from the factory
-                const componentClass = componentFactory.class;
-                if (!componentClass) {
-                    throw new Error(`Component class for '${cleanPath}' is undefined in engine '${engineName}'.`);
-                }
-
-                this.resolvedComponent = componentClass;
+                throw new Error('ExtensionComponent requires either a path or class');
             } catch (e) {
                 console.error('LazyEngineComponent: Error loading component:', e);
                 this.error = e.message;
             }
         } else {
             // Invalid component definition
-            this.error = 'Invalid component definition. Expected an object with engine and path properties.';
+            this.error = 'Invalid component definition. Expected an ExtensionComponent with engine and path/class properties.';
         }
     }
 }
