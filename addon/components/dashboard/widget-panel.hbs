@@ -8,6 +8,17 @@
     </Overlay::Header>
 
     <Overlay::Body @wrapperClass="new-service-rate-overlay-body px-1 space-y-4 pt-2">
+        {{! Search Filter }}
+        <div class="px-3">
+            <Input
+                @type="text"
+                @value={{this.searchQuery}}
+                @placeholder={{t "dashboard-widget-panel.search-widgets"}}
+                class="w-full form-input rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
+                {{on "input" this.updateSearchQuery}}
+            />
+        </div>
+
         <div class="grid grid-cols-1 gap-4 text-xs dark:text-gray-100">
             {{#each this.availableWidgets as |widget|}}
                 <div

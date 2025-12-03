@@ -10,6 +10,7 @@ export default class DashboardWidgetPanelComponent extends Component {
     @tracked defaultDashboardId = this.args.defaultDashboardId ?? 'dashboard';
     @tracked dashboard;
     @tracked isOpen = true;
+    @tracked searchQuery = '';
 
     /**
      * Constructs the component and applies initial state.
@@ -27,7 +28,19 @@ export default class DashboardWidgetPanelComponent extends Component {
      */
     get availableWidgets() {
         const dashboardId = this.args.defaultDashboardId || this.defaultDashboardId || 'dashboard';
-        return this.widgetService.getWidgets(dashboardId);
+        const widgets = this.widgetService.getWidgets(dashboardId);
+        
+        // Filter widgets by search query
+        if (this.searchQuery && this.searchQuery.trim()) {
+            const query = this.searchQuery.toLowerCase().trim();
+            return widgets.filter(widget => {
+                const name = (widget.name || '').toLowerCase();
+                const description = (widget.description || '').toLowerCase();
+                return name.includes(query) || description.includes(query);
+            });
+        }
+        
+        return widgets;
     }
 
     /**
@@ -61,6 +74,16 @@ export default class DashboardWidgetPanelComponent extends Component {
         if (typeof this.args.onLoad === 'function') {
             this.args.onLoad(...arguments);
         }
+    }
+
+    /**
+     * Updates the search query
+     *
+     * @action
+     * @param {Event} event
+     */
+    @action updateSearchQuery(event) {
+        this.searchQuery = event.target.value;
     }
 
     /**

@@ -1,4 +1,4 @@
-<div class="next-table-wrapper {{@wrapperClass}}">
+<div class="next-table-wrapper {{@wrapperClass}} {{if (and @pagination (not @useTfootPagination)) 'has-floating-pagination'}}">
     <table class="{{if @canExpand 'is-expandable'}}" ...attributes {{did-insert this.setupComponent}}>
         {{#if (has-block)}}
             {{yield
@@ -20,17 +20,19 @@
                 )
             }}
             {{#if @insertPagination}}
-                <Table::Foot @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
-                    <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
-                        <td class="tfoot-column {{if @pagination 'next-pagination-column'}}" colspan={{add this.visibleColumns.length 1}}>
-                            <div class="tfoot-wrapper">
-                                {{#if @pagination}}
-                                    <Pagination @columns={{this.visibleColumns}} @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
-                                {{/if}}
-                            </div>
-                        </td>
-                    </tr>
-                </Table::Foot>
+                {{#if @useTfootPagination}}
+                    <Table::Foot @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
+                        <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
+                            <td class="tfoot-column {{if @pagination 'next-pagination-column'}}" colspan={{add this.visibleColumns.length 1}}>
+                                <div class="tfoot-wrapper">
+                                    {{#if @pagination}}
+                                        <Pagination @columns={{this.visibleColumns}} @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
+                                    {{/if}}
+                                </div>
+                            </td>
+                        </tr>
+                    </Table::Foot>
+                {{/if}}
             {{/if}}
         {{else}}
             <Table::Head @canSelectAll={{@canSelectAll}} @columns={{this.visibleColumns}}>
@@ -59,7 +61,7 @@
                     </Table::Row>
                 {{/each}}
             </Table::Body>
-            {{#if (or @tfoot @pagination)}}
+            {{#if (or @tfoot (and @pagination @useTfootPagination))}}
                 <Table::Foot @columns={{this.visibleColumns}} @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
                     <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">
                         <td class="tfoot-column {{if @pagination 'next-pagination-column'}}" colspan={{add this.visibleColumns.length 1}}>
@@ -74,4 +76,9 @@
             {{/if}}
         {{/if}}
     </table>
+    {{#if (and @pagination (not @useTfootPagination))}}
+        <div class="floating-pagination">
+            <Pagination @columns={{this.visibleColumns}} @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
+        </div>
+    {{/if}}
 </div>
