@@ -462,39 +462,50 @@ body[data-theme='dark'] .next-table-wrapper.rounded-b > table > tbody > tr:last-
     @apply fixed bottom-4 right-4 z-50;
     @apply bg-white dark:bg-gray-800;
     @apply rounded-lg shadow-lg;
-    @apply px-4 py-2;
     @apply border border-gray-200 dark:border-gray-700;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Remove default pagination padding when floating */
+.next-table-wrapper .floating-pagination .fleetbase-pagination {
+    @apply p-0;
+}
+
+/* Add spacing between meta info and buttons */
+.next-table-wrapper .floating-pagination .fleetbase-pagination-meta-info {
+    margin-right: 0.75rem;
 }
 
 /* Thin horizontal scrollbar to match vertical scrollbar */
-.next-table-wrapper table {
+.next-table-wrapper {
     overflow-x: auto;
+    overflow-y: visible;
 }
 
-.next-table-wrapper table::-webkit-scrollbar {
+.next-table-wrapper::-webkit-scrollbar {
     height: 8px; /* Match thin vertical scrollbar */
 }
 
-.next-table-wrapper table::-webkit-scrollbar-track {
+.next-table-wrapper::-webkit-scrollbar-track {
     @apply bg-gray-100 dark:bg-gray-700;
     @apply rounded;
 }
 
-.next-table-wrapper table::-webkit-scrollbar-thumb {
+.next-table-wrapper::-webkit-scrollbar-thumb {
     @apply bg-gray-400 dark:bg-gray-500;
     @apply rounded;
 }
 
-.next-table-wrapper table::-webkit-scrollbar-thumb:hover {
+.next-table-wrapper::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-500 dark:bg-gray-400;
 }
 
 /* Firefox thin scrollbar */
-.next-table-wrapper table {
+.next-table-wrapper {
     scrollbar-width: thin;
     scrollbar-color: rgb(156 163 175) rgb(243 244 246); /* gray-400 gray-100 */
 }
 
-[data-theme='dark'] .next-table-wrapper table {
+[data-theme='dark'] .next-table-wrapper {
     scrollbar-color: rgb(107 114 128) rgb(55 65 81); /* gray-500 gray-700 */
 }
