@@ -53,8 +53,9 @@ export default class DashboardService extends Service {
 
     /**
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
+     * Uses drop modifier to prevent concurrent executions and race conditions.
      */
-    @task *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
+    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
         this.universe.registerDashboard(defaultDashboardId);
 
         const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
@@ -202,14 +203,24 @@ export default class DashboardService extends Service {
         if (existingDashboard) return existingDashboard;
 
         // create new default dashboard
-        defaultDashboard = this.store.createRecord('dashboard', {
-            id: defaultDashboardId,
-            uuid: defaultDashboardId,
-            name: defaultDashboardName,
-            is_default: false,
-            user_uuid: 'system',
-            widgets: this._createDefaultDashboardWidgets(defaultDashboardId),
-        });
+        try {
+            defaultDashboard = this.store.createRecord('dashboard', {
+                id: defaultDashboardId,
+                uuid: defaultDashboardId,
+                name: defaultDashboardName,
+                is_default: false,
+                user_uuid: 'system',
+                widgets: this._createDefaultDashboardWidgets(defaultDashboardId),
+            });
+        } catch (error) {
+            // Handle race condition where record was created between our peek and createRecord
+            if (error.message && error.message.includes('already been used')) {
+                defaultDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
+                if (defaultDashboard) return defaultDashboard;
+            }
+            // Re-throw if it's a different error
+            throw error;
+        }
 
         return defaultDashboard;
     }
