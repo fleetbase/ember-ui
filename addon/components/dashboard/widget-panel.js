@@ -2,11 +2,12 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { task } from 'ember-concurrency';
 
 export default class DashboardWidgetPanelComponent extends Component {
     @service('universe/widget-service') widgetService;
     @service notifications;
-    @tracked defaultDashboardId = 'dashboard';
+    @tracked defaultDashboardId = this.args.defaultDashboardId ?? 'dashboard';
     @tracked dashboard;
     @tracked isOpen = true;
 
@@ -30,6 +31,25 @@ export default class DashboardWidgetPanelComponent extends Component {
     }
 
     /**
+     * Adds a new available widget to the current dashboard.
+     *
+     * @param {Component|Widget|string} widget
+     * @memberof DashboardWidgetPanelComponent
+     */
+    @task *addWidgetToDashboard(widget) {
+        // If widget is a component definition/class
+        if (typeof widget.component === 'function') {
+            widget.component = widget.component.name;
+        }
+
+        try {
+            yield this.args.dashboard.addWidget(widget);
+        } catch (err) {
+            this.notifications.serverError(err);
+        }
+    }
+
+    /**
      * Sets the overlay context.
      *
      * @action
@@ -41,17 +61,6 @@ export default class DashboardWidgetPanelComponent extends Component {
         if (typeof this.args.onLoad === 'function') {
             this.args.onLoad(...arguments);
         }
-    }
-
-    @action addWidgetToDashboard(widget) {
-        // If widget is a component definition/class
-        if (typeof widget.component === 'function') {
-            widget.component = widget.component.name;
-        }
-
-        this.args.dashboard.addWidget(widget).catch((error) => {
-            this.notifications.serverError(error);
-        });
     }
 
     /**
