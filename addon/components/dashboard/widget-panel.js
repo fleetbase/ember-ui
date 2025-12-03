@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { task } from 'ember-concurrency';
+import { ExtensionComponent } from '@fleetbase/ember-core/contracts';
 
 export default class DashboardWidgetPanelComponent extends Component {
     @service('universe/widget-service') widgetService;
@@ -53,6 +54,11 @@ export default class DashboardWidgetPanelComponent extends Component {
         // If widget is a component definition/class
         if (typeof widget.component === 'function') {
             widget.component = widget.component.name;
+        }
+
+        // If using extension component definition
+        if (widget.component instanceof ExtensionComponent) {
+            widget.component = widget.component.toString();
         }
 
         try {

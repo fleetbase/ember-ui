@@ -8,13 +8,12 @@
     </Overlay::Header>
 
     <Overlay::Body @wrapperClass="new-service-rate-overlay-body px-1 space-y-4 pt-2">
-        {{! Search Filter }}
-        <div class="px-3">
+        <div>
             <Input
                 @type="text"
                 @value={{this.searchQuery}}
-                @placeholder={{t "dashboard-widget-panel.search-widgets"}}
-                class="w-full form-input rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
+                placeholder={{or (t "dashboard-widget-panel.filter-widgets") "Filter widgets by keyword"}}
+                class="w-full form-input form-input-sm"
                 {{on "input" this.updateSearchQuery}}
             />
         </div>

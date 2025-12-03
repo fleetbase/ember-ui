@@ -1,10 +1,17 @@
 import Helper from '@ember/component/helper';
 import { getOwner } from '@ember/application';
 import { ensureSafeComponent } from '@embroider/util';
+import { ExtensionComponent } from '@fleetbase/ember-core/contracts';
 
 export default class ResolveComponentHelper extends Helper {
     compute([value]) {
         const owner = getOwner(this);
+
+        // Handle string form extension components
+        if (typeof value === 'string' && value.startsWith('#extension-component')) {
+            const [_, engineName, componentPathOrName] = value.split(':');
+            return new ExtensionComponent(engineName, componentPathOrName);
+        }
 
         // If it's a string name, pass through — resolver will handle it.
         if (typeof value === 'string') {

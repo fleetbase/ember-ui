@@ -4,6 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { assert } from '@ember/debug';
 import { task } from 'ember-concurrency';
+import { ExtensionComponent } from '@fleetbase/ember-core/contracts';
 
 /**
  * LazyEngineComponent
@@ -51,7 +52,13 @@ export default class LazyEngineComponent extends Component {
      * @private
      */
     @task *loadComponent() {
-        const componentDef = this.component;
+        let componentDef = this.component;
+
+        // Handle string form component definition
+        if (typeof componentDef === 'string' && componentDef.startsWith('#extension-component')) {
+            const [_, engineName, componentPathOrName] = componentDef.split(':');
+            componentDef = new ExtensionComponent(engineName, componentPathOrName);
+        }
 
         // Handle backward compatibility: if componentDef is already a class or string, use it directly
         if (typeof componentDef === 'function' || typeof componentDef === 'string') {
