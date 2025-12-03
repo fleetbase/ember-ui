@@ -25,7 +25,8 @@ export default class DashboardWidgetPanelComponent extends Component {
      * @returns {Array} Available widgets
      */
     get availableWidgets() {
-        return this.widgetService.getWidgets(this.defaultDashboardId);
+        const dashboardId = this.args.defaultDashboardId || this.defaultDashboardId || 'dashboard';
+        return this.widgetService.getWidgets(dashboardId);
     }
 
     /**
