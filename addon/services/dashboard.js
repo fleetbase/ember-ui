@@ -176,10 +176,10 @@ export default class DashboardService extends Service {
     reset() {
         this.currentDashboard = null;
         this.dashboards = [];
-        // unload from store
+        // unload from store - must unload widgets first to avoid orphaned records
         next(() => {
+            this.store.unloadAll('dashboard-widget');
             this.store.unloadAll('dashboard');
-            // this.store.unloadAll('dashboard-widget');
         });
     }
 
@@ -195,12 +195,17 @@ export default class DashboardService extends Service {
         const loadedDashboards = this.store.peekAll('dashboard');
 
         // check for default dashboard loaded in store
-        defaultDashboard = loadedDashboards.find((dashboard) => dashboard && dashboard.id === defaultDashboardId);
+        defaultDashboard = loadedDashboards.find((dashboard) => {
+            return dashboard && dashboard.id === defaultDashboardId && !dashboard.isDeleted && !dashboard.isDestroying && !dashboard.isDestroyed;
+        });
         if (defaultDashboard) return defaultDashboard;
 
-        // Peek existing
+        // Peek existing record in identity map
         const existingDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
-        if (existingDashboard) return existingDashboard;
+        // Only return if it's in a valid state (not deleted, destroying, or destroyed)
+        if (existingDashboard && !existingDashboard.isDeleted && !existingDashboard.isDestroying && !existingDashboard.isDestroyed) {
+            return existingDashboard;
+        }
 
         // create new default dashboard
         try {
