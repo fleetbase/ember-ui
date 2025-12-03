@@ -62,7 +62,7 @@ export default class DashboardWidgetPanelComponent extends Component {
         }
 
         try {
-            yield this.args.dashboard.addWidget(widget);
+            yield this.dashboard.addWidget(widget);
         } catch (err) {
             this.notifications.serverError(err);
         }
