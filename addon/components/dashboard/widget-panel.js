@@ -5,18 +5,27 @@ import { action } from '@ember/object';
 
 export default class DashboardWidgetPanelComponent extends Component {
     @service('universe/widget-service') widgetService;
-    @tracked availableWidgets = [];
+    @service notifications;
+    @tracked defaultDashboardId = 'dashboard';
     @tracked dashboard;
     @tracked isOpen = true;
-    @service notifications;
 
     /**
      * Constructs the component and applies initial state.
      */
     constructor(owner, { dashboard, defaultDashboardId = 'dashboard' }) {
         super(...arguments);
-        this.availableWidgets = this.widgetService.getWidgets(defaultDashboardId);
+        this.defaultDashboardId = defaultDashboardId;
         this.dashboard = dashboard;
+    }
+
+    /**
+     * Gets available widgets for the dashboard.
+     * Computed as a getter to ensure reactivity when widgets are registered.
+     * @returns {Array} Available widgets
+     */
+    get availableWidgets() {
+        return this.widgetService.getWidgets(this.defaultDashboardId);
     }
 
     /**
