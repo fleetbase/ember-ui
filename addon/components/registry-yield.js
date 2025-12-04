@@ -3,10 +3,10 @@ import { inject as service } from '@ember/service';
 
 /**
  * RegistryYield Component
- * 
+ *
  * Yields items from a registry (menu items or components)
  * Updated to work with the refactored universe service architecture
- * 
+ *
  * @class RegistryYieldComponent
  * @extends Component
  */
@@ -18,7 +18,7 @@ export default class RegistryYieldComponent extends Component {
     /**
      * Get yieldable items from the registry
      * Computed as a getter for automatic reactivity
-     * 
+     *
      * @property yieldables
      * @type {Array}
      */
@@ -28,7 +28,7 @@ export default class RegistryYieldComponent extends Component {
 
     /**
      * Get yieldable items from the registry
-     * 
+     *
      * @method getYieldables
      * @returns {Array} Array of items to yield
      */
@@ -46,7 +46,7 @@ export default class RegistryYieldComponent extends Component {
 
     /**
      * Get menu items from registry
-     * 
+     *
      * @method getMenuItems
      * @param {String} registry Registry name
      * @returns {Array} Array of menu items
@@ -70,7 +70,7 @@ export default class RegistryYieldComponent extends Component {
 
     /**
      * Get components from registry
-     * 
+     *
      * @method getComponents
      * @param {String} registry Registry name
      * @returns {Array} Array of component definitions
@@ -94,18 +94,18 @@ export default class RegistryYieldComponent extends Component {
 
     /**
      * Check if yieldables are components (vs menu items/buttons)
-     * 
+     *
      * @property isComponent
      * @type {Boolean}
      */
     get isComponent() {
         const { type } = this.args;
-        
+
         // Explicit non-component types
         if (['buttons', 'menu', 'menuItems', 'menu-item'].includes(type)) {
             return false;
         }
-        
+
         // Check if first yieldable is a component definition
         if (this.yieldables.length > 0) {
             const first = this.yieldables[0];
@@ -113,7 +113,7 @@ export default class RegistryYieldComponent extends Component {
             // Component classes are functions
             return !!(first && (first.engine || typeof first === 'function'));
         }
-        
+
         return false;
     }
 }

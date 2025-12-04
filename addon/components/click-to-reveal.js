@@ -4,33 +4,11 @@ import { action, computed } from '@ember/object';
 import { later } from '@ember/runloop';
 
 export default class ClickToRevealComponent extends ClickToCopyComponent {
-    /**
-     * The visiblity state of the value
-     *
-     * @var {Boolean}
-     */
     @tracked isVisible = false;
-
-    /**
-     * The loading state of the reveal process
-     *
-     * @var {Boolean}
-     */
     @tracked isLoading = false;
-
-    /**
-     * The loading timing
-     *
-     * @var {Integer}
-     */
     @tracked timeout = 600;
-
-    /**
-     * If click to copy should be enabled.
-     *
-     * @var {Boolean}
-     */
     @tracked clickToCopy = false;
+    @tracked wrapperClass = this.args.wrapperClass ?? '';
 
     /**
      * Setup the component
@@ -46,6 +24,10 @@ export default class ClickToRevealComponent extends ClickToCopyComponent {
 
         if (column && column.cellComponentArgs) {
             this.clickToCopy = column.cellComponentArgs.clickToCopy ?? false;
+        }
+
+        if (column && column.cellComponentArgs) {
+            this.wrapperClass = column.cellComponentArgs.wrapperClass ?? '';
         }
     }
 

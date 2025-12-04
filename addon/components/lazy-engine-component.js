@@ -56,6 +56,7 @@ export default class LazyEngineComponent extends Component {
 
         // Handle string form component definition
         if (typeof componentDef === 'string' && componentDef.startsWith('#extension-component')) {
+            /* eslint-disable no-unused-vars */
             const [_, engineName, componentPathOrName] = componentDef.split(':');
             componentDef = new ExtensionComponent(engineName, componentPathOrName);
         }
@@ -84,13 +85,13 @@ export default class LazyEngineComponent extends Component {
                     // Register component class to engine if not already registered
                     const dasherized = componentClass.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
                     const componentKey = `component:${dasherized}`;
-                    
+
                     if (!engineInstance.hasRegistration(componentKey)) {
                         engineInstance.register(componentKey, componentClass);
                         // Also register with original name
                         engineInstance.register(`component:${componentClass.name}`, componentClass);
                     }
-                    
+
                     this.resolvedComponent = componentClass;
                     return;
                 }

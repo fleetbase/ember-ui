@@ -1,9 +1,11 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { next } from '@ember/runloop';
 
 export default class TabNavigationComponent extends Component {
+    @service universe;
     @tracked _activeTabId = null;
 
     constructor(owner, args) {
@@ -37,15 +39,26 @@ export default class TabNavigationComponent extends Component {
     get enhancedTabs() {
         if (!this.args.tabs) return [];
 
-        return this.args.tabs.map((tab) => ({
-            ...tab,
-            isActive: tab.id === this._activeTabId,
-            isDisabled: !!tab.disabled,
-            hasIcon: !!tab.icon,
-            hasBadge: !!(tab.badge && tab.badge > 0),
-            isClosable: !!(tab.closable && this.args.onClose),
-            badgeText: tab.badge > 99 ? '99+' : String(tab.badge || ''),
-        }));
+        return this.args.tabs.map((tab) => {
+            const enhanced = {
+                ...tab,
+                isActive: tab.id === this._activeTabId,
+                isDisabled: !!tab.disabled,
+                hasIcon: !!tab.icon,
+                hasBadge: !!(tab.badge && tab.badge > 0),
+                isClosable: !!(tab.closable && this.args.onClose),
+                badgeText: tab.badge > 99 ? '99+' : String(tab.badge || ''),
+            };
+
+            if (tab._isMenuItem) {
+                enhanced.model = tab.slug;
+                if (tab.view) {
+                    enhanced.query = { view: tab.view };
+                }
+            }
+
+            return enhanced;
+        });
     }
 
     @action selectTab(tab) {

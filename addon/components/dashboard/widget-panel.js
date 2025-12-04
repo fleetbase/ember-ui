@@ -30,17 +30,17 @@ export default class DashboardWidgetPanelComponent extends Component {
     get availableWidgets() {
         const dashboardId = this.args.defaultDashboardId || this.defaultDashboardId || 'dashboard';
         const widgets = this.widgetService.getWidgets(dashboardId);
-        
+
         // Filter widgets by search query
         if (this.searchQuery && this.searchQuery.trim()) {
             const query = this.searchQuery.toLowerCase().trim();
-            return widgets.filter(widget => {
+            return widgets.filter((widget) => {
                 const name = (widget.name || '').toLowerCase();
                 const description = (widget.description || '').toLowerCase();
                 return name.includes(query) || description.includes(query);
             });
         }
-        
+
         return widgets;
     }
 

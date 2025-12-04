@@ -19,7 +19,6 @@ export default class PillComponent extends Component {
     }
 
     @action handleClick() {
-        console.log('handleClick called!', ...arguments);
         if (typeof this.args.onClick === 'function') {
             if (this.args.resource) {
                 this.args.onClick(this.args.resource, ...arguments);

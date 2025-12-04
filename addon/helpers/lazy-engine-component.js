@@ -32,6 +32,7 @@ export default class LazyEngineComponentHelper extends Helper {
     compute([componentDef]) {
         // Handle string form component definition
         if (typeof componentDef === 'string' && componentDef.startsWith('#extension-component')) {
+            /* eslint-disable no-unused-vars */
             const [_, engineName, componentPathOrName] = componentDef.split(':');
             componentDef = new ExtensionComponent(engineName, componentPathOrName);
         }

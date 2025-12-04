@@ -9,6 +9,7 @@ export default class ResolveComponentHelper extends Helper {
 
         // Handle string form extension components
         if (typeof value === 'string' && value.startsWith('#extension-component')) {
+            /* eslint-disable no-unused-vars */
             const [_, engineName, componentPathOrName] = value.split(':');
             return new ExtensionComponent(engineName, componentPathOrName);
         }

@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import Chart, { _adapters } from 'chart.js/auto';
 import {
     parse,
