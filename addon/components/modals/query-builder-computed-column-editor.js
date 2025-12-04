@@ -75,7 +75,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             'MAKEDATE',
             'ADDDATE',
             'SUBDATE',
-            
+
             // String Functions
             'CONCAT',
             'CONCAT_WS',
@@ -98,7 +98,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             'POSITION',
             'INSTR',
             'STRCMP',
-            
+
             // Numeric Functions
             'ROUND',
             'ABS',
@@ -127,7 +127,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             'ACOS',
             'ATAN',
             'ATAN2',
-            
+
             // Conditional/Logic Functions
             'CASE',
             'WHEN',
@@ -138,11 +138,11 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             'IFNULL',
             'NULLIF',
             'COALESCE',
-            
+
             // Comparison Functions
             'LEAST',
             'GREATEST',
-            
+
             // Aggregate Functions
             'COUNT',
             'SUM',
@@ -150,11 +150,11 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             'MIN',
             'MAX',
             'GROUP_CONCAT',
-            
+
             // Type Conversion
             'CAST',
             'CONVERT',
-            
+
             // Other Utility Functions
             'INTERVAL',
         ];
