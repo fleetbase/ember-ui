@@ -12,6 +12,7 @@ module('Unit | Service | dashboard', function (hooks) {
         this.owner.register('service:notifications', {}, { instantiate: false });
         this.owner.register('service:intl', {}, { instantiate: false });
         this.owner.register('service:universe', {}, { instantiate: false });
+        this.owner.register('service:universe/widget-service', {}, { instantiate: false });
         let service = this.owner.lookup('service:dashboard');
         assert.ok(service);
     });
