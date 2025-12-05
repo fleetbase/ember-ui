@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { debug } from '@ember/debug';
 import Chart, { _adapters } from 'chart.js/auto';
 import {
     parse,
@@ -46,13 +47,7 @@ import {
 
 export default class ChartComponent extends Component {
     @tracked chart;
-    @tracked isLoading;
-
-    constructor() {
-        super(...arguments);
-
-        this.isLoading = this.args.isLoading === true;
-    }
+    @tracked isLoading = this.args.isLoading;
 
     @action async renderChart(ctx) {
         const options = {
@@ -65,9 +60,14 @@ export default class ChartComponent extends Component {
         };
 
         if (typeof options.data.datasets === 'function') {
-            this.isLoading = true;
-            options.data.datasets = await options.data.datasets();
-            this.isLoading = false;
+            try {
+                this.isLoading = true;
+                options.data.datasets = await options.data.datasets();
+            } catch (err) {
+                debug('Error loading Chart dataset: ' + err.message);
+            } finally {
+                this.isLoading = false;
+            }
         }
 
         this.useDateFns();

@@ -1,3 +1,9 @@
 {{#each this.yieldables as |item|}}
-    {{yield item @context}}
+    {{#if this.isComponent}}
+        <LazyEngineComponent @component={{item}} as |resolvedComponent|>
+            {{yield resolvedComponent @context}}
+        </LazyEngineComponent>
+    {{else}}
+        {{yield item @context}}
+    {{/if}}
 {{/each}}

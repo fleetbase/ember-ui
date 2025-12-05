@@ -12,46 +12,86 @@
             {{else if @tabs}}
                 {{#each this.enhancedTabs as |tab|}}
                     {{#if tab.route}}
-                        <LinkTo
-                            @route={{tab.route}}
-                            @query={{or tab.query (hash)}}
-                            @models={{or tab.models (array)}}
-                            @activeClass="tab-item--active"
-                            class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
-                            role="tab"
-                            aria-selected={{tab.isActive}}
-                            aria-controls="tabpanel-{{tab.route}}"
-                            id="tab-{{tab.route}}"
-                            data-tab-id={{tab.route}}
-                            data-disabled={{tab.isDisabled}}
-                            disabled={{tab.isDisabled}}
-                        >
-                            {{#if tab.hasIcon}}
-                                <span class="tab-ico {{tab.iconWrapperClass}}">
-                                    {{#if (eq @iconType "component")}}
-                                        {{component tab.icon}}
-                                    {{else}}
-                                        <FaIcon @icon={{tab.icon}} @size={{tab.iconSize}} class={{tab.iconClass}} />
-                                    {{/if}}
+                        {{#if tab.model}}
+                            <LinkTo
+                                @route={{tab.route}}
+                                @query={{or tab.query (hash)}}
+                                @model={{tab.model}}
+                                @activeClass="tab-item--active"
+                                class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
+                                role="tab"
+                                aria-selected={{tab.isActive}}
+                                aria-controls="tabpanel-{{tab.route}}"
+                                id="tab-{{tab.route}}"
+                                data-tab-id={{tab.route}}
+                                data-disabled={{tab.isDisabled}}
+                                disabled={{tab.isDisabled}}
+                            >
+                                {{#if tab.hasIcon}}
+                                    <span class="tab-ico {{tab.iconWrapperClass}}">
+                                        {{#if (eq @iconType "component")}}
+                                            {{component tab.icon}}
+                                        {{else}}
+                                            <FaIcon @icon={{tab.icon}} @size={{tab.iconSize}} class={{tab.iconClass}} />
+                                        {{/if}}
+                                    </span>
+                                {{/if}}
+                                <span class="tab-label">
+                                    {{tab.label}}
                                 </span>
-                            {{/if}}
-                            <span class="tab-label">
-                                {{tab.label}}
-                            </span>
-                            {{#if tab.hasBadge}}
-                                <span class="tab-badge">
-                                    {{tab.badgeText}}
+                                {{#if tab.hasBadge}}
+                                    <span class="tab-badge">
+                                        {{tab.badgeText}}
+                                    </span>
+                                {{/if}}
+                                {{#if tab.isClosable}}
+                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                {{/if}}
+                            </LinkTo>
+                        {{else}}
+                            <LinkTo
+                                @route={{tab.route}}
+                                @query={{or tab.query (hash)}}
+                                @activeClass="tab-item--active"
+                                class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
+                                role="tab"
+                                aria-selected={{tab.isActive}}
+                                aria-controls="tabpanel-{{tab.route}}"
+                                id="tab-{{tab.route}}"
+                                data-tab-id={{tab.route}}
+                                data-disabled={{tab.isDisabled}}
+                                disabled={{tab.isDisabled}}
+                            >
+                                {{#if tab.hasIcon}}
+                                    <span class="tab-ico {{tab.iconWrapperClass}}">
+                                        {{#if (eq @iconType "component")}}
+                                            {{component tab.icon}}
+                                        {{else}}
+                                            <FaIcon @icon={{tab.icon}} @size={{tab.iconSize}} class={{tab.iconClass}} />
+                                        {{/if}}
+                                    </span>
+                                {{/if}}
+                                <span class="tab-label">
+                                    {{tab.label}}
                                 </span>
-                            {{/if}}
-                            {{#if tab.isClosable}}
-
-                                <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            {{/if}}
-                        </LinkTo>
+                                {{#if tab.hasBadge}}
+                                    <span class="tab-badge">
+                                        {{tab.badgeText}}
+                                    </span>
+                                {{/if}}
+                                {{#if tab.isClosable}}
+                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                {{/if}}
+                            </LinkTo>
+                        {{/if}}
                     {{else}}
                         <button
                             type="button"

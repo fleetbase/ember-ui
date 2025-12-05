@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 import { inject as service } from '@ember/service';
+import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';
 import removeNullish from '../utils/remove-nullish';
 
@@ -73,7 +74,7 @@ export default class ReportBuilderComponent extends Component {
     }
 
     @action setQueryConfig(queryConfig) {
-        console.log('[queryConfig]', queryConfig);
+        debug('[ReportBuilder QueryConfig]' + JSON.stringify(queryConfig, null, 2));
         this.queryConfig = queryConfig;
 
         if (this.args.report) {

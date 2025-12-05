@@ -1,0 +1,8 @@
+{{#if this.resolvedComponent}}
+    {{#if (has-block)}}
+        {{yield this.resolvedComponent this.params}}
+    {{else}}
+        {{component this.resolvedComponent params=this.params}}
+    {{/if}}
+{{/if}}
+<div {{did-update this.handleChange @component @params}} />

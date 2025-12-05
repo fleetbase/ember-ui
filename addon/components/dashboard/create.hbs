@@ -1,10 +1,12 @@
 <div class="fleetbase-dashboard-grid" ...attributes>
     <GridStack @options={{this.gridOptions}} @onChange={{this.onChangeGrid}}>
         {{#each @dashboard.widgets as |widget|}}
-            {{#let (resolve-component widget.component) as |ResolvedComponent|}}
-                {{#if ResolvedComponent}}
+            {{#let (resolve-component widget.component) as |componentDefinition|}}
+                {{#if componentDefinition}}
                     <GridStackItem id={{widget.id}} @options={{spread-widget-options (hash id=widget.id options=widget.grid_options)}} class="relative">
-                        {{component ResolvedComponent widget=widget options=widget.options}}
+                        <LazyEngineComponent @component={{componentDefinition}} as |resolvedComponent|>
+                            {{component resolvedComponent widget=widget options=widget.options}}
+                        </LazyEngineComponent>
 
                         {{#if @isEdit}}
                             <div class="absolute top-2 right-2">

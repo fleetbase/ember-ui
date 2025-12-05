@@ -53,10 +53,8 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
                 modal.startLoading();
 
                 const editorComponent = modal.getOption('modalComponentInstance');
-                console.log('[editorComponent]', editorComponent);
                 if (editorComponent) {
                     const isValid = await editorComponent.validateExpression();
-                    console.log('[isValid]', isValid);
                     if (isValid) {
                         const computedColumn = editorComponent.save();
                         this.saveComputedColumn(computedColumn);

@@ -17,6 +17,7 @@ export default class DashboardService extends Service {
     @service fetch;
     @service notifications;
     @service universe;
+    @service('universe/widget-service') widgetService;
     @service intl;
 
     /**
@@ -52,8 +53,9 @@ export default class DashboardService extends Service {
 
     /**
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
+     * Uses drop modifier to prevent concurrent executions and race conditions.
      */
-    @task *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
+    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
         this.universe.registerDashboard(defaultDashboardId);
 
         const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
@@ -174,10 +176,10 @@ export default class DashboardService extends Service {
     reset() {
         this.currentDashboard = null;
         this.dashboards = [];
-        // unload from store
+        // unload from store - must unload widgets first to avoid orphaned records
         next(() => {
+            this.store.unloadAll('dashboard-widget');
             this.store.unloadAll('dashboard');
-            // this.store.unloadAll('dashboard-widget');
         });
     }
 
@@ -193,20 +195,37 @@ export default class DashboardService extends Service {
         const loadedDashboards = this.store.peekAll('dashboard');
 
         // check for default dashboard loaded in store
-        defaultDashboard = loadedDashboards.find((dashboard) => dashboard && dashboard.id === defaultDashboardId);
-        if (defaultDashboard) {
-            return defaultDashboard;
+        defaultDashboard = loadedDashboards.find((dashboard) => {
+            return dashboard && dashboard.id === defaultDashboardId && !dashboard.isDeleted && !dashboard.isDestroying && !dashboard.isDestroyed;
+        });
+        if (defaultDashboard) return defaultDashboard;
+
+        // Peek existing record in identity map
+        const existingDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
+        // Only return if it's in a valid state (not deleted, destroying, or destroyed)
+        if (existingDashboard && !existingDashboard.isDeleted && !existingDashboard.isDestroying && !existingDashboard.isDestroyed) {
+            return existingDashboard;
         }
 
         // create new default dashboard
-        defaultDashboard = this.store.createRecord('dashboard', {
-            id: defaultDashboardId,
-            uuid: defaultDashboardId,
-            name: defaultDashboardName,
-            is_default: false,
-            user_uuid: 'system',
-            widgets: this._createDefaultDashboardWidgets(defaultDashboardId),
-        });
+        try {
+            defaultDashboard = this.store.createRecord('dashboard', {
+                id: defaultDashboardId,
+                uuid: defaultDashboardId,
+                name: defaultDashboardName,
+                is_default: false,
+                user_uuid: 'system',
+                widgets: this._createDefaultDashboardWidgets(defaultDashboardId),
+            });
+        } catch (error) {
+            // Handle race condition where record was created between our peek and createRecord
+            if (error.message && error.message.includes('already been used')) {
+                defaultDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
+                if (defaultDashboard) return defaultDashboard;
+            }
+            // Re-throw if it's a different error
+            throw error;
+        }
 
         return defaultDashboard;
     }
@@ -217,11 +236,14 @@ export default class DashboardService extends Service {
      * @returns {Array} An array of default dashboard widgets.
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
-        const widgets = this.universe.getDefaultWidgets(defaultDashboardId).map((defaultWidget) => {
+        const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId);
+
+        return widgets.map((defaultWidget) => {
+            const existingWidget = this.store.peekRecord('dashboard-widget', defaultWidget.id);
+            if (existingWidget) return existingWidget;
+
             return this.store.createRecord('dashboard-widget', defaultWidget);
         });
-
-        return widgets;
     }
 
     /**
