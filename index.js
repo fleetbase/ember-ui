@@ -58,25 +58,42 @@ module.exports = {
     treeForStyles: function () {
         // Only provide styles to the root application, not to engines
         // This prevents engines from trying to compile ember-ui styles
+        console.log('\n[ember-ui] treeForStyles called');
+        console.log('[ember-ui] this.parent.name:', this.parent?.name);
+        console.log('[ember-ui] this.parent.lazyLoading:', this.parent?.lazyLoading);
+        
         let parent = this.parent;
+        let depth = 0;
         while (parent) {
             const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
+            console.log(`[ember-ui] Parent ${depth}: ${parent.name}, isEngine: ${isEngine}, lazyLoading:`, parent.lazyLoading);
+            
             if (isEngine) {
                 // Parent is an engine - don't provide styles
+                console.log('[ember-ui] ❌ BLOCKING styles - parent is an engine:', parent.name);
                 return null;
             }
             parent = parent.parent;
+            depth++;
         }
         
         // Parent is the root app - provide styles normally
+        console.log('[ember-ui] ✅ PROVIDING styles - parent is root app');
         return this._super.treeForStyles ? this._super.treeForStyles.apply(this, arguments) : null;
     },
 
     included: function (app) {
         this._super.included.apply(this, arguments);
 
+        console.log('\n[ember-ui] included() called');
+        console.log('[ember-ui] Initial app.name:', app.name);
+        console.log('[ember-ui] Initial app.lazyLoading:', app.lazyLoading);
+
         // Get Application Host (skips engines, finds root app)
         app = this.findApplicationHost(app);
+        
+        console.log('[ember-ui] After findApplicationHost, app.name:', app.name);
+        console.log('[ember-ui] After findApplicationHost, app.lazyLoading:', app.lazyLoading);
 
         // PostCSS Options - only applied to the root application
         // Engines are excluded by findApplicationHost, so they won't get these options
