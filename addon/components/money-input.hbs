@@ -14,6 +14,6 @@
                 <MoneyInput::CurrencyHandle @currency={{this.currencyData}} />
             {{/if}}
         </span>
-        <Input @type="tel" @value={{@value}} class="form-input flex-1 rounded-l-none" {{did-insert this.autoNumerize}} ...attributes />
+        <Input @type="tel" class="form-input flex-1 rounded-l-none" {{did-insert this.autoNumerize}} {{did-update this.handleValueChanges @value}} ...attributes />
     </div>
 </div>
