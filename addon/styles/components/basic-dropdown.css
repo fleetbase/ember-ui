@@ -40,10 +40,12 @@ body.fleetbase-console .ember-basic-dropdown-content {
     background-color: transparent;
 }
 
+.ember-power-select-multiple-option .hide-from-trigger,
 .ember-power-select-selected-item .hide-from-trigger {
     display: none;
 }
 
+.ember-power-select-multiple-option div.normalize-in-trigger,
 .ember-power-select-selected-item div.normalize-in-trigger {
     font-weight: normal;
 }

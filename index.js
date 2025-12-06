@@ -21,7 +21,7 @@ const postcssOptions = {
         plugins: [
             postcssAtRulesVariables,
             postcssImport({
-                path: ['node_modules'],
+                path: ['node_modules', path.join(__dirname, 'addon/styles')],
                 plugins: [postcssAtRulesVariables, postcssImport],
             }),
             postcssMixins,
@@ -55,13 +55,31 @@ module.exports = {
         postcssOptions,
     },
 
+    treeForStyles: function () {
+        // Only provide styles to the root application, not to engines
+        // This prevents engines from trying to compile ember-ui styles
+        let parent = this.parent;
+        while (parent) {
+            const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
+            if (isEngine) {
+                // Parent is an engine - don't provide styles
+                return null;
+            }
+            parent = parent.parent;
+        }
+
+        // Parent is the root app - provide styles normally
+        return this._super.treeForStyles ? this._super.treeForStyles.apply(this, arguments) : null;
+    },
+
     included: function (app) {
         this._super.included.apply(this, arguments);
 
-        // Get Application Host
+        // Get Application Host (skips engines, finds root app)
         app = this.findApplicationHost(app);
 
-        // PostCSS Options
+        // PostCSS Options - only applied to the root application
+        // Engines are excluded by findApplicationHost, so they won't get these options
         app.options = app.options || {};
         app.options.postcssOptions = postcssOptions;
 
@@ -128,11 +146,11 @@ module.exports = {
     findApplicationHost(app) {
         let current = this;
         do {
-            if (current.lazyLoading === true || (current.lazyLoading && current.lazyLoading.enabled === true)) {
-                app = current;
-                break;
+            // Skip engines - we want the root application, not an engine
+            const isEngine = current.lazyLoading === true || (current.lazyLoading && current.lazyLoading.enabled === true);
+            if (!isEngine) {
+                app = current.app || app;
             }
-            app = current.app || app;
         } while (current.parent.parent && (current = current.parent));
 
         return app;
