@@ -1,4 +1,5 @@
 <ModelSelect
+    @multiple={{true}}
     @modelName={{@modelName}}
     @selectedModel={{@selectedModel}}
     @optionLabel={{@optionLabel}}
@@ -63,6 +64,7 @@
     @selectedItemComponent={{@selectedItemComponent}}
     @eventType={{@eventType}}
     @title={{@title}}
+    @triggerComponent={{component (or @triggerComponent "power-select-multiple/trigger") tabindex=@tabindex}}
     @triggerId={{@triggerId}}
     @verticalPosition={{@verticalPosition}}
     @tabindex={{this.computedTabIndex}}
