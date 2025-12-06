@@ -21,7 +21,7 @@ const postcssOptions = {
         plugins: [
             postcssAtRulesVariables,
             postcssImport({
-                path: ['node_modules'],
+                path: ['node_modules', path.join(__dirname, 'addon/styles')],
                 plugins: [postcssAtRulesVariables, postcssImport],
             }),
             postcssMixins,
