@@ -61,13 +61,13 @@ module.exports = {
         console.log('\n[ember-ui] treeForStyles called');
         console.log('[ember-ui] this.parent.name:', this.parent?.name);
         console.log('[ember-ui] this.parent.lazyLoading:', this.parent?.lazyLoading);
-        
+
         let parent = this.parent;
         let depth = 0;
         while (parent) {
             const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
             console.log(`[ember-ui] Parent ${depth}: ${parent.name}, isEngine: ${isEngine}, lazyLoading:`, parent.lazyLoading);
-            
+
             if (isEngine) {
                 // Parent is an engine - don't provide styles
                 console.log('[ember-ui] ❌ BLOCKING styles - parent is an engine:', parent.name);
@@ -76,7 +76,7 @@ module.exports = {
             parent = parent.parent;
             depth++;
         }
-        
+
         // Parent is the root app - provide styles normally
         console.log('[ember-ui] ✅ PROVIDING styles - parent is root app');
         return this._super.treeForStyles ? this._super.treeForStyles.apply(this, arguments) : null;
@@ -91,7 +91,7 @@ module.exports = {
 
         // Get Application Host (skips engines, finds root app)
         app = this.findApplicationHost(app);
-        
+
         console.log('[ember-ui] After findApplicationHost, app.name:', app.name);
         console.log('[ember-ui] After findApplicationHost, app.lazyLoading:', app.lazyLoading);
 

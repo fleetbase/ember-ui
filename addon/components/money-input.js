@@ -28,7 +28,7 @@ export default class MoneyInputComponent extends Component {
         const { onCurrencyChange } = this.args;
         let currency = this.currencyData;
         let value = numbersOnly(this.args.value ?? 0);
-        
+
         // CRITICAL: Conditional division based on currency precision
         // - Currencies with decimals (precision > 0): divide by 100 (stored in cents)
         // - Currencies without decimals (precision = 0): use as-is (stored in main unit)

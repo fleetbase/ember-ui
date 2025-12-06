@@ -51,9 +51,23 @@
 .ember-power-select-trigger-multiple-input,
 .ember-power-select-trigger-multiple-input[type='search'] {
     @apply bg-transparent text-sm text-white outline-0 leading-5 px-1;
-    max-height: 21px;
+    height: 26.42px; /** don't ask */
+    max-height: 40px;
 }
 
-.ember-power-select-option[aria-selected="true"] {
+.fleetbase-console.ember-power-select-trigger-multiple-input::placeholder,
+.ember-power-select-trigger-multiple-input .ember-power-select-trigger-multiple-input::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
+
+.ember-power-select-option[aria-selected='true'] {
     @apply dark:bg-gray-900 bg-gray-200;
+}
+
+.ember-model-select-multiple-trigger > .ember-power-select-multiple-options > li.ember-power-select-multiple-option {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.45rem;
 }
