@@ -4,6 +4,7 @@ module.exports = {
     content: [
         './app/**/*.{hbs,js}',
         './addon/**/*.{hbs,js}',
+        './addon/**/*.css',
         // All Fleetbase packages (both pnpm symlinked and normal installs)
         './node_modules/@fleetbase+*/**/addon/**/*.{hbs,js}',
         './node_modules/@fleetbase/**/addon/**/*.{hbs,js}',
