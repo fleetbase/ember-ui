@@ -92,19 +92,4 @@ export default class MoneyInputComponent extends Component {
     @action handleCurrencyChanges(el, [currency]) {
         this.setCurrency(getCurrency(currency));
     }
-
-    @action handleValueChanges(element, [value]) {
-        if (this.autonumeric) {
-            let currency = this.currencyData;
-            let numValue = numbersOnly(value ?? 0);
-            
-            // Apply same conditional division as initialization
-            let amount = !currency.decimalSeparator ? numValue : numValue / 100;
-            
-            // Only update if the value actually changed to avoid unnecessary operations
-            if (this.autonumeric.getNumber() !== amount) {
-                this.autonumeric.set(amount);
-            }
-        }
-    }
 }
