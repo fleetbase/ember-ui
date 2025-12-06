@@ -75,11 +75,23 @@ module.exports = {
     included: function (app) {
         this._super.included.apply(this, arguments);
 
+        // Check if we're being included by an engine
+        // If so, skip setting postcssOptions to prevent engines from trying to compile our styles
+        let parent = this.parent;
+        while (parent) {
+            const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
+            if (isEngine) {
+                // We're in an engine - don't set postcssOptions
+                // The engine will inherit from the host app
+                return;
+            }
+            parent = parent.parent;
+        }
+
         // Get Application Host (skips engines, finds root app)
         app = this.findApplicationHost(app);
 
         // PostCSS Options - only applied to the root application
-        // Engines are excluded by findApplicationHost, so they won't get these options
         app.options = app.options || {};
         app.options.postcssOptions = postcssOptions;
 
