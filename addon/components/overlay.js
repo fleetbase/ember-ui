@@ -28,6 +28,7 @@ export default class OverlayComponent extends Component {
         isOpen: this.isOpen,
         isMinimized: this.isMinimized,
         isMaximized: this.isMaximized,
+        overlayNode: this.overlayNode,
     };
 
     @action setupComponent(element) {

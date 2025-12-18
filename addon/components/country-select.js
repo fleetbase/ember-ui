@@ -14,6 +14,10 @@ export default class CountrySelectComponent extends Component {
     @tracked value;
     @tracked id = guidFor(this);
 
+    get renderInPlace() {
+        return this.args.renderInPlace ?? true;
+    }
+
     constructor(owner, { value = null, disabled = false }) {
         super(...arguments);
         this.disabled = disabled;
@@ -23,10 +27,12 @@ export default class CountrySelectComponent extends Component {
 
     @task *fetchCountries(value = null) {
         try {
-            this.countries = yield this.fetch.get('lookup/countries', { columns: ['name', 'cca2', 'flag', 'emoji'] });
-            if (value) {
-                this.selected = this.findCountry(value);
-            }
+            this.countries = yield this.fetch.get(
+                'lookup/countries',
+                { columns: ['name', 'cca2', 'flag', 'emoji'] },
+                { fromCache: true, expirationInterval: 1, expirationIntervalUnit: 'week' }
+            );
+            this.selected = this.findCountry(value);
         } catch (error) {
             this.countries = [];
         }
@@ -40,15 +46,8 @@ export default class CountrySelectComponent extends Component {
         }
     }
 
-    @action listenForInputChanges(element) {
-        later(() => {
-            const { value } = element;
-
-            if (this.value !== value) {
-                this.value = value;
-                this.changed(value);
-            }
-        }, 100);
+    @action handleChange(el, [value]) {
+        this.selected = this.findCountry(value);
     }
 
     @action selectCountry(country) {
