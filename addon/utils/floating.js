@@ -73,3 +73,9 @@ export class Tooltip {
         this.cleanupFns = [];
     }
 }
+
+export default {
+    createTooltip() {
+        return new Tooltip(...arguments);
+    },
+};
