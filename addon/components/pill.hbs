@@ -26,23 +26,25 @@
             {{#if (has-block)}}
                 {{yield @resource}}
             {{else}}
-                <div class="text-sm {{@titleClass}}">{{n-a @title this.resourceName}}</div>
+                <div class="text-sm {{@titleClass}}">{{or @title this.resourceName @titleFallback "-"}}</div>
                 {{#if @subtitle}}
                     <div class="text-xs text-gray-400 dark:text-gray-500 {{@subtitleClass}}">{{n-a @subtitle}}</div>
                 {{/if}}
                 {{yield @resource}}
             {{/if}}
         </div>
-        {{#if (has-block "tooltip")}}
-            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
-                <InputInfo>
-                    {{yield @resource to="tooltip"}}
-                </InputInfo>
-            </Attach::Tooltip>
-        {{else if @tooltipComponent}}
-            <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
-                {{component @tooltipComponent}}
-            </Attach::Tooltip>
-        {{/if}}
+        {{#unless @noTooltip}}
+            {{#if (has-block "tooltip")}}
+                <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+                    <InputInfo>
+                        {{yield @resource to="tooltip"}}
+                    </InputInfo>
+                </Attach::Tooltip>
+            {{else if @tooltipComponent}}
+                <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+                    {{component @tooltipComponent}}
+                </Attach::Tooltip>
+            {{/if}}
+        {{/unless}}
     </a>
 </div>

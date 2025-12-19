@@ -1,6 +1,6 @@
-<div class="fleetbase-power-select {{@wrapperClass}}">
+<div class="fleetbase-power-select {{@wrapperClass}}" {{did-update this.handleChange @value}}>
     <PowerSelect
-        @renderInPlace={{true}}
+        @renderInPlace={{this.renderInPlace}}
         @searchEnabled={{true}}
         @selected={{this.selected}}
         @searchField="name"
@@ -17,5 +17,4 @@
         <span class="mr-1">{{country.emoji}}</span>
         <span>{{country.name}}</span>
     </PowerSelect>
-    <Input @type="hidden" class="hidden" @value={{@value}} aria-label="Country Value" data-county={{@value}} {{did-insert this.listenForInputChanges}} />
 </div>

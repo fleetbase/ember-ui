@@ -6,7 +6,7 @@ export default class PillComponent extends Component {
     /* eslint-disable ember/no-get */
     get resourceName() {
         const record = this.args.resource;
-        if (!record) return 'resource';
+        if (!record) return null;
 
         return (
             get(record, this.args.namePath ?? 'name') ??
