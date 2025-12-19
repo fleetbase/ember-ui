@@ -4,7 +4,6 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { task } from 'ember-concurrency';
-import { later } from '@ember/runloop';
 
 export default class CountrySelectComponent extends Component {
     @service fetch;
