@@ -2,6 +2,7 @@ import { getOwner } from '@ember/application';
 import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
 import { schedule } from '@ember/runloop';
+import { isArray } from '@ember/array';
 import { all } from 'rsvp';
 import requirejs from 'require';
 
@@ -165,4 +166,93 @@ export function waitForInsertedAndSized(getElOrEl, { timeoutMs = 4000 } = {}) {
             }, timeoutMs);
         }
     });
+}
+
+/**
+ * Create a DOM element with declarative options.
+ *
+ * @param {string} tag
+ * @param {Object} [options]
+ * @param {string|string[]|Node|Node[]} [children]
+ * @returns {HTMLElement}
+ */
+export function createElement(tag, options = {}, children = null) {
+    const el = document.createElement(tag);
+
+    // ---------- Classes ----------
+    if (options.classNames) {
+        const classes = isArray(options.classNames) ? options.classNames : options.classNames.split(' ');
+        el.classList.add(...classes.filter(Boolean));
+    }
+
+    // ---------- Styles ----------
+    if (options.styles && typeof options.styles === 'object') {
+        Object.assign(el.style, options.styles);
+    }
+
+    // ---------- Attributes ----------
+    if (options.attrs && typeof options.attrs === 'object') {
+        for (const [key, value] of Object.entries(options.attrs)) {
+            if (value !== false && value != null) {
+                el.setAttribute(key, value === true ? '' : value);
+            }
+        }
+    }
+
+    // ---------- Dataset ----------
+    if (options.dataset && typeof options.dataset === 'object') {
+        for (const [key, value] of Object.entries(options.dataset)) {
+            el.dataset[key] = value;
+        }
+    }
+
+    // ---------- Event listeners ----------
+    if (options.on && typeof options.on === 'object') {
+        for (const [event, handler] of Object.entries(options.on)) {
+            if (typeof handler === 'function') {
+                el.addEventListener(event, handler);
+            }
+        }
+    }
+
+    // ---------- Text / HTML (exclusive) ----------
+    const hasText = options.text != null || options.innerText != null;
+    const hasHtml = options.html != null || options.innerHTML != null;
+
+    if (hasText && hasHtml) {
+        throw new Error('createElement: use either text OR html, not both.');
+    }
+
+    if (hasText) {
+        el.textContent = options.text ?? options.innerText;
+    } else if (hasHtml) {
+        el.innerHTML = options.html ?? options.innerHTML;
+    } else {
+        // ---------- Children ----------
+        const append = (child) => {
+            if (child == null) return;
+            if (Array.isArray(child)) return child.forEach(append);
+            if (child instanceof Node) el.appendChild(child);
+            else el.appendChild(document.createTextNode(String(child)));
+        };
+
+        append(children);
+    }
+
+    // ---------- Mount ----------
+    if (options.mount) {
+        let mountTarget = options.mount;
+
+        if (typeof mountTarget === 'string') {
+            mountTarget = document.querySelector(mountTarget);
+        }
+
+        if (mountTarget instanceof Element) {
+            mountTarget.appendChild(el);
+        } else {
+            console.warn('createElement: mount target not found', options.mount);
+        }
+    }
+
+    return el;
 }
