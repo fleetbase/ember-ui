@@ -19,7 +19,7 @@
                             <div class="{{@item.class}}">
                                 {{#if line.component}}
                                     {{component
-                                        line.component
+                                        (lazy-engine-component line.component)
                                         item=line
                                         text=line.text
                                         label=(or line.label line.text)
@@ -108,5 +108,5 @@
 {{/if}}
 
 {{#if this.isComponent}}
-    {{component @item.component @item}}
+    {{component (lazy-engine-component @item.component) @item}}
 {{/if}}

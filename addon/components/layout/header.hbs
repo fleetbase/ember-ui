@@ -17,7 +17,7 @@
                     >
                         <div class="w-6">
                             {{#if menuItem.iconComponent}}
-                                {{component menuItem.iconComponent options=menuItem.iconComponentOptions}}
+                                {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
                             {{else}}
                                 <FaIcon @icon={{menuItem.icon}} @prefix={{menuItem.iconPrefix}} @size="sm" />
                             {{/if}}

@@ -3,6 +3,7 @@ import { inject as service } from '@ember/service';
 import { computed, action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import { bool } from '@ember/object/computed';
+import { ExtensionComponent } from '@fleetbase/ember-core/contracts';
 import isMenuItemActive from '../../../../utils/is-menu-item-active';
 import isEmptyObject from '../../../../utils/is-empty-object';
 
@@ -20,6 +21,8 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
     }
 
     @computed('args.item.{component,onClick}') get isComponent() {
+        if (this.args.item.component instanceof ExtensionComponent) return true;
+
         return this.args.item && typeof this.args.item.component === 'string' && typeof this.args.item.onClick !== 'function';
     }
 
