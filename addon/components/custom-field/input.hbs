@@ -27,7 +27,7 @@
             </InputGroup>
         {{else if (eq this.customFieldComponent "money-input")}}
             <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>
-                <MoneyInput class="w-full" @wrapperClass="x-fleetops-input-height shadow-md" @value={{this.value}} @canSelectCurrency={{true}} @onChange={{this.onChangeHandler}} />
+                <MoneyInput class="w-full" @wrapperClass="x-fleetops-input-height shadow-md" @value={{this.value}} @canSelectCurrency={{@canSelectCurrency}} @currency={{or @currency "USD"}} @onChange={{this.onChangeHandler}} />
             </InputGroup>
         {{else if (eq this.customFieldComponent "date-time-input")}}
             <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>

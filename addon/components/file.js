@@ -9,4 +9,8 @@ export default class FileComponent extends Component {
     get isImage() {
         return isImageFile(this.file);
     }
+
+    get hasActions() {
+        return typeof this.args.onDelete === 'function' || typeof this.args.onDownload === 'function' || typeof this.args.onPreview === 'function';
+    }
 }

@@ -3,6 +3,8 @@
     <div class="field-value">
         {{#if this.isBoolean}}
             <Badge @status={{if this.value "success" ""}}>{{if this.value "Yes" "No"}}</Badge>
+        {{else if this.isFile}}
+            <File @file={{this.value}} @onDownload={{this.downloadFile}} class="custom-field-file" />
         {{else}}
             {{n-a this.value}}
         {{/if}}
