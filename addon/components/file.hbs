@@ -12,44 +12,74 @@
         {{/if}}
     </div>
 
-    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <DropdownButton
-            @dropdownId="file-actions-{{@file.id}}"
-            @icon={{or @dropdownIcon "ellipsis-v"}}
-            @iconSize="sm"
-            @iconPrefix={{@dropdownButtonIconPrefix}}
-            @text={{@dropdownButtonText}}
-            @size="xs"
-            @horizontalPosition="left"
-            @calculatePosition={{@dropdownButtonCalculatePosition}}
-            @renderInPlace={{or @dropdownButtonRenderInPlace true}}
-            @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}}
-            @triggerClass={{@dropdownButtonTriggerClass}}
-            @registerAPI={{@registerAPI}}
-            @onInsert={{this.onDropdownButtonInsert}}
-            as |dd|
-        >
-            <div class="next-dd-menu mt-0" role="menu">
-                <div class="px-1 pt-2">
-                    <div class="text-xs px-2 text-gray-500 dark:text-gray-400 font-medium">
-                        {{t "component.file.dropdown-label"}}
+    {{#if this.hasActions}}
+        <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <DropdownButton
+                @dropdownId="file-actions-{{@file.id}}"
+                @icon={{or @dropdownIcon "ellipsis-v"}}
+                @iconSize="sm"
+                @iconPrefix={{@dropdownButtonIconPrefix}}
+                @text={{@dropdownButtonText}}
+                @size="xs"
+                @horizontalPosition="left"
+                @calculatePosition={{@dropdownButtonCalculatePosition}}
+                @renderInPlace={{or @dropdownButtonRenderInPlace true}}
+                @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}}
+                @triggerClass={{@dropdownButtonTriggerClass}}
+                @registerAPI={{@registerAPI}}
+                @onInsert={{this.onDropdownButtonInsert}}
+                as |dd|
+            >
+                <div class="next-dd-menu mt-0" role="menu">
+                    <div class="px-1 pt-2">
+                        <div class="text-xs px-2 text-gray-500 dark:text-gray-400 font-medium">
+                            {{t "component.file.dropdown-label"}}
+                        </div>
                     </div>
+                    <div class="next-dd-menu-seperator"></div>
+                    {{#if @onDelete}}
+                        <div role="group" class="px-1">
+                            <a
+                                href="javascript:;"
+                                role="menuitem"
+                                class="next-dd-item xs-text text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                {{on "click" (dropdown-fn dd @onDelete this.file)}}
+                            >
+                                <FaIcon @icon="trash" @size="sm" class="mr-2" @prefix={{@dropdownButtonIconPrefix}} />
+                                {{t "common.delete"}}
+                            </a>
+                        </div>
+                    {{/if}}
+                    {{#if @onDownload}}
+                        <div role="group" class="px-1">
+                            <a
+                                href="javascript:;"
+                                role="menuitem"
+                                class="next-dd-item xs-text"
+                                {{on "click" (dropdown-fn dd @onDownload this.file)}}
+                            >
+                                <FaIcon @icon="download" @size="sm" class="mr-2" @prefix={{@dropdownButtonIconPrefix}} />
+                                {{t "common.download"}}
+                            </a>
+                        </div>
+                    {{/if}}
+                    {{#if @onPreview}}
+                        <div role="group" class="px-1">
+                            <a
+                                href="javascript:;"
+                                role="menuitem"
+                                class="next-dd-item xs-text"
+                                {{on "click" (dropdown-fn dd @onPreview this.file)}}
+                            >
+                                <FaIcon @icon="magnifying-glass" @size="sm" class="mr-2" @prefix={{@dropdownButtonIconPrefix}} />
+                                {{t "common.preview"}}
+                            </a>
+                        </div>
+                    {{/if}}
                 </div>
-                <div class="next-dd-menu-seperator"></div>
-                <div role="group" class="px-1">
-                    <a
-                        href="javascript:;"
-                        role="menuitem"
-                        class="next-dd-item xs-text text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                        {{on "click" (dropdown-fn dd @onDelete this.file)}}
-                    >
-                        <FaIcon @icon="trash" @size="sm" class="mr-2" @prefix={{@dropdownButtonIconPrefix}} />
-                        {{t "common.delete"}}
-                    </a>
-                </div>
-            </div>
-        </DropdownButton>
-    </div>
+            </DropdownButton>
+        </div>
+    {{/if}}
 
     <div class="flex items-center justify-between px-2 py-1.5 border-t border-gray-100 dark:border-gray-700">
         <span class="text-xs text-gray-700 dark:text-gray-300 truncate font-medium">
