@@ -21,7 +21,7 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
     }
 
     @computed('args.item.{component,onClick}') get isComponent() {
-        if (this.args.item.component instanceof ExtensionComponent) return true;
+        if (this.args.item.component instanceof ExtensionComponent && typeof this.args.item.onClick !== 'function') return true;
 
         return this.args.item && typeof this.args.item.component === 'string' && typeof this.args.item.onClick !== 'function';
     }
