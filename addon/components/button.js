@@ -13,6 +13,13 @@ export default class ButtonComponent extends Component {
     @service abilities;
 
     /**
+     * Inject universe service for event tracking.
+     *
+     * @memberof ButtonComponent
+     */
+    @service universe;
+
+    /**
      * Determines if the button should be disabled
      *
      * @var {Boolean}
@@ -111,10 +118,16 @@ export default class ButtonComponent extends Component {
      * @void
      */
     @action onClick() {
-        const { onClick } = this.args;
+        const { onClick, eventName, eventArgs } = this.args;
 
         if (this.isDisabled) {
             return;
+        }
+
+        // Trigger analytics event if eventName is provided
+        if (eventName && this.universe) {
+            const args = eventArgs || [];
+            this.universe.trigger(eventName, ...args);
         }
 
         if (typeof onClick === 'function') {

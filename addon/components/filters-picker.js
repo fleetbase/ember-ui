@@ -7,6 +7,7 @@ import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
     @service hostRouter;
+    @service universe;
     @tracked filters = [];
 
     get activeFilters() {
@@ -69,6 +70,11 @@ export default class FiltersPickerComponent extends Component {
     }
 
     @action applyFilters() {
+        // Trigger filter applied event
+        if (this.universe) {
+            this.universe.trigger('ui.filter.applied', this.activeFilters);
+        }
+
         if (typeof this.args.onApply === 'function') {
             this.args.onApply();
         }
@@ -87,6 +93,11 @@ export default class FiltersPickerComponent extends Component {
     }
 
     @action async clearFilters(...args) {
+        // Trigger filter cleared event
+        if (this.universe) {
+            this.universe.trigger('ui.filter.cleared');
+        }
+
         if (typeof this.args.onClear === 'function') {
             this.args.onClear(...args);
         }

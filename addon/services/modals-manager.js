@@ -1,4 +1,4 @@
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
@@ -9,6 +9,8 @@ import { guidFor } from '@ember/object/internals';
 const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
+    @service universe;
+    
     @tracked modals = [];
     @tracked defaultOptions = {
         title: null,
@@ -114,6 +116,11 @@ export default class ModalsManagerService extends Service {
 
         // Add modal to the stack
         this.modals = [...this.modals, modal];
+
+        // Trigger modal opened event
+        if (this.universe) {
+            this.universe.trigger('ui.modal.opened', component, opts);
+        }
 
         return modalDefer.promise;
     }
@@ -351,6 +358,11 @@ export default class ModalsManagerService extends Service {
 
             // Remove modal from the stack
             this.modals = this.modals.filter((m) => m.id !== modal.id);
+
+            // Trigger modal closed event
+            if (this.universe) {
+                this.universe.trigger('ui.modal.closed', modal.componentToRender, action, modal.options);
+            }
 
             // Resolve the modal's promise
             modal.defer?.resolve(this);

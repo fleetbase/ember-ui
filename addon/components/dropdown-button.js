@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 
 export default class DropdownButtonComponent extends Component {
     @service abilities;
+    @service universe;
     @tracked type = 'default';
     @tracked buttonSize = 'md';
     @tracked buttonComponentArgs = {};
@@ -37,9 +38,21 @@ export default class DropdownButtonComponent extends Component {
         }
     }
 
-    @action onRegisterAPI() {
+    @action onRegisterAPI(dropdown) {
+        // Trigger dropdown opened event when dropdown is opened
+        if (dropdown && this.universe) {
+            const originalOpen = dropdown.actions.open;
+            dropdown.actions.open = (...args) => {
+                const { eventName, eventArgs } = this.args;
+                if (eventName) {
+                    this.universe.trigger(eventName, ...(eventArgs || []));
+                }
+                return originalOpen.call(dropdown.actions, ...args);
+            };
+        }
+
         if (typeof this.args.registerAPI === 'function') {
-            this.args.registerAPI(...arguments);
+            this.args.registerAPI(dropdown);
         }
     }
 
