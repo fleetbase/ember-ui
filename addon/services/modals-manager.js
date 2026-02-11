@@ -10,7 +10,7 @@ const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
     @service events;
-    
+
     @tracked modals = [];
     @tracked defaultOptions = {
         title: null,
