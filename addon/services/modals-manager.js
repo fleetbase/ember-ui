@@ -9,7 +9,7 @@ import { guidFor } from '@ember/object/internals';
 const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
-    @service universe;
+    @service events;
     
     @tracked modals = [];
     @tracked defaultOptions = {
@@ -118,8 +118,8 @@ export default class ModalsManagerService extends Service {
         this.modals = [...this.modals, modal];
 
         // Trigger modal opened event
-        if (this.universe) {
-            this.universe.trigger('ui.modal.opened', component, opts);
+        if (this.events) {
+            this.events.trackEvent('ui.modal.opened', component, opts);
         }
 
         return modalDefer.promise;
@@ -360,8 +360,8 @@ export default class ModalsManagerService extends Service {
             this.modals = this.modals.filter((m) => m.id !== modal.id);
 
             // Trigger modal closed event
-            if (this.universe) {
-                this.universe.trigger('ui.modal.closed', modal.componentToRender, action, modal.options);
+            if (this.events) {
+                this.events.trackEvent('ui.modal.closed', modal.componentToRender, action, modal.options);
             }
 
             // Resolve the modal's promise
