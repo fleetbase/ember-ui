@@ -28,7 +28,7 @@ export default class PhoneInputComponent extends Component {
                     }
                 } catch (error) {
                     // Always succeed with US fallback on error
-                    debug('Failed to lookup country code, defaulting to US:', error.message);
+                    debug('Failed to lookup country code, defaulting to US: ' + error.message);
                     success('us');
                 }
             },
