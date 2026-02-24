@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { debug } from '@ember/debug';
 import intlTelInput from 'intl-tel-input';
+import lookupUserIp from '@fleetbase/ember-core/utils/lookup-user-ip';
 
 export default class PhoneInputComponent extends Component {
     @service fetch;
@@ -15,13 +16,20 @@ export default class PhoneInputComponent extends Component {
             initialCountry: 'auto',
             separateDialCode: true,
             formatAsYouType: true,
-            geoIpLookup: async (success, failure) => {
+            geoIpLookup: async (success) => {
                 try {
-                    const { country_code } = await this.fetch.get('lookup/whois');
-                    success(country_code);
+                    const ipData = await lookupUserIp();
+                    if (ipData && ipData.country_code) {
+                        success(ipData.country_code);
+                    } else {
+                        // Fallback to US if no country code in response
+                        debug('No country code in IP lookup response, defaulting to US');
+                        success('us');
+                    }
                 } catch (error) {
-                    debug('Failed to lookup country code with whois API.');
-                    failure(error);
+                    // Always succeed with US fallback on error
+                    debug('Failed to lookup country code, defaulting to US: ' + error.message);
+                    success('us');
                 }
             },
             utilsScript: '/assets/libphonenumber/utils.js',

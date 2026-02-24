@@ -275,6 +275,20 @@ export default class LayoutHeaderComponent extends Component {
         // Push support menu items
         menuItems.pushObjects(supportMenuItems);
 
+        // Push items from universe registry
+        const universeUserMenuItems = this.universe.userMenuItems;
+        if (isArray(universeUserMenuItems) && universeUserMenuItems.length) {
+            menuItems.pushObjects([
+                {
+                    seperator: true,
+                },
+                ...universeUserMenuItems,
+                {
+                    seperator: true,
+                },
+            ]);
+        }
+
         // Push provided menu items
         menuItems.pushObjects(userMenuItems);
 
