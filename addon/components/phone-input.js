@@ -16,17 +16,20 @@ export default class PhoneInputComponent extends Component {
             initialCountry: 'auto',
             separateDialCode: true,
             formatAsYouType: true,
-            geoIpLookup: async (success, failure) => {
+            geoIpLookup: async (success) => {
                 try {
                     const ipData = await lookupUserIp();
                     if (ipData && ipData.country_code) {
                         success(ipData.country_code);
                     } else {
-                        throw new Error('No country code in IP lookup response');
+                        // Fallback to US if no country code in response
+                        debug('No country code in IP lookup response, defaulting to US');
+                        success('us');
                     }
                 } catch (error) {
-                    debug('Failed to lookup country code with frontend IP lookup:', error.message);
-                    failure(error);
+                    // Always succeed with US fallback on error
+                    debug('Failed to lookup country code, defaulting to US:', error.message);
+                    success('us');
                 }
             },
             utilsScript: '/assets/libphonenumber/utils.js',
