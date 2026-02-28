@@ -1,9 +1,15 @@
 {{! Layout::Header::SmartNavMenu::Item
+    ─────────────────────────────────────────────────────────────────────────
     Renders a single extension link in the header bar.
-    Supports:
-      - Standard Ember route links via LinkToExternal
-      - Custom onClick handlers
-      - Icon components (lazy-loaded engine components) or FontAwesome icons
+
+    If the item defines an `onClick` handler it is used directly (for
+    programmatic navigation or custom actions).  Otherwise the item renders
+    as a `<LinkToExternal />` route link — the standard pattern used by the
+    original next-catalog-menu-items implementation.
+
+    Supports icon components (lazy-loaded engine components) or FontAwesome
+    icons, falling back to "circle-dot" if no icon is specified.
+    ─────────────────────────────────────────────────────────────────────────
 }}
 {{#if @item.onClick}}
     <a

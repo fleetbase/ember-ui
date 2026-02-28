@@ -5,6 +5,11 @@
     Position is supplied as @top / @left (fixed-position px values calculated
     from the "More" button's getBoundingClientRect in the parent component).
 
+    Each item mirrors the same dual-branch pattern used by
+    SmartNavMenu::Item: if the item defines an `onClick` handler it is
+    invoked directly; otherwise a `<LinkToExternal />` route link is
+    rendered — identical behaviour to the original next-catalog-menu-items.
+
     Args:
       @items            - Array of MenuItem objects to display
       @top              - CSS top value in px (fixed position)
@@ -21,10 +26,7 @@
 >
     {{! ── Header ──────────────────────────────────────────────────────────── }}
     <div class="snm-dropdown-header">
-        <span class="snm-dropdown-title">
-            <FaIcon @icon="grid-2" @size="xs" class="mr-1.5 opacity-60" />
-            Extensions
-        </span>
+        <span class="snm-dropdown-title">Extensions</span>
         <button
             type="button"
             class="snm-dropdown-close"
@@ -35,11 +37,11 @@
         </button>
     </div>
 
-    {{! ── Items grid ──────────────────────────────────────────────────────── }}
+    {{! ── Items list ──────────────────────────────────────────────────────── }}
     <div class="snm-dropdown-items" role="menu" aria-label="More extensions">
         {{#each @items as |menuItem|}}
             {{#if menuItem.onClick}}
-                {{! onClick-style item (no route) }}
+                {{! onClick-style item: invoke the handler then close the dropdown }}
                 <a
                     href="javascript:;"
                     class="snm-dropdown-item"
@@ -57,13 +59,13 @@
                     <span class="snm-dropdown-item-title truncate">{{menuItem.title}}</span>
                 </a>
             {{else}}
-                {{! Route-based item }}
+                {{! Standard route link via LinkToExternal — same as the original header }}
                 <LinkToExternal
                     @route={{menuItem.route}}
+                    id={{concat (dasherize (or menuItem.route menuItem.id "nav")) "-dropdown-button"}}
                     class="snm-dropdown-item"
                     role="menuitem"
                     title={{menuItem.title}}
-                    {{on "click" @onClose}}
                 >
                     <span class="snm-dropdown-item-icon">
                         {{#if menuItem.iconComponent}}

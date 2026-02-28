@@ -4,8 +4,9 @@ import { inject as service } from '@ember/service';
 /**
  * `Layout::Header::SmartNavMenu::Item`
  *
- * Renders a single extension navigation link inside the SmartNavMenu bar.
- * Handles both standard route links and custom `onClick` handlers.
+ * Renders a single extension navigation link inside the SmartNavMenu bar
+ * using `<LinkToExternal />`, matching the original next-catalog-menu-items
+ * implementation exactly.
  *
  * @class LayoutHeaderSmartNavMenuItemComponent
  * @extends Component

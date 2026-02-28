@@ -46,6 +46,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     @service universe;
     @service currentUser;
     @service abilities;
+    @service router;
+    @service hostRouter;
 
     // ─── Tracked state ────────────────────────────────────────────────────────
 
@@ -90,6 +92,9 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     /** Bound outside-click handler for cleanup. */
     _outsideClickHandler = null;
 
+    /** Bound routeDidChange handler for cleanup. */
+    _routeDidChangeHandler = null;
+
     // ─── Lifecycle ────────────────────────────────────────────────────────────
 
     constructor(owner, args) {
@@ -101,6 +106,17 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
             this.universe.menuService.on('menuItem.registered', this._onMenuItemRegistered);
         } catch (_) {
             // Non-fatal – service may not be available in all environments.
+        }
+        // Close the overflow dropdown automatically after any route transition so
+        // we never need to attach a click handler to <LinkToExternal /> elements
+        // (which would destroy the element mid-transition and cause a page reload).
+        this._routeDidChangeHandler = () => {
+            this.isMoreOpen = false;
+        };
+        try {
+            this._getRouter().on('routeDidChange', this._routeDidChangeHandler);
+        } catch (_) {
+            // Non-fatal – router may not be available in test environments.
         }
     }
 
@@ -114,6 +130,22 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         } catch (_) {
             // Non-fatal – service may already be torn down.
         }
+        // Clean up the routeDidChange listener.
+        try {
+            if (this._routeDidChangeHandler) {
+                this._getRouter().off('routeDidChange', this._routeDidChangeHandler);
+                this._routeDidChangeHandler = null;
+            }
+        } catch (_) {
+            // Non-fatal.
+        }
+    }
+
+    // ─── Router helper ────────────────────────────────────────────────────────
+
+    /** Returns whichever router service is available, matching mobile-navbar pattern. */
+    _getRouter() {
+        return this.router ?? this.hostRouter;
     }
 
     // ─── Reactive computed properties ─────────────────────────────────────────
