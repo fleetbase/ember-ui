@@ -9,6 +9,11 @@ import { action } from '@ember/object';
  * could not fit in the visible bar, plus a footer link to open the
  * customiser panel.
  *
+ * Args:
+ *   @items            {MenuItem[]} Items to render in the dropdown.
+ *   @onClose          {Function}  Called when the dropdown should close.
+ *   @onOpenCustomizer {Function}  Called when the customiser should open.
+ *
  * @class LayoutHeaderSmartNavMenuDropdownComponent
  * @extends Component
  */
@@ -17,36 +22,17 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
     @service hostRouter;
 
     /**
-     * Navigate to a route and close the dropdown.
-     *
-     * @param {string} route
-     */
-    @action navigateTo(route) {
-        const r = this.router ?? this.hostRouter;
-        r.transitionTo(route);
-        if (typeof this.args.onClose === 'function') {
-            this.args.onClose();
-        }
-    }
-
-    /**
      * Handle a custom onClick item and close the dropdown.
+     * Receives the full `menuItem` object so we can call `menuItem.onClick`.
      *
-     * @param {Function} handler
+     * @param {Object} menuItem
      */
-    @action handleItemClick(handler) {
-        if (typeof handler === 'function') {
-            handler();
+    @action handleItemClick(menuItem) {
+        if (menuItem && typeof menuItem.onClick === 'function') {
+            menuItem.onClick(menuItem);
         }
         if (typeof this.args.onClose === 'function') {
             this.args.onClose();
-        }
-    }
-
-    /** Open the customiser panel. */
-    @action openCustomizer() {
-        if (typeof this.args.onOpenCustomizer === 'function') {
-            this.args.onOpenCustomizer();
         }
     }
 }

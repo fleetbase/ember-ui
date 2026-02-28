@@ -1,21 +1,29 @@
 {{! Layout::Header::SmartNavMenu::Dropdown
-    The overflow "More" panel.  Positioned absolutely below the "More" button.
-    Styled to match the existing `next-dd-menu` family of dropdowns.
+    ─────────────────────────────────────────────────────────────────────────
+    Overflow dropdown panel.  Rendered when the "More" (⋯) button is active.
+    Items are the extension menu items that did not fit in the header bar.
+
+    Args:
+      @items            - Array of MenuItem objects to display
+      @onClose          - Action to close this dropdown
+      @onOpenCustomizer - Action to open the customiser panel
+    ─────────────────────────────────────────────────────────────────────────
 }}
-<div class="snm-dropdown next-dd-menu" aria-label="More extensions">
+<div class="snm-dropdown next-dd-menu">
     <div class="snm-dropdown-header">
-        <span class="snm-dropdown-title">All Extensions</span>
+        <span class="snm-dropdown-title">Extensions</span>
     </div>
 
     <div class="snm-dropdown-items" role="menu" aria-label="More extensions">
         {{#each @items as |menuItem|}}
             {{#if menuItem.onClick}}
+                {{! onClick-style item (no route) }}
                 <a
                     href="javascript:;"
-                    role="menuitem"
                     class="snm-dropdown-item next-dd-item"
+                    role="menuitem"
                     title={{menuItem.title}}
-                    {{on "click" (fn this.handleItemClick menuItem.onClick)}}
+                    {{on "click" (fn this.handleItemClick menuItem)}}
                 >
                     <div class="snm-dropdown-item-icon">
                         {{#if menuItem.iconComponent}}
@@ -27,6 +35,7 @@
                     <span class="truncate">{{menuItem.title}}</span>
                 </a>
             {{else}}
+                {{! Route-based item }}
                 <LinkToExternal
                     @route={{menuItem.route}}
                     class="snm-dropdown-item next-dd-item"
@@ -51,7 +60,7 @@
         <button
             type="button"
             class="snm-dropdown-customise-link"
-            {{on "click" this.openCustomizer}}
+            {{on "click" @onOpenCustomizer}}
         >
             <FaIcon @icon="sliders" @size="sm" class="mr-1.5" />
             Customise navigation

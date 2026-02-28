@@ -25,6 +25,9 @@ const NAV_PREFS_KEY = 'smart-nav-menu-prefs';
  * static `next-catalog-menu-items` div in `<Layout::Header />`.
  *
  * ## Features
+ * - **Reactive items** – reads directly from `universe.headerMenuItems` via a
+ *   getter so the component automatically re-renders whenever a new extension
+ *   registers its menu item (no manual event wiring needed).
  * - **Priority+ overflow** – items that do not fit the available header width
  *   are automatically moved into a "More" dropdown.  A `ResizeObserver` on the
  *   host container triggers re-evaluation whenever the viewport changes.
@@ -45,9 +48,6 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     @service abilities;
 
     // ─── Tracked state ────────────────────────────────────────────────────────
-
-    /** All permission-filtered menu items sourced from the universe service. */
-    @tracked allItems = A([]);
 
     /**
      * Ordered list of item IDs the user has explicitly pinned to the bar.
@@ -85,17 +85,53 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
     constructor(owner, args) {
         super(owner, args);
-        this._loadItems();
         this._loadPreferences();
+        // Listen for new menu items being registered after boot so we
+        // re-distribute items without requiring a full re-render.
+        this.universe.menuService.on('menuItem.registered', this._onMenuItemRegistered);
     }
 
     willDestroy() {
         super.willDestroy(...arguments);
         this._teardownObserver();
-        this.unregisterMoreWrapper();
+        this._unregisterMoreWrapper();
+        // Clean up the universe event listener.
+        try {
+            this.universe.menuService.off('menuItem.registered', this._onMenuItemRegistered);
+        } catch (_) {
+            // Non-fatal – service may already be torn down.
+        }
     }
 
-    // ─── Computed helpers ─────────────────────────────────────────────────────
+    // ─── Reactive computed properties ─────────────────────────────────────────
+
+    /**
+     * All permission-filtered header menu items sourced from the universe
+     * service.  Defined as a **getter** (not a @tracked property) so that
+     * Glimmer's auto-tracking picks up changes to the underlying
+     * `TrackedMap`-backed registry whenever a new extension registers its
+     * menu item – no manual event wiring required for the initial render.
+     */
+    get allItems() {
+        const raw = this.universe.headerMenuItems ?? [];
+        const visible = [];
+        for (const item of raw) {
+            try {
+                if (this.abilities.can(`${item.id} see extension`)) {
+                    visible.push(item);
+                }
+            } catch (_) {
+                // Ability not defined – include the item by default so
+                // extensions that haven't registered an ability are still shown.
+                visible.push(item);
+            }
+        }
+        // Apply mutateMenuItems callback if provided.
+        if (typeof this.args.mutateMenuItems === 'function') {
+            this.args.mutateMenuItems(visible);
+        }
+        return A(visible);
+    }
 
     /**
      * Maximum number of items that may sit in the bar.  Consumers can override
@@ -113,18 +149,14 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     // ─── Setup ────────────────────────────────────────────────────────────────
 
     /**
-     * Collect permission-filtered header menu items from the universe service.
+     * Called whenever a new menu item is registered with the universe service.
+     * Bound arrow function so `this` is preserved when used as an event handler.
      */
-    _loadItems() {
-        const raw = this.universe.headerMenuItems ?? [];
-        const visible = [];
-        for (const item of raw) {
-            if (this.abilities.can(`${item.id} see extension`)) {
-                visible.push(item);
-            }
+    _onMenuItemRegistered = (_menuItem, registryName) => {
+        if (registryName === 'header') {
+            scheduleOnce('afterRender', this, this._distributeFromAllItems);
         }
-        this.allItems = A(visible);
-    }
+    };
 
     /**
      * Load the user's saved navigation preferences from localStorage.
@@ -139,7 +171,6 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         } catch (_) {
             // Preferences unavailable – use defaults.
         }
-        this._applyPreferences();
     }
 
     /**
@@ -158,28 +189,30 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     /**
      * Re-order `allItems` so that pinned items appear first in the order the
      * user specified.  Unpinned items are appended at the end.
+     * Then split into visibleItems / overflowItems.
      */
-    _applyPreferences() {
+    _distributeFromAllItems() {
         const { pinnedIds, allItems } = this;
 
+        let ordered;
         if (!pinnedIds || pinnedIds.length === 0) {
             // No saved preference – use natural order from the universe service.
-            this._distributeItems(allItems);
-            return;
+            ordered = [...allItems];
+        } else {
+            // Build ordered list: pinned first (in user order), then the rest.
+            const pinned = [];
+            const rest = [];
+            for (const id of pinnedIds) {
+                const item = allItems.find((i) => i.id === id);
+                if (item) pinned.push(item);
+            }
+            for (const item of allItems) {
+                if (!pinnedIds.includes(item.id)) rest.push(item);
+            }
+            ordered = [...pinned, ...rest];
         }
 
-        // Build ordered list: pinned first (in user order), then the rest.
-        const pinned = [];
-        const rest = [];
-        for (const id of pinnedIds) {
-            const item = allItems.find((i) => i.id === id);
-            if (item) pinned.push(item);
-        }
-        for (const item of allItems) {
-            if (!pinnedIds.includes(item.id)) rest.push(item);
-        }
-
-        this._distributeItems([...pinned, ...rest]);
+        this._distributeItems(ordered);
     }
 
     /**
@@ -204,7 +237,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         this._containerEl = element;
         this._setupObserver(element);
         // Run an initial distribution pass once the DOM has settled.
-        scheduleOnce('afterRender', this, this._recalculate);
+        scheduleOnce('afterRender', this, this._distributeFromAllItems);
     }
 
     _setupObserver(element) {
@@ -241,7 +274,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
         const { pinnedIds, allItems, maxVisible } = this;
 
-        // Determine ordered list (same logic as _applyPreferences).
+        // Determine ordered list (same logic as _distributeFromAllItems).
         let ordered;
         if (pinnedIds && pinnedIds.length > 0) {
             const pinned = [];
@@ -259,7 +292,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         }
 
         // Available width for nav items (subtract "More" button reservation).
-        const MORE_BTN_WIDTH = 56; // px – approximate width of the "More ▾" button
+        const MORE_BTN_WIDTH = 44; // px – approximate width of the "⋯" button
         const availableWidth = container.offsetWidth - MORE_BTN_WIDTH;
 
         // Measure rendered item widths from the DOM.
@@ -292,13 +325,13 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     @action registerMoreWrapper(element) {
         this._moreWrapperEl = element;
         this._outsideClickHandler = bind(this, this._handleOutsideClick);
-        document.addEventListener('click', this._outsideClickHandler, true);
+        document.addEventListener('mousedown', this._outsideClickHandler, true);
     }
 
     /** Clean up the outside-click listener when the wrapper is destroyed. */
-    @action unregisterMoreWrapper() {
+    _unregisterMoreWrapper() {
         if (this._outsideClickHandler) {
-            document.removeEventListener('click', this._outsideClickHandler, true);
+            document.removeEventListener('mousedown', this._outsideClickHandler, true);
             this._outsideClickHandler = null;
         }
         this._moreWrapperEl = null;
@@ -341,7 +374,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     @action applyCustomization(orderedIds) {
         this.pinnedIds = orderedIds;
         this._savePreferences();
-        this._applyPreferences();
+        this._distributeFromAllItems();
         this.isCustomizerOpen = false;
         // Allow the DOM to update then re-measure.
         later(this, this._recalculate, 50);

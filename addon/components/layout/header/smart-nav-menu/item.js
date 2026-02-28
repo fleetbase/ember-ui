@@ -1,6 +1,5 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
 
 /**
  * `Layout::Header::SmartNavMenu::Item`
@@ -17,12 +16,14 @@ export default class LayoutHeaderSmartNavMenuItemComponent extends Component {
 
     /**
      * Whether the item's route matches the current route, making it "active".
+     * Defined as a native getter so Glimmer's auto-tracking picks up router
+     * changes without needing the classic `@computed` decorator.
      */
-    @computed('args.item.route', 'router.currentRouteName', 'hostRouter.currentRouteName')
     get isActive() {
         const route = this.args.item?.route;
         if (!route) return false;
-        const current = (this.router ?? this.hostRouter).currentRouteName ?? '';
+        const r = this.router ?? this.hostRouter;
+        const current = r?.currentRouteName ?? '';
         return current.startsWith(route);
     }
 }

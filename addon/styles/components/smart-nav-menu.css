@@ -12,10 +12,12 @@
 /* ── Container ──────────────────────────────────────────────────────────────── */
 
 .snm-container {
-    @apply flex items-center overflow-hidden;
-    /* Allow the container to shrink when the header is narrow */
+    @apply flex items-center;
+    /* Allow the container to shrink when the header is narrow.
+       Do NOT set overflow:hidden here – that would clip the dropdown panel. */
     min-width: 0;
     flex: 1 1 auto;
+    position: relative;
 }
 
 /* ── Bar items (inherit .next-view-header-item base styles) ─────────────────── */
@@ -39,8 +41,10 @@
 }
 
 .snm-more-btn {
-    @apply flex items-center;
-    white-space: nowrap;
+    @apply flex items-center justify-center flex-shrink-0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
 }
 
 /* ── Customise (gear) button ────────────────────────────────────────────────── */
