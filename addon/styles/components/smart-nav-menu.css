@@ -258,7 +258,12 @@
 }
 
 .snm-customizer-col-header {
-    @apply flex items-center justify-between px-4 py-2.5 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+    @apply flex items-center justify-between px-4 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+    /* Fixed height ensures both column headers are always the same size
+       regardless of whether the left column has a badge and the right does not. */
+    height: 40px;
+    min-height: 40px;
+    box-sizing: border-box;
 }
 
 .snm-customizer-col-title {
