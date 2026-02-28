@@ -67,6 +67,15 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     /** Controls visibility of the customiser panel. */
     @tracked isCustomizerOpen = false;
 
+    /**
+     * Fixed-position coordinates for the overflow dropdown panel.
+     * Calculated from the "More" button's getBoundingClientRect() when opened.
+     * The dropdown is rendered via EmberWormhole into #application-root-wormhole
+     * so it escapes the 57px header height constraint entirely.
+     */
+    @tracked dropdownTop = 0;
+    @tracked dropdownLeft = 0;
+
     // ─── Private internals ────────────────────────────────────────────────────
 
     /** Reference to the flex container element observed by ResizeObserver. */
@@ -75,8 +84,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     /** Active ResizeObserver instance. */
     _resizeObserver = null;
 
-    /** Reference to the "More" wrapper element for outside-click detection. */
-    _moreWrapperEl = null;
+    /** Reference to the "More" button element for position calculation. */
+    _moreBtnEl = null;
 
     /** Bound outside-click handler for cleanup. */
     _outsideClickHandler = null;
@@ -88,13 +97,17 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         this._loadPreferences();
         // Listen for new menu items being registered after boot so we
         // re-distribute items without requiring a full re-render.
-        this.universe.menuService.on('menuItem.registered', this._onMenuItemRegistered);
+        try {
+            this.universe.menuService.on('menuItem.registered', this._onMenuItemRegistered);
+        } catch (_) {
+            // Non-fatal – service may not be available in all environments.
+        }
     }
 
     willDestroy() {
         super.willDestroy(...arguments);
         this._teardownObserver();
-        this._unregisterMoreWrapper();
+        this._unregisterMoreBtn();
         // Clean up the universe event listener.
         try {
             this.universe.menuService.off('menuItem.registered', this._onMenuItemRegistered);
@@ -179,7 +192,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     _savePreferences() {
         try {
             this.currentUser.setOption(NAV_PREFS_KEY, {
-                pinnedIds: this.pinnedIds ?? this.allItems.map((i) => i.id),
+                pinnedIds: this.pinnedIds ?? [],
             });
         } catch (_) {
             // Non-fatal – silently ignore storage errors.
@@ -187,43 +200,44 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     }
 
     /**
-     * Re-order `allItems` so that pinned items appear first in the order the
-     * user specified.  Unpinned items are appended at the end.
-     * Then split into visibleItems / overflowItems.
+     * Distribute `allItems` into `visibleItems` (bar) and `overflowItems` (dropdown).
+     *
+     * Key behaviour:
+     *   - When the user has explicitly saved a pinned list, ONLY those pinned
+     *     items appear in the bar (in saved order).  Everything else goes to
+     *     overflow regardless of `maxVisible`.  The cap still applies as an
+     *     upper bound in case the user somehow saved more than `maxVisible` IDs.
+     *   - When no preference has been saved yet (`pinnedIds` is null/empty),
+     *     the first `maxVisible` items from the universe registry are shown in
+     *     the bar by default, and the rest go to overflow.
      */
     _distributeFromAllItems() {
-        const { pinnedIds, allItems } = this;
+        const { pinnedIds, allItems, maxVisible } = this;
 
-        let ordered;
         if (!pinnedIds || pinnedIds.length === 0) {
-            // No saved preference – use natural order from the universe service.
-            ordered = [...allItems];
-        } else {
-            // Build ordered list: pinned first (in user order), then the rest.
-            const pinned = [];
-            const rest = [];
-            for (const id of pinnedIds) {
-                const item = allItems.find((i) => i.id === id);
-                if (item) pinned.push(item);
-            }
-            for (const item of allItems) {
-                if (!pinnedIds.includes(item.id)) rest.push(item);
-            }
-            ordered = [...pinned, ...rest];
+            // No saved preference – show first `maxVisible` items by default.
+            this.visibleItems = A(allItems.slice(0, maxVisible));
+            this.overflowItems = A(allItems.slice(maxVisible));
+            return;
         }
 
-        this._distributeItems(ordered);
-    }
+        // User has an explicit pinned list.
+        // Build the pinned array in the user's saved order (skip stale IDs).
+        const pinned = [];
+        for (const id of pinnedIds) {
+            const item = allItems.find((i) => i.id === id);
+            if (item) pinned.push(item);
+        }
 
-    /**
-     * Split `ordered` into `visibleItems` (bar) and `overflowItems` (dropdown)
-     * respecting the hard `maxVisible` cap.  Width-based overflow is handled
-     * separately by the ResizeObserver path.
-     */
-    _distributeItems(ordered) {
-        const cap = this.maxVisible;
-        this.visibleItems = A(ordered.slice(0, cap));
-        this.overflowItems = A(ordered.slice(cap));
+        // Respect the hard cap (in case maxVisible was reduced after saving).
+        const barItems = pinned.slice(0, maxVisible);
+
+        // Everything not in the bar goes to overflow.
+        const barIds = new Set(barItems.map((i) => i.id));
+        const overflow = allItems.filter((i) => !barIds.has(i.id));
+
+        this.visibleItems = A(barItems);
+        this.overflowItems = A(overflow);
     }
 
     // ─── ResizeObserver ───────────────────────────────────────────────────────
@@ -260,13 +274,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * without overflowing.  Items beyond the hard cap are always in overflow
      * regardless of available space.
      *
-     * The algorithm:
-     *   1. Start with the full ordered list (pinned first).
-     *   2. Measure the width of each rendered item element.
-     *   3. Reserve ~44 px for the "More" button.
-     *   4. Walk items left-to-right; once cumulative width exceeds available
-     *      space, push remaining items to overflow.
-     *   5. Never exceed `maxVisible` in the bar.
+     * When the user has an explicit pinned list, only pinned items are
+     * candidates for the bar – unpinned items always stay in overflow.
      */
     _recalculate() {
         const container = this._containerEl;
@@ -274,25 +283,27 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
         const { pinnedIds, allItems, maxVisible } = this;
 
-        // Determine ordered list (same logic as _distributeFromAllItems).
-        let ordered;
+        // Determine which items are candidates for the bar.
+        let barCandidates;
+        let alwaysOverflow;
+
         if (pinnedIds && pinnedIds.length > 0) {
+            // Only pinned items can appear in the bar.
             const pinned = [];
-            const rest = [];
             for (const id of pinnedIds) {
                 const item = allItems.find((i) => i.id === id);
                 if (item) pinned.push(item);
             }
-            for (const item of allItems) {
-                if (!pinnedIds.includes(item.id)) rest.push(item);
-            }
-            ordered = [...pinned, ...rest];
+            barCandidates = pinned.slice(0, maxVisible);
+            const barIds = new Set(barCandidates.map((i) => i.id));
+            alwaysOverflow = allItems.filter((i) => !barIds.has(i.id));
         } else {
-            ordered = [...allItems];
+            barCandidates = allItems.slice(0, maxVisible);
+            alwaysOverflow = allItems.slice(maxVisible);
         }
 
-        // Available width for nav items (subtract "More" button reservation).
-        const MORE_BTN_WIDTH = 44; // px – approximate width of the "⋯" button
+        // Available width for nav items (subtract "More" + customise button reservation).
+        const MORE_BTN_WIDTH = 60; // px – approximate width of ⋯ + sliders buttons
         const availableWidth = container.offsetWidth - MORE_BTN_WIDTH;
 
         // Measure rendered item widths from the DOM.
@@ -301,51 +312,84 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
         let cumulative = 0;
         let cutoff = 0;
-
-        for (let i = 0; i < ordered.length; i++) {
-            if (i >= maxVisible) break;
+        for (let i = 0; i < barCandidates.length; i++) {
             const w = itemWidths[i] ?? 120; // fallback estimate
             if (cumulative + w > availableWidth) break;
             cumulative += w;
             cutoff = i + 1;
         }
 
-        // If everything fits and we are under the cap, hide the "More" button.
-        if (cutoff === 0 && ordered.length <= maxVisible) {
-            cutoff = Math.min(ordered.length, maxVisible);
+        // If everything fits, show all bar candidates.
+        if (cutoff === 0 && barCandidates.length > 0) {
+            cutoff = barCandidates.length;
         }
 
-        this.visibleItems = A(ordered.slice(0, cutoff));
-        this.overflowItems = A(ordered.slice(cutoff));
+        const fitsInBar = barCandidates.slice(0, cutoff);
+        const widthOverflow = barCandidates.slice(cutoff);
+
+        this.visibleItems = A(fitsInBar);
+        this.overflowItems = A([...widthOverflow, ...alwaysOverflow]);
     }
 
-    // ─── Actions ──────────────────────────────────────────────────────────────
+    // ─── "More" button registration ───────────────────────────────────────────
 
-    /** Register the "More" wrapper element and attach an outside-click listener. */
-    @action registerMoreWrapper(element) {
-        this._moreWrapperEl = element;
+    /**
+     * Register the "More" button element so we can:
+     *   1. Calculate its screen position for the fixed-position dropdown.
+     *   2. Detect outside-clicks to close the dropdown.
+     */
+    @action registerMoreBtn(element) {
+        this._moreBtnEl = element;
         this._outsideClickHandler = bind(this, this._handleOutsideClick);
         document.addEventListener('mousedown', this._outsideClickHandler, true);
     }
 
-    /** Clean up the outside-click listener when the wrapper is destroyed. */
-    _unregisterMoreWrapper() {
+    /** Clean up the outside-click listener when the button is destroyed. */
+    _unregisterMoreBtn() {
         if (this._outsideClickHandler) {
             document.removeEventListener('mousedown', this._outsideClickHandler, true);
             this._outsideClickHandler = null;
         }
-        this._moreWrapperEl = null;
+        this._moreBtnEl = null;
     }
 
-    /** Close the dropdown when a click occurs outside the wrapper element. */
+    /** Close the dropdown when a click occurs outside the button and dropdown portal. */
     _handleOutsideClick(event) {
-        if (this._moreWrapperEl && !this._moreWrapperEl.contains(event.target)) {
+        // Allow clicks inside the wormhole portal (the dropdown itself) to pass through.
+        const portal = document.getElementById('application-root-wormhole');
+        if (portal && portal.contains(event.target)) return;
+        if (this._moreBtnEl && !this._moreBtnEl.contains(event.target)) {
             this.isMoreOpen = false;
         }
     }
 
+    /**
+     * Calculate the fixed-position coordinates for the dropdown panel
+     * based on the "More" button's current screen position.
+     */
+    _calculateDropdownPosition() {
+        if (!this._moreBtnEl) return;
+        const rect = this._moreBtnEl.getBoundingClientRect();
+        // Position the dropdown below the button, aligned to its left edge.
+        this.dropdownTop = rect.bottom + 6;
+        // Ensure the dropdown doesn't overflow the right edge of the viewport.
+        const dropdownWidth = 320;
+        const rightEdge = rect.left + dropdownWidth;
+        if (rightEdge > window.innerWidth - 8) {
+            this.dropdownLeft = window.innerWidth - dropdownWidth - 8;
+        } else {
+            this.dropdownLeft = rect.left;
+        }
+    }
+
+    // ─── Actions ──────────────────────────────────────────────────────────────
+
     /** Toggle the "More" overflow dropdown open/closed. */
     @action toggleMore() {
+        if (!this.isMoreOpen) {
+            // Calculate position before opening so the panel renders in the right place.
+            this._calculateDropdownPosition();
+        }
         this.isMoreOpen = !this.isMoreOpen;
         if (this.isCustomizerOpen) this.isCustomizerOpen = false;
     }

@@ -7,6 +7,11 @@
    Class naming convention:  snm-*
    All colours use Tailwind @apply where possible so they inherit the project's
    design tokens and respond correctly to the dark-mode `data-theme` attribute.
+
+   The overflow dropdown (.snm-dropdown) uses position:fixed and is rendered
+   via EmberWormhole into #application-root-wormhole so it escapes the 57px
+   header height constraint entirely.  Coordinates are injected as inline
+   style from JS (getBoundingClientRect on the "More" button).
    ============================================================================ */
 
 /* ── Container ──────────────────────────────────────────────────────────────── */
@@ -23,8 +28,6 @@
 /* ── Bar items (inherit .next-view-header-item base styles) ─────────────────── */
 
 .snm-item {
-    /* Inherit all base styles from the existing header item class.
-       Additional overrides below. */
     @apply flex-shrink-0;
     max-width: 160px;
 }
@@ -35,11 +38,6 @@
 
 /* ── "More" overflow button ─────────────────────────────────────────────────── */
 
-.snm-more-wrapper {
-    @apply flex-shrink-0;
-    position: relative;
-}
-
 .snm-more-btn {
     @apply flex items-center justify-center flex-shrink-0;
     width: 28px;
@@ -47,7 +45,11 @@
     padding: 0;
 }
 
-/* ── Customise (gear) button ────────────────────────────────────────────────── */
+.snm-more-btn.is-open {
+    @apply bg-gray-700 text-white rounded;
+}
+
+/* ── Customise (sliders) button ─────────────────────────────────────────────── */
 
 .snm-customise-btn {
     @apply flex items-center justify-center flex-shrink-0;
@@ -57,53 +59,142 @@
 }
 
 /* ── Overflow dropdown panel ────────────────────────────────────────────────── */
+/*
+   Rendered via EmberWormhole into #application-root-wormhole.
+   Uses position:fixed with coordinates injected as inline style from JS.
+   This completely bypasses the 57px header height constraint.
+*/
 
 .snm-dropdown {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    z-index: 600;
-    min-width: 220px;
-    max-width: 320px;
-    /* Inherits bg, border, shadow from .next-dd-menu */
-    padding: 0.375rem 0;
+    position: fixed;
+    z-index: 9999;
+    /* Width: comfortable reading width, similar to AWS console services menu */
+    width: 320px;
+    /* Height: auto up to a generous max so many items are visible at once */
+    max-height: calc(100vh - 80px);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    /* Dark theme defaults (matches .next-dd-menu dark bg) */
+    background-color: #1f2937; /* gray-800 */
+    border: 1px solid #374151; /* gray-700 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Dropdown header ────────────────────────────────────────────────────────── */
+
 .snm-dropdown-header {
-    @apply flex items-center px-3 py-2 border-b border-gray-700;
+    @apply flex items-center justify-between flex-shrink-0;
+    padding: 10px 14px 10px 14px;
+    border-bottom: 1px solid #374151; /* gray-700 */
+    background-color: #111827; /* gray-900 */
 }
 
 .snm-dropdown-title {
-    @apply text-xs font-semibold uppercase tracking-wider text-gray-400;
+    @apply flex items-center text-xs font-semibold uppercase tracking-wider;
+    color: #9ca3af; /* gray-400 */
 }
+
+.snm-dropdown-close {
+    @apply flex items-center justify-center w-6 h-6 rounded transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    padding: 0;
+}
+
+.snm-dropdown-close:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+/* ── Dropdown items list ────────────────────────────────────────────────────── */
 
 .snm-dropdown-items {
-    @apply py-1;
-    max-height: calc(100vh - 130px);
+    flex: 1 1 auto;
     overflow-y: auto;
+    padding: 6px;
+    /* Scrollbar styling to match the rest of the app */
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
 }
 
+.snm-dropdown-items::-webkit-scrollbar {
+    width: 4px;
+}
+
+.snm-dropdown-items::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.snm-dropdown-items::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 2px;
+}
+
+/* ── Individual dropdown item ───────────────────────────────────────────────── */
+
 .snm-dropdown-item {
-    @apply flex items-center px-3 py-1.5 text-sm;
-    /* Inherits hover/active from .next-dd-item */
+    @apply flex items-center w-full text-sm rounded-md transition-colors duration-100;
+    padding: 8px 10px;
+    color: #d1d5db; /* gray-300 */
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    margin-bottom: 2px;
+}
+
+.snm-dropdown-item:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+.snm-dropdown-item:last-child {
+    margin-bottom: 0;
 }
 
 .snm-dropdown-item-icon {
-    @apply flex-shrink-0 mr-2.5;
+    @apply flex-shrink-0;
     width: 1.25rem;
+    margin-right: 10px;
     text-align: center;
+    color: #9ca3af; /* gray-400 */
 }
 
+.snm-dropdown-item:hover .snm-dropdown-item-icon {
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-item-title {
+    @apply flex-1 truncate;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+}
+
+/* ── Dropdown footer ────────────────────────────────────────────────────────── */
+
 .snm-dropdown-footer {
-    @apply flex items-center px-3 py-2 border-t border-gray-700 mt-1;
+    @apply flex items-center flex-shrink-0;
+    padding: 8px 14px;
+    border-top: 1px solid #374151; /* gray-700 */
+    background-color: #111827; /* gray-900 */
 }
 
 .snm-dropdown-customise-link {
-    @apply flex items-center text-xs text-gray-400 hover:text-blue-400 transition-colors duration-150;
+    @apply flex items-center text-xs transition-colors duration-150;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-customise-link:hover {
+    color: #60a5fa; /* blue-400 */
 }
 
 /* ── Customiser panel ───────────────────────────────────────────────────────── */
@@ -293,6 +384,70 @@
 
 /* ── Light theme overrides ──────────────────────────────────────────────────── */
 
+/* Dropdown panel – light theme */
+body[data-theme='light'] .snm-dropdown {
+    background-color: #ffffff;
+    border-color: #e5e7eb; /* gray-200 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='light'] .snm-dropdown-header {
+    background-color: #f9fafb; /* gray-50 */
+    border-bottom-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-title {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-close {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-close:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-item {
+    color: #374151; /* gray-700 */
+}
+
+body[data-theme='light'] .snm-dropdown-item:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-item-icon {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-item:hover .snm-dropdown-item-icon {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-footer {
+    background-color: #f9fafb; /* gray-50 */
+    border-top-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-customise-link {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-customise-link:hover {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-items::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 */
+}
+
+body[data-theme='light'] .snm-more-btn.is-open {
+    @apply bg-gray-200 text-gray-900 rounded;
+}
+
+/* Customiser panel – light theme */
 body[data-theme='light'] .snm-customizer-panel {
     @apply bg-white border-gray-200;
 }
@@ -357,27 +512,6 @@ body[data-theme='light'] .snm-drag-handle {
     @apply text-gray-400;
 }
 
-body[data-theme='light'] .snm-dropdown {
-    /* .next-dd-menu already handles dark bg; override for light theme */
-    @apply bg-white border-gray-200;
-}
-
-body[data-theme='light'] .snm-dropdown-header {
-    @apply border-gray-200;
-}
-
-body[data-theme='light'] .snm-dropdown-title {
-    @apply text-gray-500;
-}
-
-body[data-theme='light'] .snm-dropdown-footer {
-    @apply border-gray-200;
-}
-
-body[data-theme='light'] .snm-dropdown-customise-link {
-    @apply text-gray-500 hover:text-blue-600;
-}
-
 body[data-theme='light'] .snm-customizer-backdrop {
     background: rgba(0, 0, 0, 0.2);
 }
@@ -385,6 +519,19 @@ body[data-theme='light'] .snm-customizer-backdrop {
 /* ── Responsive / mobile ────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+    .snm-dropdown {
+        /* On mobile, pin to the top of the viewport edge-to-edge */
+        position: fixed !important;
+        top: 57px !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
     .snm-customizer-panel {
         top: 0;
         left: 0;

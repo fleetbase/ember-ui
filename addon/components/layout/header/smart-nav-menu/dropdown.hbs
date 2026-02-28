@@ -1,68 +1,91 @@
 {{! Layout::Header::SmartNavMenu::Dropdown
     ─────────────────────────────────────────────────────────────────────────
-    Overflow dropdown panel.  Rendered when the "More" (⋯) button is active.
-    Items are the extension menu items that did not fit in the header bar.
+    Overflow dropdown panel.  Rendered via EmberWormhole into
+    #application-root-wormhole so it escapes the header's 57px height.
+    Position is supplied as @top / @left (fixed-position px values calculated
+    from the "More" button's getBoundingClientRect in the parent component).
 
     Args:
       @items            - Array of MenuItem objects to display
+      @top              - CSS top value in px (fixed position)
+      @left             - CSS left value in px (fixed position)
       @onClose          - Action to close this dropdown
       @onOpenCustomizer - Action to open the customiser panel
     ─────────────────────────────────────────────────────────────────────────
 }}
-<div class="snm-dropdown next-dd-menu">
+<div
+    class="snm-dropdown"
+    style="top: {{@top}}px; left: {{@left}}px;"
+    role="dialog"
+    aria-label="More extensions"
+>
+    {{! ── Header ──────────────────────────────────────────────────────────── }}
     <div class="snm-dropdown-header">
-        <span class="snm-dropdown-title">Extensions</span>
+        <span class="snm-dropdown-title">
+            <FaIcon @icon="grid-2" @size="xs" class="mr-1.5 opacity-60" />
+            Extensions
+        </span>
+        <button
+            type="button"
+            class="snm-dropdown-close"
+            aria-label="Close"
+            {{on "click" @onClose}}
+        >
+            <FaIcon @icon="xmark" @size="sm" />
+        </button>
     </div>
 
+    {{! ── Items grid ──────────────────────────────────────────────────────── }}
     <div class="snm-dropdown-items" role="menu" aria-label="More extensions">
         {{#each @items as |menuItem|}}
             {{#if menuItem.onClick}}
                 {{! onClick-style item (no route) }}
                 <a
                     href="javascript:;"
-                    class="snm-dropdown-item next-dd-item"
+                    class="snm-dropdown-item"
                     role="menuitem"
                     title={{menuItem.title}}
                     {{on "click" (fn this.handleItemClick menuItem)}}
                 >
-                    <div class="snm-dropdown-item-icon">
+                    <span class="snm-dropdown-item-icon">
                         {{#if menuItem.iconComponent}}
                             {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
                         {{else}}
                             <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
                         {{/if}}
-                    </div>
-                    <span class="truncate">{{menuItem.title}}</span>
+                    </span>
+                    <span class="snm-dropdown-item-title truncate">{{menuItem.title}}</span>
                 </a>
             {{else}}
                 {{! Route-based item }}
                 <LinkToExternal
                     @route={{menuItem.route}}
-                    class="snm-dropdown-item next-dd-item"
+                    class="snm-dropdown-item"
                     role="menuitem"
                     title={{menuItem.title}}
                     {{on "click" @onClose}}
                 >
-                    <div class="snm-dropdown-item-icon">
+                    <span class="snm-dropdown-item-icon">
                         {{#if menuItem.iconComponent}}
                             {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
                         {{else}}
                             <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
                         {{/if}}
-                    </div>
-                    <span class="truncate">{{menuItem.title}}</span>
+                    </span>
+                    <span class="snm-dropdown-item-title truncate">{{menuItem.title}}</span>
                 </LinkToExternal>
             {{/if}}
         {{/each}}
     </div>
 
+    {{! ── Footer ──────────────────────────────────────────────────────────── }}
     <div class="snm-dropdown-footer">
         <button
             type="button"
             class="snm-dropdown-customise-link"
             {{on "click" @onOpenCustomizer}}
         >
-            <FaIcon @icon="sliders" @size="sm" class="mr-1.5" />
+            <FaIcon @icon="sliders" @size="xs" class="mr-1.5" />
             Customise navigation
         </button>
     </div>
