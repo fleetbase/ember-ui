@@ -1,0 +1,60 @@
+{{! Layout::Header::SmartNavMenu::Dropdown
+    The overflow "More" panel.  Positioned absolutely below the "More" button.
+    Styled to match the existing `next-dd-menu` family of dropdowns.
+}}
+<div class="snm-dropdown next-dd-menu" role="menu" aria-label="More extensions">
+    <div class="snm-dropdown-header">
+        <span class="snm-dropdown-title">All Extensions</span>
+    </div>
+
+    <div class="snm-dropdown-items">
+        {{#each @items as |menuItem|}}
+            {{#if menuItem.onClick}}
+                <a
+                    href="javascript:;"
+                    role="menuitem"
+                    class="snm-dropdown-item next-dd-item"
+                    title={{menuItem.title}}
+                    {{on "click" (fn this.handleItemClick menuItem.onClick)}}
+                >
+                    <div class="snm-dropdown-item-icon">
+                        {{#if menuItem.iconComponent}}
+                            {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
+                        {{else}}
+                            <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
+                        {{/if}}
+                    </div>
+                    <span class="truncate">{{menuItem.title}}</span>
+                </a>
+            {{else}}
+                <LinkToExternal
+                    @route={{menuItem.route}}
+                    class="snm-dropdown-item next-dd-item"
+                    role="menuitem"
+                    title={{menuItem.title}}
+                    {{on "click" @onClose}}
+                >
+                    <div class="snm-dropdown-item-icon">
+                        {{#if menuItem.iconComponent}}
+                            {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
+                        {{else}}
+                            <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
+                        {{/if}}
+                    </div>
+                    <span class="truncate">{{menuItem.title}}</span>
+                </LinkToExternal>
+            {{/if}}
+        {{/each}}
+    </div>
+
+    <div class="snm-dropdown-footer">
+        <button
+            type="button"
+            class="snm-dropdown-customise-link"
+            {{on "click" this.openCustomizer}}
+        >
+            <FaIcon @icon="sliders" @size="sm" class="mr-1.5" />
+            Customise navigation
+        </button>
+    </div>
+</div>

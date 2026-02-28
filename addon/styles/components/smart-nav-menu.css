@@ -1,0 +1,407 @@
+/* ============================================================================
+   Smart Nav Menu  –  Layout::Header::SmartNavMenu
+   ============================================================================
+   Styles for the overflow-aware, user-customisable extension navigation bar
+   that replaces the static `next-catalog-menu-items` container.
+
+   Class naming convention:  snm-*
+   All colours use Tailwind @apply where possible so they inherit the project's
+   design tokens and respond correctly to the dark-mode `data-theme` attribute.
+   ============================================================================ */
+
+/* ── Container ──────────────────────────────────────────────────────────────── */
+
+.snm-container {
+    @apply flex items-center overflow-hidden;
+    /* Allow the container to shrink when the header is narrow */
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+/* ── Bar items (inherit .next-view-header-item base styles) ─────────────────── */
+
+.snm-item {
+    /* Inherit all base styles from the existing header item class.
+       Additional overrides below. */
+    @apply flex-shrink-0;
+    max-width: 160px;
+}
+
+.snm-item span {
+    @apply truncate;
+}
+
+/* ── "More" overflow button ─────────────────────────────────────────────────── */
+
+.snm-more-wrapper {
+    @apply flex-shrink-0;
+    position: relative;
+}
+
+.snm-more-btn {
+    @apply flex items-center;
+    white-space: nowrap;
+}
+
+/* ── Customise (gear) button ────────────────────────────────────────────────── */
+
+.snm-customise-btn {
+    @apply flex items-center justify-center flex-shrink-0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+/* ── Overflow dropdown panel ────────────────────────────────────────────────── */
+
+.snm-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 600;
+    min-width: 220px;
+    max-width: 320px;
+    /* Inherits bg, border, shadow from .next-dd-menu */
+    padding: 0.375rem 0;
+}
+
+.snm-dropdown-header {
+    @apply flex items-center px-3 py-2 border-b border-gray-700;
+}
+
+.snm-dropdown-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-gray-400;
+}
+
+.snm-dropdown-items {
+    @apply py-1;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+}
+
+.snm-dropdown-item {
+    @apply flex items-center px-3 py-1.5 text-sm;
+    /* Inherits hover/active from .next-dd-item */
+}
+
+.snm-dropdown-item-icon {
+    @apply flex-shrink-0 mr-2.5;
+    width: 1.25rem;
+    text-align: center;
+}
+
+.snm-dropdown-footer {
+    @apply flex items-center px-3 py-2 border-t border-gray-700 mt-1;
+}
+
+.snm-dropdown-customise-link {
+    @apply flex items-center text-xs text-gray-400 hover:text-blue-400 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* ── Customiser panel ───────────────────────────────────────────────────────── */
+
+/* Semi-transparent backdrop */
+.snm-customizer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 700;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* The panel itself */
+.snm-customizer-panel {
+    @apply flex flex-col;
+    position: fixed;
+    top: 57px; /* height of .next-view-header */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 710;
+    width: 680px;
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 80px);
+    border-radius: 8px;
+    overflow: hidden;
+    @apply bg-gray-900 border border-gray-700 shadow-next-nav;
+}
+
+/* Header bar */
+.snm-customizer-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+}
+
+.snm-customizer-header-left {
+    @apply flex items-center;
+}
+
+.snm-customizer-title {
+    @apply text-sm font-semibold text-white m-0;
+}
+
+.snm-customizer-close {
+    @apply flex items-center justify-center w-7 h-7 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Body – two-column layout */
+.snm-customizer-body {
+    @apply flex flex-1 overflow-hidden;
+}
+
+.snm-customizer-col {
+    @apply flex flex-col overflow-hidden;
+    flex: 1 1 50%;
+}
+
+.snm-customizer-col-pinned {
+    @apply border-r border-gray-700;
+}
+
+.snm-customizer-col-header {
+    @apply flex items-center justify-between px-4 py-2.5 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+}
+
+.snm-customizer-col-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center;
+}
+
+.snm-customizer-col-badge {
+    @apply text-xs font-mono px-1.5 py-0.5 rounded bg-gray-700 text-gray-300;
+}
+
+.snm-customizer-col-badge.at-limit {
+    @apply bg-amber-600 text-white;
+}
+
+/* Drag-sort list */
+.snm-customizer-drag-list {
+    @apply flex-1 overflow-y-auto p-2;
+}
+
+.snm-customizer-pinned-item {
+    @apply flex items-center px-2 py-1.5 rounded-md mb-1 bg-gray-800 border border-gray-700 cursor-default;
+}
+
+.snm-customizer-pinned-item:hover {
+    @apply border-gray-600;
+}
+
+.snm-drag-handle {
+    @apply flex-shrink-0 mr-2 text-gray-500 cursor-grab;
+}
+
+.snm-drag-handle:active {
+    cursor: grabbing;
+}
+
+/* All-extensions list */
+.snm-customizer-all-list {
+    @apply flex-1 overflow-y-auto p-2;
+}
+
+.snm-customizer-all-item {
+    @apply flex items-center w-full px-2 py-1.5 rounded-md mb-1 text-sm text-gray-300 text-left;
+    @apply bg-transparent border border-transparent cursor-pointer;
+    @apply transition-colors duration-100;
+}
+
+.snm-customizer-all-item:hover:not(.is-disabled) {
+    @apply bg-gray-800 border-gray-700;
+}
+
+.snm-customizer-all-item.is-pinned {
+    @apply bg-blue-900 border-blue-700 text-white;
+}
+
+.snm-customizer-all-item.is-disabled {
+    @apply opacity-40 cursor-not-allowed;
+}
+
+.snm-customizer-pinned-check {
+    @apply text-blue-400;
+}
+
+/* Shared icon + title layout inside customiser items */
+.snm-customizer-item-icon {
+    @apply flex-shrink-0 mr-2.5;
+    width: 1.25rem;
+    text-align: center;
+}
+
+.snm-customizer-item-title {
+    @apply flex-1 truncate;
+}
+
+/* Unpin button */
+.snm-customizer-unpin-btn {
+    @apply flex-shrink-0 ml-auto flex items-center justify-center w-5 h-5 rounded text-gray-500 hover:text-red-400 hover:bg-gray-700 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Empty state */
+.snm-customizer-empty-state {
+    @apply flex flex-col items-center justify-center flex-1 p-6 text-gray-500 text-sm text-center;
+}
+
+/* Divider between columns */
+.snm-customizer-divider {
+    /* handled by border-r on the left column */
+    display: none;
+}
+
+/* Footer */
+.snm-customizer-footer {
+    @apply flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-800 flex-shrink-0;
+}
+
+.snm-customizer-reset-btn {
+    @apply flex items-center text-xs text-gray-400 hover:text-gray-200 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.snm-customizer-footer-actions {
+    @apply flex items-center space-x-2;
+}
+
+/* Generic button helpers */
+.snm-btn {
+    @apply inline-flex items-center px-3 py-1.5 rounded text-sm font-medium transition-colors duration-150 cursor-pointer;
+    border: none;
+}
+
+.snm-btn-secondary {
+    @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+}
+
+.snm-btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-500;
+}
+
+/* ── Light theme overrides ──────────────────────────────────────────────────── */
+
+body[data-theme='light'] .snm-customizer-panel {
+    @apply bg-white border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-header {
+    @apply bg-gray-100 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-title {
+    @apply text-gray-900;
+}
+
+body[data-theme='light'] .snm-customizer-close {
+    @apply text-gray-500 hover:text-gray-900 hover:bg-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-col-header {
+    @apply bg-gray-50 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-col-title {
+    @apply text-gray-500;
+}
+
+body[data-theme='light'] .snm-customizer-col-badge {
+    @apply bg-gray-200 text-gray-700;
+}
+
+body[data-theme='light'] .snm-customizer-pinned-item {
+    @apply bg-gray-50 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-pinned-item:hover {
+    @apply border-gray-300;
+}
+
+body[data-theme='light'] .snm-customizer-all-item {
+    @apply text-gray-700;
+}
+
+body[data-theme='light'] .snm-customizer-all-item:hover:not(.is-disabled) {
+    @apply bg-gray-100 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-all-item.is-pinned {
+    @apply bg-blue-50 border-blue-300 text-blue-900;
+}
+
+body[data-theme='light'] .snm-customizer-footer {
+    @apply bg-gray-50 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-reset-btn {
+    @apply text-gray-500 hover:text-gray-800;
+}
+
+body[data-theme='light'] .snm-btn-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+body[data-theme='light'] .snm-drag-handle {
+    @apply text-gray-400;
+}
+
+body[data-theme='light'] .snm-dropdown {
+    /* .next-dd-menu already handles dark bg; override for light theme */
+    @apply bg-white border-gray-200;
+}
+
+body[data-theme='light'] .snm-dropdown-header {
+    @apply border-gray-200;
+}
+
+body[data-theme='light'] .snm-dropdown-title {
+    @apply text-gray-500;
+}
+
+body[data-theme='light'] .snm-dropdown-footer {
+    @apply border-gray-200;
+}
+
+body[data-theme='light'] .snm-dropdown-customise-link {
+    @apply text-gray-500 hover:text-blue-600;
+}
+
+body[data-theme='light'] .snm-customizer-backdrop {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ── Responsive / mobile ────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .snm-customizer-panel {
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .snm-customizer-body {
+        @apply flex-col;
+    }
+
+    .snm-customizer-col-pinned {
+        @apply border-r-0 border-b border-gray-700;
+        max-height: 40vh;
+    }
+
+    .snm-customizer-col-all {
+        max-height: 40vh;
+    }
+}

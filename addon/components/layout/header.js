@@ -22,39 +22,16 @@ export default class LayoutHeaderComponent extends Component {
     @service abilities;
     @service fetch;
     @tracked company;
-    @tracked menuItems = [];
     @tracked organizationMenuItems = [];
     @tracked userMenuItems = [];
     @tracked extensions = [];
 
-    constructor(owner, { menuItems = [], organizationMenuItems = [], userMenuItems = [] }) {
+    constructor(owner, { organizationMenuItems = [], userMenuItems = [] }) {
         super(...arguments);
         this.extensions = getOwner(this).application.extensions ?? [];
         this.company = this.currentUser.getCompany();
-        this.menuItems = this.mergeMenuItems(menuItems);
         this.organizationMenuItems = this.mergeOrganizationMenuItems(organizationMenuItems);
         this.userMenuItems = this.mergeUserMenuItems(userMenuItems);
-    }
-
-    mergeMenuItems(menuItems = []) {
-        const headerMenuItems = this.universe.headerMenuItems;
-        const visibleMenuItems = [];
-        for (let i = 0; i < headerMenuItems.length; i++) {
-            const menuItem = headerMenuItems[i];
-            if (this.abilities.can(`${menuItem.id} see extension`)) {
-                visibleMenuItems.pushObject(menuItem);
-            }
-        }
-
-        // Merge additionals
-        visibleMenuItems.pushObjects(menuItems);
-
-        // Callback to allow mutation of menu items
-        if (typeof this.args.mutateMenuItems === 'function') {
-            this.args.mutateMenuItems(menuItems);
-        }
-
-        return visibleMenuItems;
     }
 
     mergeOrganizationMenuItems(organizationMenuItems = []) {

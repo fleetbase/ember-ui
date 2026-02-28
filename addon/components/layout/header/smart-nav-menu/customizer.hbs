@@ -1,0 +1,151 @@
+{{! Layout::Header::SmartNavMenu::Customizer
+    ─────────────────────────────────────────────────────────────────────────
+    Modal-style panel for customising which extensions are pinned to the
+    header bar.  Uses a backdrop overlay so it feels like a focused dialog.
+    ─────────────────────────────────────────────────────────────────────────
+}}
+<div class="snm-customizer-backdrop" role="presentation" {{on "click" this.cancel}}></div>
+
+<div
+    class="snm-customizer-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Customise navigation"
+>
+    {{! ── Header ──────────────────────────────────────────────────────────── }}
+    <div class="snm-customizer-header">
+        <div class="snm-customizer-header-left">
+            <FaIcon @icon="sliders" @size="sm" class="mr-2 text-blue-400" />
+            <h2 class="snm-customizer-title">Customise Navigation</h2>
+        </div>
+        <button
+            type="button"
+            class="snm-customizer-close"
+            aria-label="Close"
+            {{on "click" this.cancel}}
+        >
+            <FaIcon @icon="xmark" @size="sm" />
+        </button>
+    </div>
+
+    {{! ── Body ───────────────────────────────────────────────────────────── }}
+    <div class="snm-customizer-body">
+        {{! Left column – pinned items (drag-sortable) }}
+        <div class="snm-customizer-col snm-customizer-col-pinned">
+            <div class="snm-customizer-col-header">
+                <span class="snm-customizer-col-title">
+                    <FaIcon @icon="thumbtack" @size="xs" class="mr-1.5 text-blue-400" />
+                    Pinned to bar
+                </span>
+                <span class="snm-customizer-col-badge {{if this.atPinnedLimit 'at-limit'}}">
+                    {{this.workingPinned.length}} / {{@maxVisible}}
+                </span>
+            </div>
+
+            {{#if this.workingPinned.length}}
+                <DragSortList
+                    @items={{this.workingPinned}}
+                    @dragEndAction={{this.reorderPinned}}
+                    @group="snm-pinned"
+                    @dragHandle=".snm-drag-handle"
+                    class="snm-customizer-drag-list"
+                    as |item|
+                >
+                    <div class="snm-customizer-pinned-item">
+                        <span class="snm-drag-handle" title="Drag to reorder">
+                            <FaIcon @icon="grip-vertical" @size="sm" />
+                        </span>
+                        <div class="snm-customizer-item-icon">
+                            {{#if item.iconComponent}}
+                                {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                            {{else}}
+                                <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                            {{/if}}
+                        </div>
+                        <span class="snm-customizer-item-title truncate">{{item.title}}</span>
+                        <button
+                            type="button"
+                            class="snm-customizer-unpin-btn"
+                            title="Remove from bar"
+                            {{on "click" (fn this.togglePin item)}}
+                        >
+                            <FaIcon @icon="xmark" @size="xs" />
+                        </button>
+                    </div>
+                </DragSortList>
+            {{else}}
+                <div class="snm-customizer-empty-state">
+                    <FaIcon @icon="inbox" @size="lg" class="mb-2 text-gray-500" />
+                    <p>No extensions pinned yet.</p>
+                    <p class="text-xs">Add extensions from the list on the right.</p>
+                </div>
+            {{/if}}
+        </div>
+
+        {{! Divider }}
+        <div class="snm-customizer-divider"></div>
+
+        {{! Right column – all available extensions }}
+        <div class="snm-customizer-col snm-customizer-col-all">
+            <div class="snm-customizer-col-header">
+                <span class="snm-customizer-col-title">
+                    <FaIcon @icon="grid-2" @size="xs" class="mr-1.5 text-gray-400" />
+                    All extensions
+                </span>
+            </div>
+
+            <div class="snm-customizer-all-list">
+                {{#each @allItems as |item|}}
+                    <button
+                        type="button"
+                        class="snm-customizer-all-item {{if (this.isPinned item) 'is-pinned'}} {{if (and this.atPinnedLimit (not (this.isPinned item))) 'is-disabled'}}"
+                        title={{if (this.isPinned item) "Click to unpin" "Click to pin to bar"}}
+                        disabled={{and this.atPinnedLimit (not (this.isPinned item))}}
+                        {{on "click" (fn this.togglePin item)}}
+                    >
+                        <div class="snm-customizer-item-icon">
+                            {{#if item.iconComponent}}
+                                {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                            {{else}}
+                                <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                            {{/if}}
+                        </div>
+                        <span class="snm-customizer-item-title truncate">{{item.title}}</span>
+                        {{#if (this.isPinned item)}}
+                            <FaIcon @icon="check" @size="xs" class="snm-customizer-pinned-check ml-auto flex-shrink-0" />
+                        {{/if}}
+                    </button>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    {{! ── Footer ─────────────────────────────────────────────────────────── }}
+    <div class="snm-customizer-footer">
+        <button
+            type="button"
+            class="snm-customizer-reset-btn"
+            {{on "click" this.resetToDefault}}
+        >
+            <FaIcon @icon="rotate-left" @size="xs" class="mr-1.5" />
+            Reset to default
+        </button>
+        <div class="snm-customizer-footer-actions">
+            <button
+                type="button"
+                class="snm-btn snm-btn-secondary"
+                {{on "click" this.cancel}}
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="snm-btn snm-btn-primary"
+                {{on "click" this.apply}}
+            >
+                <FaIcon @icon="check" @size="xs" class="mr-1.5" />
+                Apply
+            </button>
+        </div>
+    </div>
+</div>
