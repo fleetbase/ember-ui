@@ -2,12 +2,12 @@
     The overflow "More" panel.  Positioned absolutely below the "More" button.
     Styled to match the existing `next-dd-menu` family of dropdowns.
 }}
-<div class="snm-dropdown next-dd-menu" role="menu" aria-label="More extensions">
+<div class="snm-dropdown next-dd-menu" aria-label="More extensions">
     <div class="snm-dropdown-header">
         <span class="snm-dropdown-title">All Extensions</span>
     </div>
 
-    <div class="snm-dropdown-items">
+    <div class="snm-dropdown-items" role="menu" aria-label="More extensions">
         {{#each @items as |menuItem|}}
             {{#if menuItem.onClick}}
                 <a
