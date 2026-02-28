@@ -175,6 +175,70 @@
     line-height: 1.4;
 }
 
+/* ── Dropdown item row (wraps link + pin button) ─────────────────────────────
+   Each row is a flex container so the link takes all available space and
+   the pin button sits flush to the right edge without affecting link width. */
+
+.snm-dropdown-item-row {
+    @apply flex items-center;
+    position: relative;
+    margin-bottom: 2px;
+}
+
+.snm-dropdown-item-row .snm-dropdown-item {
+    margin-bottom: 0; /* row handles the margin */
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The link wrapper is a transparent pass-through div — it captures the click
+   to close the dropdown but does NOT call preventDefault, so the router
+   transition fires normally. */
+.snm-dropdown-item-link-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+}
+
+.snm-dropdown-item-link-wrapper .snm-dropdown-item {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* ── Inline pin button ────────────────────────────────────────────────────────
+   Appears on the right of each dropdown item row when the bar has capacity.
+   Hidden by default; revealed on row hover so it stays out of the way. */
+
+.snm-dropdown-pin-btn {
+    @apply flex-shrink-0 flex items-center justify-center transition-all duration-150;
+    width: 24px;
+    height: 24px;
+    margin-left: 4px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #4b5563; /* gray-600 – subtle until hovered */
+    opacity: 0;
+    pointer-events: none;
+}
+
+.snm-dropdown-item-row:hover .snm-dropdown-pin-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.snm-dropdown-pin-btn:hover {
+    background-color: #374151; /* gray-700 */
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-pin-btn:active {
+    background-color: #1d4ed8; /* blue-700 */
+    color: #fff;
+}
+
 /* ── Dropdown footer ────────────────────────────────────────────────────────── */
 
 .snm-dropdown-footer {
@@ -447,7 +511,17 @@ body[data-theme='light'] .snm-dropdown-customise-link:hover {
 body[data-theme='light'] .snm-dropdown-items::-webkit-scrollbar-thumb {
     background-color: #d1d5db; /* gray-300 */
 }
-
+body[data-theme='light'] .snm-dropdown-pin-btn {
+    color: #9ca3af; /* gray-400 */
+}
+body[data-theme='light'] .snm-dropdown-pin-btn:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #2563eb; /* blue-600 */
+}
+body[data-theme='light'] .snm-dropdown-pin-btn:active {
+    background-color: #dbeafe; /* blue-100 */
+    color: #1d4ed8; /* blue-700 */
+}
 body[data-theme='light'] .snm-more-btn.is-open {
     @apply bg-gray-200 text-gray-900 rounded;
 }

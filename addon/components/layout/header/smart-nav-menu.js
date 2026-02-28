@@ -457,6 +457,32 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     }
 
     /**
+     * True when the bar is at or over the maxVisible cap.
+     * Passed to the dropdown so the pin button is disabled when the bar is full.
+     */
+    get atPinnedLimit() {
+        const pinned = this.pinnedIds ?? [];
+        return pinned.length >= this.maxVisible;
+    }
+    /**
+     * Quick-pin an overflow item directly from the dropdown.
+     * Only allowed when the bar has capacity (pinnedIds.length < maxVisible).
+     * Adds the item's ID to pinnedIds, saves preferences, and re-distributes
+     * so the item immediately moves from the overflow list to the bar.
+     *
+     * @param {Object} menuItem
+     */
+    @action quickPin(menuItem) {
+        if (this.atPinnedLimit) return; // bar is full
+        const currentPinned = this.pinnedIds ? [...this.pinnedIds] : [];
+        const id = menuItem.id ?? menuItem.route;
+        if (!id || currentPinned.includes(id)) return; // already pinned
+        this.pinnedIds = [...currentPinned, id];
+        this._savePreferences();
+        this._distributeFromAllItems();
+        later(this, this._recalculate, 50);
+    }
+    /**
      * Reorder handler for drag-sort within the customiser.
      * Kept here so the customiser sub-component stays stateless.
      */

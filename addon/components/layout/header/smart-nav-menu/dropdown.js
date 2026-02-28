@@ -16,6 +16,8 @@ import { htmlSafe } from '@ember/template';
  *   @left             {Number}     Fixed-position left coordinate in px.
  *   @onClose          {Function}  Called when the dropdown should close.
  *   @onOpenCustomizer {Function}  Called when the customiser should open.
+ *   @onQuickPin       {Function}  Called with a menuItem to pin it directly to the bar.
+ *   @atPinnedLimit    {Boolean}   True when the bar is full; hides the pin button.
  *
  * @class LayoutHeaderSmartNavMenuDropdownComponent
  * @extends Component
