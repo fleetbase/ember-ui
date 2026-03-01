@@ -1228,7 +1228,7 @@ body[data-theme='light']
 }
 
 .next-view-header .next-view-header-right {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     box-align: center;
     align-items: center;
