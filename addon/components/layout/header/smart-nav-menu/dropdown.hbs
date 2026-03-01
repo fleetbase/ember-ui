@@ -86,9 +86,6 @@
                                         <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="sm" />
                                     </span>
                                     <span class="snm-dropdown-card-title">{{item.title}}</span>
-                                    {{#if item._parentTitle}}
-                                        <span class="snm-dropdown-card-from" aria-hidden="true">&middot; {{item._parentTitle}}</span>
-                                    {{/if}}
                                 </LinkToExternal>
                             </div>
                             {{#unless @atPinnedLimit}}
@@ -103,6 +100,11 @@
                                 </button>
                             {{/unless}}
                         </div>
+                        {{#if item.description}}
+                            <p class="snm-dropdown-card-description">{{item.description}}</p>
+                        {{else if item._parentTitle}}
+                            <p class="snm-dropdown-card-description snm-dropdown-card-description--from"><em>from {{item._parentTitle}}</em></p>
+                        {{/if}}
                     </div>
                 {{else}}
                     {{! ── Primary extension card ──────────────────────────── }}

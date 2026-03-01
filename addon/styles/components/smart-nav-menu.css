@@ -257,17 +257,11 @@
     overflow: hidden;
 }
 
-/* ── Inline · From attribution on shortcut cards ────────────────────────── */
-/* Shown inline after the shortcut title: “Live Map · Fleet-Ops” */
-.snm-dropdown-card-from {
-    @apply flex-shrink-0 text-xs;
-    color: #4b5563; /* gray-600 */
-    margin-left: 5px;
-    white-space: nowrap;
-}
-
-.snm-dropdown-card-link:hover .snm-dropdown-card-from {
-    color: #6b7280; /* gray-500 – slightly brighter on hover */
+/* ── Italic “from Parent” attribution on shortcut cards ───────────────────── */
+/* Shown as a description-style line below the shortcut title */
+.snm-dropdown-card-description--from {
+    color: #4b5563; /* gray-600 – slightly more muted than regular description */
+    margin-bottom: 0;
 }
 
 /* ── Empty state (no search results) ───────────────────────────────────────── */
@@ -787,7 +781,7 @@ body[data-theme='light'] .snm-dropdown-card-description {
     color: #9ca3af; /* gray-400 */
 }
 
-body[data-theme='light'] .snm-dropdown-card-from {
+body[data-theme='light'] .snm-dropdown-card-description--from {
     color: #9ca3af; /* gray-400 */
 }
 
