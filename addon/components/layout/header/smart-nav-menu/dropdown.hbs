@@ -108,6 +108,8 @@
                         </div>
                         {{#if item.description}}
                             <p class="snm-dropdown-card-description">{{item.description}}</p>
+                        {{else if item._parentTitle}}
+                            <p class="snm-dropdown-card-description snm-dropdown-card-description--from"><em>from {{item._parentTitle}}</em></p>
                         {{/if}}
                     </div>
                 {{else}}

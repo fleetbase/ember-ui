@@ -63,6 +63,9 @@
                             {{/if}}
                         </div>
                         <span class="snm-customizer-item-title truncate">{{item.title}}</span>
+                        {{#if item._parentTitle}}
+                            <span class="snm-customizer-item-parent-label">· {{item._parentTitle}}</span>
+                        {{/if}}
                         <button
                             type="button"
                             class="snm-customizer-unpin-btn"
@@ -111,6 +114,9 @@
                             {{/if}}
                         </div>
                         <span class="snm-customizer-item-title truncate">{{item.title}}</span>
+                        {{#if item._parentTitle}}
+                            <span class="snm-customizer-item-parent-label">· {{item._parentTitle}}</span>
+                        {{/if}}
                         {{#if (this.isPinned item)}}
                             <FaIcon @icon="check" @size="xs" class="snm-customizer-pinned-check ml-auto flex-shrink-0" />
                         {{/if}}

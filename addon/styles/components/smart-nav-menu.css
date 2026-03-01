@@ -618,7 +618,17 @@
 }
 
 .snm-customizer-item-title {
-    @apply flex-1 truncate;
+    @apply truncate;
+    /* flex-1 removed – parent label sits inline after the title */
+    min-width: 0;
+}
+
+/* Muted "· ParentName" suffix shown next to shortcut titles in the customiser */
+.snm-customizer-item-parent-label {
+    @apply flex-shrink-0 ml-1;
+    font-size: 0.6875rem; /* 11px */
+    color: #4b5563; /* gray-600 */
+    white-space: nowrap;
 }
 
 /* Unpin button */
