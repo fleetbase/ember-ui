@@ -73,7 +73,7 @@
             {{#each this.filteredItems as |item|}}
                 {{#if item._isShortcut}}
                     {{! ── Shortcut sibling card (AWS-style flat item) ─────── }}
-                    <div class="snm-dropdown-card snm-dropdown-card--shortcut" role="presentation">
+                    <div class="snm-dropdown-card" role="presentation">
                         <div class="snm-dropdown-card-header">
                             <div class="snm-dropdown-card-link-wrapper" role="none" {{on "click" @onClose}}>
                                 <LinkToExternal
@@ -83,15 +83,26 @@
                                     title={{item.title}}
                                 >
                                     <span class="snm-dropdown-card-icon">
-                                        <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="xs" />
+                                        <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="sm" />
                                     </span>
                                     <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                    {{#if item._parentTitle}}
+                                        <span class="snm-dropdown-card-from" aria-hidden="true">&middot; {{item._parentTitle}}</span>
+                                    {{/if}}
                                 </LinkToExternal>
                             </div>
+                            {{#unless @atPinnedLimit}}
+                                <button
+                                    type="button"
+                                    class="snm-dropdown-pin-btn"
+                                    title="Pin to navigation bar"
+                                    aria-label="Pin {{item.title}} to navigation bar"
+                                    {{on "click" (fn @onQuickPin item)}}
+                                >
+                                    <FaIcon @icon="thumbtack" @size="xs" />
+                                </button>
+                            {{/unless}}
                         </div>
-                        {{#if item._parentTitle}}
-                            <p class="snm-dropdown-card-parent-label">{{item._parentTitle}}</p>
-                        {{/if}}
                     </div>
                 {{else}}
                     {{! ── Primary extension card ──────────────────────────── }}

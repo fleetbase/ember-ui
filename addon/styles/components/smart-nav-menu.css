@@ -171,9 +171,9 @@
 
 .snm-dropdown-card {
     @apply flex flex-col rounded-lg;
-    padding: 10px 12px;
+    padding: 7px 10px;
     background-color: #111827; /* gray-900 */
-    border: 1px solid #374151; /* gray-700 */
+    border: 1px solid #1f2937; /* gray-800 – darker but lighter than bg */
     transition: border-color 0.15s ease, background-color 0.15s ease;
     position: relative;
 }
@@ -257,47 +257,17 @@
     overflow: hidden;
 }
 
-/* ── Shortcut sibling card (AWS-style flat item) ────────────────────────────── */
-/* Shortcut cards are visually lighter than primary extension cards */
-.snm-dropdown-card--shortcut {
-    background-color: #0f172a; /* slate-900 – slightly darker to distinguish */
-    border-color: #1e293b; /* slate-800 */
-}
-
-.snm-dropdown-card--shortcut:hover {
-    border-color: #334155; /* slate-700 */
-    background-color: #1e293b;
-}
-
-/* Shortcut cards use a smaller icon and muted link colour */
-.snm-dropdown-card--shortcut .snm-dropdown-card-icon {
-    color: #6b7280; /* gray-500 */
-}
-
-.snm-dropdown-card--shortcut .snm-dropdown-card-link:hover .snm-dropdown-card-icon {
-    color: #60a5fa; /* blue-400 */
-}
-
-.snm-dropdown-card--shortcut .snm-dropdown-card-title {
-    font-size: 0.75rem; /* 12px – slightly smaller than primary */
-    color: #9ca3af; /* gray-400 */
-}
-
-.snm-dropdown-card--shortcut .snm-dropdown-card-link:hover .snm-dropdown-card-title {
-    color: #f9fafb; /* gray-50 */
-}
-
-/* No pin button on shortcut cards */
-.snm-dropdown-card--shortcut .snm-dropdown-pin-btn {
-    display: none;
-}
-
-/* Parent label shown beneath the shortcut title */
-.snm-dropdown-card-parent-label {
-    @apply text-xs truncate;
+/* ── Inline · From attribution on shortcut cards ────────────────────────── */
+/* Shown inline after the shortcut title: “Live Map · Fleet-Ops” */
+.snm-dropdown-card-from {
+    @apply flex-shrink-0 text-xs;
     color: #4b5563; /* gray-600 */
-    margin: 2px 0 0 0;
-    padding-left: calc(1.125rem + 7px); /* align with card-title (icon width + margin) */
+    margin-left: 5px;
+    white-space: nowrap;
+}
+
+.snm-dropdown-card-link:hover .snm-dropdown-card-from {
+    color: #6b7280; /* gray-500 – slightly brighter on hover */
 }
 
 /* ── Empty state (no search results) ───────────────────────────────────────── */
@@ -817,21 +787,7 @@ body[data-theme='light'] .snm-dropdown-card-description {
     color: #9ca3af; /* gray-400 */
 }
 
-body[data-theme='light'] .snm-dropdown-card--shortcut {
-    background-color: #f8fafc; /* slate-50 */
-    border-color: #e2e8f0; /* slate-200 */
-}
-
-body[data-theme='light'] .snm-dropdown-card--shortcut:hover {
-    border-color: #cbd5e1; /* slate-300 */
-    background-color: #f1f5f9; /* slate-100 */
-}
-
-body[data-theme='light'] .snm-dropdown-card--shortcut .snm-dropdown-card-title {
-    color: #6b7280; /* gray-500 */
-}
-
-body[data-theme='light'] .snm-dropdown-card-parent-label {
+body[data-theme='light'] .snm-dropdown-card-from {
     color: #9ca3af; /* gray-400 */
 }
 
