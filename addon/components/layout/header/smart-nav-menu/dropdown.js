@@ -39,15 +39,43 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
             result.push(item);
             if (isArray(item.shortcuts)) {
                 for (const sc of item.shortcuts) {
+                    const scId = sc.id ?? dasherize(item.id + '-sc-' + sc.title);
                     result.push({
-                        id: sc.id ?? dasherize(item.id + '-sc-' + sc.title),
+                        // ── Identity ────────────────────────────────────────
+                        id: scId,
+                        slug: sc.slug ?? scId,
                         title: sc.title,
-                        route: sc.route,
-                        icon: sc.icon ?? 'arrow-right',
-                        iconPrefix: sc.iconPrefix,
+                        text: sc.text ?? sc.title,
+                        label: sc.label ?? sc.title,
+
+                        // ── Routing ──────────────────────────────────────────
+                        route: sc.route ?? item.route,
+                        queryParams: sc.queryParams ?? {},
+                        routeParams: sc.routeParams ?? [],
+
+                        // ── Icons (full surface) ─────────────────────────────
+                        icon: sc.icon ?? item.icon ?? 'arrow-right',
+                        iconPrefix: sc.iconPrefix ?? item.iconPrefix ?? null,
+                        iconSize: sc.iconSize ?? null,
+                        iconClass: sc.iconClass ?? null,
+                        iconComponent: sc.iconComponent ?? null,
+                        iconComponentOptions: sc.iconComponentOptions ?? {},
+
+                        // ── Metadata ─────────────────────────────────────────
                         description: sc.description ?? null,
+                        tags: isArray(sc.tags) ? sc.tags : (isArray(item.tags) ? item.tags : null),
+
+                        // ── Behaviour ────────────────────────────────────────
+                        onClick: sc.onClick ?? null,
+                        disabled: sc.disabled ?? false,
+
+                        // ── Styling ───────────────────────────────────────────
+                        class: sc.class ?? null,
+
+                        // ── Internal flags ────────────────────────────────────
                         _isShortcut: true,
                         _parentTitle: item.title,
+                        _parentId: item.id,
                     });
                 }
             }
