@@ -351,11 +351,33 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
         const itemWidths = itemEls.map((el) => el.offsetWidth + 8); // 8px gap
 
-        // Available width: only subtract the customise-button (~44px).
-        // Do NOT pre-reserve space for the "More" button – it is not rendered
-        // when all items fit, so reserving its width causes a false overflow.
-        const CUSTOMISE_BTN_WIDTH = 44; // px – sliders button + gap
-        const availableWidth = container.offsetWidth - CUSTOMISE_BTN_WIDTH;
+        // Measure available width from the PARENT element (.next-view-header-left),
+        // not from the container itself.  The container is flex:1 so its offsetWidth
+        // shrinks as items are moved to overflow – measuring it creates a
+        // chicken-and-egg collapse loop.  The parent is stable (flex:1 of the full
+        // header) so its width is independent of how many items are visible.
+        const parent = container.closest('.next-view-header-left') || container.parentElement;
+        const parentWidth = parent ? parent.offsetWidth : container.offsetWidth;
+
+        // Subtract fixed siblings that are always present in .next-view-header-left:
+        //   • Logo + margin: ~60px
+        //   • Sidebar toggle (when visible): ~36px
+        // We measure them directly from the DOM so the number stays accurate
+        // across different configurations.
+        let fixedSiblingsWidth = 0;
+        if (parent) {
+            for (const child of parent.children) {
+                // Skip the snm-container itself – we want sibling widths only.
+                if (child === container) continue;
+                // Also skip zero-width wormhole targets and hidden elements.
+                const w = child.offsetWidth;
+                if (w > 0) fixedSiblingsWidth += w + 4; // 4px gap allowance
+            }
+        }
+
+        // Reserve space for the customise button (always rendered inside the container).
+        const CUSTOMISE_BTN_WIDTH = 44;
+        const availableWidth = parentWidth - fixedSiblingsWidth - CUSTOMISE_BTN_WIDTH;
 
         let cumulative = 0;
         let cutoff = 0;
