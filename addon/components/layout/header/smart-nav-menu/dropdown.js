@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { dasherize } from '@ember/string';
+import { isArray } from '@ember/array';
 import { htmlSafe } from '@ember/template';
 
 /**
@@ -36,7 +37,7 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
         const result = [];
         for (const item of items) {
             result.push(item);
-            if (Array.isArray(item.shortcuts)) {
+            if (isArray(item.shortcuts)) {
                 for (const sc of item.shortcuts) {
                     result.push({
                         id: sc.id ?? dasherize(item.id + '-sc-' + sc.title),
@@ -63,6 +64,8 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
             if ((item.title || '').toLowerCase().includes(query)) return true;
             if (item.description && item.description.toLowerCase().includes(query)) return true;
             if (item._parentTitle && item._parentTitle.toLowerCase().includes(query)) return true;
+            // Match against any of the item's tags
+            if (isArray(item.tags) && item.tags.some((t) => t.toLowerCase().includes(query))) return true;
             return false;
         });
     }
