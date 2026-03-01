@@ -1,0 +1,49 @@
+{{! Layout::Header::SmartNavMenu::Item
+    ─────────────────────────────────────────────────────────────────────────
+    Renders a single extension link in the header bar.
+
+    If the item defines an `onClick` handler it is used directly (for
+    programmatic navigation or custom actions).  Otherwise the item renders
+    as a `<LinkToExternal />` route link — the standard pattern used by the
+    original next-catalog-menu-items implementation.
+
+    Supports icon components (lazy-loaded engine components) or FontAwesome
+    icons, falling back to "circle-dot" if no icon is specified.
+    ─────────────────────────────────────────────────────────────────────────
+}}
+{{#if @item.onClick}}
+    <a
+        href="javascript:;"
+        id={{concat (dasherize (or @item.route @item.id "nav")) "-header-button"}}
+        role="menuitem"
+        class="snm-item next-view-header-item truncate {{@item.class}} {{if this.isActive 'active'}}"
+        title={{@item.title}}
+        {{on "click" @item.onClick}}
+    >
+        <div class="w-6 flex-shrink-0">
+            {{#if @item.iconComponent}}
+                {{component (lazy-engine-component @item.iconComponent) options=@item.iconComponentOptions}}
+            {{else}}
+                <FaIcon @icon={{or @item.icon "circle-dot"}} @prefix={{@item.iconPrefix}} @size="sm" />
+            {{/if}}
+        </div>
+        <span class="truncate">{{@item.title}}</span>
+    </a>
+{{else}}
+    <LinkToExternal
+        @route={{@item.route}}
+        id={{concat (dasherize (or @item.route @item.id "nav")) "-header-button"}}
+        class="snm-item next-view-header-item truncate {{@item.class}} {{if this.isActive 'active'}}"
+        role="menuitem"
+        title={{@item.title}}
+    >
+        <div class="w-6 flex-shrink-0">
+            {{#if @item.iconComponent}}
+                {{component (lazy-engine-component @item.iconComponent) options=@item.iconComponentOptions}}
+            {{else}}
+                <FaIcon @icon={{or @item.icon "circle-dot"}} @prefix={{@item.iconPrefix}} @size="sm" />
+            {{/if}}
+        </div>
+        <span class="truncate">{{@item.title}}</span>
+    </LinkToExternal>
+{{/if}}

@@ -7,27 +7,22 @@
             <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{not @sidebarToggleEnabled}} />
         {{/if}}
         {{#unless (media "isMobile")}}
-            <div role="menu" class="next-catalog-menu-items flex mr-4">
-                {{#each this.menuItems as |menuItem|}}
-                    <LinkToExternal
-                        @route={{menuItem.route}}
-                        id={{concat (dasherize menuItem.route) "-header-button"}}
-                        class="next-view-header-item truncate {{menuItem.class}}"
-                        role="menuitem"
-                    >
-                        <div class="w-6">
-                            {{#if menuItem.iconComponent}}
-                                {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
-                            {{else}}
-                                <FaIcon @icon={{menuItem.icon}} @prefix={{menuItem.iconPrefix}} @size="sm" />
-                            {{/if}}
-                        </div>
-                        <div>
-                            <span>{{menuItem.title}}</span>
-                        </div>
-                    </LinkToExternal>
-                {{/each}}
-            </div>
+            {{!--
+                SmartNavMenu replaces the static `next-catalog-menu-items` div.
+                It implements the Priority+ overflow pattern: up to `@maxVisible`
+                (default 5) extensions are shown inline; the rest collapse into a
+                "More" dropdown.  A gear icon opens the customiser panel where
+                users can pin and reorder their favourite extensions.
+
+                Pass `@maxVisible={{n}}` to override the default cap of 5.
+                Pass `@mutateMenuItems={{fn}}` to mutate items before rendering
+                (same contract as the previous static implementation).
+            --}}
+            <Layout::Header::SmartNavMenu
+                class="next-catalog-menu-items mr-4"
+                @maxVisible={{or @maxVisibleNavItems 5}}
+                @mutateMenuItems={{@mutateMenuItems}}
+            />
         {{/unless}}
         <div id="view-header-left-content-a"></div>
         {{yield}}

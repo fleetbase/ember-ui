@@ -1,0 +1,81 @@
+{{! Layout::Header::SmartNavMenu
+    ─────────────────────────────────────────────────────────────────────────
+    Smart, overflow-aware extension navigation bar.
+    Renders up to `@maxVisible` (default 5) extension items inline.  Any
+    additional items – or items that do not fit the available width – are
+    collected inside a "More" dropdown.  A gear icon opens the customiser
+    panel where users can choose which extensions are pinned to the bar.
+
+    The overflow dropdown is rendered via EmberWormhole into
+    #application-root-wormhole so it escapes the 57px header height
+    constraint and uses position:fixed for correct screen placement.
+    ─────────────────────────────────────────────────────────────────────────
+}}
+<div
+    class="snm-container flex items-center"
+    role="menubar"
+    aria-label="Extension navigation"
+    {{did-insert this.setupContainer}}
+    ...attributes
+>
+    {{! ── Visible (pinned) items ─────────────────────────────────────────── }}
+    {{#each this.visibleItems as |menuItem|}}
+        <Layout::Header::SmartNavMenu::Item @item={{menuItem}} />
+    {{/each}}
+
+    {{! ── "More" overflow button ─────────────────────────────────────────── }}
+    {{#if this.hasOverflow}}
+        <button
+            type="button"
+            class="snm-more-btn next-view-header-item {{if this.isMoreOpen 'is-open'}}"
+            aria-haspopup="true"
+            aria-expanded={{if this.isMoreOpen "true" "false"}}
+            aria-label="More extensions"
+            title="More extensions"
+            {{did-insert this.registerMoreBtn}}
+            {{on "click" this.toggleMore}}
+        >
+            <FaIcon @icon="ellipsis" @size="sm" />
+        </button>
+    {{/if}}
+
+    {{! ── Customise button (always visible when there are items) ─────────── }}
+    {{#if this.allItems.length}}
+        <button
+            type="button"
+            class="snm-customise-btn next-view-header-item ml-0.5"
+            title="Customise navigation"
+            aria-label="Customise navigation"
+            {{on "click" this.openCustomizer}}
+        >
+            <FaIcon @icon="sliders" @size="sm" />
+        </button>
+    {{/if}}
+</div>
+
+{{! ── Overflow dropdown – rendered via wormhole to escape the 57px header ── }}
+{{#if this.isMoreOpen}}
+    <EmberWormhole @to="application-root-wormhole">
+        <Layout::Header::SmartNavMenu::Dropdown
+            @items={{this.allItems}}
+            @top={{this.dropdownTop}}
+            @left={{this.dropdownLeft}}
+            @onClose={{this.closeMore}}
+            @onOpenCustomizer={{this.openCustomizer}}
+            @onQuickPin={{this.quickPin}}
+            @atPinnedLimit={{this.atPinnedLimit}}
+        />
+    </EmberWormhole>
+{{/if}}
+
+{{! ── Customiser panel ────────────────────────────────────────────────── }}
+{{#if this.isCustomizerOpen}}
+    <Layout::Header::SmartNavMenu::Customizer
+        @allItems={{this.allItems}}
+        @pinnedIds={{this.pinnedIds}}
+        @maxVisible={{this.maxVisible}}
+        @onApply={{this.applyCustomization}}
+        @onClose={{this.closeCustomizer}}
+        @onReorder={{this.reorderPinned}}
+    />
+{{/if}}

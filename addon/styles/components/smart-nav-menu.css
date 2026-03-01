@@ -1,0 +1,952 @@
+/* ============================================================================
+   Smart Nav Menu  –  Layout::Header::SmartNavMenu
+   ============================================================================
+   Styles for the overflow-aware, user-customisable extension navigation bar
+   that replaces the static `next-catalog-menu-items` container.
+
+   Class naming convention:  snm-*
+   All colours use Tailwind @apply where possible so they inherit the project's
+   design tokens and respond correctly to the dark-mode `data-theme` attribute.
+
+   The overflow dropdown (.snm-dropdown) uses position:fixed and is rendered
+   via EmberWormhole into #application-root-wormhole so it escapes the 57px
+   header height constraint entirely.  Coordinates are injected as inline
+   style from JS (getBoundingClientRect on the "More" button).
+   ============================================================================ */
+
+/* ── Container ──────────────────────────────────────────────────────────────── */
+
+.snm-container {
+    @apply flex items-center;
+    /* Allow the container to shrink when the header is narrow.
+       Do NOT set overflow:hidden here – that would clip the dropdown panel. */
+    min-width: 0;
+    flex: 1 1 auto;
+    position: relative;
+}
+
+/* ── Bar items (inherit .next-view-header-item base styles) ─────────────────── */
+
+.snm-item {
+    @apply flex-shrink-0;
+    max-width: 160px;
+}
+
+.snm-item span {
+    @apply truncate;
+}
+
+/* ── "More" overflow button ─────────────────────────────────────────────────── */
+
+.snm-more-btn {
+    @apply flex items-center justify-center flex-shrink-0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+.snm-more-btn.is-open {
+    @apply bg-gray-700 text-white rounded;
+}
+
+/* ── Customise (sliders) button ─────────────────────────────────────────────── */
+
+.snm-customise-btn {
+    @apply flex items-center justify-center flex-shrink-0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+/* ── Overflow dropdown panel ────────────────────────────────────────────────── */
+/*
+   Rendered via EmberWormhole into #application-root-wormhole.
+   Uses position:fixed with coordinates injected as inline style from JS.
+   This completely bypasses the 57px header height constraint.
+*/
+
+.snm-dropdown {
+    position: fixed;
+    z-index: 9999;
+    /* Default narrow width (fallback for non-wide variant) */
+    width: 320px;
+    max-height: 60vh;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    /* Dark theme defaults (matches .next-dd-menu dark bg) */
+    background-color: #1f2937; /* gray-800 */
+    border: 1px solid #374151; /* gray-700 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Phase 2: wide multi-column variant ─────────────────────────────────────── */
+.snm-dropdown--wide {
+    /* Wide enough for 2 card columns + gutters */
+    width: 680px;
+    max-width: calc(100vw - 16px);
+}
+
+/* ── Search bar ─────────────────────────────────────────────────────────────── */
+
+.snm-dropdown-search-bar {
+    @apply flex items-center flex-shrink-0;
+    /* Full-width row with a flat bottom border */
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #374151; /* gray-700 */
+    border-radius: 0;
+    padding: 0 10px;
+    gap: 6px;
+}
+
+.snm-dropdown-search-icon {
+    @apply flex-shrink-0;
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-search-input {
+    @apply flex-1 outline-none;
+    font-size: 0.6875rem; /* 11px – very compact */
+    line-height: 1.2;
+    color: #e5e7eb; /* gray-200 */
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.snm-dropdown-search-input::placeholder {
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-search-clear {
+    @apply flex-shrink-0 flex items-center justify-center w-5 h-5 rounded transition-colors duration-100;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    padding: 0;
+}
+
+.snm-dropdown-search-clear:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+/* ── Card grid ──────────────────────────────────────────────────────────────── */
+
+.snm-dropdown-grid {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 6px;
+    display: grid;
+    /* 2 equal columns */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 2px;
+}
+
+/* ── Extension card ─────────────────────────────────────────────────────────── */
+
+.snm-dropdown-card {
+    @apply flex flex-col rounded-lg;
+    padding: 7px 10px;
+    background-color: #111827; /* gray-900 */
+    border: 1px solid #1f2937; /* gray-800 – darker but lighter than bg */
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    position: relative;
+}
+
+.snm-dropdown-card:hover {
+    border-color: #4b5563; /* gray-600 */
+    background-color: #1a2332; /* slightly lighter than gray-900 */
+}
+
+/* Card header row: icon + title link + pin button */
+.snm-dropdown-card-header {
+    @apply flex items-center;
+    gap: 0;
+    margin-bottom: 0;
+}
+
+/* The main extension link inside a card */
+.snm-dropdown-card-link {
+    @apply flex items-center flex-1 text-sm font-medium;
+    color: #e5e7eb; /* gray-200 */
+    text-decoration: none;
+    min-width: 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.snm-dropdown-card-link:hover {
+    color: #f9fafb; /* gray-50 */
+}
+
+.snm-dropdown-card-link-wrapper {
+    @apply flex flex-1;
+    min-width: 0;
+}
+
+.snm-dropdown-card-link-wrapper .snm-dropdown-card-link {
+    width: 100%;
+}
+
+.snm-dropdown-card-icon {
+    @apply flex-shrink-0;
+    width: 1.125rem;
+    margin-right: 7px;
+    text-align: center;
+    color: #9ca3af; /* gray-400 */
+}
+
+.snm-dropdown-card-link:hover .snm-dropdown-card-icon {
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-card-title {
+    @apply truncate;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+}
+
+/* Title + muted parent-label wrapper */
+.snm-dropdown-card-title-group {
+    @apply flex items-baseline flex-1 min-w-0;
+    gap: 4px;
+}
+
+/* Muted "· ParentName" label shown inline next to the shortcut title */
+.snm-dropdown-card-parent-label {
+    @apply flex-shrink-0 truncate;
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 400;
+    color: #4b5563; /* gray-600 – clearly muted */
+    line-height: 1.4;
+    letter-spacing: 0;
+}
+
+/* Pin button on card – always visible at low opacity, brightens on hover */
+.snm-dropdown-card .snm-dropdown-pin-btn {
+    opacity: 0.35;
+    pointer-events: auto;
+}
+
+.snm-dropdown-card:hover .snm-dropdown-pin-btn {
+    opacity: 1;
+}
+
+/* ── Card description ───────────────────────────────────────────────────────── */
+
+.snm-dropdown-card-description {
+    @apply text-xs;
+    color: #6b7280; /* gray-500 */
+    margin: 4px 0 6px 0;
+    line-height: 1.4;
+    /* Clamp to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Italic “from Parent” attribution on shortcut cards ───────────────────── */
+/* Shown as a description-style line below the shortcut title */
+.snm-dropdown-card-description--from {
+    color: #4b5563; /* gray-600 – slightly more muted than regular description */
+    margin-bottom: 0;
+}
+
+/* ── Empty state (no search results) ───────────────────────────────────────── */
+
+.snm-dropdown-empty {
+    @apply flex flex-col items-center justify-center;
+    /* Span all grid columns */
+    grid-column: 1 / -1;
+    padding: 32px 16px;
+    color: #6b7280; /* gray-500 */
+    text-align: center;
+}
+
+.snm-dropdown-empty-icon {
+    @apply mb-3;
+    opacity: 0.5;
+}
+
+.snm-dropdown-empty-text {
+    @apply text-sm m-0;
+    color: #6b7280; /* gray-500 */
+}
+
+/* ── Dropdown header ────────────────────────────────────────────────────────── */
+
+.snm-dropdown-header {
+    @apply flex items-center flex-shrink-0;
+    padding: 6px 8px 6px 12px;
+    border-bottom: 1px solid #374151; /* gray-700 */
+    background-color: #111827; /* gray-900 */
+    gap: 8px;
+}
+
+.snm-dropdown-title {
+    @apply flex items-center text-xs font-semibold uppercase tracking-wider;
+    color: #9ca3af; /* gray-400 */
+}
+
+.snm-dropdown-close {
+    @apply flex-shrink-0 flex items-center justify-center w-6 h-6 rounded transition-colors duration-150;
+    margin-left: auto; /* push to far right of the header flex row */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    padding: 0;
+}
+
+.snm-dropdown-close:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+/* ── Dropdown items list ────────────────────────────────────────────────────── */
+
+.snm-dropdown-items {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 6px;
+    /* Scrollbar styling to match the rest of the app */
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+}
+
+.snm-dropdown-items::-webkit-scrollbar {
+    width: 4px;
+}
+
+.snm-dropdown-items::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.snm-dropdown-items::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 2px;
+}
+
+/* ── Individual dropdown item ───────────────────────────────────────────────── */
+
+.snm-dropdown-item {
+    @apply flex items-center w-full text-sm rounded-md transition-colors duration-100;
+    padding: 8px 10px;
+    color: #d1d5db; /* gray-300 */
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    margin-bottom: 2px;
+}
+
+.snm-dropdown-item:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+.snm-dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.snm-dropdown-item-icon {
+    @apply flex-shrink-0;
+    width: 1.25rem;
+    margin-right: 10px;
+    text-align: center;
+    color: #9ca3af; /* gray-400 */
+}
+
+.snm-dropdown-item:hover .snm-dropdown-item-icon {
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-item-title {
+    @apply flex-1 truncate;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+}
+
+/* ── Dropdown item row (wraps link + pin button) ─────────────────────────────
+   Each row is a flex container so the link takes all available space and
+   the pin button sits flush to the right edge without affecting link width. */
+
+.snm-dropdown-item-row {
+    @apply flex items-center;
+    position: relative;
+    margin-bottom: 2px;
+}
+
+.snm-dropdown-item-row .snm-dropdown-item {
+    margin-bottom: 0; /* row handles the margin */
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The link wrapper is a transparent pass-through div — it captures the click
+   to close the dropdown but does NOT call preventDefault, so the router
+   transition fires normally. */
+.snm-dropdown-item-link-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+}
+
+.snm-dropdown-item-link-wrapper .snm-dropdown-item {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* ── Inline pin button ────────────────────────────────────────────────────────
+   Appears on the right of each dropdown item row when the bar has capacity.
+   Hidden by default; revealed on row hover so it stays out of the way. */
+
+.snm-dropdown-pin-btn {
+    @apply flex-shrink-0 flex items-center justify-center transition-all duration-150;
+    width: 24px;
+    height: 24px;
+    margin-left: 4px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #4b5563; /* gray-600 – subtle until hovered */
+    opacity: 0;
+    pointer-events: none;
+}
+
+.snm-dropdown-item-row:hover .snm-dropdown-pin-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.snm-dropdown-pin-btn:hover {
+    background-color: #374151; /* gray-700 */
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-pin-btn:active {
+    background-color: #1d4ed8; /* blue-700 */
+    color: #fff;
+}
+
+/* ── Dropdown footer ────────────────────────────────────────────────────────── */
+
+.snm-dropdown-footer {
+    @apply flex items-center flex-shrink-0;
+    padding: 8px 14px;
+    border-top: 1px solid #374151; /* gray-700 */
+    background-color: #111827; /* gray-900 */
+}
+
+.snm-dropdown-customise-link {
+    @apply flex items-center text-xs transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-customise-link:hover {
+    color: #60a5fa; /* blue-400 */
+}
+
+/* ── Customiser panel ───────────────────────────────────────────────────────── */
+
+/* Semi-transparent backdrop */
+.snm-customizer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 700;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* The panel itself */
+.snm-customizer-panel {
+    @apply flex flex-col;
+    position: fixed;
+    top: 57px; /* height of .next-view-header */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 710;
+    width: 680px;
+    max-width: calc(100vw - 2rem);
+    max-height: 60vh;
+    border-radius: 8px;
+    overflow: hidden;
+    @apply bg-gray-900 border border-gray-700 shadow-next-nav;
+}
+
+/* Header bar */
+.snm-customizer-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+}
+
+.snm-customizer-header-left {
+    @apply flex items-center;
+}
+
+.snm-customizer-title {
+    @apply text-sm font-semibold text-white m-0;
+}
+
+.snm-customizer-close {
+    @apply flex items-center justify-center w-7 h-7 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Body – two-column layout */
+.snm-customizer-body {
+    @apply flex flex-1 overflow-hidden;
+}
+
+.snm-customizer-col {
+    @apply flex flex-col overflow-hidden;
+    flex: 1 1 50%;
+}
+
+.snm-customizer-col-pinned {
+    @apply border-r border-gray-700;
+}
+
+.snm-customizer-col-header {
+    @apply flex items-center justify-between px-4 border-b border-gray-700 bg-gray-800 flex-shrink-0;
+    /* Fixed height ensures both column headers are always the same size
+       regardless of whether the left column has a badge and the right does not. */
+    height: 40px;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+.snm-customizer-col-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center;
+}
+
+.snm-customizer-col-badge {
+    @apply text-xs font-mono px-1.5 py-0.5 rounded bg-gray-700 text-gray-300;
+}
+
+.snm-customizer-col-badge.at-limit {
+    @apply bg-amber-600 text-white;
+}
+
+/* Drag-sort list */
+.snm-customizer-drag-list {
+    @apply flex-1 overflow-y-auto p-2;
+}
+
+.snm-customizer-pinned-item {
+    @apply flex items-center px-2 py-1.5 rounded-md mb-1 bg-gray-800 border border-gray-700 cursor-default;
+}
+
+.snm-customizer-pinned-item:hover {
+    @apply border-gray-600;
+}
+
+.snm-drag-handle {
+    @apply flex-shrink-0 mr-2 text-gray-500 cursor-grab;
+}
+
+.snm-drag-handle:active {
+    cursor: grabbing;
+}
+
+/* All-extensions list */
+.snm-customizer-all-list {
+    @apply flex-1 overflow-y-auto p-2;
+}
+
+.snm-customizer-all-item {
+    @apply flex items-center w-full px-2 py-1.5 rounded-md mb-1 text-sm text-gray-300 text-left;
+    @apply bg-transparent border border-transparent cursor-pointer;
+    @apply transition-colors duration-100;
+}
+
+.snm-customizer-all-item:hover:not(.is-disabled) {
+    @apply bg-gray-800 border-gray-700;
+}
+
+.snm-customizer-all-item.is-pinned {
+    @apply bg-blue-900 border-blue-700 text-white;
+}
+
+.snm-customizer-all-item.is-disabled {
+    @apply opacity-40 cursor-not-allowed;
+}
+
+.snm-customizer-pinned-check {
+    @apply text-blue-400;
+}
+
+/* Shared icon + title layout inside customiser items */
+.snm-customizer-item-icon {
+    @apply flex-shrink-0 mr-2.5;
+    width: 1.25rem;
+    text-align: center;
+}
+
+.snm-customizer-item-title {
+    @apply truncate;
+    /* flex-1 removed – parent label sits inline after the title */
+    min-width: 0;
+}
+
+/* Muted "· ParentName" suffix shown next to shortcut titles in the customiser */
+.snm-customizer-item-parent-label {
+    @apply flex-shrink-0 ml-1;
+    font-size: 0.6875rem; /* 11px */
+    color: #4b5563; /* gray-600 */
+    white-space: nowrap;
+}
+
+/* Unpin button */
+.snm-customizer-unpin-btn {
+    @apply flex-shrink-0 ml-auto flex items-center justify-center w-5 h-5 rounded text-gray-500 hover:text-red-400 hover:bg-gray-700 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Empty state */
+.snm-customizer-empty-state {
+    @apply flex flex-col items-center justify-center flex-1 p-6 text-gray-500 text-sm text-center;
+}
+
+/* Divider between columns */
+.snm-customizer-divider {
+    /* handled by border-r on the left column */
+    display: none;
+}
+
+/* Footer */
+.snm-customizer-footer {
+    @apply flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-800 flex-shrink-0;
+}
+
+.snm-customizer-reset-btn {
+    @apply flex items-center text-xs text-gray-400 hover:text-gray-200 transition-colors duration-150;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.snm-customizer-footer-actions {
+    @apply flex items-center space-x-2;
+}
+
+/* Generic button helpers */
+.snm-btn {
+    @apply inline-flex items-center px-3 py-1.5 rounded text-sm font-medium transition-colors duration-150 cursor-pointer;
+    border: none;
+}
+
+.snm-btn-secondary {
+    @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+}
+
+.snm-btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-500;
+}
+
+/* ── Light theme overrides ──────────────────────────────────────────────────── */
+
+/* Dropdown panel – light theme */
+body[data-theme='light'] .snm-dropdown {
+    background-color: #ffffff;
+    border-color: #e5e7eb; /* gray-200 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='light'] .snm-dropdown-header {
+    background-color: #f9fafb; /* gray-50 */
+    border-bottom-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-title {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-close {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-close:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-item {
+    color: #374151; /* gray-700 */
+}
+
+body[data-theme='light'] .snm-dropdown-item:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-item-icon {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-item:hover .snm-dropdown-item-icon {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-footer {
+    background-color: #f9fafb; /* gray-50 */
+    border-top-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-customise-link {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-customise-link:hover {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-items::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 */
+}
+
+/* Phase 2 – light theme: search bar */
+body[data-theme='light'] .snm-dropdown-search-bar {
+    background: transparent;
+    border-bottom-color: #d1d5db; /* gray-300 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-icon {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-input {
+    color: #374151; /* gray-700 */
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body[data-theme='light'] .snm-dropdown-search-input::placeholder {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-clear {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-clear:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+/* Phase 2 – light theme: card grid */
+body[data-theme='light'] .snm-dropdown-grid::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 */
+}
+
+body[data-theme='light'] .snm-dropdown-card {
+    background-color: #f9fafb; /* gray-50 */
+    border-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-card:hover {
+    border-color: #d1d5db; /* gray-300 */
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link {
+    color: #374151; /* gray-700 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link:hover {
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-icon {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link:hover .snm-dropdown-card-icon {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-description {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-description--from {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-empty {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-empty-text {
+    color: #9ca3af; /* gray-400 */
+}
+body[data-theme='light'] .snm-dropdown-pin-btn {
+    color: #9ca3af; /* gray-400 */
+}
+body[data-theme='light'] .snm-dropdown-pin-btn:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #2563eb; /* blue-600 */
+}
+body[data-theme='light'] .snm-dropdown-pin-btn:active {
+    background-color: #dbeafe; /* blue-100 */
+    color: #1d4ed8; /* blue-700 */
+}
+body[data-theme='light'] .snm-more-btn.is-open {
+    @apply bg-gray-200 text-gray-900 rounded;
+}
+
+/* Customiser panel – light theme */
+body[data-theme='light'] .snm-customizer-panel {
+    @apply bg-white border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-header {
+    @apply bg-gray-100 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-title {
+    @apply text-gray-900;
+}
+
+body[data-theme='light'] .snm-customizer-close {
+    @apply text-gray-500 hover:text-gray-900 hover:bg-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-col-header {
+    @apply bg-gray-50 border-gray-200;
+}
+body[data-theme='light'] .snm-customizer-col-pinned {
+    @apply border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-col-title {
+    @apply text-gray-500;
+}
+
+body[data-theme='light'] .snm-customizer-col-badge {
+    @apply bg-gray-200 text-gray-700;
+}
+
+body[data-theme='light'] .snm-customizer-pinned-item {
+    @apply bg-gray-50 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-pinned-item:hover {
+    @apply border-gray-300;
+}
+
+body[data-theme='light'] .snm-customizer-all-item {
+    @apply text-gray-700;
+}
+
+body[data-theme='light'] .snm-customizer-all-item:hover:not(.is-disabled) {
+    @apply bg-gray-100 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-all-item.is-pinned {
+    @apply bg-blue-50 border-blue-300 text-blue-900;
+}
+
+body[data-theme='light'] .snm-customizer-footer {
+    @apply bg-gray-50 border-gray-200;
+}
+
+body[data-theme='light'] .snm-customizer-reset-btn {
+    @apply text-gray-500 hover:text-gray-800;
+}
+
+body[data-theme='light'] .snm-btn-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+body[data-theme='light'] .snm-drag-handle {
+    @apply text-gray-400;
+}
+
+body[data-theme='light'] .snm-customizer-backdrop {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ── Responsive / mobile ────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .snm-dropdown {
+        /* On mobile, pin to the top of the viewport edge-to-edge */
+        position: fixed !important;
+        top: 57px !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    /* Single-column card grid on mobile */
+    .snm-dropdown-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .snm-customizer-panel {
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .snm-customizer-body {
+        @apply flex-col;
+    }
+
+    .snm-customizer-col-pinned {
+        @apply border-r-0 border-b border-gray-700;
+        max-height: 40vh;
+    }
+
+    .snm-customizer-col-all {
+        max-height: 40vh;
+    }
+}
