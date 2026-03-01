@@ -100,8 +100,8 @@
     border: none;
     border-bottom: 1px solid #374151; /* gray-700 */
     border-radius: 0;
-    padding: 2px 4px;
-    gap: 6px;
+    padding: 0 4px 1px;
+    gap: 4px;
 }
 
 .snm-dropdown-search-icon {
@@ -111,8 +111,8 @@
 
 .snm-dropdown-search-input {
     @apply flex-1 outline-none;
-    font-size: 0.75rem; /* 12px – compact */
-    line-height: 1.4;
+    font-size: 0.6875rem; /* 11px – very compact */
+    line-height: 1.2;
     color: #e5e7eb; /* gray-200 */
     background: none !important;
     border: none !important;
@@ -324,10 +324,10 @@
 
 .snm-dropdown-header {
     @apply flex items-center flex-shrink-0;
-    padding: 8px 10px 8px 14px;
+    padding: 6px 8px 6px 12px;
     border-bottom: 1px solid #374151; /* gray-700 */
     background-color: #111827; /* gray-900 */
-    gap: 10px;
+    gap: 8px;
 }
 
 .snm-dropdown-title {
