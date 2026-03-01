@@ -334,24 +334,36 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
             alwaysOverflow = allItems.slice(maxVisible);
         }
 
-        // Available width for nav items (subtract "More" + customise button reservation).
-        const MORE_BTN_WIDTH = 60; // px – approximate width of ⋯ + sliders buttons
-        const availableWidth = container.offsetWidth - MORE_BTN_WIDTH;
-
         // Measure rendered item widths from the DOM.
         const itemEls = Array.from(container.querySelectorAll('.snm-item'));
+
+        // If no items have rendered yet, fall back to the simple distribution
+        // so we don't incorrectly overflow items based on zero-width measurements.
+        if (itemEls.length === 0) {
+            this._distributeFromAllItems();
+            return;
+        }
+
         const itemWidths = itemEls.map((el) => el.offsetWidth + 8); // 8px gap
+
+        // Available width: only subtract the customise-button (~44px).
+        // Do NOT pre-reserve space for the "More" button – it is not rendered
+        // when all items fit, so reserving its width causes a false overflow.
+        const CUSTOMISE_BTN_WIDTH = 44; // px – sliders button + gap
+        const availableWidth = container.offsetWidth - CUSTOMISE_BTN_WIDTH;
 
         let cumulative = 0;
         let cutoff = 0;
         for (let i = 0; i < barCandidates.length; i++) {
-            const w = itemWidths[i] ?? 120; // fallback estimate
-            if (cumulative + w > availableWidth) break;
+            const w = itemWidths[i] ?? 0;
+            // Skip items that haven't painted yet (zero width) to avoid
+            // incorrectly cutting them to overflow.
+            if (w > 0 && cumulative + w > availableWidth) break;
             cumulative += w;
             cutoff = i + 1;
         }
 
-        // If everything fits, show all bar candidates.
+        // If everything fits (or nothing was measured), show all bar candidates.
         if (cutoff === 0 && barCandidates.length > 0) {
             cutoff = barCandidates.length;
         }
