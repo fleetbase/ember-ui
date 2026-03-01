@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
 import { isArray } from '@ember/array';
 import { htmlSafe } from '@ember/template';
@@ -16,7 +17,15 @@ import { htmlSafe } from '@ember/template';
  * (muted style, no pin button).
  */
 export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component {
+    @service router;
+    @service hostRouter;
+
     @tracked searchQuery = '';
+
+    /** Returns whichever router service is available. */
+    get _router() {
+        return this.router ?? this.hostRouter;
+    }
 
     get positionStyle() {
         const top = this.args.top ?? 0;
@@ -117,6 +126,22 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
         }
         if (typeof this.args.onClose === 'function') {
             this.args.onClose();
+        }
+    }
+
+    /**
+     * Navigate to a route-based menu item programmatically.
+     * Closes the dropdown first, then transitions via the router service so
+     * the Ember router handles the navigation (no full page reload).
+     */
+    @action navigateTo(menuItem, event) {
+        event?.preventDefault();
+        if (typeof this.args.onClose === 'function') {
+            this.args.onClose();
+        }
+        const route = menuItem?.route;
+        if (route && this._router) {
+            this._router.transitionTo(route);
         }
     }
 }

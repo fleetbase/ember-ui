@@ -15,10 +15,10 @@
       @onQuickPin       - Action to pin an item directly from the dropdown
       @atPinnedLimit    - Boolean: true when the bar is full (pin button hidden)
 
-    NOTE: @onClose is attached directly to <LinkToExternal> elements (not to a
-    wrapper div) so the Ember router handles the transition first and the
-    dropdown closes afterwards.  A wrapper-div click handler fires before the
-    router can intercept the anchor click, causing a full page refresh.
+    NOTE: Route-based cards use a plain <a> with {{on "click" (fn this.navigateTo item)}}
+    rather than <LinkToExternal>.  The navigateTo action calls preventDefault,
+    closes the dropdown, then calls router.transitionTo so the Ember router
+    handles navigation without a full page reload.
 }}
 <div
     class="snm-dropdown snm-dropdown--wide"
@@ -80,14 +80,12 @@
                     {{! ── Shortcut sibling card (AWS-style flat item) ─────── }}
                     <div class="snm-dropdown-card" role="presentation">
                         <div class="snm-dropdown-card-header">
-                            {{! onClose is on the LinkToExternal itself so the Ember router
-                                handles the transition before the dropdown closes. }}
-                            <LinkToExternal
-                                @route={{item.route}}
+                            <a
+                                href="javascript:;"
                                 id={{concat (dasherize (or item.route item.id "sc")) "-dropdown-card"}}
                                 class="snm-dropdown-card-link"
                                 title={{item.title}}
-                                {{on "click" @onClose}}
+                                {{on "click" (fn this.navigateTo item)}}
                             >
                                 <span class="snm-dropdown-card-icon">
                                     {{#if item.iconComponent}}
@@ -103,7 +101,7 @@
                                         <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
                                     {{/if}}
                                 </span>
-                            </LinkToExternal>
+                            </a>
                             {{#unless @atPinnedLimit}}
                                 <button
                                     type="button"
@@ -148,14 +146,12 @@
                                     </span>
                                 </a>
                             {{else}}
-                                {{! onClose is on the LinkToExternal itself – not on a wrapper div –
-                                    so the Ember router handles the transition before the dropdown closes. }}
-                                <LinkToExternal
-                                    @route={{item.route}}
+                                <a
+                                    href="javascript:;"
                                     id={{concat (dasherize (or item.route item.id "nav")) "-dropdown-card"}}
                                     class="snm-dropdown-card-link"
                                     title={{item.title}}
-                                    {{on "click" @onClose}}
+                                    {{on "click" (fn this.navigateTo item)}}
                                 >
                                     <span class="snm-dropdown-card-icon">
                                         {{#if item.iconComponent}}
@@ -170,7 +166,7 @@
                                             <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
                                         {{/if}}
                                     </span>
-                                </LinkToExternal>
+                                </a>
                             {{/if}}
                             {{#unless @atPinnedLimit}}
                                 <button
