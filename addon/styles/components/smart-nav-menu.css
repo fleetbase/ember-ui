@@ -70,7 +70,7 @@
     z-index: 9999;
     /* Default narrow width (fallback for non-wide variant) */
     width: 320px;
-    max-height: 50vh;
+    max-height: 60vh;
     min-height: 200px;
     display: flex;
     flex-direction: column;
@@ -485,7 +485,7 @@
     z-index: 710;
     width: 680px;
     max-width: calc(100vw - 2rem);
-    max-height: 50vh;
+    max-height: 60vh;
     border-radius: 8px;
     overflow: hidden;
     @apply bg-gray-900 border border-gray-700 shadow-next-nav;

@@ -43,6 +43,7 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
                         route: sc.route,
                         icon: sc.icon ?? 'arrow-right',
                         iconPrefix: sc.iconPrefix,
+                        description: sc.description ?? null,
                         _isShortcut: true,
                         _parentTitle: item.title,
                     });

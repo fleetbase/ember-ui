@@ -57,7 +57,7 @@
 {{#if this.isMoreOpen}}
     <EmberWormhole @to="application-root-wormhole">
         <Layout::Header::SmartNavMenu::Dropdown
-            @items={{this.overflowItems}}
+            @items={{this.allItems}}
             @top={{this.dropdownTop}}
             @left={{this.dropdownLeft}}
             @onClose={{this.closeMore}}
