@@ -95,11 +95,12 @@
     @apply flex items-center;
     flex: 1 1 auto;
     min-width: 0;
-    /* Pill-shaped container inside the header */
-    background-color: #1f2937; /* gray-800 – slightly lighter than header */
-    border: 1px solid #374151; /* gray-700 */
-    border-radius: 6px;
-    padding: 4px 8px;
+    /* Flat bottom-border underline style – no pill */
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #374151; /* gray-700 */
+    border-radius: 0;
+    padding: 2px 4px;
     gap: 6px;
 }
 
@@ -145,7 +146,7 @@
 .snm-dropdown-grid {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding: 12px;
+    padding: 8px 6px;
     display: grid;
     /* 2 equal columns */
     grid-template-columns: repeat(2, 1fr);
@@ -335,7 +336,8 @@
 }
 
 .snm-dropdown-close {
-    @apply flex items-center justify-center w-6 h-6 rounded transition-colors duration-150;
+    @apply flex-shrink-0 flex items-center justify-center w-6 h-6 rounded transition-colors duration-150;
+    margin-left: auto; /* push to far right of the header flex row */
     background: none;
     border: none;
     cursor: pointer;
@@ -751,8 +753,8 @@ body[data-theme='light'] .snm-dropdown-items::-webkit-scrollbar-thumb {
 
 /* Phase 2 – light theme: search bar */
 body[data-theme='light'] .snm-dropdown-search-bar {
-    background-color: #f3f4f6; /* gray-100 */
-    border-color: #d1d5db; /* gray-300 */
+    background: transparent;
+    border-bottom-color: #d1d5db; /* gray-300 */
 }
 
 body[data-theme='light'] .snm-dropdown-search-icon {
