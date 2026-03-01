@@ -92,16 +92,14 @@
 /* ── Search bar ─────────────────────────────────────────────────────────────── */
 
 .snm-dropdown-search-bar {
-    @apply flex items-center;
-    flex: 1 1 auto;
-    min-width: 0;
-    /* Flat bottom-border underline style – no pill */
+    @apply flex items-center flex-shrink-0;
+    /* Full-width row with a flat bottom border */
     background: transparent;
     border: none;
     border-bottom: 1px solid #374151; /* gray-700 */
     border-radius: 0;
-    padding: 0 4px 1px 10px;
-    gap: 4px;
+    padding: 6px 10px;
+    gap: 6px;
 }
 
 .snm-dropdown-search-icon {

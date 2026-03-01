@@ -21,32 +21,9 @@
     role="dialog"
     aria-label="More extensions"
 >
-    {{! ── Header: title + inline search + close ──────────────────────────── }}
+    {{! ── Header: title + close ────────────────────────────────────────────── }}
     <div class="snm-dropdown-header">
         <span class="snm-dropdown-title">Extensions</span>
-        <div class="snm-dropdown-search-bar">
-            <span class="snm-dropdown-search-icon" aria-hidden="true">
-                <FaIcon @icon="magnifying-glass" @size="xs" />
-            </span>
-            <input
-                type="text"
-                class="snm-dropdown-search-input"
-                placeholder="Search extensions..."
-                value={{this.searchQuery}}
-                aria-label="Search extensions"
-                {{on "input" this.updateSearch}}
-            />
-            {{#if this.searchQuery}}
-                <button
-                    type="button"
-                    class="snm-dropdown-search-clear"
-                    aria-label="Clear search"
-                    {{on "click" this.clearSearch}}
-                >
-                    <FaIcon @icon="xmark" @size="xs" />
-                </button>
-            {{/if}}
-        </div>
         <button
             type="button"
             class="snm-dropdown-close"
@@ -55,6 +32,31 @@
         >
             <FaIcon @icon="xmark" @size="sm" />
         </button>
+    </div>
+
+    {{! ── Search bar (own row) ────────────────────────────────────────────── }}
+    <div class="snm-dropdown-search-bar">
+        <span class="snm-dropdown-search-icon" aria-hidden="true">
+            <FaIcon @icon="magnifying-glass" @size="xs" />
+        </span>
+        <input
+            type="text"
+            class="snm-dropdown-search-input"
+            placeholder="Search extensions..."
+            value={{this.searchQuery}}
+            aria-label="Search extensions"
+            {{on "input" this.updateSearch}}
+        />
+        {{#if this.searchQuery}}
+            <button
+                type="button"
+                class="snm-dropdown-search-clear"
+                aria-label="Clear search"
+                {{on "click" this.clearSearch}}
+            >
+                <FaIcon @icon="xmark" @size="xs" />
+            </button>
+        {{/if}}
     </div>
 
     {{! ── Card grid ───────────────────────────────────────────────────────── }}
