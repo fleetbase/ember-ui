@@ -14,6 +14,11 @@
       @onOpenCustomizer - Action to open the customiser panel
       @onQuickPin       - Action to pin an item directly from the dropdown
       @atPinnedLimit    - Boolean: true when the bar is full (pin button hidden)
+
+    NOTE: @onClose is attached directly to <LinkToExternal> elements (not to a
+    wrapper div) so the Ember router handles the transition first and the
+    dropdown closes afterwards.  A wrapper-div click handler fires before the
+    router can intercept the anchor click, causing a full page refresh.
 }}
 <div
     class="snm-dropdown snm-dropdown--wide"
@@ -75,25 +80,30 @@
                     {{! ── Shortcut sibling card (AWS-style flat item) ─────── }}
                     <div class="snm-dropdown-card" role="presentation">
                         <div class="snm-dropdown-card-header">
-                            <div class="snm-dropdown-card-link-wrapper" role="none" {{on "click" @onClose}}>
-                                <LinkToExternal
-                                    @route={{item.route}}
-                                    id={{concat (dasherize (or item.route item.id "sc")) "-dropdown-card"}}
-                                    class="snm-dropdown-card-link"
-                                    title={{item.title}}
-                                >
-                                    <span class="snm-dropdown-card-icon">
-                                        <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="sm" />
-                                    </span>
-                                    {{! Title row: shortcut name + always-visible muted parent attribution }}
-                                    <span class="snm-dropdown-card-title-group">
-                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
-                                        {{#if item._parentTitle}}
-                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
-                                        {{/if}}
-                                    </span>
-                                </LinkToExternal>
-                            </div>
+                            {{! onClose is on the LinkToExternal itself so the Ember router
+                                handles the transition before the dropdown closes. }}
+                            <LinkToExternal
+                                @route={{item.route}}
+                                id={{concat (dasherize (or item.route item.id "sc")) "-dropdown-card"}}
+                                class="snm-dropdown-card-link"
+                                title={{item.title}}
+                                {{on "click" @onClose}}
+                            >
+                                <span class="snm-dropdown-card-icon">
+                                    {{#if item.iconComponent}}
+                                        {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                                    {{else}}
+                                        <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                                    {{/if}}
+                                </span>
+                                {{! Title row: shortcut name + always-visible muted parent attribution }}
+                                <span class="snm-dropdown-card-title-group">
+                                    <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                    {{#if item._parentTitle}}
+                                        <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                    {{/if}}
+                                </span>
+                            </LinkToExternal>
                             {{#unless @atPinnedLimit}}
                                 <button
                                     type="button"
@@ -130,7 +140,6 @@
                                             <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
                                         {{/if}}
                                     </span>
-                                    {{! Title row: always show muted parent label when this is a pinned shortcut }}
                                     <span class="snm-dropdown-card-title-group">
                                         <span class="snm-dropdown-card-title">{{item.title}}</span>
                                         {{#if item._parentTitle}}
@@ -139,29 +148,29 @@
                                     </span>
                                 </a>
                             {{else}}
-                                <div class="snm-dropdown-card-link-wrapper" role="none" {{on "click" @onClose}}>
-                                    <LinkToExternal
-                                        @route={{item.route}}
-                                        id={{concat (dasherize (or item.route item.id "nav")) "-dropdown-card"}}
-                                        class="snm-dropdown-card-link"
-                                        title={{item.title}}
-                                    >
-                                        <span class="snm-dropdown-card-icon">
-                                            {{#if item.iconComponent}}
-                                                {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
-                                            {{else}}
-                                                <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
-                                            {{/if}}
-                                        </span>
-                                        {{! Title row: always show muted parent label when this is a pinned shortcut }}
-                                        <span class="snm-dropdown-card-title-group">
-                                            <span class="snm-dropdown-card-title">{{item.title}}</span>
-                                            {{#if item._parentTitle}}
-                                                <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
-                                            {{/if}}
-                                        </span>
-                                    </LinkToExternal>
-                                </div>
+                                {{! onClose is on the LinkToExternal itself – not on a wrapper div –
+                                    so the Ember router handles the transition before the dropdown closes. }}
+                                <LinkToExternal
+                                    @route={{item.route}}
+                                    id={{concat (dasherize (or item.route item.id "nav")) "-dropdown-card"}}
+                                    class="snm-dropdown-card-link"
+                                    title={{item.title}}
+                                    {{on "click" @onClose}}
+                                >
+                                    <span class="snm-dropdown-card-icon">
+                                        {{#if item.iconComponent}}
+                                            {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                                        {{else}}
+                                            <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                                        {{/if}}
+                                    </span>
+                                    <span class="snm-dropdown-card-title-group">
+                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{#if item._parentTitle}}
+                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                        {{/if}}
+                                    </span>
+                                </LinkToExternal>
                             {{/if}}
                             {{#unless @atPinnedLimit}}
                                 <button
