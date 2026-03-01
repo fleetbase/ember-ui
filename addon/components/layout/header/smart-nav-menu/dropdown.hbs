@@ -85,7 +85,13 @@
                                     <span class="snm-dropdown-card-icon">
                                         <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="sm" />
                                     </span>
-                                    <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                    {{! Title row: shortcut name + always-visible muted parent attribution }}
+                                    <span class="snm-dropdown-card-title-group">
+                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{#if item._parentTitle}}
+                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                        {{/if}}
+                                    </span>
                                 </LinkToExternal>
                             </div>
                             {{#unless @atPinnedLimit}}
@@ -102,8 +108,6 @@
                         </div>
                         {{#if item.description}}
                             <p class="snm-dropdown-card-description">{{item.description}}</p>
-                        {{else if item._parentTitle}}
-                            <p class="snm-dropdown-card-description snm-dropdown-card-description--from"><em>from {{item._parentTitle}}</em></p>
                         {{/if}}
                     </div>
                 {{else}}
@@ -124,7 +128,13 @@
                                             <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
                                         {{/if}}
                                     </span>
-                                    <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                    {{! Title row: always show muted parent label when this is a pinned shortcut }}
+                                    <span class="snm-dropdown-card-title-group">
+                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{#if item._parentTitle}}
+                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                        {{/if}}
+                                    </span>
                                 </a>
                             {{else}}
                                 <div class="snm-dropdown-card-link-wrapper" role="none" {{on "click" @onClose}}>
@@ -141,7 +151,13 @@
                                                 <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
                                             {{/if}}
                                         </span>
-                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{! Title row: always show muted parent label when this is a pinned shortcut }}
+                                        <span class="snm-dropdown-card-title-group">
+                                            <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                            {{#if item._parentTitle}}
+                                                <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                            {{/if}}
+                                        </span>
                                     </LinkToExternal>
                                 </div>
                             {{/if}}

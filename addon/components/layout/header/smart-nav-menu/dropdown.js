@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { dasherize } from '@ember/string';
 import { htmlSafe } from '@ember/template';
 
 /**
@@ -38,7 +39,7 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
             if (Array.isArray(item.shortcuts)) {
                 for (const sc of item.shortcuts) {
                     result.push({
-                        id: sc.id ?? item.id + '-sc-' + sc.title,
+                        id: sc.id ?? dasherize(item.id + '-sc-' + sc.title),
                         title: sc.title,
                         route: sc.route,
                         icon: sc.icon ?? 'arrow-right',
