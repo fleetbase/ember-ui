@@ -7,6 +7,11 @@ import { htmlSafe } from '@ember/template';
  * Layout::Header::SmartNavMenu::Dropdown
  *
  * Phase 2: multi-column card grid + search filter.
+ *
+ * Shortcuts are expanded as independent sibling items in the grid (AWS-style).
+ * Each shortcut is normalised into a flat display item with `_isShortcut: true`
+ * so the template can render it with a slightly different visual treatment
+ * (muted style, no pin button).
  */
 export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component {
     @tracked searchQuery = '';
@@ -17,18 +22,45 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
         return htmlSafe('top: ' + top + 'px; left: ' + left + 'px;');
     }
 
+    /**
+     * Expand every MenuItem's shortcuts array into sibling flat items.
+     * The resulting array interleaves parent items and their shortcuts in
+     * registration order, matching the AWS Console pattern.
+     *
+     * Each shortcut is normalised to:
+     *   { title, route, icon, iconPrefix, id, _isShortcut: true, _parentTitle }
+     */
+    get expandedItems() {
+        const items = this.args.items ?? [];
+        const result = [];
+        for (const item of items) {
+            result.push(item);
+            if (Array.isArray(item.shortcuts)) {
+                for (const sc of item.shortcuts) {
+                    result.push({
+                        id: sc.id ?? item.id + '-sc-' + sc.title,
+                        title: sc.title,
+                        route: sc.route,
+                        icon: sc.icon ?? 'arrow-right',
+                        iconPrefix: sc.iconPrefix,
+                        _isShortcut: true,
+                        _parentTitle: item.title,
+                    });
+                }
+            }
+        }
+        return result;
+    }
+
     get filteredItems() {
         const query = (this.searchQuery || '').trim().toLowerCase();
-        const items = this.args.items ?? [];
         if (!query) {
-            return items;
+            return this.expandedItems;
         }
-        return items.filter((item) => {
+        return this.expandedItems.filter((item) => {
             if ((item.title || '').toLowerCase().includes(query)) return true;
             if (item.description && item.description.toLowerCase().includes(query)) return true;
-            if (Array.isArray(item.shortcuts)) {
-                return item.shortcuts.some((sc) => (sc.title || '').toLowerCase().includes(query));
-            }
+            if (item._parentTitle && item._parentTitle.toLowerCase().includes(query)) return true;
             return false;
         });
     }
@@ -50,12 +82,6 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
         if (menuItem && typeof menuItem.onClick === 'function') {
             menuItem.onClick(menuItem);
         }
-        if (typeof this.args.onClose === 'function') {
-            this.args.onClose();
-        }
-    }
-
-    @action handleShortcutClick() {
         if (typeof this.args.onClose === 'function') {
             this.args.onClose();
         }

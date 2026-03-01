@@ -259,44 +259,47 @@
     overflow: hidden;
 }
 
-/* ── Shortcuts list ─────────────────────────────────────────────────────────── */
-
-.snm-dropdown-shortcuts {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    margin-top: 4px;
-    border-top: 1px solid #1f2937; /* gray-800 – subtle divider */
-    padding-top: 4px;
+/* ── Shortcut sibling card (AWS-style flat item) ────────────────────────────── */
+/* Shortcut cards are visually lighter than primary extension cards */
+.snm-dropdown-card--shortcut {
+    background-color: #0f172a; /* slate-900 – slightly darker to distinguish */
+    border-color: #1e293b; /* slate-800 */
 }
 
-.snm-dropdown-shortcut-item {
-    display: block;
+.snm-dropdown-card--shortcut:hover {
+    border-color: #334155; /* slate-700 */
+    background-color: #1e293b;
 }
 
-.snm-dropdown-shortcut-link {
-    @apply flex items-center text-xs rounded;
-    padding: 3px 4px;
-    color: #9ca3af; /* gray-400 */
-    text-decoration: none;
-    transition: color 0.1s ease, background-color 0.1s ease;
+/* Shortcut cards use a smaller icon and muted link colour */
+.snm-dropdown-card--shortcut .snm-dropdown-card-icon {
+    color: #6b7280; /* gray-500 */
 }
 
-.snm-dropdown-shortcut-link:hover {
+.snm-dropdown-card--shortcut .snm-dropdown-card-link:hover .snm-dropdown-card-icon {
     color: #60a5fa; /* blue-400 */
-    background-color: #1f2937; /* gray-800 */
 }
 
-.snm-dropdown-shortcut-icon {
-    @apply flex-shrink-0;
-    width: 0.875rem;
-    margin-right: 5px;
-    text-align: center;
-    opacity: 0.7;
+.snm-dropdown-card--shortcut .snm-dropdown-card-title {
+    font-size: 0.75rem; /* 12px – slightly smaller than primary */
+    color: #9ca3af; /* gray-400 */
 }
 
-.snm-dropdown-shortcut-title {
-    @apply flex-1 truncate;
+.snm-dropdown-card--shortcut .snm-dropdown-card-link:hover .snm-dropdown-card-title {
+    color: #f9fafb; /* gray-50 */
+}
+
+/* No pin button on shortcut cards */
+.snm-dropdown-card--shortcut .snm-dropdown-pin-btn {
+    display: none;
+}
+
+/* Parent label shown beneath the shortcut title */
+.snm-dropdown-card-parent-label {
+    @apply text-xs truncate;
+    color: #4b5563; /* gray-600 */
+    margin: 2px 0 0 0;
+    padding-left: calc(1.125rem + 7px); /* align with card-title (icon width + margin) */
 }
 
 /* ── Empty state (no search results) ───────────────────────────────────────── */
@@ -816,17 +819,22 @@ body[data-theme='light'] .snm-dropdown-card-description {
     color: #9ca3af; /* gray-400 */
 }
 
-body[data-theme='light'] .snm-dropdown-shortcuts {
-    border-top-color: #e5e7eb; /* gray-200 */
+body[data-theme='light'] .snm-dropdown-card--shortcut {
+    background-color: #f8fafc; /* slate-50 */
+    border-color: #e2e8f0; /* slate-200 */
 }
 
-body[data-theme='light'] .snm-dropdown-shortcut-link {
+body[data-theme='light'] .snm-dropdown-card--shortcut:hover {
+    border-color: #cbd5e1; /* slate-300 */
+    background-color: #f1f5f9; /* slate-100 */
+}
+
+body[data-theme='light'] .snm-dropdown-card--shortcut .snm-dropdown-card-title {
     color: #6b7280; /* gray-500 */
 }
 
-body[data-theme='light'] .snm-dropdown-shortcut-link:hover {
-    color: #2563eb; /* blue-600 */
-    background-color: #f3f4f6; /* gray-100 */
+body[data-theme='light'] .snm-dropdown-card-parent-label {
+    color: #9ca3af; /* gray-400 */
 }
 
 body[data-theme='light'] .snm-dropdown-empty {
