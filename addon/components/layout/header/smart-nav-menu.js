@@ -531,6 +531,30 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         const currentPinned = this.pinnedIds ? [...this.pinnedIds] : [];
         const id = menuItem.id ?? menuItem.route;
         if (!id || currentPinned.includes(id)) return; // already pinned
+
+        // If this is a shortcut item it does not exist in allItems (the universe
+        // registry only holds top-level MenuItem instances).  Register it as a
+        // proper header menu item first so _distributeFromAllItems can find it
+        // by id when rebuilding the bar.
+        //
+        // We pass a plain object so the id is preserved as-is (the string-branch
+        // of #normalizeMenuItem would dasherize the title and lose the shortcut id).
+        if (menuItem._isShortcut) {
+            const alreadyRegistered = this.allItems.find((i) => i.id === id);
+            if (!alreadyRegistered) {
+                this.universe.registerHeaderMenuItem({
+                    id,
+                    slug: id,
+                    title: menuItem.title,
+                    route: menuItem.route,
+                    icon: menuItem.icon,
+                    iconPrefix: menuItem.iconPrefix,
+                    description: menuItem.description,
+                    priority: 100,
+                });
+            }
+        }
+
         this.pinnedIds = [...currentPinned, id];
         this._savePreferences();
         this._distributeFromAllItems();
