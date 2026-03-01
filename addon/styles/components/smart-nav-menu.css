@@ -68,9 +68,8 @@
 .snm-dropdown {
     position: fixed;
     z-index: 9999;
-    /* Width: comfortable reading width, similar to AWS console services menu */
+    /* Default narrow width (fallback for non-wide variant) */
     width: 320px;
-    /* Height: auto up to a generous max so many items are visible at once */
     max-height: calc(100vh - 80px);
     min-height: 200px;
     display: flex;
@@ -81,6 +80,233 @@
     background-color: #1f2937; /* gray-800 */
     border: 1px solid #374151; /* gray-700 */
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Phase 2: wide multi-column variant ─────────────────────────────────────── */
+.snm-dropdown--wide {
+    /* Wide enough for 3 card columns + gutters */
+    width: 800px;
+    max-width: calc(100vw - 16px);
+}
+
+/* ── Search bar ─────────────────────────────────────────────────────────────── */
+
+.snm-dropdown-search-bar {
+    @apply flex items-center flex-shrink-0;
+    padding: 8px 12px;
+    border-bottom: 1px solid #374151; /* gray-700 */
+    background-color: #111827; /* gray-900 */
+    gap: 8px;
+}
+
+.snm-dropdown-search-icon {
+    @apply flex-shrink-0;
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-search-input {
+    @apply flex-1 bg-transparent text-sm text-gray-100 outline-none;
+    border: none;
+    padding: 0;
+    min-width: 0;
+}
+
+.snm-dropdown-search-input::placeholder {
+    color: #6b7280; /* gray-500 */
+}
+
+.snm-dropdown-search-clear {
+    @apply flex-shrink-0 flex items-center justify-center w-5 h-5 rounded transition-colors duration-100;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    padding: 0;
+}
+
+.snm-dropdown-search-clear:hover {
+    background-color: #374151; /* gray-700 */
+    color: #f9fafb; /* gray-50 */
+}
+
+/* ── Card grid ──────────────────────────────────────────────────────────────── */
+
+.snm-dropdown-grid {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 12px;
+    display: grid;
+    /* 3 equal columns; fall back to 2 when the panel is narrower */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.snm-dropdown-grid::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 2px;
+}
+
+/* ── Extension card ─────────────────────────────────────────────────────────── */
+
+.snm-dropdown-card {
+    @apply flex flex-col rounded-lg;
+    padding: 10px 12px;
+    background-color: #111827; /* gray-900 */
+    border: 1px solid #374151; /* gray-700 */
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    position: relative;
+}
+
+.snm-dropdown-card:hover {
+    border-color: #4b5563; /* gray-600 */
+    background-color: #1a2332; /* slightly lighter than gray-900 */
+}
+
+/* Card header row: icon + title link + pin button */
+.snm-dropdown-card-header {
+    @apply flex items-center;
+    gap: 0;
+    margin-bottom: 0;
+}
+
+/* The main extension link inside a card */
+.snm-dropdown-card-link {
+    @apply flex items-center flex-1 text-sm font-medium;
+    color: #e5e7eb; /* gray-200 */
+    text-decoration: none;
+    min-width: 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.snm-dropdown-card-link:hover {
+    color: #f9fafb; /* gray-50 */
+}
+
+.snm-dropdown-card-link-wrapper {
+    @apply flex flex-1;
+    min-width: 0;
+}
+
+.snm-dropdown-card-link-wrapper .snm-dropdown-card-link {
+    width: 100%;
+}
+
+.snm-dropdown-card-icon {
+    @apply flex-shrink-0;
+    width: 1.125rem;
+    margin-right: 7px;
+    text-align: center;
+    color: #9ca3af; /* gray-400 */
+}
+
+.snm-dropdown-card-link:hover .snm-dropdown-card-icon {
+    color: #60a5fa; /* blue-400 */
+}
+
+.snm-dropdown-card-title {
+    @apply flex-1 truncate;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+}
+
+/* Pin button on card – hidden until card is hovered */
+.snm-dropdown-card .snm-dropdown-pin-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.snm-dropdown-card:hover .snm-dropdown-pin-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── Card description ───────────────────────────────────────────────────────── */
+
+.snm-dropdown-card-description {
+    @apply text-xs;
+    color: #6b7280; /* gray-500 */
+    margin: 4px 0 6px 0;
+    line-height: 1.4;
+    /* Clamp to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Shortcuts list ─────────────────────────────────────────────────────────── */
+
+.snm-dropdown-shortcuts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-top: 4px;
+    border-top: 1px solid #1f2937; /* gray-800 – subtle divider */
+    padding-top: 4px;
+}
+
+.snm-dropdown-shortcut-item {
+    display: block;
+}
+
+.snm-dropdown-shortcut-link {
+    @apply flex items-center text-xs rounded;
+    padding: 3px 4px;
+    color: #9ca3af; /* gray-400 */
+    text-decoration: none;
+    transition: color 0.1s ease, background-color 0.1s ease;
+}
+
+.snm-dropdown-shortcut-link:hover {
+    color: #60a5fa; /* blue-400 */
+    background-color: #1f2937; /* gray-800 */
+}
+
+.snm-dropdown-shortcut-icon {
+    @apply flex-shrink-0;
+    width: 0.875rem;
+    margin-right: 5px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.snm-dropdown-shortcut-title {
+    @apply flex-1 truncate;
+}
+
+/* ── Empty state (no search results) ───────────────────────────────────────── */
+
+.snm-dropdown-empty {
+    @apply flex flex-col items-center justify-center;
+    /* Span all grid columns */
+    grid-column: 1 / -1;
+    padding: 32px 16px;
+    color: #6b7280; /* gray-500 */
+    text-align: center;
+}
+
+.snm-dropdown-empty-icon {
+    @apply mb-3;
+    opacity: 0.5;
+}
+
+.snm-dropdown-empty-text {
+    @apply text-sm m-0;
+    color: #6b7280; /* gray-500 */
 }
 
 /* ── Dropdown header ────────────────────────────────────────────────────────── */
@@ -511,6 +737,89 @@ body[data-theme='light'] .snm-dropdown-customise-link:hover {
 body[data-theme='light'] .snm-dropdown-items::-webkit-scrollbar-thumb {
     background-color: #d1d5db; /* gray-300 */
 }
+
+/* Phase 2 – light theme: search bar */
+body[data-theme='light'] .snm-dropdown-search-bar {
+    background-color: #f9fafb; /* gray-50 */
+    border-bottom-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-icon {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-input {
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-input::placeholder {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-clear {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-search-clear:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+}
+
+/* Phase 2 – light theme: card grid */
+body[data-theme='light'] .snm-dropdown-grid::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 */
+}
+
+body[data-theme='light'] .snm-dropdown-card {
+    background-color: #f9fafb; /* gray-50 */
+    border-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-card:hover {
+    border-color: #d1d5db; /* gray-300 */
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link {
+    color: #374151; /* gray-700 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link:hover {
+    color: #111827; /* gray-900 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-icon {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-link:hover .snm-dropdown-card-icon {
+    color: #2563eb; /* blue-600 */
+}
+
+body[data-theme='light'] .snm-dropdown-card-description {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-shortcuts {
+    border-top-color: #e5e7eb; /* gray-200 */
+}
+
+body[data-theme='light'] .snm-dropdown-shortcut-link {
+    color: #6b7280; /* gray-500 */
+}
+
+body[data-theme='light'] .snm-dropdown-shortcut-link:hover {
+    color: #2563eb; /* blue-600 */
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+body[data-theme='light'] .snm-dropdown-empty {
+    color: #9ca3af; /* gray-400 */
+}
+
+body[data-theme='light'] .snm-dropdown-empty-text {
+    color: #9ca3af; /* gray-400 */
+}
 body[data-theme='light'] .snm-dropdown-pin-btn {
     color: #9ca3af; /* gray-400 */
 }
@@ -612,6 +921,11 @@ body[data-theme='light'] .snm-customizer-backdrop {
         border-radius: 0;
         border-left: none;
         border-right: none;
+    }
+
+    /* Single-column card grid on mobile */
+    .snm-dropdown-grid {
+        grid-template-columns: 1fr;
     }
 
     .snm-customizer-panel {

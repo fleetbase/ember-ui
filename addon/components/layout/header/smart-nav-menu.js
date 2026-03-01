@@ -405,7 +405,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         // Position the dropdown below the button, aligned to its left edge.
         this.dropdownTop = rect.bottom + 6;
         // Ensure the dropdown doesn't overflow the right edge of the viewport.
-        const dropdownWidth = 320;
+        // Wide multi-column dropdown (Phase 2: 2–3 card columns + search bar)
+        const dropdownWidth = 800;
         const rightEdge = rect.left + dropdownWidth;
         if (rightEdge > window.innerWidth - 8) {
             this.dropdownLeft = window.innerWidth - dropdownWidth - 8;

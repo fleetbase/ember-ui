@@ -1,56 +1,61 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { htmlSafe } from '@ember/template';
 
 /**
- * `Layout::Header::SmartNavMenu::Dropdown`
+ * Layout::Header::SmartNavMenu::Dropdown
  *
- * The "More" overflow dropdown panel.  Each item mirrors the same dual-branch
- * pattern used by SmartNavMenu::Item: if the item defines an `onClick` handler
- * it is invoked directly; otherwise a `<LinkToExternal />` route link is
- * rendered — identical behaviour to the original next-catalog-menu-items.
- *
- * Args:
- *   @items            {MenuItem[]} Items to render in the dropdown.
- *   @top              {Number}     Fixed-position top coordinate in px.
- *   @left             {Number}     Fixed-position left coordinate in px.
- *   @onClose          {Function}  Called when the dropdown should close.
- *   @onOpenCustomizer {Function}  Called when the customiser should open.
- *   @onQuickPin       {Function}  Called with a menuItem to pin it directly to the bar.
- *   @atPinnedLimit    {Boolean}   True when the bar is full; hides the pin button.
- *
- * @class LayoutHeaderSmartNavMenuDropdownComponent
- * @extends Component
+ * Phase 2: multi-column card grid + search filter.
  */
 export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component {
-    /**
-     * Computes the fixed-position style string for the dropdown panel.
-     * Uses `htmlSafe()` to satisfy the `no-inline-styles` and
-     * `style-concatenation` template lint rules — the style value is
-     * constructed entirely in JS and marked safe before being bound.
-     *
-     * @returns {SafeString}
-     */
+    @tracked searchQuery = '';
+
     get positionStyle() {
         const top = this.args.top ?? 0;
         const left = this.args.left ?? 0;
-        return htmlSafe(`top: ${top}px; left: ${left}px;`);
+        return htmlSafe('top: ' + top + 'px; left: ' + left + 'px;');
     }
 
-    /**
-     * Handle a custom onClick item: invoke the item's handler then close the
-     * dropdown.  Receives the full `menuItem` object so we can call
-     * `menuItem.onClick(menuItem)` matching the pattern used elsewhere in the
-     * Fleetbase console.
-     *
-     * @param {Object} menuItem
-     * @param {Event}  event
-     */
+    get filteredItems() {
+        const query = (this.searchQuery || '').trim().toLowerCase();
+        const items = this.args.items ?? [];
+        if (!query) {
+            return items;
+        }
+        return items.filter((item) => {
+            if ((item.title || '').toLowerCase().includes(query)) return true;
+            if (item.description && item.description.toLowerCase().includes(query)) return true;
+            if (Array.isArray(item.shortcuts)) {
+                return item.shortcuts.some((sc) => (sc.title || '').toLowerCase().includes(query));
+            }
+            return false;
+        });
+    }
+
+    get hasNoResults() {
+        return this.searchQuery.trim().length > 0 && this.filteredItems.length === 0;
+    }
+
+    @action updateSearch(event) {
+        this.searchQuery = event.target.value;
+    }
+
+    @action clearSearch() {
+        this.searchQuery = '';
+    }
+
     @action handleItemClick(menuItem, event) {
         event?.preventDefault();
         if (menuItem && typeof menuItem.onClick === 'function') {
             menuItem.onClick(menuItem);
         }
+        if (typeof this.args.onClose === 'function') {
+            this.args.onClose();
+        }
+    }
+
+    @action handleShortcutClick() {
         if (typeof this.args.onClose === 'function') {
             this.args.onClose();
         }

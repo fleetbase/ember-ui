@@ -1,33 +1,18 @@
-{{! Layout::Header::SmartNavMenu::Dropdown
-    ─────────────────────────────────────────────────────────────────────────
-    Overflow dropdown panel.  Rendered via EmberWormhole into
-    #application-root-wormhole so it escapes the header's 57px height.
-    Position is supplied as @top / @left (fixed-position px values calculated
-    from the "More" button's getBoundingClientRect in the parent component).
-
-    Each item row has:
-      - An icon + title link (onClick branch or LinkToExternal)
-      - A pin button on the right — only shown when the bar has capacity
-        (@atPinnedLimit is false).  Clicking it calls @onQuickPin and
-        immediately moves the item from the dropdown to the bar.
-
-    The LinkToExternal items are wrapped in a <div> that calls @onClose
-    on click (without preventDefault) so the dropdown closes after the
-    user navigates.  The router transition is not interrupted because
-    the event continues to bubble to the LinkToExternal anchor.
+{{!
+    Layout::Header::SmartNavMenu::Dropdown
+    Phase 2: multi-column card grid with search filter.
 
     Args:
-      @items          - Array of MenuItem objects to display
-      @top            - CSS top value in px (fixed position)
-      @left           - CSS left value in px (fixed position)
-      @onClose        - Action to close this dropdown
+      @items            - Array of MenuItem objects to display
+      @top              - Fixed-position top offset (px, from JS)
+      @left             - Fixed-position left offset (px, from JS)
+      @onClose          - Action to close this dropdown
       @onOpenCustomizer - Action to open the customiser panel
-      @onQuickPin     - Action to pin an item directly from the dropdown
-      @atPinnedLimit  - Boolean: true when the bar is full (pin button disabled)
-    ─────────────────────────────────────────────────────────────────────────
+      @onQuickPin       - Action to pin an item directly from the dropdown
+      @atPinnedLimit    - Boolean: true when the bar is full (pin button hidden)
 }}
 <div
-    class="snm-dropdown"
+    class="snm-dropdown snm-dropdown--wide"
     style={{this.positionStyle}}
     role="dialog"
     aria-label="More extensions"
@@ -45,71 +30,126 @@
         </button>
     </div>
 
-    {{! ── Items list ──────────────────────────────────────────────────────── }}
-    <div class="snm-dropdown-items" role="menu" aria-label="More extensions">
-        {{#each @items as |menuItem|}}
-            <div class="snm-dropdown-item-row">
-                {{#if menuItem.onClick}}
-                    {{! onClick-style item: invoke the handler then close }}
-                    <a
-                        href="javascript:;"
-                        class="snm-dropdown-item"
-                        role="menuitem"
-                        title={{menuItem.title}}
-                        {{on "click" (fn this.handleItemClick menuItem)}}
-                    >
-                        <span class="snm-dropdown-item-icon">
-                            {{#if menuItem.iconComponent}}
-                                {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
-                            {{else}}
-                                <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
-                            {{/if}}
-                        </span>
-                        <span class="snm-dropdown-item-title truncate">{{menuItem.title}}</span>
-                    </a>
-                {{else}}
-                    {{! Standard route link via LinkToExternal.
-                        Wrapped in a div with an on-click that calls @onClose
-                        WITHOUT preventDefault — the event continues to bubble
-                        so the router handles the transition normally, and the
-                        dropdown closes cleanly after navigation. }}
-                    <div class="snm-dropdown-item-link-wrapper" role="none" {{on "click" @onClose}}>
-                        <LinkToExternal
-                            @route={{menuItem.route}}
-                            id={{concat (dasherize (or menuItem.route menuItem.id "nav")) "-dropdown-button"}}
-                            class="snm-dropdown-item"
-                            role="menuitem"
-                            title={{menuItem.title}}
-                        >
-                            <span class="snm-dropdown-item-icon">
-                                {{#if menuItem.iconComponent}}
-                                    {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
-                                {{else}}
-                                    <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
-                                {{/if}}
-                            </span>
-                            <span class="snm-dropdown-item-title truncate">{{menuItem.title}}</span>
-                        </LinkToExternal>
-                    </div>
-                {{/if}}
+    {{! ── Search bar ──────────────────────────────────────────────────────── }}
+    <div class="snm-dropdown-search-bar">
+        <span class="snm-dropdown-search-icon" aria-hidden="true">
+            <FaIcon @icon="magnifying-glass" @size="sm" />
+        </span>
+        <input
+            type="text"
+            class="snm-dropdown-search-input"
+            placeholder="Search extensions..."
+            value={{this.searchQuery}}
+            aria-label="Search extensions"
+            {{on "input" this.updateSearch}}
+        />
+        {{#if this.searchQuery}}
+            <button
+                type="button"
+                class="snm-dropdown-search-clear"
+                aria-label="Clear search"
+                {{on "click" this.clearSearch}}
+            >
+                <FaIcon @icon="xmark" @size="xs" />
+            </button>
+        {{/if}}
+    </div>
 
-                {{! ── Inline pin button ──────────────────────────────────── }}
-                {{! Only shown when the bar still has capacity.
-                    Clicking pins the item directly to the bar without
-                    opening the full customiser panel. }}
-                {{#unless @atPinnedLimit}}
-                    <button
-                        type="button"
-                        class="snm-dropdown-pin-btn"
-                        title="Pin to navigation bar"
-                        aria-label="Pin {{menuItem.title}} to navigation bar"
-                        {{on "click" (fn @onQuickPin menuItem)}}
-                    >
-                        <FaIcon @icon="thumbtack" @size="xs" />
-                    </button>
-                {{/unless}}
+    {{! ── Card grid ───────────────────────────────────────────────────────── }}
+    <div class="snm-dropdown-grid" aria-label="Extension list">
+
+        {{#if this.hasNoResults}}
+            <div class="snm-dropdown-empty">
+                <FaIcon @icon="magnifying-glass" @size="lg" class="snm-dropdown-empty-icon" />
+                <p class="snm-dropdown-empty-text">
+                    No extensions match
+                    <strong>{{this.searchQuery}}</strong>
+                </p>
             </div>
-        {{/each}}
+        {{else}}
+            {{#each this.filteredItems as |menuItem|}}
+                <div class="snm-dropdown-card" role="presentation">
+
+                    {{! Card header: icon + title + pin button }}
+                    <div class="snm-dropdown-card-header">
+                        {{#if menuItem.onClick}}
+                            <a
+                                href="javascript:;"
+                                class="snm-dropdown-card-link"
+                                title={{menuItem.title}}
+                                {{on "click" (fn this.handleItemClick menuItem)}}
+                            >
+                                <span class="snm-dropdown-card-icon">
+                                    {{#if menuItem.iconComponent}}
+                                        {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
+                                    {{else}}
+                                        <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
+                                    {{/if}}
+                                </span>
+                                <span class="snm-dropdown-card-title">{{menuItem.title}}</span>
+                            </a>
+                        {{else}}
+                            <div class="snm-dropdown-card-link-wrapper" role="none" {{on "click" @onClose}}>
+                                <LinkToExternal
+                                    @route={{menuItem.route}}
+                                    id={{concat (dasherize (or menuItem.route menuItem.id "nav")) "-dropdown-card"}}
+                                    class="snm-dropdown-card-link"
+                                    title={{menuItem.title}}
+                                >
+                                    <span class="snm-dropdown-card-icon">
+                                        {{#if menuItem.iconComponent}}
+                                            {{component (lazy-engine-component menuItem.iconComponent) options=menuItem.iconComponentOptions}}
+                                        {{else}}
+                                            <FaIcon @icon={{or menuItem.icon "circle-dot"}} @prefix={{menuItem.iconPrefix}} @size="sm" />
+                                        {{/if}}
+                                    </span>
+                                    <span class="snm-dropdown-card-title">{{menuItem.title}}</span>
+                                </LinkToExternal>
+                            </div>
+                        {{/if}}
+
+                        {{#unless @atPinnedLimit}}
+                            <button
+                                type="button"
+                                class="snm-dropdown-pin-btn"
+                                title="Pin to navigation bar"
+                                aria-label="Pin {{menuItem.title}} to navigation bar"
+                                {{on "click" (fn @onQuickPin menuItem)}}
+                            >
+                                <FaIcon @icon="thumbtack" @size="xs" />
+                            </button>
+                        {{/unless}}
+                    </div>
+
+                    {{#if menuItem.description}}
+                        <p class="snm-dropdown-card-description">{{menuItem.description}}</p>
+                    {{/if}}
+
+                    {{#if menuItem.shortcuts}}
+                        <ul class="snm-dropdown-shortcuts" role="group" aria-label="Shortcuts">
+                            {{#each menuItem.shortcuts as |shortcut|}}
+                                <li class="snm-dropdown-shortcut-item">
+                                    <div role="none" {{on "click" this.handleShortcutClick}}>
+                                        <LinkToExternal
+                                            @route={{shortcut.route}}
+                                            class="snm-dropdown-shortcut-link"
+                                            title={{shortcut.title}}
+                                        >
+                                            <span class="snm-dropdown-shortcut-icon" aria-hidden="true">
+                                                <FaIcon @icon={{or shortcut.icon "arrow-right"}} @prefix={{shortcut.iconPrefix}} @size="xs" />
+                                            </span>
+                                            <span class="snm-dropdown-shortcut-title">{{shortcut.title}}</span>
+                                        </LinkToExternal>
+                                    </div>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    {{/if}}
+
+                </div>
+            {{/each}}
+        {{/if}}
+
     </div>
 
     {{! ── Footer ──────────────────────────────────────────────────────────── }}
