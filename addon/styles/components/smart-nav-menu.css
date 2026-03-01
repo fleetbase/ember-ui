@@ -546,6 +546,9 @@ body[data-theme='light'] .snm-customizer-close {
 body[data-theme='light'] .snm-customizer-col-header {
     @apply bg-gray-50 border-gray-200;
 }
+body[data-theme='light'] .snm-customizer-col-pinned {
+    @apply border-gray-200;
+}
 
 body[data-theme='light'] .snm-customizer-col-title {
     @apply text-gray-500;
