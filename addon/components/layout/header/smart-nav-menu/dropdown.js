@@ -63,7 +63,7 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
 
                         // ── Metadata ─────────────────────────────────────────
                         description: sc.description ?? null,
-                        tags: isArray(sc.tags) ? sc.tags : (isArray(item.tags) ? item.tags : null),
+                        tags: isArray(sc.tags) ? sc.tags : isArray(item.tags) ? item.tags : null,
 
                         // ── Behaviour ────────────────────────────────────────
                         onClick: sc.onClick ?? null,
