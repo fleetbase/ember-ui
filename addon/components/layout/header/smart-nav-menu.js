@@ -186,9 +186,13 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         return this.args.maxVisible ?? DEFAULT_MAX_VISIBLE;
     }
 
-    /** True when there are items that did not fit in the bar. */
+    /**
+     * True when the More/Extensions dropdown button should be shown.
+     * Always shown when there are any registered items so the panel acts as
+     * a permanent app-launcher (not just a pure overflow mechanism).
+     */
     get hasOverflow() {
-        return this.overflowItems.length > 0;
+        return this.allItems.length > 0;
     }
 
     // ─── Setup ────────────────────────────────────────────────────────────────
