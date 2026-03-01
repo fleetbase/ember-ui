@@ -289,6 +289,9 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     _setupObserver(element) {
         if (typeof ResizeObserver === 'undefined') return;
         this._resizeObserver = new ResizeObserver(() => {
+            // Guard against re-entrancy: if we are already in the middle of a
+            // recalculate pass triggered by this same observer, skip.
+            if (this._isRecalculating) return;
             scheduleOnce('afterRender', this, this._recalculate);
         });
         this._resizeObserver.observe(element);
@@ -312,6 +315,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     _recalculate() {
         const container = this._containerEl;
         if (!container) return;
+        // Prevent the ResizeObserver from re-firing while we are mutating the DOM.
+        this._isRecalculating = true;
 
         const { pinnedIds, allItems, maxVisible } = this;
 
@@ -371,8 +376,18 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         const fitsInBar = barCandidates.slice(0, cutoff);
         const widthOverflow = barCandidates.slice(cutoff);
 
-        this.visibleItems = A(fitsInBar);
-        this.overflowItems = A([...widthOverflow, ...alwaysOverflow]);
+        // Only mutate tracked state when the distribution actually changes.
+        // This prevents the DOM mutation from triggering the ResizeObserver
+        // again, which would cause an infinite flicker loop.
+        const newVisibleIds = fitsInBar.map((i) => i.id).join(',');
+        const newOverflowIds = [...widthOverflow, ...alwaysOverflow].map((i) => i.id).join(',');
+        const curVisibleIds = this.visibleItems.map((i) => i.id).join(',');
+        const curOverflowIds = this.overflowItems.map((i) => i.id).join(',');
+        if (newVisibleIds !== curVisibleIds || newOverflowIds !== curOverflowIds) {
+            this.visibleItems = A(fitsInBar);
+            this.overflowItems = A([...widthOverflow, ...alwaysOverflow]);
+        }
+        this._isRecalculating = false;
     }
 
     // ─── "More" button registration ───────────────────────────────────────────

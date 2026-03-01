@@ -14,6 +14,7 @@
 {{#if @item.onClick}}
     <a
         href="javascript:;"
+        id={{concat (dasherize (or @item.route @item.id "nav")) "-header-button"}}
         role="menuitem"
         class="snm-item next-view-header-item truncate {{@item.class}} {{if this.isActive 'active'}}"
         title={{@item.title}}
