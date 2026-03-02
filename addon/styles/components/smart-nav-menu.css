@@ -183,36 +183,26 @@
     background-color: #1a2332; /* slightly lighter than gray-900 */
 }
 
-/* Card header row: icon + title link + pin button */
+/* Card header row: icon + title + pin button */
 .snm-dropdown-card-header {
     @apply flex items-center;
     gap: 0;
     margin-bottom: 0;
 }
 
-/* The main extension link inside a card */
-.snm-dropdown-card-link {
-    @apply flex items-center flex-1 text-sm font-medium;
-    color: #e5e7eb; /* gray-200 */
+/* Pin button must sit above the card link and receive its own clicks */
+.snm-dropdown-pin-btn {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card-as-link: the card itself is the <LinkToExternal> or <a> */
+a.snm-dropdown-card,
+.snm-dropdown-card[href] {
+    display: flex;
     text-decoration: none;
-    min-width: 0;
+    color: inherit;
     cursor: pointer;
-    border: none;
-    background: none;
-    padding: 0;
-}
-
-.snm-dropdown-card-link:hover {
-    color: #f9fafb; /* gray-50 */
-}
-
-.snm-dropdown-card-link-wrapper {
-    @apply flex flex-1;
-    min-width: 0;
-}
-
-.snm-dropdown-card-link-wrapper .snm-dropdown-card-link {
-    width: 100%;
 }
 
 .snm-dropdown-card-icon {
@@ -787,11 +777,13 @@ body[data-theme='light'] .snm-dropdown-card:hover {
     background-color: #f3f4f6; /* gray-100 */
 }
 
-body[data-theme='light'] .snm-dropdown-card-link {
+body[data-theme='light'] a.snm-dropdown-card,
+body[data-theme='light'] .snm-dropdown-card[href] {
     color: #374151; /* gray-700 */
 }
 
-body[data-theme='light'] .snm-dropdown-card-link:hover {
+body[data-theme='light'] a.snm-dropdown-card:hover,
+body[data-theme='light'] .snm-dropdown-card[href]:hover {
     color: #111827; /* gray-900 */
 }
 
@@ -799,7 +791,8 @@ body[data-theme='light'] .snm-dropdown-card-icon {
     color: #6b7280; /* gray-500 */
 }
 
-body[data-theme='light'] .snm-dropdown-card-link:hover .snm-dropdown-card-icon {
+body[data-theme='light'] a.snm-dropdown-card:hover .snm-dropdown-card-icon,
+body[data-theme='light'] .snm-dropdown-card[href]:hover .snm-dropdown-card-icon {
     color: #2563eb; /* blue-600 */
 }
 
