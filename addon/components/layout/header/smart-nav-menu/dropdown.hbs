@@ -17,10 +17,12 @@
       @atPinnedLimit    - Boolean: true when the bar is full (pin button hidden)
 
     Click-area pattern:
-      The card itself IS the <LinkToExternal> (or <a> for onClick items) so
-      the entire card surface is clickable.  The pin button sits inside the
-      card with `position: relative; z-index: 1` so it receives its own clicks
-      without being swallowed by the card link.
+      Each card is wrapped in a `snm-dropdown-card-wrap` div (position: relative).
+      The card itself is the <LinkToExternal> (or <a> for onClick items), making
+      the entire card surface clickable.  The pin button is a sibling of the card
+      inside the wrapper, absolutely positioned in the top-right corner so it
+      sits above the card link and receives its own clicks without violating the
+      no-nested-interactive rule.
 }}
 <div
     class="snm-dropdown snm-dropdown--wide"
@@ -79,88 +81,11 @@
         {{else}}
             {{#each this.filteredItems as |item|}}
                 {{#if item._isShortcut}}
-                    {{! ── Shortcut card — entire card is the link ─────────── }}
-                    <LinkToExternal
-                        @route={{item.route}}
-                        id={{concat (dasherize (or item.route item.id "sc")) "-dropdown-card"}}
-                        class="snm-dropdown-card"
-                        title={{item.title}}
-                    >
-                        <div class="snm-dropdown-card-header">
-                            <span class="snm-dropdown-card-icon">
-                                {{#if item.iconComponent}}
-                                    {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
-                                {{else}}
-                                    <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
-                                {{/if}}
-                            </span>
-                            <span class="snm-dropdown-card-title-group">
-                                <span class="snm-dropdown-card-title">{{item.title}}</span>
-                                {{#if item._parentTitle}}
-                                    <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
-                                {{/if}}
-                            </span>
-                            {{#unless @atPinnedLimit}}
-                                <button
-                                    type="button"
-                                    class="snm-dropdown-pin-btn"
-                                    title="Pin to navigation bar"
-                                    aria-label="Pin {{item.title}} to navigation bar"
-                                    {{on "click" (fn @onQuickPin item)}}
-                                >
-                                    <FaIcon @icon="thumbtack" @size="xs" />
-                                </button>
-                            {{/unless}}
-                        </div>
-                        {{#if item.description}}
-                            <p class="snm-dropdown-card-description">{{item.description}}</p>
-                        {{else if item._parentTitle}}
-                            <p class="snm-dropdown-card-description snm-dropdown-card-description--from"><em>from {{item._parentTitle}}</em></p>
-                        {{/if}}
-                    </LinkToExternal>
-                {{else}}
-                    {{! ── Primary extension card — entire card is the link ── }}
-                    {{#if item.onClick}}
-                        <a
-                            href="javascript:;"
-                            class="snm-dropdown-card"
-                            title={{item.title}}
-                            {{on "click" (fn this.handleItemClick item)}}
-                        >
-                            <div class="snm-dropdown-card-header">
-                                <span class="snm-dropdown-card-icon">
-                                    {{#if item.iconComponent}}
-                                        {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
-                                    {{else}}
-                                        <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
-                                    {{/if}}
-                                </span>
-                                <span class="snm-dropdown-card-title-group">
-                                    <span class="snm-dropdown-card-title">{{item.title}}</span>
-                                    {{#if item._parentTitle}}
-                                        <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
-                                    {{/if}}
-                                </span>
-                                {{#unless @atPinnedLimit}}
-                                    <button
-                                        type="button"
-                                        class="snm-dropdown-pin-btn"
-                                        title="Pin to navigation bar"
-                                        aria-label="Pin {{item.title}} to navigation bar"
-                                        {{on "click" (fn @onQuickPin item)}}
-                                    >
-                                        <FaIcon @icon="thumbtack" @size="xs" />
-                                    </button>
-                                {{/unless}}
-                            </div>
-                            {{#if item.description}}
-                                <p class="snm-dropdown-card-description">{{item.description}}</p>
-                            {{/if}}
-                        </a>
-                    {{else}}
+                    {{! ── Shortcut card ───────────────────────────────────── }}
+                    <div class="snm-dropdown-card-wrap">
                         <LinkToExternal
                             @route={{item.route}}
-                            id={{concat (dasherize (or item.route item.id "nav")) "-dropdown-card"}}
+                            id={{concat (dasherize (or item.route item.id "sc")) "-dropdown-card"}}
                             class="snm-dropdown-card"
                             title={{item.title}}
                         >
@@ -178,23 +103,93 @@
                                         <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
                                     {{/if}}
                                 </span>
-                                {{#unless @atPinnedLimit}}
-                                    <button
-                                        type="button"
-                                        class="snm-dropdown-pin-btn"
-                                        title="Pin to navigation bar"
-                                        aria-label="Pin {{item.title}} to navigation bar"
-                                        {{on "click" (fn @onQuickPin item)}}
-                                    >
-                                        <FaIcon @icon="thumbtack" @size="xs" />
-                                    </button>
-                                {{/unless}}
                             </div>
                             {{#if item.description}}
                                 <p class="snm-dropdown-card-description">{{item.description}}</p>
+                            {{else if item._parentTitle}}
+                                <p class="snm-dropdown-card-description snm-dropdown-card-description--from"><em>from {{item._parentTitle}}</em></p>
                             {{/if}}
                         </LinkToExternal>
-                    {{/if}}
+                        {{#unless @atPinnedLimit}}
+                            <button
+                                type="button"
+                                class="snm-dropdown-pin-btn"
+                                title="Pin to navigation bar"
+                                aria-label="Pin {{item.title}} to navigation bar"
+                                {{on "click" (fn @onQuickPin item)}}
+                            >
+                                <FaIcon @icon="thumbtack" @size="xs" />
+                            </button>
+                        {{/unless}}
+                    </div>
+                {{else}}
+                    {{! ── Primary extension card ──────────────────────────── }}
+                    <div class="snm-dropdown-card-wrap">
+                        {{#if item.onClick}}
+                            <a
+                                href="javascript:;"
+                                class="snm-dropdown-card"
+                                title={{item.title}}
+                                {{on "click" (fn this.handleItemClick item)}}
+                            >
+                                <div class="snm-dropdown-card-header">
+                                    <span class="snm-dropdown-card-icon">
+                                        {{#if item.iconComponent}}
+                                            {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                                        {{else}}
+                                            <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                                        {{/if}}
+                                    </span>
+                                    <span class="snm-dropdown-card-title-group">
+                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{#if item._parentTitle}}
+                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                        {{/if}}
+                                    </span>
+                                </div>
+                                {{#if item.description}}
+                                    <p class="snm-dropdown-card-description">{{item.description}}</p>
+                                {{/if}}
+                            </a>
+                        {{else}}
+                            <LinkToExternal
+                                @route={{item.route}}
+                                id={{concat (dasherize (or item.route item.id "nav")) "-dropdown-card"}}
+                                class="snm-dropdown-card"
+                                title={{item.title}}
+                            >
+                                <div class="snm-dropdown-card-header">
+                                    <span class="snm-dropdown-card-icon">
+                                        {{#if item.iconComponent}}
+                                            {{component (lazy-engine-component item.iconComponent) options=item.iconComponentOptions}}
+                                        {{else}}
+                                            <FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" />
+                                        {{/if}}
+                                    </span>
+                                    <span class="snm-dropdown-card-title-group">
+                                        <span class="snm-dropdown-card-title">{{item.title}}</span>
+                                        {{#if item._parentTitle}}
+                                            <span class="snm-dropdown-card-parent-label" aria-label="from {{item._parentTitle}}">· {{item._parentTitle}}</span>
+                                        {{/if}}
+                                    </span>
+                                </div>
+                                {{#if item.description}}
+                                    <p class="snm-dropdown-card-description">{{item.description}}</p>
+                                {{/if}}
+                            </LinkToExternal>
+                        {{/if}}
+                        {{#unless @atPinnedLimit}}
+                            <button
+                                type="button"
+                                class="snm-dropdown-pin-btn"
+                                title="Pin to navigation bar"
+                                aria-label="Pin {{item.title}} to navigation bar"
+                                {{on "click" (fn @onQuickPin item)}}
+                            >
+                                <FaIcon @icon="thumbtack" @size="xs" />
+                            </button>
+                        {{/unless}}
+                    </div>
                 {{/if}}
             {{/each}}
         {{/if}}

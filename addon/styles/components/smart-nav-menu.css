@@ -169,13 +169,22 @@
 
 /* ── Extension card ─────────────────────────────────────────────────────────── */
 
+/* Wrapper that holds the card link + absolutely-positioned pin button */
+.snm-dropdown-card-wrap {
+    position: relative;
+}
+
 .snm-dropdown-card {
     @apply flex flex-col rounded-lg;
     padding: 7px 10px;
     background-color: #111827; /* gray-900 */
     border: 1px solid #1f2937; /* gray-800 – darker but lighter than bg */
     transition: border-color 0.15s ease, background-color 0.15s ease;
-    position: relative;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .snm-dropdown-card:hover {
@@ -190,9 +199,12 @@
     margin-bottom: 0;
 }
 
-/* Pin button must sit above the card link and receive its own clicks */
+/* Pin button is a sibling of the card link, absolutely positioned top-right
+   so it floats above the card and receives its own clicks */
 .snm-dropdown-pin-btn {
-    position: relative;
+    position: absolute;
+    top: 6px;
+    right: 6px;
     z-index: 1;
 }
 
@@ -240,12 +252,13 @@ a.snm-dropdown-card,
 }
 
 /* Pin button on card – always visible at low opacity, brightens on hover */
-.snm-dropdown-card .snm-dropdown-pin-btn {
-    opacity: 0.35;
+.snm-dropdown-card-wrap .snm-dropdown-pin-btn {
+    opacity: 0;
     pointer-events: auto;
+    transition: opacity 0.15s ease;
 }
 
-.snm-dropdown-card:hover .snm-dropdown-pin-btn {
+.snm-dropdown-card-wrap:hover .snm-dropdown-pin-btn {
     opacity: 1;
 }
 
