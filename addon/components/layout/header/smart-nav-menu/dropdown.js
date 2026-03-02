@@ -1,7 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { dasherize } from '@ember/string';
 import { isArray } from '@ember/array';
 import { htmlSafe } from '@ember/template';
 
@@ -25,62 +24,16 @@ export default class LayoutHeaderSmartNavMenuDropdownComponent extends Component
     }
 
     /**
-     * Expand every MenuItem's shortcuts array into sibling flat items.
-     * The resulting array interleaves parent items and their shortcuts in
-     * registration order, matching the AWS Console pattern.
+     * Returns the items array as-is for filtering.
      *
-     * Each shortcut is normalised to:
-     *   { title, route, icon, iconPrefix, id, _isShortcut: true, _parentTitle }
+     * Shortcuts are already registered as first-class items in the universe
+     * registry (with `_isShortcut: true` and `_parentTitle` set) by
+     * `menu-service.registerHeaderMenuItem()` at boot time.  There is no need
+     * to expand `item.shortcuts` here — doing so would produce a duplicate card
+     * for every shortcut (one from the registry, one from the expansion).
      */
     get expandedItems() {
-        const items = this.args.items ?? [];
-        const result = [];
-        for (const item of items) {
-            result.push(item);
-            if (isArray(item.shortcuts)) {
-                for (const sc of item.shortcuts) {
-                    const scId = sc.id ?? dasherize(item.id + '-sc-' + sc.title);
-                    result.push({
-                        // ── Identity ────────────────────────────────────────
-                        id: scId,
-                        slug: sc.slug ?? scId,
-                        title: sc.title,
-                        text: sc.text ?? sc.title,
-                        label: sc.label ?? sc.title,
-
-                        // ── Routing ──────────────────────────────────────────
-                        route: sc.route ?? item.route,
-                        queryParams: sc.queryParams ?? {},
-                        routeParams: sc.routeParams ?? [],
-
-                        // ── Icons (full surface) ─────────────────────────────
-                        icon: sc.icon ?? item.icon ?? 'arrow-right',
-                        iconPrefix: sc.iconPrefix ?? item.iconPrefix ?? null,
-                        iconSize: sc.iconSize ?? null,
-                        iconClass: sc.iconClass ?? null,
-                        iconComponent: sc.iconComponent ?? null,
-                        iconComponentOptions: sc.iconComponentOptions ?? {},
-
-                        // ── Metadata ─────────────────────────────────────────
-                        description: sc.description ?? null,
-                        tags: isArray(sc.tags) ? sc.tags : isArray(item.tags) ? item.tags : null,
-
-                        // ── Behaviour ────────────────────────────────────────
-                        onClick: sc.onClick ?? null,
-                        disabled: sc.disabled ?? false,
-
-                        // ── Styling ───────────────────────────────────────────
-                        class: sc.class ?? null,
-
-                        // ── Internal flags ────────────────────────────────────
-                        _isShortcut: true,
-                        _parentTitle: item.title,
-                        _parentId: item.id,
-                    });
-                }
-            }
-        }
-        return result;
+        return this.args.items ?? [];
     }
 
     get filteredItems() {
