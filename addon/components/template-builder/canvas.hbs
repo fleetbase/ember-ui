@@ -14,8 +14,8 @@
             @isSelected={{this.isSelected element}}
             @zoom={{this.zoom}}
             @onSelect={{fn this.selectElement element}}
-            @onDidInsert={{fn this.didInsertElement element}}
-            @onWillDestroy={{fn this.willDestroyElement element}}
+            @onDidInsert={{fn this.setupElement element}}
+            @onWillDestroy={{fn this.teardownElement element}}
         />
     {{/each}}
 </div>

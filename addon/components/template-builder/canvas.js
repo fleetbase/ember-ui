@@ -84,12 +84,12 @@ export default class TemplateBuilderCanvasComponent extends Component {
     // -------------------------------------------------------------------------
 
     @action
-    didInsertElement(element, el) {
+    setupElement(element, el) {
         this._setupInteract(element, el);
     }
 
     @action
-    willDestroyElement(element) {
+    teardownElement(element) {
         const interactable = this._interactables[element.uuid];
         if (interactable) {
             try {
