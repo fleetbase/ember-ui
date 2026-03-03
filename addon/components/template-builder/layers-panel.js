@@ -29,6 +29,7 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
         return [...elements].sort((a, b) => (b.z_index ?? 1) - (a.z_index ?? 1));
     }
 
+    @action
     elementIcon(type) {
         const icons = {
             text:    'font',
@@ -42,6 +43,7 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
         return icons[type] ?? 'layer-group';
     }
 
+    @action
     elementLabel(element) {
         if (element.label) return element.label;
         const typeLabels = {
@@ -56,14 +58,17 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
         return typeLabels[element.type] ?? 'Element';
     }
 
+    @action
     isSelected(element) {
         return this.args.selectedElement?.uuid === element.uuid;
     }
 
+    @action
     isVisible(element) {
         return element.visible !== false;
     }
 
+    @action
     isRenaming(element) {
         return this.renamingUuid === element.uuid;
     }

@@ -292,7 +292,11 @@ export default class TemplateBuilderComponent extends Component {
     // -------------------------------------------------------------------------
 
     _updateTemplate(changes) {
-        this._template = { ...this.template, ...changes };
+        // Always produce a clean POJO — spreading a tracked object can carry
+        // Ember's tag system into the new object, which triggers setter assertions
+        // when Glimmer detects a tracked write during a render pass.
+        const merged = Object.assign({}, this.template, changes);
+        this._template = JSON.parse(JSON.stringify(merged));
     }
 
     _pushUndo() {
