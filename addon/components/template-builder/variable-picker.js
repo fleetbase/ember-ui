@@ -59,6 +59,7 @@ export default class TemplateBuilderVariablePickerComponent extends Component {
         return `[{ ${this.formulaExpression.trim()} }]`;
     }
 
+    @action
     isExpanded(namespace) {
         return this.expandedNamespaces.has(namespace);
     }

@@ -41,6 +41,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     get hasTextContent() { return this.isText; }
     get hasBorderOptions() { return !this.isLine; }
 
+    @action
     isSectionOpen(section) {
         return this.openSections.has(section);
     }

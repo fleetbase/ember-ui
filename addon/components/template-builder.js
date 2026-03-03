@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { inject as service } from '@ember/service';
-import { schedule } from '@ember/runloop';
+import { next } from '@ember/runloop';
 
 /**
  * TemplateBuilderComponent
@@ -300,7 +300,7 @@ export default class TemplateBuilderComponent extends Component {
         // tick. Scheduling to afterRender ensures the write happens cleanly.
         const merged = Object.assign({}, this.template, changes);
         const clean = JSON.parse(JSON.stringify(merged));
-        schedule('afterRender', this, () => {
+        next(this, () => {
             this._template = clean;
         });
     }
