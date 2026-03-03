@@ -96,15 +96,29 @@ body[data-theme='dark'] .tb-canvas {
 /* Form inputs inside the properties panel */
 .tb-input {
     width: 100%;
-    padding: 3px 6px;
+    height: 26px;
+    padding: 0 6px;
     font-size: 11px;
-    line-height: 1.4;
+    line-height: 26px;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
     background-color: #f9fafb;
     color: #111827;
     outline: none;
+    box-sizing: border-box;
     transition: border-color 0.15s;
+    /* Ensure selects and inputs render at the same height */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Restore select arrow */
+select.tb-input {
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    appearance: auto;
+    padding-right: 4px;
 }
 
 .tb-input:focus {
@@ -123,13 +137,20 @@ body[data-theme='dark'] .tb-input:focus {
     background-color: #111827;
 }
 
+/* Number inputs: restore spinner but keep them compact */
 .tb-input[type='number'] {
+    -webkit-appearance: textfield;
     -moz-appearance: textfield;
+    appearance: textfield;
+    padding-right: 2px;
 }
 
 .tb-input[type='number']::-webkit-inner-spin-button,
 .tb-input[type='number']::-webkit-outer-spin-button {
-    opacity: 0.5;
+    -webkit-appearance: inner-spin-button;
+    opacity: 1;
+    height: 24px;
+    cursor: pointer;
 }
 
 .tb-color-input {
