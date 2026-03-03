@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import { inject as service } from '@ember/service';
+import { schedule } from '@ember/runloop';
 
 /**
  * TemplateBuilderComponent
@@ -292,11 +293,16 @@ export default class TemplateBuilderComponent extends Component {
     // -------------------------------------------------------------------------
 
     _updateTemplate(changes) {
-        // Always produce a clean POJO — spreading a tracked object can carry
-        // Ember's tag system into the new object, which triggers setter assertions
-        // when Glimmer detects a tracked write during a render pass.
+        // Defer the tracked write to afterRender to avoid Glimmer's
+        // "you modified a tracked value after it was consumed during render"
+        // assertion. Actions triggered by user interaction (click, drag) can
+        // fire while a render pass is still in progress on the same runloop
+        // tick. Scheduling to afterRender ensures the write happens cleanly.
         const merged = Object.assign({}, this.template, changes);
-        this._template = JSON.parse(JSON.stringify(merged));
+        const clean = JSON.parse(JSON.stringify(merged));
+        schedule('afterRender', this, () => {
+            this._template = clean;
+        });
     }
 
     _pushUndo() {

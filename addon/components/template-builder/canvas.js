@@ -212,10 +212,12 @@ export default class TemplateBuilderCanvasComponent extends Component {
         }
     }
 
+    @action
     isSelected(element) {
         return this.args.selectedElement?.uuid === element.uuid;
     }
 
+    @action
     elementStyle(element) {
         const parts = [
             `position: absolute`,
