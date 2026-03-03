@@ -1,0 +1,73 @@
+{{! Template Builder — top-level layout }}
+<div class="tb-root flex flex-col h-full w-full bg-gray-100 dark:bg-gray-950 overflow-hidden" ...attributes>
+
+    {{! ================================================================ }}
+    {{! TOOLBAR }}
+    {{! ================================================================ }}
+    <TemplateBuilder::Toolbar
+        @zoom={{this.zoom}}
+        @canUndo={{this.canUndo}}
+        @canRedo={{this.canRedo}}
+        @isSaving={{@isSaving}}
+        @onAddElement={{this.addElement}}
+        @onZoomIn={{this.zoomIn}}
+        @onZoomOut={{this.zoomOut}}
+        @onZoomReset={{this.zoomReset}}
+        @onUndo={{this.undo}}
+        @onRedo={{this.redo}}
+        @onPreview={{this.preview}}
+        @onSave={{this.save}}
+    />
+
+    {{! ================================================================ }}
+    {{! MAIN AREA: Layers | Canvas | Properties }}
+    {{! ================================================================ }}
+    <div class="flex flex-1 min-h-0 overflow-hidden">
+
+        {{! LEFT: Layers panel }}
+        <div class="tb-panel-left w-52 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
+            <TemplateBuilder::LayersPanel
+                @elements={{this.elements}}
+                @selectedElement={{this.selectedElement}}
+                @onSelectElement={{this.selectElement}}
+                @onUpdateElement={{this.updateElement}}
+                @onDeleteElement={{this.deleteElement}}
+                @onReorderElement={{this.reorderElement}}
+            />
+        </div>
+
+        {{! CENTER: Canvas area (scrollable) }}
+        <div class="tb-canvas-area flex-1 overflow-auto p-8 flex items-start justify-center">
+            <TemplateBuilder::Canvas
+                @template={{this.template}}
+                @selectedElement={{this.selectedElement}}
+                @zoom={{this.zoom}}
+                @onSelectElement={{this.selectElement}}
+                @onUpdateElement={{this.updateElement}}
+                @onDeselectAll={{this.deselectAll}}
+            />
+        </div>
+
+        {{! RIGHT: Properties panel }}
+        <div class="tb-panel-right w-64 flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
+            <TemplateBuilder::PropertiesPanel
+                @selectedElement={{this.selectedElement}}
+                @template={{this.template}}
+                @contextSchemas={{this.contextSchemas}}
+                @onUpdateElement={{this.updateElement}}
+                @onUpdateTemplate={{this.updateTemplate}}
+                @onOpenVariablePicker={{this.openVariablePicker}}
+            />
+        </div>
+    </div>
+
+    {{! ================================================================ }}
+    {{! VARIABLE PICKER MODAL }}
+    {{! ================================================================ }}
+    <TemplateBuilder::VariablePicker
+        @isOpen={{this.variablePickerOpen}}
+        @contextSchemas={{this.contextSchemas}}
+        @onInsert={{this.handleVariableInsert}}
+        @onClose={{this.closeVariablePicker}}
+    />
+</div>

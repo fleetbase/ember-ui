@@ -1,0 +1,123 @@
+{{! Template Builder Element Renderer }}
+<div
+    class="tb-element {{this.selectionClass}}"
+    style={{this.wrapperStyle}}
+    data-element-type={{this.elementType}}
+    data-element-uuid={{@element.uuid}}
+    {{did-insert this.handleInsert}}
+    {{will-destroy this.handleDestroy}}
+    {{on "click" this.handleClick}}
+>
+    {{! TEXT }}
+    {{#if this.isText}}
+        <div class="tb-element-text" style={{this.textStyle}}>
+            {{{this.textContent}}}
+        </div>
+    {{/if}}
+
+    {{! IMAGE }}
+    {{#if this.isImage}}
+        {{#if this.imageSrc}}
+            <img
+                src={{this.imageSrc}}
+                alt={{this.imageAlt}}
+                style={{this.imageStyle}}
+                draggable="false"
+            />
+        {{else}}
+            <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 border border-dashed border-gray-300 dark:border-gray-600 rounded">
+                <div class="text-center text-gray-400 dark:text-gray-500 text-xs">
+                    <FaIcon @icon="image" @size="lg" class="mb-1 block" />
+                    <span>Image</span>
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+
+    {{! TABLE }}
+    {{#if this.isTable}}
+        <div class="tb-element-table w-full h-full overflow-auto">
+            <table class="w-full border-collapse text-xs" style="border-color: {{@element.border_color}};">
+                {{#if this.tableColumns}}
+                    <thead>
+                        <tr>
+                            {{#each this.tableColumns as |col|}}
+                                <th class="border px-2 py-1 text-left" style={{this.tableHeaderStyle}}>
+                                    {{col.label}}
+                                </th>
+                            {{/each}}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if this.tableRows.length}}
+                            {{#each this.tableRows as |row|}}
+                                <tr>
+                                    {{#each this.tableColumns as |col|}}
+                                        <td class="border px-2 py-1" style={{this.tableCellStyle}}>
+                                            {{get row col.key}}
+                                        </td>
+                                    {{/each}}
+                                </tr>
+                            {{/each}}
+                        {{else}}
+                            {{! Preview placeholder rows }}
+                            {{#each (array 1 2 3) as |_row|}}
+                                <tr>
+                                    {{#each this.tableColumns as |_col|}}
+                                        <td class="border px-2 py-1 text-gray-400" style={{this.tableCellStyle}}>—</td>
+                                    {{/each}}
+                                </tr>
+                            {{/each}}
+                        {{/if}}
+                    </tbody>
+                {{else}}
+                    <tbody>
+                        <tr>
+                            <td class="border px-2 py-1 text-gray-400 text-center" colspan="1">No columns defined</td>
+                        </tr>
+                    </tbody>
+                {{/if}}
+            </table>
+        </div>
+    {{/if}}
+
+    {{! LINE }}
+    {{#if this.isLine}}
+        <div class="tb-element-line" style={{this.lineStyle}}>
+            <div style={{this.lineInnerStyle}}></div>
+        </div>
+    {{/if}}
+
+    {{! SHAPE }}
+    {{#if this.isShape}}
+        <div class="tb-element-shape" style={{this.shapeStyle}}></div>
+    {{/if}}
+
+    {{! QR CODE }}
+    {{#if this.isQrCode}}
+        <div class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 rounded">
+            <div class="text-center text-gray-400 dark:text-gray-500 text-xs">
+                <FaIcon @icon="qrcode" @size="2x" class="mb-1 block" />
+                <span class="block truncate max-w-full px-1">{{this.codeLabel}}</span>
+            </div>
+        </div>
+    {{/if}}
+
+    {{! BARCODE }}
+    {{#if this.isBarcode}}
+        <div class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 rounded">
+            <div class="text-center text-gray-400 dark:text-gray-500 text-xs">
+                <FaIcon @icon="barcode" @size="2x" class="mb-1 block" />
+                <span class="block truncate max-w-full px-1">{{this.codeLabel}}</span>
+            </div>
+        </div>
+    {{/if}}
+
+    {{! Selection handles (shown when selected) }}
+    {{#if @isSelected}}
+        <div class="tb-element-handle tb-handle-nw"></div>
+        <div class="tb-element-handle tb-handle-ne"></div>
+        <div class="tb-element-handle tb-handle-sw"></div>
+        <div class="tb-element-handle tb-handle-se"></div>
+    {{/if}}
+</div>

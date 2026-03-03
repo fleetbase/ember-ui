@@ -1,0 +1,7 @@
+{{! Properties Panel Field }}
+<div class="tb-prop-field {{if (eq @span '2') 'col-span-2'}}">
+    {{#if @label}}
+        <label class="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">{{@label}}</label>
+    {{/if}}
+    {{yield}}
+</div>

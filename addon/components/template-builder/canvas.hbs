@@ -1,0 +1,21 @@
+{{! Template Builder Canvas }}
+<div
+    id={{this.canvasId}}
+    class="tb-canvas shadow-xl mx-auto select-none"
+    style={{this.canvasStyle}}
+    {{did-insert this.didInsertCanvas}}
+    {{will-destroy this.willDestroyCanvas}}
+    {{on "click" this.deselectAll}}
+    ...attributes
+>
+    {{#each this.elements as |element|}}
+        <TemplateBuilder::ElementRenderer
+            @element={{element}}
+            @isSelected={{this.isSelected element}}
+            @zoom={{this.zoom}}
+            @onSelect={{fn this.selectElement element}}
+            @onDidInsert={{fn this.didInsertElement element}}
+            @onWillDestroy={{fn this.willDestroyElement element}}
+        />
+    {{/each}}
+</div>

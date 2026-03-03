@@ -1,0 +1,185 @@
+/* =============================================================================
+   Template Builder
+   ============================================================================= */
+
+/* Root layout */
+.tb-root {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+}
+
+/* ─── Canvas ─────────────────────────────────────────────────────────────── */
+
+.tb-canvas {
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.08);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+body[data-theme='dark'] .tb-canvas {
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.4), 0 1px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Elements ───────────────────────────────────────────────────────────── */
+
+.tb-element {
+    box-sizing: border-box;
+    user-select: none;
+    touch-action: none; /* required for interact.js */
+}
+
+/* Selection handles (corner dots) */
+.tb-element-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+}
+
+.tb-handle-nw { top: -4px;  left: -4px;  cursor: nw-resize; }
+.tb-handle-ne { top: -4px;  right: -4px; cursor: ne-resize; }
+.tb-handle-sw { bottom: -4px; left: -4px;  cursor: sw-resize; }
+.tb-handle-se { bottom: -4px; right: -4px; cursor: se-resize; }
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────── */
+
+.tb-toolbar {
+    min-height: 44px;
+    flex-shrink: 0;
+}
+
+.tb-toolbar-btn {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    outline: none;
+}
+
+.tb-toolbar-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+}
+
+/* ─── Panels ─────────────────────────────────────────────────────────────── */
+
+.tb-panel-left,
+.tb-panel-right {
+    min-width: 0;
+}
+
+.tb-layers-panel,
+.tb-properties-panel {
+    font-size: 12px;
+}
+
+/* Layer row active state */
+.tb-layer-row:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+}
+
+/* ─── Properties Panel ───────────────────────────────────────────────────── */
+
+.tb-prop-section {
+    /* intentionally minimal */
+}
+
+.tb-prop-field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Form inputs inside the properties panel */
+.tb-input {
+    width: 100%;
+    padding: 3px 6px;
+    font-size: 11px;
+    line-height: 1.4;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background-color: #f9fafb;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.tb-input:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+}
+
+body[data-theme='dark'] .tb-input {
+    border-color: #374151;
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+body[data-theme='dark'] .tb-input:focus {
+    border-color: #3b82f6;
+    background-color: #111827;
+}
+
+.tb-input[type='number'] {
+    -moz-appearance: textfield;
+}
+
+.tb-input[type='number']::-webkit-inner-spin-button,
+.tb-input[type='number']::-webkit-outer-spin-button {
+    opacity: 0.5;
+}
+
+.tb-color-input {
+    width: 100%;
+    height: 28px;
+    padding: 1px 2px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+}
+
+body[data-theme='dark'] .tb-color-input {
+    border-color: #374151;
+}
+
+.tb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+.tb-icon-btn:hover {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+body[data-theme='dark'] .tb-icon-btn {
+    border-color: #374151;
+    background: #1f2937;
+    color: #9ca3af;
+}
+
+body[data-theme='dark'] .tb-icon-btn:hover {
+    background: #1e3a5f;
+    color: #60a5fa;
+    border-color: #1d4ed8;
+}
+
+/* ─── Variable Picker ────────────────────────────────────────────────────── */
+
+.tb-variable-picker {
+    /* z-index handled by Tailwind utility classes */
+}
