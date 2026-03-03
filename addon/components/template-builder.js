@@ -310,7 +310,28 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     _cloneTemplate(template) {
-        return JSON.parse(JSON.stringify(template ?? {}));
+        if (!template) return {};
+
+        // If this is an Ember Data model instance, extract plain attribute values
+        // directly rather than relying on JSON.stringify (which cannot serialise
+        // tracked prototype getters).
+        const isEmberModel = template && typeof template.eachAttribute === 'function';
+        if (isEmberModel) {
+            const plain = {};
+            template.eachAttribute((name) => {
+                const val = template[name];
+                // Deep-clone arrays/objects so the editor works on its own copy
+                plain[name] = val !== null && val !== undefined
+                    ? JSON.parse(JSON.stringify(val))
+                    : val;
+            });
+            // Always include uuid / id
+            plain.uuid = template.uuid ?? template.id ?? null;
+            return plain;
+        }
+
+        // Plain object — safe to JSON round-trip
+        return JSON.parse(JSON.stringify(template));
     }
 
     _defaultsForType(type) {
