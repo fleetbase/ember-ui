@@ -79,6 +79,12 @@ export default class TemplateBuilderComponent extends Component {
     /** @type {Function|null} Callback to call with the chosen variable/formula string */
     @tracked variablePickerCallback = null;
 
+    /** @type {String} Which tab is active in the left panel: 'layers' or 'queries' */
+    @tracked leftPanelTab = 'layers';
+
+    /** @type {Array} TemplateQuery records for the current template */
+    @tracked queries = [];
+
     /** @type {Array} Undo history stack — each entry is a deep-cloned content snapshot */
     _undoStack = [];
 
@@ -133,6 +139,30 @@ export default class TemplateBuilderComponent extends Component {
 
     get contextSchemas() {
         return this.args.contextSchemas ?? [];
+    }
+
+    /**
+     * Context schemas enriched with a "Queries" section derived from the saved
+     * TemplateQuery records. This is passed to the variable picker so users can
+     * insert query variable tokens (e.g. {recent_orders}) into element properties.
+     */
+    get enrichedContextSchemas() {
+        const base = this.contextSchemas;
+        if (!this.queries.length) return base;
+
+        const queriesSchema = {
+            namespace: '__queries__',
+            label:     'Queries',
+            icon:      'database',
+            variables: this.queries.map((q) => ({
+                path:    q.variable_name,
+                label:   q.label,
+                type:    'array',
+                example: `[{ ... }]  (${q.resource_type_label ?? q.model_type ?? ''})`,
+            })),
+        };
+
+        return [queriesSchema, ...base];
     }
 
     get canUndo() {
@@ -364,6 +394,29 @@ export default class TemplateBuilderComponent extends Component {
             this.variablePickerCallback(token);
         }
         this.closeVariablePicker();
+    }
+
+    // -------------------------------------------------------------------------
+    // Left panel tab
+    // -------------------------------------------------------------------------
+
+    @action
+    setLeftPanelTab(tab) {
+        this.leftPanelTab = tab;
+    }
+
+    // -------------------------------------------------------------------------
+    // Queries
+    // -------------------------------------------------------------------------
+
+    /**
+     * Called by QueriesPanel whenever the queries list changes (load, add, edit,
+     * delete). Updates the local queries array so enrichedContextSchemas stays
+     * in sync with the variable picker.
+     */
+    @action
+    handleQueriesChange(queries) {
+        this.queries = queries ?? [];
     }
 
     // -------------------------------------------------------------------------
