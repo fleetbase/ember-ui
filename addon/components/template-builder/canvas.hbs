@@ -1,28 +1,23 @@
 {{! Template Builder Canvas }}
+{{! This component is a thin rendering shell. Each ElementRenderer owns its
+    own interact.js instance and emits @onMove / @onResize / @onSelect. }}
 <div
     id={{this.canvasId}}
     class="tb-canvas shadow-xl mx-auto select-none"
     style={{this.canvasStyle}}
-    {{did-insert this.didInsertCanvas}}
-    {{will-destroy this.willDestroyCanvas}}
-    {{on "click" this.deselectAll}}
+    {{on "click" this.handleDeselectAll}}
     ...attributes
 >
-    {{! key="uuid" tells Glimmer to track each ElementRenderer by the element's
-        uuid rather than by array index. When updateElement replaces an element
-        object with a new spread copy (same uuid, new reference), Glimmer reuses
-        the existing component instance and DOM node — so interact.js stays alive —
-        but passes the new object as @element, causing the template to re-render
-        and all getters (textContent, textStyle, wrapperStyle, etc.) to re-evaluate. }}
     {{#each this.elements key="uuid" as |element|}}
         <TemplateBuilder::ElementRenderer
             @element={{element}}
             @isSelected={{eq element.uuid this.selectedUuid}}
-            @rotation={{element.rotation}}
             @zoom={{this.zoom}}
-            @onSelect={{fn this.selectElement element}}
-            @onDidInsert={{fn this.setupElement element}}
-            @onWillDestroy={{fn this.teardownElement element}}
+            @canvasWidth={{this.canvasWidthPx}}
+            @canvasHeight={{this.canvasHeightPx}}
+            @onSelect={{this.handleSelectElement}}
+            @onMove={{@onMoveElement}}
+            @onResize={{@onResizeElement}}
         />
     {{/each}}
 </div>

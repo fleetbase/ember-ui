@@ -1,13 +1,14 @@
 {{! Template Builder Element Renderer }}
+{{! Each element owns its own interact.js instance. did-insert sets it up;
+    will-destroy tears it down. The parent canvas passes @onMove, @onResize,
+    and @onSelect callbacks — it never touches the DOM directly. }}
 <div
     class="tb-element {{this.selectionClass}}"
     style={{this.wrapperStyle}}
     data-element-type={{this.elementType}}
     data-element-uuid={{@element.uuid}}
     {{did-insert this.handleInsert}}
-    {{did-update this.handleUpdate @rotation}}
     {{will-destroy this.handleDestroy}}
-    {{on "click" this.handleClick}}
 >
     {{! TEXT }}
     {{#if this.isText}}

@@ -259,16 +259,29 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     /**
-     * Silently sync the position/size of an element after a drag or resize
-     * gesture completes. Does NOT trigger any Glimmer re-render.
+     * Silently sync an element's position after a drag gesture ends.
+     * Mutates in-place — no Glimmer re-render, no undo entry.
+     * interact.js has already updated the DOM; this just keeps the data model
+     * in sync so the correct position is included in the next save.
      */
     @action
-    moveElement(uuid, changes) {
+    moveElement(uuid, { x, y }) {
         const el = this._content.find((e) => e.uuid === uuid);
         if (!el) return;
-        // Mutate in-place only. No _content replacement, no selectedElement write.
-        // Zero re-renders. interact.js instances remain alive.
-        Object.assign(el, changes);
+        Object.assign(el, { x, y });
+    }
+
+    /**
+     * Silently sync an element's position and size after a resize gesture ends.
+     * Mutates in-place — no Glimmer re-render, no undo entry.
+     * interact.js has already updated the DOM; this just keeps the data model
+     * in sync so the correct dimensions are included in the next save.
+     */
+    @action
+    resizeElement(uuid, { x, y, width, height }) {
+        const el = this._content.find((e) => e.uuid === uuid);
+        if (!el) return;
+        Object.assign(el, { x, y, width, height });
     }
 
     /**
