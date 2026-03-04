@@ -31,7 +31,11 @@ export default class TemplateBuilderVariablePickerComponent extends Component {
     // -------------------------------------------------------------------------
 
     get contextSchemas() {
-        return this.args.contextSchemas ?? [];
+        const raw = this.args.contextSchemas;
+        // Guard: the API may return an object keyed by namespace instead of an
+        // array. The routes normalise this, but be defensive here too.
+        if (Array.isArray(raw)) return raw;
+        return [];
     }
 
     get filteredSchemas() {
@@ -47,7 +51,7 @@ export default class TemplateBuilderVariablePickerComponent extends Component {
     }
 
     get hasResults() {
-        return this.filteredSchemas.some((s) => s.variables.length > 0);
+        return this.filteredSchemas.some((s) => (s.variables ?? []).length > 0);
     }
 
     get formulaPreview() {
