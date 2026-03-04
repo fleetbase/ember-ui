@@ -11,7 +11,8 @@
     {{#each this.elements as |element|}}
         <TemplateBuilder::ElementRenderer
             @element={{element}}
-            @isSelected={{this.isSelected element}}
+            @isSelected={{eq element.uuid this.selectedUuid}}
+            @rotation={{element.rotation}}
             @zoom={{this.zoom}}
             @onSelect={{fn this.selectElement element}}
             @onDidInsert={{fn this.setupElement element}}

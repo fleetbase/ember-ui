@@ -1,4 +1,5 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 import interact from 'interactjs';
@@ -33,6 +34,13 @@ import interact from 'interactjs';
  * property updates, adding new elements) the existing DOM nodes and interact.js
  * instances are reused.
  *
+ * Selection reactivity
+ * --------------------
+ * `@isSelected` is passed as `(eq element.uuid this.selectedUuid)` — a
+ * primitive boolean derived from two primitive strings. Glimmer tracks
+ * argument changes by value, so when `selectedUuid` changes the affected
+ * ElementRenderer components re-render their selection ring correctly.
+ *
  * @argument {Object}   template         - The template object (width, height, unit, orientation, content)
  * @argument {Object}   selectedElement  - The currently selected element (or null)
  * @argument {Function} onSelectElement  - Called with element when user clicks it
@@ -49,6 +57,13 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     /** @type {HTMLElement|null} */
     _canvasEl = null;
+
+    /**
+     * Tracked UUID of the currently selected element.
+     * Using a primitive string (not an object reference) ensures Glimmer
+     * detects the change and re-renders the affected ElementRenderer components.
+     */
+    @tracked _selectedUuid = null;
 
     // -------------------------------------------------------------------------
     // Canvas dimensions
@@ -79,6 +94,20 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     get elements() {
         return this.args.template?.content ?? [];
+    }
+
+    /**
+     * Keep _selectedUuid in sync with the @selectedElement argument.
+     * This getter is evaluated by Glimmer whenever @selectedElement changes,
+     * which keeps the local tracked UUID up to date for the {{#each}} loop.
+     */
+    get selectedUuid() {
+        const uuid = this.args.selectedElement?.uuid ?? null;
+        // Sync the tracked property so ElementRenderer @isSelected updates.
+        if (this._selectedUuid !== uuid) {
+            this._selectedUuid = uuid;
+        }
+        return this._selectedUuid;
     }
 
     // -------------------------------------------------------------------------
@@ -124,7 +153,8 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     @action
     selectElement(element, event) {
-        event.stopPropagation();
+        if (event) event.stopPropagation();
+        this._selectedUuid = element.uuid;
         if (this.args.onSelectElement) {
             this.args.onSelectElement(element);
         }
@@ -132,6 +162,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     @action
     deselectAll() {
+        this._selectedUuid = null;
         if (this.args.onDeselectAll) {
             this.args.onDeselectAll();
         }
@@ -173,6 +204,15 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
         // ── Interactable ───────────────────────────────────────────────────────
         const interactable = interact(el)
+
+            // ── Tap (select) ──────────────────────────────────────────────────
+            // interact.js intercepts pointer events for drag/resize detection.
+            // Using interact's own `tap` event guarantees selection fires even
+            // when interact.js has consumed the underlying pointer events.
+            .on('tap', (event) => {
+                event.stopPropagation();
+                this.selectElement(element, null);
+            })
 
             // ── Drag ──────────────────────────────────────────────────────────
             .draggable({
@@ -271,10 +311,5 @@ export default class TemplateBuilderCanvasComponent extends Component {
             case 'px':
             default:   return Math.round(value);
         }
-    }
-
-    @action
-    isSelected(element) {
-        return this.args.selectedElement?.uuid === element.uuid;
     }
 }

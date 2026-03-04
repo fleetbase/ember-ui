@@ -37,7 +37,7 @@ export default class TemplateBuilderElementRendererComponent extends Component {
     _applyTransform(el) {
         const x = parseFloat(el.dataset.x) || 0;
         const y = parseFloat(el.dataset.y) || 0;
-        const rotation = this.args.element.rotation ?? 0;
+        const rotation = this.args.rotation ?? this.args.element.rotation ?? 0;
         el.style.transform = rotation
             ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
             : `translate(${x}px, ${y}px)`;

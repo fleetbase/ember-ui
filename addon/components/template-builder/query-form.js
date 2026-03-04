@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 /**
  * TemplateBuilderQueryFormComponent
@@ -10,14 +11,27 @@ import { action } from '@ember/object';
  * the data to the parent via @onSave. No API calls are made here; the parent
  * (template-builder) persists everything in one go when the template is saved.
  *
- * @argument {Boolean}  isOpen  - Whether the modal is visible
- * @argument {Object}   query   - Existing query to edit (null for create)
- * @argument {Function} onSave  - Called with the validated query data object
- * @argument {Function} onClose - Called when the modal should close
+ * Resource types are sourced from (in priority order):
+ *   1. @resourceTypes argument — allows the consumer to override completely
+ *   2. service:template-builder — extensions register types via the service
+ *
+ * @argument {Boolean}  isOpen         - Whether the modal is visible
+ * @argument {Object}   query          - Existing query to edit (null for create)
+ * @argument {Array}    resourceTypes  - Optional override for the resource type list
+ * @argument {Function} onSave         - Called with the validated query data object
+ * @argument {Function} onClose        - Called when the modal should close
  */
 export default class TemplateBuilderQueryFormComponent extends Component {
+    @service('template-builder') templateBuilderService;
+
     @tracked form = this._blankForm();
     @tracked errorMessage = null;
+
+    /**
+     * Track whether the user has manually edited the variable_name field.
+     * While false, variable_name is auto-derived from label on every keystroke.
+     */
+    @tracked _variableNameManuallyEdited = false;
 
     // -------------------------------------------------------------------------
     // Lifecycle — sync form state when @query or @isOpen changes
@@ -27,7 +41,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         return !!this.args.query?.uuid;
     }
 
-    // Glimmer will re-evaluate this getter whenever @query or @isOpen changes,
+    // Glimmer re-evaluates this getter whenever @query or @isOpen changes,
     // giving us a hook to reset the form without needing did-update modifiers.
     get _syncKey() {
         const key = `${this.args.isOpen}-${this.args.query?.uuid ?? 'new'}`;
@@ -48,8 +62,12 @@ export default class TemplateBuilderQueryFormComponent extends Component {
                 limit:         q.limit         ?? '',
                 with:          Array.isArray(q.with) ? [...q.with] : [],
             };
+            // If editing an existing query that already has a variable_name,
+            // treat it as manually set so we don't overwrite it.
+            this._variableNameManuallyEdited = !!(q.variable_name?.trim());
         } else {
             this.form = this._blankForm();
+            this._variableNameManuallyEdited = false;
         }
         this.errorMessage = null;
     }
@@ -69,9 +87,20 @@ export default class TemplateBuilderQueryFormComponent extends Component {
 
     // -------------------------------------------------------------------------
     // Resource types
+    // Priority: @resourceTypes arg > service-registered types > built-in defaults
     // -------------------------------------------------------------------------
 
     get resourceTypes() {
+        // 1. Explicit override from the consumer
+        if (this.args.resourceTypes?.length) {
+            return this.args.resourceTypes;
+        }
+        // 2. Service-registered types from extensions
+        const serviceTypes = this.templateBuilderService?.resourceTypes ?? [];
+        if (serviceTypes.length) {
+            return serviceTypes;
+        }
+        // 3. Built-in defaults (core Fleetbase models)
         return [
             { value: 'Fleetbase\\Models\\Order',          label: 'Order',          icon: 'box' },
             { value: 'Fleetbase\\Models\\Driver',         label: 'Driver',         icon: 'id-card' },
@@ -133,15 +162,20 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     @action
     updateField(field, event) {
         const value = event.target.value;
-        this.form = { ...this.form, [field]: value };
 
-        // Auto-derive variable_name from label when variable_name is still blank
-        if (field === 'label' && !this.form.variable_name) {
-            const derived = value
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '_')
-                .replace(/^_+|_+$/g, '');
-            this.form = { ...this.form, variable_name: derived };
+        if (field === 'label') {
+            // Auto-derive variable_name from label while the user hasn't
+            // manually edited the variable_name field.
+            const derived = this._variableNameManuallyEdited
+                ? this.form.variable_name
+                : this._deriveVariableName(value);
+            this.form = { ...this.form, label: value, variable_name: derived };
+        } else if (field === 'variable_name') {
+            // Mark as manually edited so auto-derive stops overwriting it.
+            this._variableNameManuallyEdited = true;
+            this.form = { ...this.form, variable_name: value };
+        } else {
+            this.form = { ...this.form, [field]: value };
         }
     }
 
