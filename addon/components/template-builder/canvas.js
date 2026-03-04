@@ -169,13 +169,13 @@ export default class TemplateBuilderCanvasComponent extends Component {
                 startAxis: 'xy',
                 lockAxis: 'xy',
                 listeners: {
-                    move(event) {
+                    move: (event) => {
                         const pos = getPos();
                         const x = pos.x + event.dx / zoom;
                         const y = pos.y + event.dy / zoom;
                         applyTransform(x, y);
                     },
-                    end(event) {
+                    end: (event) => {
                         const pos = getPos();
                         // Use onMoveElement (silent, no re-render) for positional
                         // updates from drag gestures so interact.js instances are
@@ -183,7 +183,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         if (this.args?.onMoveElement) {
                             this.args.onMoveElement(element.uuid, { x: pos.x, y: pos.y });
                         }
-                    }.bind(this),
+                    },
                 },
                 modifiers: [
                     // 5 px grid snap
@@ -213,7 +213,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
                     right:  '.tb-handle-ne, .tb-handle-se',
                 },
                 listeners: {
-                    move(event) {
+                    move: (event) => {
                         const pos = getPos();
                         // When resizing from the top or left, the element's
                         // origin shifts — we must update the translate too.
@@ -226,7 +226,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         el.style.height = `${h}px`;
                         applyTransform(x, y);
                     },
-                    end(event) {
+                    end: (event) => {
                         const pos = getPos();
                         const w = event.rect.width / zoom;
                         const h = event.rect.height / zoom;
@@ -238,7 +238,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
                                 height: h,
                             });
                         }
-                    }.bind(this),
+                    },
                 },
                 modifiers: [
                     interact.modifiers.restrictSize({
