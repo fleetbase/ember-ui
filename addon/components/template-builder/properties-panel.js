@@ -168,23 +168,77 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     }
 
     /**
-     * The current data mode for the table: 'variable' if a data_source is set,
-     * 'manual' otherwise.
+     * The current data mode for the table: 'variable', 'query', or 'manual'.
+     * Stored explicitly as `data_source_mode` on the element so the mode is
+     * independent of whether the variable/query fields have been filled in yet.
+     * Defaults to 'manual' for new elements.
      */
     get tableDataMode() {
-        return this.element?.data_source ? 'variable' : 'manual';
+        return this.element?.data_source_mode ?? 'manual';
     }
 
     @action
     setTableDataMode(mode) {
         if (!this.args.onUpdateElement || !this.element) return;
-        if (mode === 'variable') {
-            // Switch to variable mode — clear manual rows
-            this.args.onUpdateElement(this.element.uuid, { data_source: '', rows: [] });
-        } else {
-            // Switch to manual mode — clear data_source
-            this.args.onUpdateElement(this.element.uuid, { data_source: null });
+        const changes = { data_source_mode: mode };
+        if (mode === 'manual') {
+            // Clear variable/query fields when switching to manual
+            changes.data_source = null;
+            changes.query_endpoint = null;
+            changes.query_params = [];
+            changes.query_response_path = null;
+        } else if (mode === 'variable') {
+            // Clear query fields when switching to variable
+            changes.query_endpoint = null;
+            changes.query_params = [];
+            changes.query_response_path = null;
+        } else if (mode === 'query') {
+            // Clear variable field when switching to query
+            changes.data_source = null;
+            // Seed empty query_params array if not already present
+            if (!this.element.query_params) {
+                changes.query_params = [];
+            }
         }
+        this.args.onUpdateElement(this.element.uuid, changes);
+    }
+
+    // ── Query data source helpers ────────────────────────────────────────────
+
+    get queryParams() {
+        return this.element?.query_params ?? [];
+    }
+
+    @action
+    addQueryParam() {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const params = [...this.queryParams, { key: '', value: '' }];
+        this.args.onUpdateElement(this.element.uuid, { query_params: params });
+    }
+
+    @action
+    removeQueryParam(index) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const params = this.queryParams.filter((_, i) => i !== index);
+        this.args.onUpdateElement(this.element.uuid, { query_params: params });
+    }
+
+    @action
+    updateQueryParamKey(index, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const params = this.queryParams.map((p, i) =>
+            i === index ? { ...p, key: event.target.value } : p
+        );
+        this.args.onUpdateElement(this.element.uuid, { query_params: params });
+    }
+
+    @action
+    updateQueryParamValue(index, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const params = this.queryParams.map((p, i) =>
+            i === index ? { ...p, value: event.target.value } : p
+        );
+        this.args.onUpdateElement(this.element.uuid, { query_params: params });
     }
 
     @action

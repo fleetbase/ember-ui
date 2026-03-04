@@ -246,26 +246,37 @@
                 @onToggle={{fn this.toggleSection "table-data"}}
             >
                 <div class="space-y-2">
-                    {{! Mode toggle }}
-                    <div class="flex rounded overflow-hidden border border-gray-200 dark:border-gray-700">
+
+                    {{! Three-mode toggle: Variable | Query | Manual }}
+                    <div class="flex rounded overflow-hidden border border-gray-200 dark:border-gray-700 text-xs">
                         <button
                             type="button"
-                            class="flex-1 py-1 text-xs font-medium transition-colors {{if (eq this.tableDataMode 'variable') 'bg-blue-500 text-white' 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
+                            class="flex-1 py-1 font-medium transition-colors
+                                {{if (eq this.tableDataMode 'variable')
+                                    'bg-blue-500 text-white'
+                                    'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
                             {{on "click" (fn this.setTableDataMode "variable")}}
-                        >
-                            Variable
-                        </button>
+                        >Variable</button>
                         <button
                             type="button"
-                            class="flex-1 py-1 text-xs font-medium border-l border-gray-200 dark:border-gray-700 transition-colors {{if (eq this.tableDataMode 'manual') 'bg-blue-500 text-white' 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
+                            class="flex-1 py-1 font-medium border-l border-gray-200 dark:border-gray-700 transition-colors
+                                {{if (eq this.tableDataMode 'query')
+                                    'bg-blue-500 text-white'
+                                    'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
+                            {{on "click" (fn this.setTableDataMode "query")}}
+                        >Query</button>
+                        <button
+                            type="button"
+                            class="flex-1 py-1 font-medium border-l border-gray-200 dark:border-gray-700 transition-colors
+                                {{if (eq this.tableDataMode 'manual')
+                                    'bg-blue-500 text-white'
+                                    'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
                             {{on "click" (fn this.setTableDataMode "manual")}}
-                        >
-                            Manual
-                        </button>
+                        >Manual</button>
                     </div>
 
+                    {{! ── VARIABLE MODE ── }}
                     {{#if (eq this.tableDataMode "variable")}}
-                        {{! Variable data source }}
                         <TemplateBuilder::PropertiesPanel::Field @label="Data Variable">
                             <div class="flex space-x-1">
                                 <input
@@ -275,14 +286,84 @@
                                     value={{this.element.data_source}}
                                     {{on "change" (fn this.updateProp "data_source")}}
                                 />
-                                <button type="button" class="tb-icon-btn" title="Insert variable" {{on "click" (fn this.openVariablePicker "data_source")}}>
+                                <button type="button" class="tb-icon-btn" title="Insert variable"
+                                    {{on "click" (fn this.openVariablePicker "data_source")}}>
                                     <FaIcon @icon="code" class="w-3 h-3" />
                                 </button>
                             </div>
                         </TemplateBuilder::PropertiesPanel::Field>
                         <p class="text-xs text-gray-400 dark:text-gray-500">The variable must resolve to an array of objects. Each object's keys should match the column keys defined above.</p>
+
+                    {{! ── QUERY MODE ── }}
+                    {{else if (eq this.tableDataMode "query")}}
+                        <TemplateBuilder::PropertiesPanel::Field @label="Endpoint">
+                            <input
+                                type="text"
+                                class="tb-input w-full"
+                                placeholder="/api/v1/orders"
+                                value={{this.element.query_endpoint}}
+                                {{on "change" (fn this.updateProp "query_endpoint")}}
+                            />
+                        </TemplateBuilder::PropertiesPanel::Field>
+
+                        <TemplateBuilder::PropertiesPanel::Field @label="Response Path">
+                            <input
+                                type="text"
+                                class="tb-input w-full"
+                                placeholder="data (leave blank for root array)"
+                                value={{this.element.query_response_path}}
+                                {{on "change" (fn this.updateProp "query_response_path")}}
+                            />
+                        </TemplateBuilder::PropertiesPanel::Field>
+
+                        {{! Query parameters }}
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Query Parameters</span>
+                                <button
+                                    type="button"
+                                    class="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700"
+                                    {{on "click" this.addQueryParam}}
+                                >
+                                    <FaIcon @icon="plus" class="w-3 h-3" />
+                                    <span>Add</span>
+                                </button>
+                            </div>
+                            {{#each this.queryParams as |param paramIndex|}}
+                                <div class="flex items-center space-x-1">
+                                    <input
+                                        type="text"
+                                        class="tb-input flex-1"
+                                        placeholder="key"
+                                        value={{param.key}}
+                                        {{on "change" (fn this.updateQueryParamKey paramIndex)}}
+                                    />
+                                    <span class="text-xs text-gray-400">=</span>
+                                    <input
+                                        type="text"
+                                        class="tb-input flex-1"
+                                        placeholder="value or {var}"
+                                        value={{param.value}}
+                                        {{on "change" (fn this.updateQueryParamValue paramIndex)}}
+                                    />
+                                    <button
+                                        type="button"
+                                        class="tb-icon-btn text-red-400 hover:text-red-600"
+                                        title="Remove"
+                                        {{on "click" (fn this.removeQueryParam paramIndex)}}
+                                    >
+                                        <FaIcon @icon="xmark" class="w-3 h-3" />
+                                    </button>
+                                </div>
+                            {{/each}}
+                            {{#if (eq this.queryParams.length 0)}}
+                                <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-1">No parameters.</p>
+                            {{/if}}
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">The endpoint will be called at render time. Parameter values support {variable} syntax. The response path locates the array within the JSON response (e.g. <code>data</code> for <code>{ "data": [...] }</code>).</p>
+
+                    {{! ── MANUAL MODE ── }}
                     {{else}}
-                        {{! Manual rows }}
                         <div class="space-y-1.5">
                             {{#each this.tableRows as |row rowIndex|}}
                                 <div class="rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -298,7 +379,7 @@
                                         </button>
                                     </div>
                                     <div class="p-1.5 space-y-1">
-                                        {{#each this.tableColumns as |col colIndex|}}
+                                        {{#each this.tableColumns as |col|}}
                                             <div class="flex items-center space-x-1.5">
                                                 <span class="text-xs text-gray-400 dark:text-gray-500 w-16 shrink-0 truncate">{{col.label}}</span>
                                                 <input
@@ -329,6 +410,7 @@
                             </button>
                         </div>
                     {{/if}}
+
                 </div>
             </TemplateBuilder::PropertiesPanel::Section>
 
