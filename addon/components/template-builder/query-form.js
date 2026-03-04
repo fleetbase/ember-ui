@@ -1,41 +1,34 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { inject as service } from '@ember/service';
 
 /**
  * TemplateBuilderQueryFormComponent
  *
- * Modal dialog for creating or editing a TemplateQuery record.
+ * Modal dialog for creating or editing a TemplateQuery.
+ * This component is purely presentational — it validates the form and returns
+ * the data to the parent via @onSave. No API calls are made here; the parent
+ * (template-builder) persists everything in one go when the template is saved.
  *
- * @argument {Boolean}  isOpen       - Whether the modal is visible
- * @argument {Object}   query        - Existing query to edit (null for create)
- * @argument {String}   templateUuid - UUID of the parent template
- * @argument {Function} onSave       - Called with the saved query object
- * @argument {Function} onClose      - Called when the modal should close
+ * @argument {Boolean}  isOpen  - Whether the modal is visible
+ * @argument {Object}   query   - Existing query to edit (null for create)
+ * @argument {Function} onSave  - Called with the validated query data object
+ * @argument {Function} onClose - Called when the modal should close
  */
 export default class TemplateBuilderQueryFormComponent extends Component {
-    @service fetch;
-    @service notifications;
-
     @tracked form = this._blankForm();
-    @tracked isSaving = false;
     @tracked errorMessage = null;
 
     // -------------------------------------------------------------------------
-    // Lifecycle — sync form state when @query changes
+    // Lifecycle — sync form state when @query or @isOpen changes
     // -------------------------------------------------------------------------
 
     get isEditing() {
         return !!this.args.query?.uuid;
     }
 
-    constructor(owner, args) {
-        super(owner, args);
-        this._syncForm();
-    }
-
-    // Re-sync whenever the modal opens or the query changes
+    // Glimmer will re-evaluate this getter whenever @query or @isOpen changes,
+    // giving us a hook to reset the form without needing did-update modifiers.
     get _syncKey() {
         const key = `${this.args.isOpen}-${this.args.query?.uuid ?? 'new'}`;
         this._syncForm();
@@ -80,18 +73,18 @@ export default class TemplateBuilderQueryFormComponent extends Component {
 
     get resourceTypes() {
         return [
-            { value: 'Fleetbase\\Models\\Order',        label: 'Order',          shortClass: 'Order',        icon: 'box' },
-            { value: 'Fleetbase\\Models\\Driver',       label: 'Driver',         shortClass: 'Driver',       icon: 'id-card' },
-            { value: 'Fleetbase\\Models\\Vehicle',      label: 'Vehicle',        shortClass: 'Vehicle',      icon: 'truck' },
-            { value: 'Fleetbase\\Models\\Contact',      label: 'Contact',        shortClass: 'Contact',      icon: 'address-book' },
-            { value: 'Fleetbase\\Models\\Place',        label: 'Place',          shortClass: 'Place',        icon: 'location-dot' },
-            { value: 'Fleetbase\\Models\\Vendor',       label: 'Vendor',         shortClass: 'Vendor',       icon: 'building' },
-            { value: 'Fleetbase\\Models\\Payload',      label: 'Payload',        shortClass: 'Payload',      icon: 'boxes-stacked' },
-            { value: 'Fleetbase\\Models\\Entity',       label: 'Entity',         shortClass: 'Entity',       icon: 'cube' },
-            { value: 'Fleetbase\\Models\\TrackingStatus', label: 'Tracking Status', shortClass: 'TrackingStatus', icon: 'satellite-dish' },
-            { value: 'Fleetbase\\Models\\Zone',         label: 'Zone',           shortClass: 'Zone',         icon: 'draw-polygon' },
-            { value: 'Fleetbase\\Models\\ServiceArea',  label: 'Service Area',   shortClass: 'ServiceArea',  icon: 'map' },
-            { value: 'Fleetbase\\Models\\Route',        label: 'Route',          shortClass: 'Route',        icon: 'route' },
+            { value: 'Fleetbase\\Models\\Order',          label: 'Order',          icon: 'box' },
+            { value: 'Fleetbase\\Models\\Driver',         label: 'Driver',         icon: 'id-card' },
+            { value: 'Fleetbase\\Models\\Vehicle',        label: 'Vehicle',        icon: 'truck' },
+            { value: 'Fleetbase\\Models\\Contact',        label: 'Contact',        icon: 'address-book' },
+            { value: 'Fleetbase\\Models\\Place',          label: 'Place',          icon: 'location-dot' },
+            { value: 'Fleetbase\\Models\\Vendor',         label: 'Vendor',         icon: 'building' },
+            { value: 'Fleetbase\\Models\\Payload',        label: 'Payload',        icon: 'boxes-stacked' },
+            { value: 'Fleetbase\\Models\\Entity',         label: 'Entity',         icon: 'cube' },
+            { value: 'Fleetbase\\Models\\TrackingStatus', label: 'Tracking Status',icon: 'satellite-dish' },
+            { value: 'Fleetbase\\Models\\Zone',           label: 'Zone',           icon: 'draw-polygon' },
+            { value: 'Fleetbase\\Models\\ServiceArea',    label: 'Service Area',   icon: 'map' },
+            { value: 'Fleetbase\\Models\\Route',          label: 'Route',          icon: 'route' },
         ];
     }
 
@@ -142,7 +135,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         const value = event.target.value;
         this.form = { ...this.form, [field]: value };
 
-        // Auto-derive variable_name from label when variable_name is blank
+        // Auto-derive variable_name from label when variable_name is still blank
         if (field === 'label' && !this.form.variable_name) {
             const derived = value
                 .toLowerCase()
@@ -226,7 +219,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     @action
-    async save() {
+    save() {
         this.errorMessage = null;
 
         if (!this.form.label?.trim()) {
@@ -238,38 +231,21 @@ export default class TemplateBuilderQueryFormComponent extends Component {
             return;
         }
 
-        this.isSaving = true;
-        try {
-            const payload = {
-                template_uuid: this.args.templateUuid,
-                label:         this.form.label.trim(),
-                variable_name: this.form.variable_name.trim() || this._deriveVariableName(this.form.label),
-                description:   this.form.description?.trim() ?? '',
-                model_type:    this.form.model_type,
-                conditions:    this.form.conditions.filter((c) => c.field?.trim()),
-                sort:          this.form.sort.filter((s) => s.field?.trim()),
-                limit:         this.form.limit === '' ? null : this.form.limit,
-                with:          this.form.with,
-            };
+        const data = {
+            // Preserve the existing UUID so the backend can update vs. create
+            uuid:          this.args.query?.uuid ?? null,
+            label:         this.form.label.trim(),
+            variable_name: this.form.variable_name.trim() || this._deriveVariableName(this.form.label),
+            description:   this.form.description?.trim() ?? '',
+            model_type:    this.form.model_type,
+            conditions:    this.form.conditions.filter((c) => c.field?.trim()),
+            sort:          this.form.sort.filter((s) => s.field?.trim()),
+            limit:         this.form.limit === '' ? null : this.form.limit,
+            with:          this.form.with,
+        };
 
-            let saved;
-            if (this.isEditing) {
-                saved = await this.fetch.put(`template-queries/${this.args.query.uuid}`, payload);
-            } else {
-                saved = await this.fetch.post('template-queries', payload);
-            }
-
-            // Unwrap if the API returns { template_query: {...} }
-            const result = saved?.template_query ?? saved;
-
-            if (this.args.onSave) {
-                this.args.onSave(result);
-            }
-        } catch (err) {
-            this.notifications.serverError(err);
-            this.errorMessage = err?.message ?? 'An error occurred while saving.';
-        } finally {
-            this.isSaving = false;
+        if (this.args.onSave) {
+            this.args.onSave(data);
         }
     }
 

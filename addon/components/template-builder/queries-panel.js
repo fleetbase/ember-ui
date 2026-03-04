@@ -1,52 +1,29 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { inject as service } from '@ember/service';
 
 /**
  * TemplateBuilderQueriesPanelComponent
  *
- * Lists all TemplateQuery records for the current template and provides
- * add / edit / delete actions. Each query defines a named dataset that
- * is injected into the template context at render time under the query's
- * variable_name token (e.g. `{recent_orders}`).
+ * Lists the TemplateQuery records for the current template and provides
+ * add / edit / delete operations. All mutations are propagated upward via
+ * @onQueriesChange — no API calls are made here. The parent (template-builder)
+ * includes the full queries array in the template save payload, so everything
+ * persists in one request when the user clicks Save.
  *
- * @argument {String}   templateUuid  - UUID of the template being edited
- * @argument {Function} onQueriesChange - Called with the updated queries array whenever it changes
+ * @argument {Array}    queries          - Current list of query objects (from parent state)
+ * @argument {Function} onQueriesChange  - Called with the updated queries array after any mutation
  */
 export default class TemplateBuilderQueriesPanelComponent extends Component {
-    @service fetch;
-    @service notifications;
-
-    @tracked queries    = [];
-    @tracked isLoading  = false;
-    @tracked formOpen   = false;
+    @tracked isFormOpen = false;
     @tracked editingQuery = null;
 
-    constructor(owner, args) {
-        super(owner, args);
-        this.loadQueries();
-    }
-
     // -------------------------------------------------------------------------
-    // Data loading
+    // Computed
     // -------------------------------------------------------------------------
 
-    @action
-    async loadQueries() {
-        const uuid = this.args.templateUuid;
-        if (!uuid) return;
-
-        this.isLoading = true;
-        try {
-            const result = await this.fetch.get('template-queries', { template_uuid: uuid });
-            this.queries = Array.isArray(result) ? result : (result?.template_queries ?? []);
-            this._notifyChange();
-        } catch (err) {
-            this.notifications.serverError(err);
-        } finally {
-            this.isLoading = false;
-        }
+    get queries() {
+        return this.args.queries ?? [];
     }
 
     // -------------------------------------------------------------------------
@@ -54,58 +31,60 @@ export default class TemplateBuilderQueriesPanelComponent extends Component {
     // -------------------------------------------------------------------------
 
     @action
-    openCreateForm() {
+    openAddForm() {
         this.editingQuery = null;
-        this.formOpen     = true;
+        this.isFormOpen   = true;
     }
 
     @action
     openEditForm(query) {
         this.editingQuery = query;
-        this.formOpen     = true;
+        this.isFormOpen   = true;
     }
 
     @action
     closeForm() {
-        this.formOpen     = false;
+        this.isFormOpen   = false;
         this.editingQuery = null;
     }
 
     // -------------------------------------------------------------------------
-    // CRUD
+    // CRUD — all mutations notify the parent via @onQueriesChange
     // -------------------------------------------------------------------------
 
     @action
-    handleQuerySaved(savedQuery) {
-        const existing = this.queries.find((q) => q.uuid === savedQuery.uuid);
-        if (existing) {
-            // Replace the updated query in the list
-            this.queries = this.queries.map((q) => (q.uuid === savedQuery.uuid ? savedQuery : q));
+    handleQuerySave(queryData) {
+        let updated;
+
+        if (queryData.uuid) {
+            // Update existing query in the list
+            updated = this.queries.map((q) =>
+                q.uuid === queryData.uuid ? { ...q, ...queryData } : q
+            );
         } else {
-            this.queries = [...this.queries, savedQuery];
+            // New query — assign a temporary client-side UUID so it can be
+            // identified for edits/deletes before the template is saved.
+            const tempUuid = `_new_${Date.now()}`;
+            updated = [...this.queries, { ...queryData, uuid: tempUuid }];
         }
-        this._notifyChange();
+
+        this._notify(updated);
         this.closeForm();
     }
 
     @action
-    async deleteQuery(query) {
-        try {
-            await this.fetch.delete(`template-queries/${query.uuid}`);
-            this.queries = this.queries.filter((q) => q.uuid !== query.uuid);
-            this._notifyChange();
-        } catch (err) {
-            this.notifications.serverError(err);
-        }
+    deleteQuery(query) {
+        const updated = this.queries.filter((q) => q.uuid !== query.uuid);
+        this._notify(updated);
     }
 
     // -------------------------------------------------------------------------
     // Private
     // -------------------------------------------------------------------------
 
-    _notifyChange() {
+    _notify(queries) {
         if (this.args.onQueriesChange) {
-            this.args.onQueriesChange(this.queries);
+            this.args.onQueriesChange(queries);
         }
     }
 }

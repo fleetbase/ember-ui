@@ -116,9 +116,12 @@ export default class TemplateBuilderComponent extends Component {
     constructor(owner, args) {
         super(owner, args);
         const cloned = this._cloneTemplate(args.template);
-        const { content, ...meta } = cloned;
+        const { content, queries, ...meta } = cloned;
         this._meta    = meta;
         this._content = Array.isArray(content) ? content : [];
+        // Seed queries from the template relationship (loaded via hasMany).
+        // When the template is new (unsaved), this will be an empty array.
+        this.queries  = Array.isArray(queries) ? queries : [];
     }
 
     // -------------------------------------------------------------------------
@@ -130,7 +133,9 @@ export default class TemplateBuilderComponent extends Component {
      * to child components that need the complete shape (canvas, properties panel).
      */
     get template() {
-        return { ...this._meta, content: this._content };
+        // Include queries in the save payload so the backend can upsert them
+        // in a single request alongside the template record.
+        return { ...this._meta, content: this._content, queries: this.queries };
     }
 
     get elements() {
