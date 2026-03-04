@@ -16,7 +16,35 @@
         {{/each}}
     </div>
 
-    {{! Center: Rotate controls + Zoom controls }}
+    {{! Center: Zoom controls }}
+    <div class="flex items-center space-x-1">
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Zoom out"
+            {{on "click" this.zoomOut}}
+        >
+            <FaIcon @icon="magnifying-glass-minus" class="w-3.5 h-3.5" />
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn px-2 py-1 rounded text-xs font-mono text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-12 text-center"
+            title="Reset zoom"
+            {{on "click" this.zoomReset}}
+        >
+            {{this.zoomPercent}}
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Zoom in"
+            {{on "click" this.zoomIn}}
+        >
+            <FaIcon @icon="magnifying-glass-plus" class="w-3.5 h-3.5" />
+        </button>
+    </div>
+
+    {{! Right: Rotate + Undo/Redo + Preview + Save }}
     <div class="flex items-center space-x-1">
 
         {{! Rotate left/right — enabled only when an element is selected }}
@@ -47,34 +75,6 @@
 
         <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
-        <button
-            type="button"
-            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            title="Zoom out"
-            {{on "click" this.zoomOut}}
-        >
-            <FaIcon @icon="magnifying-glass-minus" class="w-3.5 h-3.5" />
-        </button>
-        <button
-            type="button"
-            class="tb-toolbar-btn px-2 py-1 rounded text-xs font-mono text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-12 text-center"
-            title="Reset zoom"
-            {{on "click" this.zoomReset}}
-        >
-            {{this.zoomPercent}}
-        </button>
-        <button
-            type="button"
-            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            title="Zoom in"
-            {{on "click" this.zoomIn}}
-        >
-            <FaIcon @icon="magnifying-glass-plus" class="w-3.5 h-3.5" />
-        </button>
-    </div>
-
-    {{! Right: Undo/Redo + Preview + Save }}
-    <div class="flex items-center space-x-1">
         <button
             type="button"
             class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

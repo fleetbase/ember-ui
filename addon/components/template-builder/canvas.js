@@ -97,16 +97,11 @@ export default class TemplateBuilderCanvasComponent extends Component {
     }
 
     /**
-     * Keep _selectedUuid in sync with the @selectedElement argument.
-     * This getter is evaluated by Glimmer whenever @selectedElement changes,
-     * which keeps the local tracked UUID up to date for the {{#each}} loop.
+     * The UUID of the currently selected element.
+     * Written by selectElement() and deselectAll() only — never inside a getter
+     * to avoid Glimmer's "mutation during render" assertion.
      */
     get selectedUuid() {
-        const uuid = this.args.selectedElement?.uuid ?? null;
-        // Sync the tracked property so ElementRenderer @isSelected updates.
-        if (this._selectedUuid !== uuid) {
-            this._selectedUuid = uuid;
-        }
         return this._selectedUuid;
     }
 
