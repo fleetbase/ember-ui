@@ -7,8 +7,19 @@ import { action } from '@ember/object';
  * Renders a single template element on the canvas. Handles all element types:
  * text, image, table, line, shape, qr_code, barcode.
  *
- * Each element is absolutely positioned via inline style derived from its
- * stored x, y, width, height, rotation, and z_index properties.
+ * Positioning strategy
+ * --------------------
+ * interact.js owns all movement via CSS transform. The wrapper element is
+ * placed at `left: 0; top: 0` inside the canvas and its visual position is
+ * driven entirely by `transform: translate(x, y)`. This avoids the conflict
+ * that arises when both `left/top` and `transform` carry position information,
+ * which causes elements to jump on the first drag and makes interact.js
+ * misidentify drag gestures as resize gestures.
+ *
+ * The stored `element.x` / `element.y` values are written into
+ * `el.dataset.x` / `el.dataset.y` in `handleInsert` and the initial
+ * `transform` is set there too, so the element appears at the correct
+ * position immediately without waiting for an interact.js event.
  *
  * @argument {Object}   element       - The element object from template.content
  * @argument {Boolean}  isSelected    - Whether this element is currently selected
@@ -20,9 +31,19 @@ import { action } from '@ember/object';
 export default class TemplateBuilderElementRendererComponent extends Component {
     @action
     handleInsert(el) {
-        // Sync stored x/y into data attributes for interact.js delta tracking
-        el.dataset.x = this.args.element.x ?? 0;
-        el.dataset.y = this.args.element.y ?? 0;
+        const x = this.args.element.x ?? 0;
+        const y = this.args.element.y ?? 0;
+        const rotation = this.args.element.rotation ?? 0;
+
+        // Seed the data attributes that interact.js uses for delta tracking.
+        el.dataset.x = x;
+        el.dataset.y = y;
+
+        // Apply the initial transform so the element renders at the correct
+        // position immediately (interact.js will keep updating this on drag).
+        el.style.transform = rotation
+            ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
+            : `translate(${x}px, ${y}px)`;
 
         if (this.args.onDidInsert) {
             this.args.onDidInsert(el);
@@ -46,22 +67,30 @@ export default class TemplateBuilderElementRendererComponent extends Component {
 
     get wrapperStyle() {
         const el = this.args.element;
+
+        // Position is driven entirely by `transform` (set in handleInsert and
+        // updated by interact.js). We fix left/top at 0 so there is only one
+        // source of truth for the element's visual location.
         const parts = [
             `position: absolute`,
-            `left: ${el.x ?? 0}px`,
-            `top: ${el.y ?? 0}px`,
+            `left: 0`,
+            `top: 0`,
             `width: ${el.width ?? 100}px`,
             `height: ${el.height ?? 30}px`,
             `z-index: ${el.z_index ?? 1}`,
             `box-sizing: border-box`,
             `cursor: move`,
         ];
-        if (el.rotation) {
-            parts.push(`transform: rotate(${el.rotation}deg)`);
-        }
+
         if (el.opacity !== undefined && el.opacity !== null) {
             parts.push(`opacity: ${el.opacity}`);
         }
+
+        // Note: the transform (translate + optional rotate) is NOT included
+        // here because it is managed imperatively by handleInsert and
+        // interact.js. Including it in the Glimmer-computed style string would
+        // overwrite interact.js's live updates on every re-render.
+
         return parts.join('; ');
     }
 
@@ -185,9 +214,7 @@ export default class TemplateBuilderElementRendererComponent extends Component {
     // -------------------------------------------------------------------------
 
     get lineStyle() {
-        const el = this.args.element;
-        const styles = [`width: 100%; height: 100%; display: flex; align-items: center;`];
-        return styles.join('; ');
+        return `width: 100%; height: 100%; display: flex; align-items: center;`;
     }
 
     get lineInnerStyle() {

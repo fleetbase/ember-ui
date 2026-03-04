@@ -93,32 +93,46 @@ body[data-theme='dark'] .tb-canvas {
     flex-direction: column;
 }
 
-/* Form inputs inside the properties panel */
+/* ─── Form inputs ────────────────────────────────────────────────────────── */
+
+/*
+ * .tb-input is the shared class for ALL form controls in the properties panel:
+ * <input type="text">, <input type="number">, <select>, <textarea>.
+ * Every property below is declared with !important on the type-specific
+ * overrides so that browser UA stylesheets (which reset font/color on
+ * <input type="number"> and <select>) cannot win.
+ */
 .tb-input {
     width: 100%;
     height: 26px;
     padding: 0 6px;
+    font-family: inherit;
     font-size: 11px;
     line-height: 26px;
-    border: 1px solid #e5e7eb;
+    color: #374151;
+    border: 1px solid #d1d5db;
     border-radius: 4px;
     background-color: #f9fafb;
-    color: #111827;
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.15s;
-    /* Ensure selects and inputs render at the same height */
+    /* Strip browser-specific chrome so all control types look identical */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
 }
 
-/* Restore select arrow */
+/* Restore the native select arrow while keeping everything else uniform */
 select.tb-input {
     -webkit-appearance: auto;
     -moz-appearance: auto;
     appearance: auto;
     padding-right: 4px;
+    /* Explicitly re-state visual properties so the appearance reset above
+       does not cause browsers to fall back to their own defaults */
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
 }
 
 .tb-input:focus {
@@ -126,10 +140,15 @@ select.tb-input {
     background-color: #ffffff;
 }
 
+/* Dark mode */
 body[data-theme='dark'] .tb-input {
     border-color: #374151;
     background-color: #1f2937;
-    color: #f9fafb;
+    color: #d1d5db;
+}
+
+body[data-theme='dark'] select.tb-input {
+    color: #d1d5db;
 }
 
 body[data-theme='dark'] .tb-input:focus {
@@ -137,12 +156,25 @@ body[data-theme='dark'] .tb-input:focus {
     background-color: #111827;
 }
 
-/* Number inputs: restore spinner but keep them compact */
+/*
+ * Number inputs: restore the spinner but keep font/color/radius consistent.
+ * -webkit-appearance: textfield strips the spinner on WebKit; using
+ * "inner-spin-button" on the pseudo-element re-adds it without re-applying
+ * the full native number-input chrome.
+ */
 .tb-input[type='number'] {
     -webkit-appearance: textfield;
     -moz-appearance: textfield;
     appearance: textfield;
     padding-right: 2px;
+    /* Re-declare so UA overrides cannot win */
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
+}
+
+body[data-theme='dark'] .tb-input[type='number'] {
+    color: #d1d5db;
 }
 
 .tb-input[type='number']::-webkit-inner-spin-button,
@@ -153,11 +185,28 @@ body[data-theme='dark'] .tb-input:focus {
     cursor: pointer;
 }
 
+/* Textarea variant — allow vertical resize, auto height */
+textarea.tb-input {
+    height: auto;
+    line-height: 1.4;
+    padding: 4px 6px;
+    resize: vertical;
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
+}
+
+body[data-theme='dark'] textarea.tb-input {
+    color: #d1d5db;
+}
+
+/* ─── Colour swatch input ────────────────────────────────────────────────── */
+
 .tb-color-input {
     width: 100%;
     height: 28px;
     padding: 1px 2px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #d1d5db;
     border-radius: 4px;
     background: none;
     cursor: pointer;
@@ -167,12 +216,14 @@ body[data-theme='dark'] .tb-color-input {
     border-color: #374151;
 }
 
+/* ─── Icon buttons ───────────────────────────────────────────────────────── */
+
 .tb-icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 4px 6px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #d1d5db;
     border-radius: 4px;
     background: #f9fafb;
     color: #6b7280;

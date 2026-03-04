@@ -148,6 +148,34 @@ export default class TemplateBuilderComponent extends Component {
         }
     }
 
+    /**
+     * Silently sync the position/size of an element after a drag or resize
+     * gesture completes. Unlike `updateElement`, this mutates the element
+     * object in-place rather than replacing the content array, so Glimmer
+     * does NOT schedule a re-render. This prevents the DOM nodes from being
+     * destroyed and recreated after every single drag, which would also
+     * destroy and recreate the interact.js instances.
+     *
+     * Undo history is NOT pushed here — positional moves are considered
+     * low-frequency enough that the user can undo them via the next explicit
+     * action. If you want per-drag undo, call `updateElement` instead.
+     */
+    @action
+    moveElement(uuid, changes) {
+        const el = this.elements.find((e) => e.uuid === uuid);
+        if (!el) return;
+        // Mutate in-place — Glimmer only re-renders if a @tracked property
+        // changes. The content array reference stays the same, so no re-render.
+        Object.assign(el, changes);
+        // Keep selectedElement in sync too (same object reference, so the
+        // properties panel will reflect the updated values on next interaction).
+        if (this.selectedElement?.uuid === uuid) {
+            // Trigger a minimal tracked update so the properties panel inputs
+            // reflect the new x/y/width/height values.
+            this.selectedElement = el;
+        }
+    }
+
     @action
     deleteElement(uuid) {
         this._pushUndo();
