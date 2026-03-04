@@ -16,8 +16,37 @@
         {{/each}}
     </div>
 
-    {{! Center: Zoom controls }}
+    {{! Center: Rotate controls + Zoom controls }}
     <div class="flex items-center space-x-1">
+
+        {{! Rotate left/right — enabled only when an element is selected }}
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed
+                {{if @selectedElement
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    'text-gray-400 dark:text-gray-600'}}"
+            title="Rotate left 90°"
+            disabled={{not @selectedElement}}
+            {{on "click" this.rotateLeft}}
+        >
+            <FaIcon @icon="rotate-left" class="w-3.5 h-3.5" />
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed
+                {{if @selectedElement
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    'text-gray-400 dark:text-gray-600'}}"
+            title="Rotate right 90°"
+            disabled={{not @selectedElement}}
+            {{on "click" this.rotateRight}}
+        >
+            <FaIcon @icon="rotate-right" class="w-3.5 h-3.5" />
+        </button>
+
+        <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
         <button
             type="button"
             class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

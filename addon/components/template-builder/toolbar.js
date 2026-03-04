@@ -11,18 +11,20 @@ import { guidFor } from '@ember/object/internals';
  * - Undo / Redo
  * - Preview and Save/Publish actions
  *
- * @argument {Number}   zoom          - Current zoom level (e.g. 1 = 100%)
- * @argument {Boolean}  canUndo       - Whether undo is available
- * @argument {Boolean}  canRedo       - Whether redo is available
- * @argument {Boolean}  isSaving      - Whether a save is in progress
- * @argument {Function} onAddElement  - Called with element type string
- * @argument {Function} onZoomIn      - Called when zoom in is clicked
- * @argument {Function} onZoomOut     - Called when zoom out is clicked
- * @argument {Function} onZoomReset   - Called when zoom reset is clicked
- * @argument {Function} onUndo        - Called when undo is clicked
- * @argument {Function} onRedo        - Called when redo is clicked
- * @argument {Function} onPreview     - Called when preview is clicked
- * @argument {Function} onSave        - Called when save is clicked
+ * @argument {Number}   zoom             - Current zoom level (e.g. 1 = 100%)
+ * @argument {Object}   selectedElement  - Currently selected element (or null)
+ * @argument {Boolean}  canUndo          - Whether undo is available
+ * @argument {Boolean}  canRedo          - Whether redo is available
+ * @argument {Boolean}  isSaving         - Whether a save is in progress
+ * @argument {Function} onAddElement     - Called with element type string
+ * @argument {Function} onZoomIn         - Called when zoom in is clicked
+ * @argument {Function} onZoomOut        - Called when zoom out is clicked
+ * @argument {Function} onZoomReset      - Called when zoom reset is clicked
+ * @argument {Function} onUndo           - Called when undo is clicked
+ * @argument {Function} onRedo           - Called when redo is clicked
+ * @argument {Function} onPreview        - Called when preview is clicked
+ * @argument {Function} onSave           - Called when save is clicked
+ * @argument {Function} onRotateElement  - Called with (uuid, deltaDegrees)
  */
 export default class TemplateBuilderToolbarComponent extends Component {
     elementTypes = [
@@ -79,5 +81,19 @@ export default class TemplateBuilderToolbarComponent extends Component {
     @action
     save() {
         if (this.args.onSave) this.args.onSave();
+    }
+
+    @action
+    rotateLeft() {
+        if (this.args.onRotateElement && this.args.selectedElement) {
+            this.args.onRotateElement(this.args.selectedElement.uuid, -90);
+        }
+    }
+
+    @action
+    rotateRight() {
+        if (this.args.onRotateElement && this.args.selectedElement) {
+            this.args.onRotateElement(this.args.selectedElement.uuid, 90);
+        }
     }
 }

@@ -6,6 +6,7 @@
     {{! ================================================================ }}
     <TemplateBuilder::Toolbar
         @zoom={{this.zoom}}
+        @selectedElement={{this.selectedElement}}
         @canUndo={{this.canUndo}}
         @canRedo={{this.canRedo}}
         @isSaving={{@isSaving}}
@@ -17,6 +18,7 @@
         @onRedo={{this.redo}}
         @onPreview={{this.preview}}
         @onSave={{this.save}}
+        @onRotateElement={{this.rotateElement}}
     />
 
     {{! ================================================================ }}

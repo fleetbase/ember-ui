@@ -232,6 +232,21 @@ export default class TemplateBuilderComponent extends Component {
         Object.assign(el, changes);
     }
 
+    /**
+     * Rotate an element by a delta in degrees (e.g. +90 or -90).
+     * Uses updateElement so the change is tracked in undo history and
+     * the properties panel rotation input updates immediately.
+     */
+    @action
+    rotateElement(uuid, deltaDegrees) {
+        const el = this._content.find((e) => e.uuid === uuid);
+        if (!el) return;
+        const current = el.rotation ?? 0;
+        // Normalise to [0, 360)
+        const next = ((current + deltaDegrees) % 360 + 360) % 360;
+        this.updateElement(uuid, { rotation: next });
+    }
+
     @action
     deleteElement(uuid) {
         this._pushUndo();

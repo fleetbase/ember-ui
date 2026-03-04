@@ -29,11 +29,24 @@ import { action } from '@ember/object';
  * @argument {Function} onWillDestroy - Called before DOM element is removed
  */
 export default class TemplateBuilderElementRendererComponent extends Component {
+    /**
+     * Compute and apply the full CSS transform for a given DOM element,
+     * reading the current x/y from data-attributes (which interact.js keeps
+     * up to date) and the rotation from the element data model.
+     */
+    _applyTransform(el) {
+        const x = parseFloat(el.dataset.x) || 0;
+        const y = parseFloat(el.dataset.y) || 0;
+        const rotation = this.args.element.rotation ?? 0;
+        el.style.transform = rotation
+            ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
+            : `translate(${x}px, ${y}px)`;
+    }
+
     @action
     handleInsert(el) {
         const x = this.args.element.x ?? 0;
         const y = this.args.element.y ?? 0;
-        const rotation = this.args.element.rotation ?? 0;
 
         // Seed the data attributes that interact.js uses for delta tracking.
         el.dataset.x = x;
@@ -41,13 +54,23 @@ export default class TemplateBuilderElementRendererComponent extends Component {
 
         // Apply the initial transform so the element renders at the correct
         // position immediately (interact.js will keep updating this on drag).
-        el.style.transform = rotation
-            ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
-            : `translate(${x}px, ${y}px)`;
+        this._applyTransform(el);
 
         if (this.args.onDidInsert) {
             this.args.onDidInsert(el);
         }
+    }
+
+    /**
+     * Called by {{did-update}} whenever tracked arguments change.
+     * We only care about rotation changes — position is managed by interact.js
+     * imperatively. Re-applying the transform here ensures that a rotation
+     * change via the properties panel is immediately visible without needing
+     * to drag the element first.
+     */
+    @action
+    handleUpdate(el) {
+        this._applyTransform(el);
     }
 
     @action
