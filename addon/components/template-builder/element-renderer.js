@@ -61,6 +61,16 @@ export default class TemplateBuilderElementRendererComponent extends Component {
     }
 
     @action
+    handleUpdate(el) {
+        // Glimmer has just re-rendered the style attribute (e.g. after a z_index
+        // change via reorderElement). The style attribute does not include the
+        // CSS transform — that is managed imperatively by interact.js and
+        // _applyTransform. Re-apply it now so the element stays at its current
+        // position rather than snapping to 0,0.
+        this._applyTransform(el);
+    }
+
+    @action
     handleDestroy(el) {
         if (this._interactable) {
             try {

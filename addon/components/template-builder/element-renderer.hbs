@@ -8,6 +8,7 @@
     data-element-type={{this.elementType}}
     data-element-uuid={{@element.uuid}}
     {{did-insert this.handleInsert}}
+    {{did-update this.handleUpdate @element}}
     {{will-destroy this.handleDestroy}}
 >
     {{! TEXT }}

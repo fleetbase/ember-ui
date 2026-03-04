@@ -1,5 +1,4 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
 
@@ -31,12 +30,10 @@ import { guidFor } from '@ember/object/internals';
 export default class TemplateBuilderCanvasComponent extends Component {
     canvasId = `tb-canvas-${guidFor(this)}`;
 
-    /**
-     * Tracked UUID of the currently selected element. Using a primitive string
-     * (not an object reference) ensures Glimmer detects the change and
-     * re-renders only the affected ElementRenderer's selection ring.
-     */
-    @tracked _selectedUuid = null;
+    // No local selection state. The canvas derives selectedUuid from
+    // @selectedElement (owned by TemplateBuilderComponent) so that selections
+    // made from the layers panel, keyboard shortcuts, or any other source are
+    // always reflected here without duplication.
 
     // -------------------------------------------------------------------------
     // Canvas dimensions
@@ -70,7 +67,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
     }
 
     get selectedUuid() {
-        return this._selectedUuid;
+        return this.args.selectedElement?.uuid ?? null;
     }
 
     // -------------------------------------------------------------------------
@@ -79,15 +76,20 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     @action
     handleSelectElement(element) {
-        this._selectedUuid = element.uuid;
+        // Delegate entirely to the parent. The parent sets selectedElement,
+        // which flows back down as @selectedElement, which drives selectedUuid.
         if (this.args.onSelectElement) {
             this.args.onSelectElement(element);
         }
     }
 
     @action
-    handleDeselectAll() {
-        this._selectedUuid = null;
+    handleDeselectAll(event) {
+        // Only deselect when the user clicks the canvas background directly.
+        // If the click originated from a child element (an ElementRenderer),
+        // interact.js has already fired its tap event and called handleSelectElement.
+        // We must not clear the selection here in that case.
+        if (event.target !== event.currentTarget) return;
         if (this.args.onDeselectAll) {
             this.args.onDeselectAll();
         }

@@ -338,6 +338,11 @@ export default class TemplateBuilderComponent extends Component {
             if (el.uuid === swapElement.uuid) return { ...el, z_index: currentZ };
             return el;
         });
+
+        // Sync selectedElement so the properties panel reflects the new z_index.
+        if (this.selectedElement?.uuid === uuid) {
+            this.selectedElement = this._content.find((el) => el.uuid === uuid) ?? null;
+        }
     }
 
     // -------------------------------------------------------------------------
