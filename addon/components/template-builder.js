@@ -11,6 +11,35 @@ import { next } from '@ember/runloop';
  * The top-level template builder component. Composes the toolbar, layers panel,
  * canvas, and properties panel into a full-screen editor.
  *
+ * State architecture
+ * ------------------
+ * Template-level fields (name, paper_size, orientation, width, height, unit,
+ * background_color, …) are stored in `@tracked _meta` — a plain object.
+ *
+ * The element list is stored in `@tracked _content` — a plain JS array of
+ * element objects. This array is the single source of truth for what is
+ * rendered in the `{{#each}}` loop on the canvas.
+ *
+ * The critical invariant is: **existing element objects must keep their JS
+ * identity across renders**. Glimmer's `{{#each}}` loop reuses a component
+ * instance as long as its item reference is the same object. If the reference
+ * changes, Glimmer destroys the old component (firing will-destroy →
+ * teardownElement → interactable.unset()) and creates a new one. This is why
+ * the previous implementation — which did JSON.parse(JSON.stringify(...)) on
+ * the entire content array for every operation — caused all interact.js
+ * instances to be destroyed whenever any element was added, deleted, or
+ * updated.
+ *
+ * Rules:
+ *   addElement    → push a new object onto _content; existing objects unchanged
+ *   moveElement   → Object.assign onto the existing object; no _content write
+ *   updateElement → Object.assign onto the existing object; then replace
+ *                   _content with a new array (same objects) to trigger
+ *                   reactivity for the properties panel and layers panel
+ *   deleteElement → filter _content to a new array without the target object
+ *   undo/redo     → replace _content with deep-cloned snapshots (full re-render
+ *                   is acceptable here since it is an explicit user action)
+ *
  * Usage:
  *   <TemplateBuilder
  *       @template={{this.template}}
@@ -50,14 +79,29 @@ export default class TemplateBuilderComponent extends Component {
     /** @type {Function|null} Callback to call with the chosen variable/formula string */
     @tracked variablePickerCallback = null;
 
-    /** @type {Array} Undo history stack (array of content snapshots) */
+    /** @type {Array} Undo history stack — each entry is a deep-cloned content snapshot */
     _undoStack = [];
 
     /** @type {Array} Redo history stack */
     _redoStack = [];
 
-    /** @type {Object} Internal mutable copy of the template being edited */
-    @tracked _template = null;
+    /**
+     * Non-content template fields (name, paper_size, orientation, width, height,
+     * unit, background_color, uuid, context_type, …). Stored separately from
+     * _content so that canvas-level changes do not require touching the element
+     * array at all.
+     * @type {Object}
+     */
+    @tracked _meta = null;
+
+    /**
+     * The live element array. Each object in this array is mutated in-place
+     * during drag/resize/property-update operations. The array reference itself
+     * is replaced (to trigger Glimmer reactivity) only when elements are added
+     * or deleted.
+     * @type {Array}
+     */
+    @tracked _content = [];
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -65,20 +109,26 @@ export default class TemplateBuilderComponent extends Component {
 
     constructor(owner, args) {
         super(owner, args);
-        // Deep-clone the incoming template so we don't mutate the parent's object
-        this._template = this._cloneTemplate(args.template);
+        const cloned = this._cloneTemplate(args.template);
+        const { content, ...meta } = cloned;
+        this._meta    = meta;
+        this._content = Array.isArray(content) ? content : [];
     }
 
     // -------------------------------------------------------------------------
     // Computed
     // -------------------------------------------------------------------------
 
+    /**
+     * Reconstituted full template object — used for save, preview, and passing
+     * to child components that need the complete shape (canvas, properties panel).
+     */
     get template() {
-        return this._template ?? this.args.template;
+        return { ...this._meta, content: this._content };
     }
 
     get elements() {
-        return this.template?.content ?? [];
+        return this._content;
     }
 
     get contextSchemas() {
@@ -103,21 +153,25 @@ export default class TemplateBuilderComponent extends Component {
 
         const defaults = this._defaultsForType(type);
         const newElement = {
-            uuid: guidFor({}),
+            uuid:     guidFor({}),
             type,
-            label: null,
-            visible: true,
-            x: 20,
-            y: 20,
-            width: defaults.width,
-            height: defaults.height,
-            z_index: this.elements.length + 1,
+            label:    null,
+            visible:  true,
+            x:        20,
+            y:        20,
+            width:    defaults.width,
+            height:   defaults.height,
+            z_index:  this._content.length + 1,
             rotation: 0,
-            opacity: 1,
+            opacity:  1,
             ...defaults.props,
         };
 
-        this._updateTemplate({ content: [...this.elements, newElement] });
+        // Push onto the existing array and replace the reference so Glimmer
+        // detects the change. Existing element objects are NOT replaced — only
+        // the new element is added. This means Glimmer will create exactly one
+        // new ElementRenderer component and leave all existing ones untouched.
+        this._content = [...this._content, newElement];
         this.selectedElement = newElement;
     }
 
@@ -131,59 +185,57 @@ export default class TemplateBuilderComponent extends Component {
         this.selectedElement = null;
     }
 
+    /**
+     * Update element properties from the properties panel (or any other source
+     * that needs a re-render, e.g. undo-able changes).
+     *
+     * Mutates the element object in-place so its JS identity is preserved, then
+     * replaces _content with a new array (same object references) to trigger
+     * Glimmer reactivity. This causes the canvas {{#each}} to re-evaluate, but
+     * since the item references are identical, Glimmer reuses every existing
+     * ElementRenderer component — no DOM nodes are destroyed.
+     */
     @action
     updateElement(uuid, changes) {
         this._pushUndo();
 
-        const updatedContent = this.elements.map((el) => {
-            if (el.uuid !== uuid) return el;
-            return { ...el, ...changes };
-        });
+        const el = this._content.find((e) => e.uuid === uuid);
+        if (!el) return;
 
-        this._updateTemplate({ content: updatedContent });
+        // Mutate in-place to preserve object identity
+        Object.assign(el, changes);
 
-        // Keep selectedElement reference in sync
+        // Replace the array reference to notify Glimmer that _content changed.
+        // Because the item objects are the same references, {{#each}} will NOT
+        // destroy/recreate any ElementRenderer components.
+        this._content = [...this._content];
+
+        // Sync selectedElement so the properties panel reflects the new values.
+        // Writing to selectedElement triggers a re-render of the properties panel
+        // only — the canvas {{#each}} is unaffected because _content items are
+        // the same objects.
         if (this.selectedElement?.uuid === uuid) {
-            this.selectedElement = updatedContent.find((el) => el.uuid === uuid) ?? null;
+            this.selectedElement = el;
         }
     }
 
     /**
      * Silently sync the position/size of an element after a drag or resize
-     * gesture completes. Unlike `updateElement`, this mutates the element
-     * object in-place rather than replacing the content array, so Glimmer
-     * does NOT schedule a re-render. This prevents the DOM nodes from being
-     * destroyed and recreated after every single drag, which would also
-     * destroy and recreate the interact.js instances.
-     *
-     * Undo history is NOT pushed here — positional moves are considered
-     * low-frequency enough that the user can undo them via the next explicit
-     * action. If you want per-drag undo, call `updateElement` instead.
+     * gesture completes. Does NOT trigger any Glimmer re-render.
      */
     @action
     moveElement(uuid, changes) {
-        const el = this.elements.find((e) => e.uuid === uuid);
+        const el = this._content.find((e) => e.uuid === uuid);
         if (!el) return;
-        // Mutate the element object in-place. The content array reference does
-        // NOT change, so Glimmer does not schedule a re-render. This is
-        // intentional — re-rendering would destroy and recreate the DOM nodes,
-        // which would also destroy the interact.js instances and make the
-        // element non-interactive.
-        //
-        // IMPORTANT: do NOT write to any @tracked property here (including
-        // `this.selectedElement`). Even a "minimal" tracked write causes
-        // Glimmer to re-render the canvas, which destroys the DOM nodes.
-        // The properties panel will pick up the new values the next time the
-        // user clicks the element (which calls selectElement → sets
-        // selectedElement to the same mutated object).
+        // Mutate in-place only. No _content replacement, no selectedElement write.
+        // Zero re-renders. interact.js instances remain alive.
         Object.assign(el, changes);
     }
 
     @action
     deleteElement(uuid) {
         this._pushUndo();
-        const updatedContent = this.elements.filter((el) => el.uuid !== uuid);
-        this._updateTemplate({ content: updatedContent });
+        this._content = this._content.filter((el) => el.uuid !== uuid);
         if (this.selectedElement?.uuid === uuid) {
             this.selectedElement = null;
         }
@@ -193,15 +245,12 @@ export default class TemplateBuilderComponent extends Component {
     reorderElement(uuid, direction) {
         this._pushUndo();
 
-        const elements = [...this.elements];
-        const index = elements.findIndex((el) => el.uuid === uuid);
-        if (index < 0) return;
+        const elements = this._content;
+        const element  = elements.find((el) => el.uuid === uuid);
+        if (!element) return;
 
-        const element = elements[index];
-        const currentZ = element.z_index ?? index + 1;
-
-        // Find the element to swap with
-        const sorted = [...elements].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
+        const currentZ = element.z_index ?? 1;
+        const sorted   = [...elements].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
         const sortedIndex = sorted.findIndex((el) => el.uuid === uuid);
 
         let swapElement = null;
@@ -215,23 +264,22 @@ export default class TemplateBuilderComponent extends Component {
 
         const swapZ = swapElement.z_index ?? 1;
 
-        const updatedContent = elements.map((el) => {
-            if (el.uuid === uuid) return { ...el, z_index: swapZ };
-            if (el.uuid === swapElement.uuid) return { ...el, z_index: currentZ };
-            return el;
-        });
+        // Mutate z_index in-place on both objects
+        element.z_index     = swapZ;
+        swapElement.z_index = currentZ;
 
-        this._updateTemplate({ content: updatedContent });
+        // Replace array reference to trigger reactivity
+        this._content = [...this._content];
     }
 
     // -------------------------------------------------------------------------
-    // Template-level updates
+    // Template-level updates (non-content fields)
     // -------------------------------------------------------------------------
 
     @action
     updateTemplate(changes) {
         this._pushUndo();
-        this._updateTemplate(changes);
+        this._updateMeta(changes);
     }
 
     // -------------------------------------------------------------------------
@@ -261,8 +309,10 @@ export default class TemplateBuilderComponent extends Component {
     undo() {
         if (!this.canUndo) return;
         const snapshot = this._undoStack.pop();
-        this._redoStack.push(this._cloneContent(this.template.content));
-        this._template = { ...this.template, content: snapshot };
+        this._redoStack.push(this._cloneContent(this._content));
+        // Restore from snapshot — new object references, so full re-render.
+        // This is acceptable: undo is an explicit user action.
+        this._content = snapshot;
         this.selectedElement = null;
     }
 
@@ -270,8 +320,8 @@ export default class TemplateBuilderComponent extends Component {
     redo() {
         if (!this.canRedo) return;
         const snapshot = this._redoStack.pop();
-        this._undoStack.push(this._cloneContent(this.template.content));
-        this._template = { ...this.template, content: snapshot };
+        this._undoStack.push(this._cloneContent(this._content));
+        this._content = snapshot;
         this.selectedElement = null;
     }
 
@@ -282,15 +332,15 @@ export default class TemplateBuilderComponent extends Component {
     @action
     openVariablePicker(targetProp, callback) {
         this.variablePickerTargetProp = targetProp;
-        this.variablePickerCallback = callback;
-        this.variablePickerOpen = true;
+        this.variablePickerCallback   = callback;
+        this.variablePickerOpen       = true;
     }
 
     @action
     closeVariablePicker() {
-        this.variablePickerOpen = false;
+        this.variablePickerOpen       = false;
         this.variablePickerTargetProp = null;
-        this.variablePickerCallback = null;
+        this.variablePickerCallback   = null;
     }
 
     @action
@@ -323,16 +373,13 @@ export default class TemplateBuilderComponent extends Component {
     // Private helpers
     // -------------------------------------------------------------------------
 
-    _updateTemplate(changes) {
-        // Defer the tracked write to afterRender to avoid Glimmer's
-        // "you modified a tracked value after it was consumed during render"
-        // assertion. Actions triggered by user interaction (click, drag) can
-        // fire while a render pass is still in progress on the same runloop
-        // tick. Scheduling to afterRender ensures the write happens cleanly.
-        const merged = Object.assign({}, this.template, changes);
+    /**
+     * Update non-content template fields. Resolves paper_size + orientation
+     * into width/height/unit automatically.
+     */
+    _updateMeta(changes) {
+        const merged = Object.assign({}, this._meta, changes);
 
-        // Whenever paper_size or orientation changes, resolve the canonical
-        // width/height/unit so the canvas reacts immediately.
         if (changes.paper_size !== undefined || changes.orientation !== undefined) {
             const dims = this._dimensionsForPaperSize(
                 merged.paper_size ?? 'A4',
@@ -345,9 +392,9 @@ export default class TemplateBuilderComponent extends Component {
             }
         }
 
-        const clean = JSON.parse(JSON.stringify(merged));
+        // Defer to avoid "modified tracked value during render" assertion
         next(this, () => {
-            this._template = clean;
+            this._meta = merged;
         });
     }
 
@@ -357,14 +404,14 @@ export default class TemplateBuilderComponent extends Component {
      */
     _dimensionsForPaperSize(paperSize, orientation) {
         const sizes = {
-            A4:     { width: 210,  height: 297  },
-            A3:     { width: 297,  height: 420  },
-            A5:     { width: 148,  height: 210  },
-            Letter: { width: 216,  height: 279  },
-            Legal:  { width: 216,  height: 356  },
+            A4:     { width: 210, height: 297 },
+            A3:     { width: 297, height: 420 },
+            A5:     { width: 148, height: 210 },
+            Letter: { width: 216, height: 279 },
+            Legal:  { width: 216, height: 356 },
         };
         const base = sizes[paperSize];
-        if (!base) return null; // custom — leave width/height unchanged
+        if (!base) return null;
         const isLandscape = orientation === 'landscape';
         return {
             width:  isLandscape ? base.height : base.width,
@@ -374,12 +421,10 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     _pushUndo() {
-        this._undoStack.push(this._cloneContent(this.template.content));
-        // Cap undo stack at 50 entries
+        this._undoStack.push(this._cloneContent(this._content));
         if (this._undoStack.length > 50) {
             this._undoStack.shift();
         }
-        // Clear redo stack on new action
         this._redoStack = [];
     }
 
@@ -390,25 +435,19 @@ export default class TemplateBuilderComponent extends Component {
     _cloneTemplate(template) {
         if (!template) return {};
 
-        // If this is an Ember Data model instance, extract plain attribute values
-        // directly rather than relying on JSON.stringify (which cannot serialise
-        // tracked prototype getters).
         const isEmberModel = template && typeof template.eachAttribute === 'function';
         if (isEmberModel) {
             const plain = {};
             template.eachAttribute((name) => {
                 const val = template[name];
-                // Deep-clone arrays/objects so the editor works on its own copy
                 plain[name] = val !== null && val !== undefined
                     ? JSON.parse(JSON.stringify(val))
                     : val;
             });
-            // Always include uuid / id
             plain.uuid = template.uuid ?? template.id ?? null;
             return plain;
         }
 
-        // Plain object — safe to JSON round-trip
         return JSON.parse(JSON.stringify(template));
     }
 

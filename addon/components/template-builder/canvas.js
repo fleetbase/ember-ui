@@ -26,21 +26,18 @@ import interact from 'interactjs';
  *
  * Re-render safety
  * ----------------
- * `moveElement` (the silent positional sync) must NOT write to any @tracked
- * property that causes a Glimmer re-render, because re-rendering destroys
- * and recreates DOM nodes, which breaks interact.js. In particular,
- * `selectedElement` must NOT be updated inside `moveElement`.
- *
- * The only time interact.js instances are torn down and rebuilt is when
- * `teardownElement` fires (will-destroy) followed by `setupElement`
- * (did-insert) — which happens when `updateElement` triggers a full
- * re-render (e.g. property panel changes). This is correct and expected.
+ * interact.js instances are stored in `_interactables` keyed by element uuid.
+ * They are only torn down when `teardownElement` fires (will-destroy), which
+ * happens when an element is deleted or when undo/redo replaces the content
+ * array with new object references. For all other operations (drag, resize,
+ * property updates, adding new elements) the existing DOM nodes and interact.js
+ * instances are reused.
  *
  * @argument {Object}   template         - The template object (width, height, unit, orientation, content)
  * @argument {Object}   selectedElement  - The currently selected element (or null)
  * @argument {Function} onSelectElement  - Called with element when user clicks it
- * @argument {Function} onUpdateElement  - Called with (elementId, changes) when drag/resize completes
  * @argument {Function} onMoveElement    - Called with (elementId, {x,y,width?,height?}) silently
+ * @argument {Function} onUpdateElement  - Called with (elementId, changes) for property-panel updates
  * @argument {Function} onDeselectAll    - Called when user clicks the canvas background
  * @argument {Number}   zoom             - Zoom level (1 = 100%)
  */
@@ -74,8 +71,8 @@ export default class TemplateBuilderCanvasComponent extends Component {
     }
 
     get canvasStyle() {
-        const w = this.canvasWidthPx * this.zoom;
-        const h = this.canvasHeightPx * this.zoom;
+        const w  = this.canvasWidthPx * this.zoom;
+        const h  = this.canvasHeightPx * this.zoom;
         const bg = this.args.template?.background_color ?? '#ffffff';
         return `width:${w}px; height:${h}px; background:${bg}; position:relative; overflow:hidden;`;
     }
@@ -148,15 +145,12 @@ export default class TemplateBuilderCanvasComponent extends Component {
         // ── Helpers ────────────────────────────────────────────────────────────
 
         // Read the current translate values from the element's data attributes.
-        // These are seeded by element-renderer.js handleInsert and kept in sync
-        // by the move/end listeners below.
         const getPos = () => ({
             x: parseFloat(el.dataset.x) || 0,
             y: parseFloat(el.dataset.y) || 0,
         });
 
-        // Write a new translate (+ optional rotation) to the element's style
-        // and update the data attributes so getPos() stays accurate.
+        // Write a new translate (+ optional rotation) to the element's style.
         const applyTransform = (x, y) => {
             const rotation = element.rotation ?? 0;
             el.style.transform = rotation
@@ -166,29 +160,39 @@ export default class TemplateBuilderCanvasComponent extends Component {
             el.dataset.y = y;
         };
 
-        // ── Zoom accessor ──────────────────────────────────────────────────────
-        // Read zoom from args at event time (not captured at setup time) so
-        // that zoom changes are reflected without needing to re-create the
-        // interactable.
+        // Read zoom from args at event time so zoom changes are reflected
+        // without needing to recreate the interactable.
         const getZoom = () => this.args.zoom ?? 1;
+
+        // Canvas dimensions in unscaled (template) pixels — used for boundary
+        // clamping. We read these at event time too so paper-size changes work.
+        const getCanvasDims = () => ({
+            w: this.canvasWidthPx,
+            h: this.canvasHeightPx,
+        });
 
         // ── Interactable ───────────────────────────────────────────────────────
         const interactable = interact(el)
 
             // ── Drag ──────────────────────────────────────────────────────────
             .draggable({
-                // No modifiers — modifiers that use relativePoints or restrict
-                // cause the pointer to snap to the element origin (center-snap
-                // feel) and introduce jank. Free movement is smooth and accurate.
                 listeners: {
                     move: (event) => {
-                        const zoom = getZoom();
-                        const pos  = getPos();
+                        const zoom   = getZoom();
+                        const canvas = getCanvasDims();
+                        const pos    = getPos();
+
                         // Divide interact.js deltas by zoom so the element
-                        // moves at the same speed as the pointer regardless of
-                        // the current zoom level.
-                        const x = pos.x + event.dx / zoom;
-                        const y = pos.y + event.dy / zoom;
+                        // moves at the same speed as the pointer.
+                        let x = pos.x + event.dx / zoom;
+                        let y = pos.y + event.dy / zoom;
+
+                        // Clamp to canvas bounds (element cannot leave the canvas).
+                        const elW = parseFloat(el.style.width)  || (element.width  ?? 100);
+                        const elH = parseFloat(el.style.height) || (element.height ?? 30);
+                        x = Math.max(0, Math.min(x, canvas.w - elW));
+                        y = Math.max(0, Math.min(y, canvas.h - elH));
+
                         applyTransform(x, y);
                     },
                     end: () => {
@@ -205,9 +209,6 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
             // ── Resize ────────────────────────────────────────────────────────
             .resizable({
-                // Each edge value is a CSS selector matched against the pointer
-                // target. The corner handles each match two adjacent edges so
-                // they resize in both directions simultaneously.
                 edges: {
                     top:    '.tb-handle-nw, .tb-handle-ne',
                     left:   '.tb-handle-nw, .tb-handle-sw',
@@ -216,15 +217,22 @@ export default class TemplateBuilderCanvasComponent extends Component {
                 },
                 listeners: {
                     move: (event) => {
-                        const zoom = getZoom();
-                        const pos  = getPos();
+                        const zoom   = getZoom();
+                        const canvas = getCanvasDims();
+                        const pos    = getPos();
 
-                        // When resizing from the top or left edge the element's
-                        // origin shifts — update the translate to compensate.
-                        const x = pos.x + event.deltaRect.left / zoom;
-                        const y = pos.y + event.deltaRect.top  / zoom;
-                        const w = event.rect.width  / zoom;
-                        const h = event.rect.height / zoom;
+                        let x = pos.x + event.deltaRect.left / zoom;
+                        let y = pos.y + event.deltaRect.top  / zoom;
+                        let w = event.rect.width  / zoom;
+                        let h = event.rect.height / zoom;
+
+                        // Enforce minimum size
+                        w = Math.max(20, w);
+                        h = Math.max(10, h);
+
+                        // Clamp position so the element stays inside the canvas
+                        x = Math.max(0, Math.min(x, canvas.w - w));
+                        y = Math.max(0, Math.min(y, canvas.h - h));
 
                         el.style.width  = `${w}px`;
                         el.style.height = `${h}px`;
@@ -233,8 +241,8 @@ export default class TemplateBuilderCanvasComponent extends Component {
                     end: (event) => {
                         const zoom = getZoom();
                         const pos  = getPos();
-                        const w = event.rect.width  / zoom;
-                        const h = event.rect.height / zoom;
+                        const w    = Math.max(20, event.rect.width  / zoom);
+                        const h    = Math.max(10, event.rect.height / zoom);
                         if (this.args.onMoveElement) {
                             this.args.onMoveElement(element.uuid, {
                                 x:      Math.round(pos.x),
@@ -245,13 +253,6 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         }
                     },
                 },
-                modifiers: [
-                    // Enforce a minimum element size so elements cannot be
-                    // collapsed to zero. No snap modifier — same reasoning as drag.
-                    interact.modifiers.restrictSize({
-                        min: { width: 20, height: 10 },
-                    }),
-                ],
             });
 
         this._interactables.set(element.uuid, interactable);
@@ -262,7 +263,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
     // -------------------------------------------------------------------------
 
     _unitToPx(value, unit) {
-        const PPI = 96; // CSS pixels per inch
+        const PPI = 96;
         switch (unit) {
             case 'mm': return Math.round((value / 25.4) * PPI);
             case 'cm': return Math.round((value / 2.54)  * PPI);
