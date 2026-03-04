@@ -86,10 +86,10 @@ export default class TemplateBuilderComponent extends Component {
     @tracked queries = [];
 
     /** @type {Array} Undo history stack — each entry is a deep-cloned content snapshot */
-    _undoStack = [];
+    @tracked _undoStack = [];
 
     /** @type {Array} Redo history stack */
-    _redoStack = [];
+    @tracked _redoStack = [];
 
     /**
      * Non-content template fields (name, paper_size, orientation, width, height,
@@ -252,6 +252,22 @@ export default class TemplateBuilderComponent extends Component {
         if (this.selectedElement?.uuid === uuid) {
             this.selectedElement = el;
         }
+
+        // Imperative DOM update for rotation: Glimmer's did-update fires
+        // asynchronously (next microtask), so the canvas element may not yet
+        // reflect the new rotation value. Apply the transform directly so the
+        // visual change is immediate — matching the pattern used by interact.js.
+        if (changes.rotation !== undefined) {
+            const domEl = document.querySelector(`[data-element-uuid="${uuid}"]`);
+            if (domEl) {
+                const x = parseFloat(domEl.dataset.x) || 0;
+                const y = parseFloat(domEl.dataset.y) || 0;
+                const rotation = changes.rotation;
+                domEl.style.transform = rotation
+                    ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
+                    : `translate(${x}px, ${y}px)`;
+            }
+        }
     }
 
     /**
@@ -358,8 +374,10 @@ export default class TemplateBuilderComponent extends Component {
     @action
     undo() {
         if (!this.canUndo) return;
-        const snapshot = this._undoStack.pop();
-        this._redoStack.push(this._cloneContent(this._content));
+        const stack = [...this._undoStack];
+        const snapshot = stack.pop();
+        this._undoStack = stack;
+        this._redoStack = [...this._redoStack, this._cloneContent(this._content)];
         // Restore from snapshot — new object references, so full re-render.
         // This is acceptable: undo is an explicit user action.
         this._content = snapshot;
@@ -369,8 +387,10 @@ export default class TemplateBuilderComponent extends Component {
     @action
     redo() {
         if (!this.canRedo) return;
-        const snapshot = this._redoStack.pop();
-        this._undoStack.push(this._cloneContent(this._content));
+        const stack = [...this._redoStack];
+        const snapshot = stack.pop();
+        this._redoStack = stack;
+        this._undoStack = [...this._undoStack, this._cloneContent(this._content)];
         this._content = snapshot;
         this.selectedElement = null;
     }
@@ -491,10 +511,13 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     _pushUndo() {
-        this._undoStack.push(this._cloneContent(this._content));
-        if (this._undoStack.length > 50) {
-            this._undoStack.shift();
+        // Replace array references (not mutate) so @tracked detects the change
+        // and canUndo/canRedo getters re-evaluate.
+        let stack = [...this._undoStack, this._cloneContent(this._content)];
+        if (stack.length > 50) {
+            stack = stack.slice(stack.length - 50);
         }
+        this._undoStack = stack;
         this._redoStack = [];
     }
 

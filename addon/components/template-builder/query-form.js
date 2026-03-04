@@ -100,20 +100,17 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         if (serviceTypes.length) {
             return serviceTypes;
         }
-        // 3. Built-in defaults (core Fleetbase models)
+        // 3. Built-in defaults (FleetOps models)
         return [
-            { value: 'Fleetbase\\Models\\Order', label: 'Order', icon: 'box' },
-            { value: 'Fleetbase\\Models\\Driver', label: 'Driver', icon: 'id-card' },
-            { value: 'Fleetbase\\Models\\Vehicle', label: 'Vehicle', icon: 'truck' },
-            { value: 'Fleetbase\\Models\\Contact', label: 'Contact', icon: 'address-book' },
-            { value: 'Fleetbase\\Models\\Place', label: 'Place', icon: 'location-dot' },
-            { value: 'Fleetbase\\Models\\Vendor', label: 'Vendor', icon: 'building' },
-            { value: 'Fleetbase\\Models\\Payload', label: 'Payload', icon: 'boxes-stacked' },
-            { value: 'Fleetbase\\Models\\Entity', label: 'Entity', icon: 'cube' },
-            { value: 'Fleetbase\\Models\\TrackingStatus', label: 'Tracking Status', icon: 'satellite-dish' },
-            { value: 'Fleetbase\\Models\\Zone', label: 'Zone', icon: 'draw-polygon' },
-            { value: 'Fleetbase\\Models\\ServiceArea', label: 'Service Area', icon: 'map' },
-            { value: 'Fleetbase\\Models\\Route', label: 'Route', icon: 'route' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Order', label: 'Order', icon: 'box' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Driver', label: 'Driver', icon: 'id-card' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Place', label: 'Place', icon: 'location-dot' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Vendor', label: 'Vendor', icon: 'building' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Contact', label: 'Contact', icon: 'address-book' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Issue', label: 'Issue', icon: 'triangle-exclamation' },
+            { value: 'Fleetbase\\FleetOps\\Models\\Vehicle', label: 'Vehicle', icon: 'truck' },
+            { value: 'Fleetbase\\FleetOps\\Models\\FuelReport', label: 'Fuel Report', icon: 'gas-pump' },
+            { value: 'Fleetbase\\FleetOps\\Models\\PurchaseRate', label: 'Purchase Rate', icon: 'receipt' },
         ];
     }
 
