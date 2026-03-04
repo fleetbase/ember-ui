@@ -224,49 +224,37 @@ export default class TemplateBuilderComponent extends Component {
      * Update element properties from the properties panel (or any other source
      * that needs a re-render, e.g. undo-able changes).
      *
-     * Mutates the element object in-place so its JS identity is preserved, then
-     * replaces _content with a new array (same object references) to trigger
-     * Glimmer reactivity. This causes the canvas {{#each}} to re-evaluate, but
-     * since the item references are identical, Glimmer reuses every existing
-     * ElementRenderer component — no DOM nodes are destroyed.
+     * Creates a NEW element object (spread copy + changes) and replaces the
+     * element at its index in _content. This gives @element a new reference,
+     * which Glimmer detects and uses to re-render the ElementRenderer component
+     * — causing getters like textContent, textStyle, wrapperStyle to re-evaluate.
+     *
+     * The interact.js instance for the element is torn down (will-destroy fires)
+     * and immediately re-created (did-insert fires) with the new object. Since
+     * setupElement keys interactables by uuid, this is seamless.
      */
     @action
     updateElement(uuid, changes) {
         this._pushUndo();
 
-        const el = this._content.find((e) => e.uuid === uuid);
-        if (!el) return;
+        const index = this._content.findIndex((e) => e.uuid === uuid);
+        if (index === -1) return;
 
-        // Mutate in-place to preserve object identity
-        Object.assign(el, changes);
+        // Create a NEW object (spread copy + changes) so that Glimmer detects
+        // a reference change on @element and re-renders the ElementRenderer.
+        // Mutating in-place (Object.assign) keeps the same reference, which
+        // Glimmer treats as unchanged — causing getters like textContent,
+        // textStyle, wrapperStyle to never re-evaluate after a property update.
+        const updated = { ...this._content[index], ...changes };
 
-        // Replace the array reference to notify Glimmer that _content changed.
-        // Because the item objects are the same references, {{#each}} will NOT
-        // destroy/recreate any ElementRenderer components.
-        this._content = [...this._content];
+        // Replace the element at its index and produce a new array.
+        const next = [...this._content];
+        next[index] = updated;
+        this._content = next;
 
         // Sync selectedElement so the properties panel reflects the new values.
-        // Writing to selectedElement triggers a re-render of the properties panel
-        // only — the canvas {{#each}} is unaffected because _content items are
-        // the same objects.
         if (this.selectedElement?.uuid === uuid) {
-            this.selectedElement = el;
-        }
-
-        // Imperative DOM update for rotation: Glimmer's did-update fires
-        // asynchronously (next microtask), so the canvas element may not yet
-        // reflect the new rotation value. Apply the transform directly so the
-        // visual change is immediate — matching the pattern used by interact.js.
-        if (changes.rotation !== undefined) {
-            const domEl = document.querySelector(`[data-element-uuid="${uuid}"]`);
-            if (domEl) {
-                const x = parseFloat(domEl.dataset.x) || 0;
-                const y = parseFloat(domEl.dataset.y) || 0;
-                const rotation = changes.rotation;
-                domEl.style.transform = rotation
-                    ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
-                    : `translate(${x}px, ${y}px)`;
-            }
+            this.selectedElement = updated;
         }
     }
 
@@ -330,12 +318,13 @@ export default class TemplateBuilderComponent extends Component {
 
         const swapZ = swapElement.z_index ?? 1;
 
-        // Mutate z_index in-place on both objects
-        element.z_index = swapZ;
-        swapElement.z_index = currentZ;
-
-        // Replace array reference to trigger reactivity
-        this._content = [...this._content];
+        // Replace both objects with new copies (not in-place mutation) so
+        // Glimmer detects the reference change and re-renders each ElementRenderer.
+        this._content = this._content.map((el) => {
+            if (el.uuid === element.uuid) return { ...el, z_index: swapZ };
+            if (el.uuid === swapElement.uuid) return { ...el, z_index: currentZ };
+            return el;
+        });
     }
 
     // -------------------------------------------------------------------------
