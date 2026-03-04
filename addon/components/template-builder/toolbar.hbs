@@ -82,7 +82,7 @@
             disabled={{not @canUndo}}
             {{on "click" this.undo}}
         >
-            <FaIcon @icon="arrow-rotate-left" class="w-3.5 h-3.5" />
+            <FaIcon @icon="step-backward" class="w-3.5 h-3.5" />
         </button>
         <button
             type="button"
@@ -91,7 +91,7 @@
             disabled={{not @canRedo}}
             {{on "click" this.redo}}
         >
-            <FaIcon @icon="arrow-rotate-right" class="w-3.5 h-3.5" />
+            <FaIcon @icon="step-forward" class="w-3.5 h-3.5" />
         </button>
 
         <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>

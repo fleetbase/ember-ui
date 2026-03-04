@@ -255,3 +255,15 @@ body[data-theme='dark'] .tb-icon-btn:hover {
 .tb-variable-picker {
     /* z-index handled by Tailwind utility classes */
 }
+
+/* --- Query Form dialog inputs --- */
+.tb-query-form input.tb-input,
+.tb-query-form select.tb-input {
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+.tb-query-form select.tb-input { padding-right: 4px; }
