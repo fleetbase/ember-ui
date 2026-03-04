@@ -327,10 +327,47 @@ export default class TemplateBuilderComponent extends Component {
         // fire while a render pass is still in progress on the same runloop
         // tick. Scheduling to afterRender ensures the write happens cleanly.
         const merged = Object.assign({}, this.template, changes);
+
+        // Whenever paper_size or orientation changes, resolve the canonical
+        // width/height/unit so the canvas reacts immediately.
+        if (changes.paper_size !== undefined || changes.orientation !== undefined) {
+            const dims = this._dimensionsForPaperSize(
+                merged.paper_size ?? 'A4',
+                merged.orientation ?? 'portrait'
+            );
+            if (dims) {
+                merged.width  = dims.width;
+                merged.height = dims.height;
+                merged.unit   = dims.unit;
+            }
+        }
+
         const clean = JSON.parse(JSON.stringify(merged));
         next(this, () => {
             this._template = clean;
         });
+    }
+
+    /**
+     * Returns { width, height, unit } for a given paper size and orientation.
+     * Dimensions are in mm (portrait). Landscape swaps width and height.
+     */
+    _dimensionsForPaperSize(paperSize, orientation) {
+        const sizes = {
+            A4:     { width: 210,  height: 297  },
+            A3:     { width: 297,  height: 420  },
+            A5:     { width: 148,  height: 210  },
+            Letter: { width: 216,  height: 279  },
+            Legal:  { width: 216,  height: 356  },
+        };
+        const base = sizes[paperSize];
+        if (!base) return null; // custom — leave width/height unchanged
+        const isLandscape = orientation === 'landscape';
+        return {
+            width:  isLandscape ? base.height : base.width,
+            height: isLandscape ? base.width  : base.height,
+            unit:   'mm',
+        };
     }
 
     _pushUndo() {

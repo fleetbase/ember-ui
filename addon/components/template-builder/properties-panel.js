@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 /**
  * TemplateBuilderPropertiesPanelComponent
@@ -17,7 +18,16 @@ import { action } from '@ember/object';
  * @argument {Function} onOpenVariablePicker - Called to open the variable picker modal
  */
 export default class TemplateBuilderPropertiesPanelComponent extends Component {
+    @service fetch;
+    @service notifications;
+
     @tracked openSections = new Set(['position', 'size', 'style', 'text', 'content']);
+
+    /** @type {Boolean} Whether an image upload is in progress */
+    @tracked isUploadingImage = false;
+
+    /** @type {String|null} Filename of the most recently uploaded image */
+    @tracked uploadedImageFilename = null;
 
     get hasSelection() {
         return !!this.args.selectedElement;
@@ -143,6 +153,175 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
             { value: 'fill',     label: 'Fill' },
             { value: 'none',     label: 'None' },
         ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Table helpers
+    // -------------------------------------------------------------------------
+
+    get tableColumns() {
+        return this.element?.columns ?? [];
+    }
+
+    get tableRows() {
+        return this.element?.rows ?? [];
+    }
+
+    /**
+     * The current data mode for the table: 'variable' if a data_source is set,
+     * 'manual' otherwise.
+     */
+    get tableDataMode() {
+        return this.element?.data_source ? 'variable' : 'manual';
+    }
+
+    @action
+    setTableDataMode(mode) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        if (mode === 'variable') {
+            // Switch to variable mode — clear manual rows
+            this.args.onUpdateElement(this.element.uuid, { data_source: '', rows: [] });
+        } else {
+            // Switch to manual mode — clear data_source
+            this.args.onUpdateElement(this.element.uuid, { data_source: null });
+        }
+    }
+
+    @action
+    addColumn() {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const columns = [...this.tableColumns, { label: '', key: '' }];
+        this.args.onUpdateElement(this.element.uuid, { columns });
+    }
+
+    @action
+    removeColumn(index) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const columns = this.tableColumns.filter((_, i) => i !== index);
+        // Also remove the corresponding key from all rows
+        const removedKey = this.tableColumns[index]?.key;
+        const rows = removedKey
+            ? this.tableRows.map((row) => {
+                const next = Object.assign({}, row);
+                delete next[removedKey];
+                return next;
+            })
+            : this.tableRows;
+        this.args.onUpdateElement(this.element.uuid, { columns, rows });
+    }
+
+    @action
+    updateColumnLabel(index, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const columns = this.tableColumns.map((col, i) =>
+            i === index ? { ...col, label: event.target.value } : col
+        );
+        this.args.onUpdateElement(this.element.uuid, { columns });
+    }
+
+    @action
+    updateColumnKey(index, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const oldKey = this.tableColumns[index]?.key;
+        const newKey = event.target.value;
+        const columns = this.tableColumns.map((col, i) =>
+            i === index ? { ...col, key: newKey } : col
+        );
+        // Rename the key in all existing rows
+        const rows = this.tableRows.map((row) => {
+            const next = Object.assign({}, row);
+            if (oldKey && oldKey !== newKey) {
+                next[newKey] = next[oldKey] ?? '';
+                delete next[oldKey];
+            }
+            return next;
+        });
+        this.args.onUpdateElement(this.element.uuid, { columns, rows });
+    }
+
+    @action
+    addRow() {
+        if (!this.args.onUpdateElement || !this.element) return;
+        // Build an empty row with a key for each defined column
+        const emptyRow = {};
+        this.tableColumns.forEach((col) => {
+            if (col.key) emptyRow[col.key] = '';
+        });
+        const rows = [...this.tableRows, emptyRow];
+        this.args.onUpdateElement(this.element.uuid, { rows });
+    }
+
+    @action
+    removeRow(index) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const rows = this.tableRows.filter((_, i) => i !== index);
+        this.args.onUpdateElement(this.element.uuid, { rows });
+    }
+
+    @action
+    updateRowCell(rowIndex, key, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const rows = this.tableRows.map((row, i) =>
+            i === rowIndex ? { ...row, [key]: event.target.value } : row
+        );
+        this.args.onUpdateElement(this.element.uuid, { rows });
+    }
+
+    // -------------------------------------------------------------------------
+    // Image helpers
+    // -------------------------------------------------------------------------
+
+    get imageIsVariable() {
+        const src = this.element?.src ?? '';
+        return src.length > 0 && src.includes('{');
+    }
+
+    /**
+     * True when the image src is a URL (uploaded file) rather than a variable token.
+     */
+    get imageIsUploaded() {
+        const src = this.element?.src ?? '';
+        return src.length > 0 && !src.includes('{');
+    }
+
+    @action
+    async onImageFileAdded(file) {
+        // Guard against duplicate calls (ember-file-upload can fire twice)
+        if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) return;
+
+        this.isUploadingImage = true;
+        this.uploadedImageFilename = file.name;
+
+        try {
+            await this.fetch.uploadFile.perform(
+                file,
+                {
+                    path: 'uploads/template-builder/images',
+                    type: 'template_image',
+                },
+                (uploadedFile) => {
+                    this.isUploadingImage = false;
+                    // Store the URL on the element but keep the filename visible in the UI
+                    if (this.args.onUpdateElement && this.element) {
+                        this.args.onUpdateElement(this.element.uuid, { src: uploadedFile.url });
+                    }
+                }
+            );
+        } catch (err) {
+            this.isUploadingImage = false;
+            this.uploadedImageFilename = null;
+            if (this.notifications) {
+                this.notifications.error(`Image upload failed: ${err.message}`);
+            }
+        }
+    }
+
+    @action
+    clearImageSrc() {
+        this.uploadedImageFilename = null;
+        if (this.args.onUpdateElement && this.element) {
+            this.args.onUpdateElement(this.element.uuid, { src: '' });
+        }
     }
 
     get shapeOptions() {

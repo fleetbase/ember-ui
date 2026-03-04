@@ -94,14 +94,83 @@
                 @onToggle={{fn this.toggleSection "image"}}
             >
                 <div class="space-y-2">
-                    <TemplateBuilder::PropertiesPanel::Field @label="Source URL">
-                        <div class="flex space-x-1">
-                            <input type="text" class="tb-input flex-1" placeholder="{company.logo} or URL" value={{this.element.src}} {{on "change" (fn this.updateProp "src")}} />
-                            <button type="button" class="tb-icon-btn" title="Insert variable" {{on "click" (fn this.openVariablePicker "src")}}>
-                                <FaIcon @icon="code" class="w-3 h-3" />
-                            </button>
-                        </div>
+
+                    {{! Source — upload or variable token }}
+                    <TemplateBuilder::PropertiesPanel::Field @label="Image Source">
+                        {{#if this.imageIsVariable}}
+                            {{! Variable token display }}
+                            <div class="flex items-center space-x-1">
+                                <div class="flex-1 flex items-center space-x-1.5 px-2 py-1 rounded border border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 min-w-0">
+                                    <FaIcon @icon="code" class="w-3 h-3 text-blue-500 shrink-0" />
+                                    <span class="text-xs text-blue-700 dark:text-blue-300 truncate font-mono">{{this.element.src}}</span>
+                                </div>
+                                <button type="button" class="tb-icon-btn" title="Change variable" {{on "click" (fn this.openVariablePicker "src")}}>
+                                    <FaIcon @icon="pen" class="w-3 h-3" />
+                                </button>
+                                <button type="button" class="tb-icon-btn" title="Clear" {{on "click" this.clearImageSrc}}>
+                                    <FaIcon @icon="xmark" class="w-3 h-3" />
+                                </button>
+                            </div>
+                        {{else if this.imageIsUploaded}}
+                            {{! Uploaded file display }}
+                            <div class="flex items-center space-x-1">
+                                <div class="flex-1 flex items-center space-x-1.5 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 min-w-0">
+                                    {{#if this.isUploadingImage}}
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Uploading...</span>
+                                    {{else}}
+                                        <FaIcon @icon="image" class="w-3 h-3 text-gray-400 shrink-0" />
+                                        <span class="text-xs text-gray-700 dark:text-gray-300 truncate">{{this.uploadedImageFilename}}</span>
+                                    {{/if}}
+                                </div>
+                                <FileUpload
+                                    @name="tb-image-{{this.element.uuid}}"
+                                    @accept="image/*"
+                                    @onFileAdded={{this.onImageFileAdded}}
+                                >
+                                    <button type="button" class="tb-icon-btn" title="Replace image">
+                                        <FaIcon @icon="arrow-up-from-bracket" class="w-3 h-3" />
+                                    </button>
+                                </FileUpload>
+                                <button type="button" class="tb-icon-btn" title="Clear" {{on "click" this.clearImageSrc}}>
+                                    <FaIcon @icon="xmark" class="w-3 h-3" />
+                                </button>
+                            </div>
+                        {{else}}
+                            {{! Empty state — upload or insert variable }}
+                            <div class="space-y-1.5">
+                                <FileUpload
+                                    @name="tb-image-{{this.element.uuid}}"
+                                    @accept="image/*"
+                                    @onFileAdded={{this.onImageFileAdded}}
+                                >
+                                    <div class="flex items-center justify-center w-full px-3 py-3 rounded border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-colors group">
+                                        {{#if this.isUploadingImage}}
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Uploading...</span>
+                                        {{else}}
+                                            <div class="flex flex-col items-center space-y-1">
+                                                <FaIcon @icon="arrow-up-from-bracket" class="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                                                <span class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-blue-500 transition-colors">Click to upload image</span>
+                                            </div>
+                                        {{/if}}
+                                    </div>
+                                </FileUpload>
+                                <div class="flex items-center space-x-1.5">
+                                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                                    <span class="text-xs text-gray-400">or</span>
+                                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="w-full flex items-center justify-center space-x-1.5 px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                    {{on "click" (fn this.openVariablePicker "src")}}
+                                >
+                                    <FaIcon @icon="code" class="w-3 h-3" />
+                                    <span>Use variable (e.g. {company.logo})</span>
+                                </button>
+                            </div>
+                        {{/if}}
                     </TemplateBuilder::PropertiesPanel::Field>
+
                     <TemplateBuilder::PropertiesPanel::Field @label="Alt Text">
                         <input type="text" class="tb-input" value={{this.element.alt}} {{on "change" (fn this.updateProp "alt")}} />
                     </TemplateBuilder::PropertiesPanel::Field>
@@ -114,6 +183,177 @@
                     </TemplateBuilder::PropertiesPanel::Field>
                     <TemplateBuilder::PropertiesPanel::Field @label="Border Radius">
                         <input type="number" class="tb-input" value={{this.element.border_radius}} min="0" {{on "change" (fn this.updateNumericProp "border_radius")}} />
+                    </TemplateBuilder::PropertiesPanel::Field>
+                </div>
+            </TemplateBuilder::PropertiesPanel::Section>
+        {{/if}}
+
+        {{! TABLE SECTION }}
+        {{#if this.isTable}}
+            {{! Columns }}
+            <TemplateBuilder::PropertiesPanel::Section
+                @title="Columns"
+                @icon="table-columns"
+                @isOpen={{this.isSectionOpen "table-columns"}}
+                @onToggle={{fn this.toggleSection "table-columns"}}
+            >
+                <div class="space-y-1.5">
+                    {{#each this.tableColumns as |col index|}}
+                        <div class="flex items-center space-x-1">
+                            <input
+                                type="text"
+                                class="tb-input flex-1"
+                                placeholder="Column label"
+                                value={{col.label}}
+                                {{on "change" (fn this.updateColumnLabel index)}}
+                            />
+                            <input
+                                type="text"
+                                class="tb-input flex-1"
+                                placeholder="data.key"
+                                value={{col.key}}
+                                {{on "change" (fn this.updateColumnKey index)}}
+                            />
+                            <button
+                                type="button"
+                                class="tb-icon-btn text-red-400 hover:text-red-600"
+                                title="Remove column"
+                                {{on "click" (fn this.removeColumn index)}}
+                            >
+                                <FaIcon @icon="xmark" class="w-3 h-3" />
+                            </button>
+                        </div>
+                    {{/each}}
+                    {{#if (eq this.tableColumns.length 0)}}
+                        <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-2">No columns defined. Add one below.</p>
+                    {{/if}}
+                    <button
+                        type="button"
+                        class="w-full flex items-center justify-center space-x-1.5 px-2 py-1.5 rounded border border-dashed border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-colors"
+                        {{on "click" this.addColumn}}
+                    >
+                        <FaIcon @icon="plus" class="w-3 h-3" />
+                        <span>Add column</span>
+                    </button>
+                </div>
+            </TemplateBuilder::PropertiesPanel::Section>
+
+            {{! Data Source }}
+            <TemplateBuilder::PropertiesPanel::Section
+                @title="Data Source"
+                @icon="database"
+                @isOpen={{this.isSectionOpen "table-data"}}
+                @onToggle={{fn this.toggleSection "table-data"}}
+            >
+                <div class="space-y-2">
+                    {{! Mode toggle }}
+                    <div class="flex rounded overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <button
+                            type="button"
+                            class="flex-1 py-1 text-xs font-medium transition-colors {{if (eq this.tableDataMode 'variable') 'bg-blue-500 text-white' 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
+                            {{on "click" (fn this.setTableDataMode "variable")}}
+                        >
+                            Variable
+                        </button>
+                        <button
+                            type="button"
+                            class="flex-1 py-1 text-xs font-medium border-l border-gray-200 dark:border-gray-700 transition-colors {{if (eq this.tableDataMode 'manual') 'bg-blue-500 text-white' 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}}"
+                            {{on "click" (fn this.setTableDataMode "manual")}}
+                        >
+                            Manual
+                        </button>
+                    </div>
+
+                    {{#if (eq this.tableDataMode "variable")}}
+                        {{! Variable data source }}
+                        <TemplateBuilder::PropertiesPanel::Field @label="Data Variable">
+                            <div class="flex space-x-1">
+                                <input
+                                    type="text"
+                                    class="tb-input flex-1"
+                                    placeholder="{order.items}"
+                                    value={{this.element.data_source}}
+                                    {{on "change" (fn this.updateProp "data_source")}}
+                                />
+                                <button type="button" class="tb-icon-btn" title="Insert variable" {{on "click" (fn this.openVariablePicker "data_source")}}>
+                                    <FaIcon @icon="code" class="w-3 h-3" />
+                                </button>
+                            </div>
+                        </TemplateBuilder::PropertiesPanel::Field>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">The variable must resolve to an array of objects. Each object's keys should match the column keys defined above.</p>
+                    {{else}}
+                        {{! Manual rows }}
+                        <div class="space-y-1.5">
+                            {{#each this.tableRows as |row rowIndex|}}
+                                <div class="rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                    <div class="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Row {{add rowIndex 1}}</span>
+                                        <button
+                                            type="button"
+                                            class="text-red-400 hover:text-red-600"
+                                            title="Remove row"
+                                            {{on "click" (fn this.removeRow rowIndex)}}
+                                        >
+                                            <FaIcon @icon="xmark" class="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                    <div class="p-1.5 space-y-1">
+                                        {{#each this.tableColumns as |col colIndex|}}
+                                            <div class="flex items-center space-x-1.5">
+                                                <span class="text-xs text-gray-400 dark:text-gray-500 w-16 shrink-0 truncate">{{col.label}}</span>
+                                                <input
+                                                    type="text"
+                                                    class="tb-input flex-1"
+                                                    placeholder={{col.key}}
+                                                    value={{get row col.key}}
+                                                    {{on "change" (fn this.updateRowCell rowIndex col.key)}}
+                                                />
+                                            </div>
+                                        {{/each}}
+                                        {{#if (eq this.tableColumns.length 0)}}
+                                            <p class="text-xs text-gray-400 text-center py-1">Define columns first.</p>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                            {{/each}}
+                            {{#if (eq this.tableRows.length 0)}}
+                                <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-2">No rows yet.</p>
+                            {{/if}}
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-center space-x-1.5 px-2 py-1.5 rounded border border-dashed border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-colors"
+                                {{on "click" this.addRow}}
+                            >
+                                <FaIcon @icon="plus" class="w-3 h-3" />
+                                <span>Add row</span>
+                            </button>
+                        </div>
+                    {{/if}}
+                </div>
+            </TemplateBuilder::PropertiesPanel::Section>
+
+            {{! Table Style }}
+            <TemplateBuilder::PropertiesPanel::Section
+                @title="Table Style"
+                @icon="palette"
+                @isOpen={{this.isSectionOpen "table-style"}}
+                @onToggle={{fn this.toggleSection "table-style"}}
+            >
+                <div class="grid grid-cols-2 gap-2">
+                    <TemplateBuilder::PropertiesPanel::Field @label="Header BG">
+                        <input type="color" class="tb-color-input" value={{this.element.header_background}} {{on "input" (fn this.updateProp "header_background")}} />
+                    </TemplateBuilder::PropertiesPanel::Field>
+                    <TemplateBuilder::PropertiesPanel::Field @label="Header Text">
+                        <input type="color" class="tb-color-input" value={{this.element.header_color}} {{on "input" (fn this.updateProp "header_color")}} />
+                    </TemplateBuilder::PropertiesPanel::Field>
+                    <TemplateBuilder::PropertiesPanel::Field @label="Border Color">
+                        <input type="color" class="tb-color-input" value={{this.element.border_color}} {{on "input" (fn this.updateProp "border_color")}} />
+                    </TemplateBuilder::PropertiesPanel::Field>
+                    <TemplateBuilder::PropertiesPanel::Field @label="Cell Padding">
+                        <input type="number" class="tb-input" value={{this.element.cell_padding}} min="0" {{on "change" (fn this.updateNumericProp "cell_padding")}} />
+                    </TemplateBuilder::PropertiesPanel::Field>
+                    <TemplateBuilder::PropertiesPanel::Field @label="Row Alt Color" @span="2">
+                        <input type="color" class="tb-color-input" value={{this.element.row_alt_color}} {{on "input" (fn this.updateProp "row_alt_color")}} />
                     </TemplateBuilder::PropertiesPanel::Field>
                 </div>
             </TemplateBuilder::PropertiesPanel::Section>
