@@ -85,4 +85,5 @@ export default class TemplateBuilderQueriesPanelComponent extends Component {
             this.args.onQueriesChange(queries);
         }
     }
+
 }

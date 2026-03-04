@@ -11,9 +11,10 @@ import { inject as service } from '@ember/service';
  * the data to the parent via @onSave. No API calls are made here; the parent
  * (template-builder) persists everything in one go when the template is saved.
  *
- * Resource types are sourced from (in priority order):
- *   1. @resourceTypes argument — allows the consumer to override completely
- *   2. service:template-builder — extensions register types via the service
+ * Form state is split into individual @tracked fields plus separate @tracked
+ * arrays for conditions and sort. This prevents the {{#each}} loops from
+ * destroying and recreating input DOM elements on every keystroke (which would
+ * steal focus from the active input).
  *
  * @argument {Boolean}  isOpen         - Whether the modal is visible
  * @argument {Object}   query          - Existing query to edit (null for create)
@@ -24,7 +25,20 @@ import { inject as service } from '@ember/service';
 export default class TemplateBuilderQueryFormComponent extends Component {
     @service('template-builder') templateBuilderService;
 
-    @tracked form = this._blankForm();
+    // ── Scalar form fields ──────────────────────────────────────────────────
+    @tracked label = '';
+    @tracked variableName = '';
+    @tracked description = '';
+    @tracked modelType = '';
+    @tracked limit = '';
+    @tracked withRelations = [];
+
+    // ── Array fields — kept as separate tracked properties so that mutating
+    //   a single item does NOT cause the entire form to re-render and destroy
+    //   focused input elements. ────────────────────────────────────────────
+    @tracked conditions = [];
+    @tracked sort = [];
+
     @tracked errorMessage = null;
 
     /**
@@ -52,37 +66,27 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     _syncForm() {
         const q = this.args.query;
         if (q) {
-            this.form = {
-                label: q.label ?? '',
-                variable_name: q.variable_name ?? '',
-                description: q.description ?? '',
-                model_type: q.model_type ?? '',
-                conditions: JSON.parse(JSON.stringify(q.conditions ?? [])),
-                sort: JSON.parse(JSON.stringify(q.sort ?? [])),
-                limit: q.limit ?? '',
-                with: Array.isArray(q.with) ? [...q.with] : [],
-            };
-            // If editing an existing query that already has a variable_name,
-            // treat it as manually set so we don't overwrite it.
+            this.label = q.label ?? '';
+            this.variableName = q.variable_name ?? '';
+            this.description = q.description ?? '';
+            this.modelType = q.model_type ?? '';
+            this.limit = q.limit ?? '';
+            this.withRelations = Array.isArray(q.with) ? [...q.with] : [];
+            this.conditions = JSON.parse(JSON.stringify(q.conditions ?? []));
+            this.sort = JSON.parse(JSON.stringify(q.sort ?? []));
             this._variableNameManuallyEdited = !!q.variable_name?.trim();
         } else {
-            this.form = this._blankForm();
+            this.label = '';
+            this.variableName = '';
+            this.description = '';
+            this.modelType = '';
+            this.limit = '';
+            this.withRelations = [];
+            this.conditions = [];
+            this.sort = [];
             this._variableNameManuallyEdited = false;
         }
         this.errorMessage = null;
-    }
-
-    _blankForm() {
-        return {
-            label: '',
-            variable_name: '',
-            description: '',
-            model_type: '',
-            conditions: [],
-            sort: [],
-            limit: '',
-            with: [],
-        };
     }
 
     // -------------------------------------------------------------------------
@@ -91,16 +95,13 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     get resourceTypes() {
-        // 1. Explicit override from the consumer
         if (this.args.resourceTypes?.length) {
             return this.args.resourceTypes;
         }
-        // 2. Service-registered types from extensions
         const serviceTypes = this.templateBuilderService?.resourceTypes ?? [];
         if (serviceTypes.length) {
             return serviceTypes;
         }
-        // 3. Built-in defaults (FleetOps models)
         return [
             { value: 'Fleetbase\\FleetOps\\Models\\Order', label: 'Order', icon: 'box' },
             { value: 'Fleetbase\\FleetOps\\Models\\Driver', label: 'Driver', icon: 'id-card' },
@@ -140,106 +141,103 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     get withString() {
-        return (this.form.with ?? []).join(', ');
+        return (this.withRelations ?? []).join(', ');
     }
 
     @action
     updateWith(event) {
         const raw = event.target.value;
-        this.form = {
-            ...this.form,
-            with: raw
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean),
-        };
+        this.withRelations = raw
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
     }
 
     // -------------------------------------------------------------------------
-    // Field updates
+    // Scalar field updates
     // -------------------------------------------------------------------------
 
     @action
-    updateField(field, event) {
+    updateLabel(event) {
         const value = event.target.value;
-
-        if (field === 'label') {
-            // Auto-derive variable_name from label while the user hasn't
-            // manually edited the variable_name field.
-            const derived = this._variableNameManuallyEdited ? this.form.variable_name : this._deriveVariableName(value);
-            this.form = { ...this.form, label: value, variable_name: derived };
-        } else if (field === 'variable_name') {
-            // Mark as manually edited so auto-derive stops overwriting it.
-            this._variableNameManuallyEdited = true;
-            this.form = { ...this.form, variable_name: value };
-        } else {
-            this.form = { ...this.form, [field]: value };
+        this.label = value;
+        if (!this._variableNameManuallyEdited) {
+            this.variableName = this._deriveVariableName(value);
         }
     }
 
     @action
-    updateNumericField(field, event) {
+    updateVariableName(event) {
+        this._variableNameManuallyEdited = true;
+        this.variableName = event.target.value;
+    }
+
+    @action
+    updateDescription(event) {
+        this.description = event.target.value;
+    }
+
+    @action
+    updateLimit(event) {
         const raw = event.target.value;
-        this.form = { ...this.form, [field]: raw === '' ? '' : parseInt(raw, 10) };
+        this.limit = raw === '' ? '' : parseInt(raw, 10);
     }
 
     @action
     selectResourceType(value) {
-        this.form = { ...this.form, model_type: value };
+        this.modelType = value;
     }
 
     // -------------------------------------------------------------------------
-    // Conditions
+    // Conditions — mutate in-place then bump the array reference so Glimmer
+    // re-evaluates the {{#each}} without destroying existing DOM nodes.
     // -------------------------------------------------------------------------
 
     @action
     addCondition() {
-        this.form = {
-            ...this.form,
-            conditions: [...this.form.conditions, { field: '', operator: '=', value: '' }],
-        };
+        this.conditions = [...this.conditions, { field: '', operator: '=', value: '' }];
     }
 
     @action
     updateConditionField(index, field, event) {
         const value = event.target.value;
-        const conditions = this.form.conditions.map((c, i) => (i === index ? { ...c, [field]: value } : c));
-        this.form = { ...this.form, conditions };
+        // Mutate the specific item in-place — the DOM node for this input stays
+        // alive and keeps focus. Then bump the array reference so Glimmer knows
+        // the list changed (needed for the operator select and value visibility).
+        const item = this.conditions[index];
+        if (item) {
+            Object.assign(item, { [field]: value });
+            this.conditions = [...this.conditions];
+        }
     }
 
     @action
     removeCondition(index) {
-        this.form = {
-            ...this.form,
-            conditions: this.form.conditions.filter((_, i) => i !== index),
-        };
+        this.conditions = this.conditions.filter((_, i) => i !== index);
     }
 
     // -------------------------------------------------------------------------
-    // Sort
+    // Sort — same in-place mutation pattern as conditions
     // -------------------------------------------------------------------------
 
     @action
     addSort() {
-        this.form = {
-            ...this.form,
-            sort: [...this.form.sort, { field: '', direction: 'asc' }],
-        };
+        this.sort = [...this.sort, { field: '', direction: 'asc' }];
     }
 
     @action
     updateSortField(index, field, event) {
         const value = event.target.value;
-        const sort = this.form.sort.map((s, i) => (i === index ? { ...s, [field]: value } : s));
-        this.form = { ...this.form, sort };
+        const item = this.sort[index];
+        if (item) {
+            Object.assign(item, { [field]: value });
+            this.sort = [...this.sort];
+        }
     }
 
     @action
     removeSort(index) {
-        this.form = {
-            ...this.form,
-            sort: this.form.sort.filter((_, i) => i !== index),
-        };
+        this.sort = this.sort.filter((_, i) => i !== index);
     }
 
     // -------------------------------------------------------------------------
@@ -250,26 +248,25 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     save() {
         this.errorMessage = null;
 
-        if (!this.form.label?.trim()) {
+        if (!this.label?.trim()) {
             this.errorMessage = 'Label is required.';
             return;
         }
-        if (!this.form.model_type) {
+        if (!this.modelType) {
             this.errorMessage = 'Please select a resource type.';
             return;
         }
 
         const data = {
-            // Preserve the existing UUID so the backend can update vs. create
             uuid: this.args.query?.uuid ?? null,
-            label: this.form.label.trim(),
-            variable_name: this.form.variable_name.trim() || this._deriveVariableName(this.form.label),
-            description: this.form.description?.trim() ?? '',
-            model_type: this.form.model_type,
-            conditions: this.form.conditions.filter((c) => c.field?.trim()),
-            sort: this.form.sort.filter((s) => s.field?.trim()),
-            limit: this.form.limit === '' ? null : this.form.limit,
-            with: this.form.with,
+            label: this.label.trim(),
+            variable_name: this.variableName.trim() || this._deriveVariableName(this.label),
+            description: this.description?.trim() ?? '',
+            model_type: this.modelType,
+            conditions: this.conditions.filter((c) => c.field?.trim()),
+            sort: this.sort.filter((s) => s.field?.trim()),
+            limit: this.limit === '' ? null : this.limit,
+            with: this.withRelations,
         };
 
         if (this.args.onSave) {

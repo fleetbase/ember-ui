@@ -39,8 +39,8 @@
                                 type="text"
                                 class="tb-input w-full"
                                 placeholder="e.g. Recent Orders"
-                                value={{this.form.label}}
-                                {{on "input" (fn this.updateField "label")}}
+                                value={{this.label}}
+                                {{on "input" this.updateLabel}}
                             />
                         </div>
                         <div>
@@ -51,8 +51,8 @@
                                     type="text"
                                     class="tb-input flex-1 font-mono"
                                     placeholder="recent_orders"
-                                    value={{this.form.variable_name}}
-                                    {{on "input" (fn this.updateField "variable_name")}}
+                                    value={{this.variableName}}
+                                    {{on "input" this.updateVariableName}}
                                 />
                                 <span class="text-xs text-gray-400 font-mono">}</span>
                             </div>
@@ -66,8 +66,8 @@
                             type="text"
                             class="tb-input w-full"
                             placeholder="Optional description"
-                            value={{this.form.description}}
-                            {{on "input" (fn this.updateField "description")}}
+                            value={{this.description}}
+                            {{on "input" this.updateDescription}}
                         />
                     </div>
                 </div>
@@ -77,23 +77,21 @@
                     <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Resource Type</h4>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mb-2">Select the Fleetbase model this query runs against.</p>
 
-                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-2">
+                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-2">
                         {{#each this.resourceTypes as |rt|}}
                             <button
                                 type="button"
                                 class="flex items-center space-x-2 px-2.5 py-2 rounded-lg border text-left transition-colors
-                                    {{if (eq this.form.model_type rt.value)
+                                    {{if (eq this.modelType rt.value)
                                         'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300'
                                         'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'}}"
                                 {{on "click" (fn this.selectResourceType rt.value)}}
                             >
-                                <FaIcon @icon={{rt.icon}} class="w-3.5 h-3.5 flex-shrink-0 {{if (eq this.form.model_type rt.value) 'text-indigo-500' 'text-gray-400'}}" />
+                                <FaIcon @icon={{rt.icon}} class="w-3.5 h-3.5 flex-shrink-0 {{if (eq this.modelType rt.value) 'text-indigo-500' 'text-gray-400'}}" />
                                 <span class="block text-xs font-medium truncate">{{rt.label}}</span>
                             </button>
                         {{/each}}
                     </div>
-
-
                 </div>
 
                 {{! ── Filter Conditions ── }}
@@ -110,9 +108,9 @@
                         </button>
                     </div>
 
-                    {{#if this.form.conditions.length}}
+                    {{#if this.conditions.length}}
                         <div class="space-y-1.5">
-                            {{#each this.form.conditions as |condition condIndex|}}
+                            {{#each this.conditions as |condition condIndex|}}
                                 {{! Each row: field (flex-1) | operator (fixed 130px) | value (flex-1) | remove }}
                                 <div class="flex items-center gap-1.5">
                                     <input
@@ -170,9 +168,9 @@
                         </button>
                     </div>
 
-                    {{#if this.form.sort.length}}
+                    {{#if this.sort.length}}
                         <div class="space-y-1.5">
-                            {{#each this.form.sort as |sortItem sortIndex|}}
+                            {{#each this.sort as |sortItem sortIndex|}}
                                 <div class="flex items-center gap-1.5">
                                     <input
                                         type="text"
@@ -214,8 +212,8 @@
                             class="tb-input w-full"
                             placeholder="No limit"
                             min="1"
-                            value={{this.form.limit}}
-                            {{on "input" (fn this.updateNumericField "limit")}}
+                            value={{this.limit}}
+                            {{on "input" this.updateLimit}}
                         />
                         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Max number of rows to return.</p>
                     </div>
