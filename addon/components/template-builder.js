@@ -164,16 +164,19 @@ export default class TemplateBuilderComponent extends Component {
     moveElement(uuid, changes) {
         const el = this.elements.find((e) => e.uuid === uuid);
         if (!el) return;
-        // Mutate in-place — Glimmer only re-renders if a @tracked property
-        // changes. The content array reference stays the same, so no re-render.
+        // Mutate the element object in-place. The content array reference does
+        // NOT change, so Glimmer does not schedule a re-render. This is
+        // intentional — re-rendering would destroy and recreate the DOM nodes,
+        // which would also destroy the interact.js instances and make the
+        // element non-interactive.
+        //
+        // IMPORTANT: do NOT write to any @tracked property here (including
+        // `this.selectedElement`). Even a "minimal" tracked write causes
+        // Glimmer to re-render the canvas, which destroys the DOM nodes.
+        // The properties panel will pick up the new values the next time the
+        // user clicks the element (which calls selectElement → sets
+        // selectedElement to the same mutated object).
         Object.assign(el, changes);
-        // Keep selectedElement in sync too (same object reference, so the
-        // properties panel will reflect the updated values on next interaction).
-        if (this.selectedElement?.uuid === uuid) {
-            // Trigger a minimal tracked update so the properties panel inputs
-            // reflect the new x/y/width/height values.
-            this.selectedElement = el;
-        }
     }
 
     @action

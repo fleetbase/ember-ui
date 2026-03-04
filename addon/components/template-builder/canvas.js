@@ -21,20 +21,26 @@ import interact from 'interactjs';
  * Drag vs. resize separation
  * --------------------------
  * Resize is restricted to the four corner handle elements (.tb-handle-*)
- * via the `handle` option. This means any drag gesture on the element body
- * is unambiguously a move, not a resize.
+ * via per-edge CSS selectors. Any drag gesture on the element body is
+ * therefore unambiguously a move, not a resize.
  *
  * Re-render safety
  * ----------------
- * When `onUpdateElement` triggers a template re-render, Glimmer destroys
- * and recreates the element's DOM node. `teardownElement` (via will-destroy)
- * unsets the old interactable, and `setupElement` (via did-insert on the new
- * node) creates a fresh one — so the element is always interactive.
+ * `moveElement` (the silent positional sync) must NOT write to any @tracked
+ * property that causes a Glimmer re-render, because re-rendering destroys
+ * and recreates DOM nodes, which breaks interact.js. In particular,
+ * `selectedElement` must NOT be updated inside `moveElement`.
+ *
+ * The only time interact.js instances are torn down and rebuilt is when
+ * `teardownElement` fires (will-destroy) followed by `setupElement`
+ * (did-insert) — which happens when `updateElement` triggers a full
+ * re-render (e.g. property panel changes). This is correct and expected.
  *
  * @argument {Object}   template         - The template object (width, height, unit, orientation, content)
  * @argument {Object}   selectedElement  - The currently selected element (or null)
  * @argument {Function} onSelectElement  - Called with element when user clicks it
  * @argument {Function} onUpdateElement  - Called with (elementId, changes) when drag/resize completes
+ * @argument {Function} onMoveElement    - Called with (elementId, {x,y,width?,height?}) silently
  * @argument {Function} onDeselectAll    - Called when user clicks the canvas background
  * @argument {Number}   zoom             - Zoom level (1 = 100%)
  */
@@ -89,7 +95,6 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     @action
     willDestroyCanvas() {
-        // Destroy all interact.js instances to prevent memory leaks.
         this._interactables.forEach((interactable) => {
             try { interactable.unset(); } catch (_) { /* ignore */ }
         });
@@ -102,14 +107,12 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
     @action
     setupElement(element, el) {
-        // If a stale interactable exists for this uuid (e.g. after a re-render
-        // recreated the DOM node), unset it before creating a new one.
+        // Unset any stale interactable for this uuid before creating a new one.
         const stale = this._interactables.get(element.uuid);
         if (stale) {
             try { stale.unset(); } catch (_) { /* ignore */ }
             this._interactables.delete(element.uuid);
         }
-
         this._setupInteract(element, el);
     }
 
@@ -142,16 +145,18 @@ export default class TemplateBuilderCanvasComponent extends Component {
     // -------------------------------------------------------------------------
 
     _setupInteract(element, el) {
-        const zoom = this.zoom;
+        // ── Helpers ────────────────────────────────────────────────────────────
 
-        // Helper: read the current translate values from the element's
-        // data attributes (seeded in element-renderer.js handleInsert).
+        // Read the current translate values from the element's data attributes.
+        // These are seeded by element-renderer.js handleInsert and kept in sync
+        // by the move/end listeners below.
         const getPos = () => ({
             x: parseFloat(el.dataset.x) || 0,
             y: parseFloat(el.dataset.y) || 0,
         });
 
-        // Helper: apply translate (+ optional rotation) to the element.
+        // Write a new translate (+ optional rotation) to the element's style
+        // and update the data attributes so getPos() stays accurate.
         const applyTransform = (x, y) => {
             const rotation = element.rotation ?? 0;
             el.style.transform = rotation
@@ -161,51 +166,48 @@ export default class TemplateBuilderCanvasComponent extends Component {
             el.dataset.y = y;
         };
 
+        // ── Zoom accessor ──────────────────────────────────────────────────────
+        // Read zoom from args at event time (not captured at setup time) so
+        // that zoom changes are reflected without needing to re-create the
+        // interactable.
+        const getZoom = () => this.args.zoom ?? 1;
+
+        // ── Interactable ───────────────────────────────────────────────────────
         const interactable = interact(el)
+
             // ── Drag ──────────────────────────────────────────────────────────
             .draggable({
-                // Require a small movement threshold before a drag starts.
-                // This prevents accidental drags when the user intends to click.
-                startAxis: 'xy',
-                lockAxis: 'xy',
+                // No modifiers — modifiers that use relativePoints or restrict
+                // cause the pointer to snap to the element origin (center-snap
+                // feel) and introduce jank. Free movement is smooth and accurate.
                 listeners: {
                     move: (event) => {
-                        const pos = getPos();
+                        const zoom = getZoom();
+                        const pos  = getPos();
+                        // Divide interact.js deltas by zoom so the element
+                        // moves at the same speed as the pointer regardless of
+                        // the current zoom level.
                         const x = pos.x + event.dx / zoom;
                         const y = pos.y + event.dy / zoom;
                         applyTransform(x, y);
                     },
-                    end: (event) => {
+                    end: () => {
                         const pos = getPos();
-                        // Use onMoveElement (silent, no re-render) for positional
-                        // updates from drag gestures so interact.js instances are
-                        // not destroyed and recreated after every drag.
-                        if (this.args?.onMoveElement) {
-                            this.args.onMoveElement(element.uuid, { x: pos.x, y: pos.y });
+                        if (this.args.onMoveElement) {
+                            this.args.onMoveElement(element.uuid, {
+                                x: Math.round(pos.x),
+                                y: Math.round(pos.y),
+                            });
                         }
                     },
                 },
-                modifiers: [
-                    // 5 px grid snap
-                    interact.modifiers.snap({
-                        targets: [interact.snappers.grid({ x: 5, y: 5 })],
-                        range: Infinity,
-                        relativePoints: [{ x: 0, y: 0 }],
-                    }),
-                    // Keep element inside the canvas
-                    interact.modifiers.restrict({
-                        restriction: 'parent',
-                        elementRect: { top: 0, left: 0, bottom: 1, right: 1 },
-                        endOnly: false,
-                    }),
-                ],
             })
+
             // ── Resize ────────────────────────────────────────────────────────
             .resizable({
-                // Restrict resize gestures to the four corner handle elements.
-                // This is the key fix: without this, any drag on the element
-                // body is ambiguously interpreted as a resize on the nearest
-                // edge, which is why drag was broken.
+                // Each edge value is a CSS selector matched against the pointer
+                // target. The corner handles each match two adjacent edges so
+                // they resize in both directions simultaneously.
                 edges: {
                     top:    '.tb-handle-nw, .tb-handle-ne',
                     left:   '.tb-handle-nw, .tb-handle-sw',
@@ -214,12 +216,14 @@ export default class TemplateBuilderCanvasComponent extends Component {
                 },
                 listeners: {
                     move: (event) => {
-                        const pos = getPos();
-                        // When resizing from the top or left, the element's
-                        // origin shifts — we must update the translate too.
+                        const zoom = getZoom();
+                        const pos  = getPos();
+
+                        // When resizing from the top or left edge the element's
+                        // origin shifts — update the translate to compensate.
                         const x = pos.x + event.deltaRect.left / zoom;
-                        const y = pos.y + event.deltaRect.top / zoom;
-                        const w = event.rect.width / zoom;
+                        const y = pos.y + event.deltaRect.top  / zoom;
+                        const w = event.rect.width  / zoom;
                         const h = event.rect.height / zoom;
 
                         el.style.width  = `${w}px`;
@@ -227,26 +231,25 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         applyTransform(x, y);
                     },
                     end: (event) => {
-                        const pos = getPos();
-                        const w = event.rect.width / zoom;
+                        const zoom = getZoom();
+                        const pos  = getPos();
+                        const w = event.rect.width  / zoom;
                         const h = event.rect.height / zoom;
-                        if (this.args?.onMoveElement) {
+                        if (this.args.onMoveElement) {
                             this.args.onMoveElement(element.uuid, {
-                                x: pos.x,
-                                y: pos.y,
-                                width: w,
-                                height: h,
+                                x:      Math.round(pos.x),
+                                y:      Math.round(pos.y),
+                                width:  Math.round(w),
+                                height: Math.round(h),
                             });
                         }
                     },
                 },
                 modifiers: [
+                    // Enforce a minimum element size so elements cannot be
+                    // collapsed to zero. No snap modifier — same reasoning as drag.
                     interact.modifiers.restrictSize({
                         min: { width: 20, height: 10 },
-                    }),
-                    // 5 px grid snap for size too
-                    interact.modifiers.snapSize({
-                        targets: [interact.snappers.grid({ width: 5, height: 5 })],
                     }),
                 ],
             });
