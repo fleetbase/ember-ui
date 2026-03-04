@@ -1,0 +1,23 @@
+{{! Template Builder Canvas }}
+{{! This component is a thin rendering shell. Each ElementRenderer owns its
+    own interact.js instance and emits @onMove / @onResize / @onSelect. }}
+<div
+    id={{this.canvasId}}
+    class="tb-canvas shadow-xl mx-auto select-none"
+    style={{this.canvasStyle}}
+    {{on "click" this.handleDeselectAll}}
+    ...attributes
+>
+    {{#each this.elements key="uuid" as |element|}}
+        <TemplateBuilder::ElementRenderer
+            @element={{element}}
+            @isSelected={{eq element.uuid this.selectedUuid}}
+            @zoom={{this.zoom}}
+            @canvasWidth={{this.canvasWidthPx}}
+            @canvasHeight={{this.canvasHeightPx}}
+            @onSelect={{this.handleSelectElement}}
+            @onMove={{@onMoveElement}}
+            @onResize={{@onResizeElement}}
+        />
+    {{/each}}
+</div>

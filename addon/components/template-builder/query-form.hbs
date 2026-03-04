@@ -1,0 +1,262 @@
+{{! Template Builder Query Form Modal }}
+{{! Consume _syncKey so Glimmer tracks @isOpen and @query changes }}
+{{this._syncKey}}
+{{#if @isOpen}}
+    <div class="tb-query-form fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+
+        {{! Backdrop }}
+        <div class="absolute inset-0 bg-black/40 dark:bg-black/60" {{on "click" this.cancel}}></div>
+
+        {{! Modal }}
+        <div class="relative z-10 w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col max-h-[90vh]">
+
+            {{! Header }}
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <FaIcon @icon="database" class="w-4 h-4 text-indigo-500" />
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                        {{if this.isEditing "Edit Query" "New Query"}}
+                    </h3>
+                </div>
+                <button type="button" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400" {{on "click" this.cancel}}>
+                    <FaIcon @icon="xmark" class="w-4 h-4" />
+                </button>
+            </div>
+
+            {{! Body (scrollable) }}
+            <div class="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+
+                {{! ── Basic Info ── }}
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Basic Info</h4>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Label <span class="text-red-400">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="tb-input w-full"
+                                placeholder="e.g. Recent Orders"
+                                value={{this.label}}
+                                {{on "input" this.updateLabel}}
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Variable Name</label>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-xs text-gray-400 font-mono">{</span>
+                                <input
+                                    type="text"
+                                    class="tb-input flex-1 font-mono"
+                                    placeholder="recent_orders"
+                                    value={{this.variableName}}
+                                    {{on "input" this.updateVariableName}}
+                                />
+                                <span class="text-xs text-gray-400 font-mono">}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Auto-derived from label if left blank.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                        <input
+                            type="text"
+                            class="tb-input w-full"
+                            placeholder="Optional description"
+                            value={{this.description}}
+                            {{on "input" this.updateDescription}}
+                        />
+                    </div>
+                </div>
+
+                {{! ── Resource Type ── }}
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Resource Type</h4>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-2">Select the Fleetbase model this query runs against.</p>
+
+                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-2">
+                        {{#each this.resourceTypes as |rt|}}
+                            <button
+                                type="button"
+                                class="flex items-center space-x-2 px-2.5 py-2 rounded-lg border text-left transition-colors
+                                    {{if (eq this.modelType rt.value)
+                                        'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300'
+                                        'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'}}"
+                                {{on "click" (fn this.selectResourceType rt.value)}}
+                            >
+                                <FaIcon @icon={{rt.icon}} class="w-3.5 h-3.5 flex-shrink-0 {{if (eq this.modelType rt.value) 'text-indigo-500' 'text-gray-400'}}" />
+                                <span class="block text-xs font-medium truncate">{{rt.label}}</span>
+                            </button>
+                        {{/each}}
+                    </div>
+                </div>
+
+                {{! ── Filter Conditions ── }}
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Filter Conditions</h4>
+                        <button
+                            type="button"
+                            class="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700"
+                            {{on "click" this.addCondition}}
+                        >
+                            <FaIcon @icon="plus" class="w-3 h-3" />
+                            <span>Add condition</span>
+                        </button>
+                    </div>
+
+                    {{#if this.conditions.length}}
+                        <div class="space-y-1.5">
+                            {{#each this.conditions as |condition condIndex|}}
+                                {{! Each row: field (flex-1) | operator (fixed 130px) | value (flex-1) | remove }}
+                                <div class="flex items-center gap-1.5">
+                                    <input
+                                        type="text"
+                                        class="tb-input min-w-0 flex-1"
+                                        placeholder="field"
+                                        value={{condition.field}}
+                                        {{on "input" (fn this.updateConditionField condIndex "field")}}
+                                    />
+                                    <select
+                                        class="tb-input flex-shrink-0"
+                                        style="width: 130px;"
+                                        {{on "change" (fn this.updateConditionField condIndex "operator")}}
+                                    >
+                                        {{#each this.conditionOperators as |op|}}
+                                            <option value={{op.value}} selected={{eq condition.operator op.value}}>{{op.label}}</option>
+                                        {{/each}}
+                                    </select>
+                                    {{#unless (or (eq condition.operator "null") (eq condition.operator "not null"))}}
+                                        <input
+                                            type="text"
+                                            class="tb-input min-w-0 flex-1"
+                                            placeholder="value or {variable}"
+                                            value={{condition.value}}
+                                            {{on "input" (fn this.updateConditionField condIndex "value")}}
+                                        />
+                                    {{/unless}}
+                                    <button
+                                        type="button"
+                                        class="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 flex-shrink-0"
+                                        title="Remove condition"
+                                        {{on "click" (fn this.removeCondition condIndex)}}
+                                    >
+                                        <FaIcon @icon="xmark" class="w-3 h-3" />
+                                    </button>
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{else}}
+                        <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-2 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">No conditions — all records will be returned.</p>
+                    {{/if}}
+                </div>
+
+                {{! ── Sort ── }}
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sort</h4>
+                        <button
+                            type="button"
+                            class="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700"
+                            {{on "click" this.addSort}}
+                        >
+                            <FaIcon @icon="plus" class="w-3 h-3" />
+                            <span>Add sort</span>
+                        </button>
+                    </div>
+
+                    {{#if this.sort.length}}
+                        <div class="space-y-1.5">
+                            {{#each this.sort as |sortItem sortIndex|}}
+                                <div class="flex items-center gap-1.5">
+                                    <input
+                                        type="text"
+                                        class="tb-input min-w-0 flex-1"
+                                        placeholder="field (e.g. created_at)"
+                                        value={{sortItem.field}}
+                                        {{on "input" (fn this.updateSortField sortIndex "field")}}
+                                    />
+                                    <select
+                                        class="tb-input flex-shrink-0"
+                                        style="width: 120px;"
+                                        {{on "change" (fn this.updateSortField sortIndex "direction")}}
+                                    >
+                                        <option value="asc"  selected={{eq sortItem.direction "asc"}}>Ascending</option>
+                                        <option value="desc" selected={{eq sortItem.direction "desc"}}>Descending</option>
+                                    </select>
+                                    <button
+                                        type="button"
+                                        class="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 flex-shrink-0"
+                                        title="Remove sort"
+                                        {{on "click" (fn this.removeSort sortIndex)}}
+                                    >
+                                        <FaIcon @icon="xmark" class="w-3 h-3" />
+                                    </button>
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{else}}
+                        <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-2 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">No sort — default model order will be used.</p>
+                    {{/if}}
+                </div>
+
+                {{! ── Limit & Eager-load ── }}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Limit</h4>
+                        <input
+                            type="number"
+                            class="tb-input w-full"
+                            placeholder="No limit"
+                            min="1"
+                            value={{this.limit}}
+                            {{on "input" this.updateLimit}}
+                        />
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Max number of rows to return.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Eager Load (with)</h4>
+                        <input
+                            type="text"
+                            class="tb-input w-full"
+                            placeholder="e.g. driver,vehicle"
+                            value={{this.withString}}
+                            {{on "input" this.updateWith}}
+                        />
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Comma-separated relationship names to eager-load.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            {{! Footer }}
+            <div class="flex items-center justify-between px-5 py-3.5 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+                {{#if this.errorMessage}}
+                    <p class="text-xs text-red-500">{{this.errorMessage}}</p>
+                {{else}}
+                    <div></div>
+                {{/if}}
+                <div class="flex items-center space-x-2">
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                        {{on "click" this.cancel}}
+                    >
+                        Cancel
+                    </button>
+                    <Button
+                        @type="primary"
+                        @text={{if this.isEditing "Save Changes" "Create Query"}}
+                        @icon="floppy-disk"
+                        @size="xs"
+                        @onClick={{this.save}}
+                    />
+                </div>
+            </div>
+
+        </div>
+    </div>
+{{/if}}

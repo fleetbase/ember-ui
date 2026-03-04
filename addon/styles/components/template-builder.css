@@ -1,0 +1,269 @@
+/* =============================================================================
+   Template Builder
+   ============================================================================= */
+
+/* Root layout */
+.tb-root {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+}
+
+/* ─── Canvas ─────────────────────────────────────────────────────────────── */
+
+.tb-canvas {
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.08);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+body[data-theme='dark'] .tb-canvas {
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.4), 0 1px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Elements ───────────────────────────────────────────────────────────── */
+
+.tb-element {
+    box-sizing: border-box;
+    user-select: none;
+    touch-action: none; /* required for interact.js */
+}
+
+/* Selection handles (corner dots) */
+.tb-element-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+}
+
+.tb-handle-nw { top: -4px;  left: -4px;  cursor: nw-resize; }
+.tb-handle-ne { top: -4px;  right: -4px; cursor: ne-resize; }
+.tb-handle-sw { bottom: -4px; left: -4px;  cursor: sw-resize; }
+.tb-handle-se { bottom: -4px; right: -4px; cursor: se-resize; }
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────── */
+
+.tb-toolbar {
+    min-height: 44px;
+    flex-shrink: 0;
+}
+
+.tb-toolbar-btn {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    outline: none;
+}
+
+.tb-toolbar-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+}
+
+/* ─── Panels ─────────────────────────────────────────────────────────────── */
+
+.tb-panel-left,
+.tb-panel-right {
+    min-width: 0;
+}
+
+.tb-layers-panel,
+.tb-properties-panel {
+    font-size: 12px;
+}
+
+/* Layer row active state */
+.tb-layer-row:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+}
+
+/* ─── Properties Panel ───────────────────────────────────────────────────── */
+
+.tb-prop-section {
+    /* intentionally minimal */
+}
+
+.tb-prop-field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── Form inputs ────────────────────────────────────────────────────────── */
+
+/*
+ * .tb-input is the shared class for ALL form controls in the properties panel:
+ * <input type="text">, <input type="number">, <select>, <textarea>.
+ * Every property below is declared with !important on the type-specific
+ * overrides so that browser UA stylesheets (which reset font/color on
+ * <input type="number"> and <select>) cannot win.
+ */
+.tb-input {
+    width: 100%;
+    height: 26px;
+    padding: 0 6px;
+    font-family: inherit;
+    font-size: 11px;
+    line-height: 26px;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background-color: #f9fafb;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+    /* Strip browser-specific chrome so all control types look identical */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Restore the native select arrow while keeping everything else uniform */
+select.tb-input {
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    appearance: auto;
+    padding-right: 4px;
+    /* Explicitly re-state visual properties so the appearance reset above
+       does not cause browsers to fall back to their own defaults */
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
+}
+
+.tb-input:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+}
+
+/* Dark mode */
+body[data-theme='dark'] .tb-input {
+    border-color: #374151;
+    background-color: #1f2937;
+    color: #d1d5db;
+}
+
+body[data-theme='dark'] select.tb-input {
+    color: #d1d5db;
+}
+
+body[data-theme='dark'] .tb-input:focus {
+    border-color: #3b82f6;
+    background-color: #111827;
+}
+
+/*
+ * Number inputs: restore the spinner but keep font/color/radius consistent.
+ * -webkit-appearance: textfield strips the spinner on WebKit; using
+ * "inner-spin-button" on the pseudo-element re-adds it without re-applying
+ * the full native number-input chrome.
+ */
+.tb-input[type='number'] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    padding-right: 2px;
+    /* Re-declare so UA overrides cannot win */
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
+}
+
+body[data-theme='dark'] .tb-input[type='number'] {
+    color: #d1d5db;
+}
+
+.tb-input[type='number']::-webkit-inner-spin-button,
+.tb-input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: inner-spin-button;
+    opacity: 1;
+    height: 24px;
+    cursor: pointer;
+}
+
+/* Textarea variant — allow vertical resize, auto height */
+textarea.tb-input {
+    height: auto;
+    line-height: 1.4;
+    padding: 4px 6px;
+    resize: vertical;
+    font-size: 11px;
+    color: #374151;
+    border-radius: 4px;
+}
+
+body[data-theme='dark'] textarea.tb-input {
+    color: #d1d5db;
+}
+
+/* ─── Colour swatch input ────────────────────────────────────────────────── */
+
+.tb-color-input {
+    width: 100%;
+    height: 28px;
+    padding: 1px 2px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+}
+
+body[data-theme='dark'] .tb-color-input {
+    border-color: #374151;
+}
+
+/* ─── Icon buttons ───────────────────────────────────────────────────────── */
+
+.tb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+.tb-icon-btn:hover {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+body[data-theme='dark'] .tb-icon-btn {
+    border-color: #374151;
+    background: #1f2937;
+    color: #9ca3af;
+}
+
+body[data-theme='dark'] .tb-icon-btn:hover {
+    background: #1e3a5f;
+    color: #60a5fa;
+    border-color: #1d4ed8;
+}
+
+/* ─── Variable Picker ────────────────────────────────────────────────────── */
+
+.tb-variable-picker {
+    /* z-index handled by Tailwind utility classes */
+}
+
+/* --- Query Form dialog inputs --- */
+.tb-query-form input.tb-input,
+.tb-query-form select.tb-input {
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+.tb-query-form select.tb-input { padding-right: 4px; }

@@ -1,0 +1,134 @@
+{{! Template Builder Toolbar }}
+<div class="tb-toolbar flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" ...attributes>
+
+    {{! Left: Close/back button (optional) + Element type buttons }}
+    <div class="flex items-center space-x-1">
+
+        {{#if @onClose}}
+            <button
+                type="button"
+                class="tb-toolbar-btn flex items-center space-x-1 px-2 py-1.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors mr-1"
+                title={{or @closeLabel "Close"}}
+                {{on "click" this.close}}
+            >
+                <FaIcon @icon={{or @closeIcon "chevron-left"}} class="w-3.5 h-3.5" />
+                {{#if @closeLabel}}
+                    <span class="hidden xl:inline">{{@closeLabel}}</span>
+                {{/if}}
+            </button>
+            <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mr-1"></div>
+        {{/if}}
+
+        {{#each this.elementTypes as |et|}}
+            <button
+                type="button"
+                class="tb-toolbar-btn flex items-center space-x-1 px-2 py-1.5 rounded text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="Add {{et.label}}"
+                {{on "click" (fn this.addElement et.type)}}
+            >
+                <FaIcon @icon={{et.icon}} class="w-3.5 h-3.5" />
+                <span class="hidden xl:inline">{{et.label}}</span>
+            </button>
+        {{/each}}
+    </div>
+
+    {{! Center: Zoom controls }}
+    <div class="flex items-center space-x-1">
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Zoom out"
+            {{on "click" this.zoomOut}}
+        >
+            <FaIcon @icon="magnifying-glass-minus" class="w-3.5 h-3.5" />
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn px-2 py-1 rounded text-xs font-mono text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-12 text-center"
+            title="Reset zoom"
+            {{on "click" this.zoomReset}}
+        >
+            {{this.zoomPercent}}
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Zoom in"
+            {{on "click" this.zoomIn}}
+        >
+            <FaIcon @icon="magnifying-glass-plus" class="w-3.5 h-3.5" />
+        </button>
+    </div>
+
+    {{! Right: Rotate + Undo/Redo + Preview + Save }}
+    <div class="flex items-center space-x-1">
+
+        {{! Rotate left/right — enabled only when an element is selected }}
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed
+                {{if @selectedElement
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    'text-gray-400 dark:text-gray-600'}}"
+            title="Rotate left 90°"
+            disabled={{not @selectedElement}}
+            {{on "click" this.rotateLeft}}
+        >
+            <FaIcon @icon="rotate-left" class="w-3.5 h-3.5" />
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed
+                {{if @selectedElement
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    'text-gray-400 dark:text-gray-600'}}"
+            title="Rotate right 90°"
+            disabled={{not @selectedElement}}
+            {{on "click" this.rotateRight}}
+        >
+            <FaIcon @icon="rotate-right" class="w-3.5 h-3.5" />
+        </button>
+
+        <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Undo"
+            disabled={{not @canUndo}}
+            {{on "click" this.undo}}
+        >
+            <FaIcon @icon="step-backward" class="w-3.5 h-3.5" />
+        </button>
+        <button
+            type="button"
+            class="tb-toolbar-btn p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Redo"
+            disabled={{not @canRedo}}
+            {{on "click" this.redo}}
+        >
+            <FaIcon @icon="step-forward" class="w-3.5 h-3.5" />
+        </button>
+
+        <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
+        <button
+            type="button"
+            class="tb-toolbar-btn flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            title="Preview template"
+            {{on "click" this.preview}}
+        >
+            <FaIcon @icon="eye" class="w-3.5 h-3.5" />
+            <span>Preview</span>
+        </button>
+
+        <Button
+            @type="primary"
+            @icon="floppy-disk"
+            @text="Save"
+            @size="xs"
+            @isLoading={{@isSaving}}
+            @onClick={{this.save}}
+        />
+    </div>
+</div>

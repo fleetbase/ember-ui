@@ -1,0 +1,99 @@
+{{! Template Builder Layers Panel }}
+<div class="tb-layers-panel flex flex-col h-full" ...attributes>
+    {{! Header }}
+    <div class="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Layers</span>
+        <span class="text-xs text-gray-400 dark:text-gray-500">{{this.sortedElements.length}}</span>
+    </div>
+
+    {{! Element list }}
+    <div class="flex-1 overflow-y-auto">
+        {{#if this.sortedElements.length}}
+            {{#each this.sortedElements as |element|}}
+                <div
+                    class="tb-layer-row group flex items-center px-2 py-1.5 cursor-pointer border-b border-transparent hover:bg-gray-50 dark:hover:bg-gray-800 {{if (this.isSelected element) 'bg-blue-50 dark:bg-blue-900/20 border-l-2 border-l-blue-500'}}"
+                    role="button"
+                    {{on "click" (fn this.selectElement element)}}
+                >
+                    {{! Type icon }}
+                    <FaIcon
+                        @icon={{this.elementIcon element.type}}
+                        class="w-3 h-3 mr-2 flex-shrink-0 {{if (this.isSelected element) 'text-blue-500' 'text-gray-400 dark:text-gray-500'}}"
+                    />
+
+                    {{! Label / rename input }}
+                    <div class="flex-1 min-w-0 mr-1">
+                        {{#if (this.isRenaming element)}}
+                            <input
+                                type="text"
+                                class="w-full text-xs bg-white dark:bg-gray-700 border border-blue-400 rounded px-1 py-0 outline-none"
+                                value={{this.renameValue}}
+                                {{on "input" (fn (mut this.renameValue) value="target.value")}}
+                                {{on "keydown" (fn this.handleRenameKeydown element)}}
+                                {{on "blur" (fn this.commitRename element)}}
+                                {{did-insert (fn (action (mut this.renameValue) this.renameValue))}}
+                            />
+                        {{else}}
+                            <span
+                                class="block text-xs truncate {{if (this.isSelected element) 'text-blue-700 dark:text-blue-300 font-medium' 'text-gray-700 dark:text-gray-300'}} {{unless (this.isVisible element) 'opacity-40'}}"
+                                {{on "dblclick" (fn this.startRename element)}}
+                                title="Double-click to rename"
+                            >
+                                {{this.elementLabel element}}
+                            </span>
+                        {{/if}}
+                    </div>
+
+                    {{! Action buttons (shown on hover or when selected) }}
+                    <div class="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 {{if (this.isSelected element) 'opacity-100'}} transition-opacity">
+                        {{! Visibility toggle }}
+                        <button
+                            type="button"
+                            class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                            title={{if (this.isVisible element) "Hide element" "Show element"}}
+                            {{on "click" (fn this.toggleVisibility element)}}
+                        >
+                            <FaIcon @icon={{if (this.isVisible element) "eye" "eye-slash"}} class="w-3 h-3" />
+                        </button>
+
+                        {{! Move up }}
+                        <button
+                            type="button"
+                            class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                            title="Move layer up"
+                            {{on "click" (fn this.moveUp element)}}
+                        >
+                            <FaIcon @icon="chevron-up" class="w-3 h-3" />
+                        </button>
+
+                        {{! Move down }}
+                        <button
+                            type="button"
+                            class="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                            title="Move layer down"
+                            {{on "click" (fn this.moveDown element)}}
+                        >
+                            <FaIcon @icon="chevron-down" class="w-3 h-3" />
+                        </button>
+
+                        {{! Delete }}
+                        <button
+                            type="button"
+                            class="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
+                            title="Delete element"
+                            {{on "click" (fn this.deleteElement element)}}
+                        >
+                            <FaIcon @icon="trash" class="w-3 h-3" />
+                        </button>
+                    </div>
+                </div>
+            {{/each}}
+        {{else}}
+            <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
+                <FaIcon @icon="layer-group" class="w-6 h-6 text-gray-300 dark:text-gray-600 mb-2" />
+                <p class="text-xs text-gray-400 dark:text-gray-500">No elements yet.</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Use the toolbar to add elements.</p>
+            </div>
+        {{/if}}
+    </div>
+</div>

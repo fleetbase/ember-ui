@@ -53,6 +53,7 @@
 @import 'components/query-builder.css';
 @import 'components/activity-log.css';
 @import 'components/smart-nav-menu.css';
+@import 'components/template-builder.css';
 
 /** Third party */
 @import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
