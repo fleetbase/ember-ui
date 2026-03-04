@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
+import interact from 'interactjs';
 
 /**
  * TemplateBuilderCanvasComponent
@@ -121,14 +122,6 @@ export default class TemplateBuilderCanvasComponent extends Component {
     // -------------------------------------------------------------------------
 
     _setupInteract(element, el) {
-        // interact.js is loaded as a peer dependency in the host application.
-        // We access it via window.interact (UMD build) or dynamic import.
-        const interact = window.interact;
-        if (!interact) {
-            // Gracefully degrade — elements are still visible, just not draggable
-            return;
-        }
-
         const zoom = this.zoom;
 
         const interactable = interact(el)
