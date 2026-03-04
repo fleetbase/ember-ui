@@ -24,6 +24,9 @@ import { action } from '@ember/object';
  * @argument {Function} onPreview        - Called when preview is clicked
  * @argument {Function} onSave           - Called when save is clicked
  * @argument {Function} onRotateElement  - Called with (uuid, deltaDegrees)
+ * @argument {Function} [onClose]        - Optional. If provided, a close/back button is rendered on the left.
+ * @argument {String}   [closeIcon]      - FontAwesome icon name for the close button (default: 'chevron-left')
+ * @argument {String}   [closeLabel]     - Text label shown beside the close icon (default: none)
  */
 export default class TemplateBuilderToolbarComponent extends Component {
     elementTypes = [
@@ -80,6 +83,11 @@ export default class TemplateBuilderToolbarComponent extends Component {
     @action
     save() {
         if (this.args.onSave) this.args.onSave();
+    }
+
+    @action
+    close() {
+        if (this.args.onClose) this.args.onClose();
     }
 
     @action

@@ -55,6 +55,9 @@ import { next } from '@ember/runloop';
  * @argument {Boolean}  isSaving        - Whether a save is in progress (controls toolbar spinner)
  * @argument {Function} onSave          - Called with the updated template object when Save is clicked
  * @argument {Function} onPreview       - Called with the current template object when Preview is clicked
+ * @argument {Function} [onClose]       - Optional. If provided, a close/back button appears in the toolbar.
+ * @argument {String}   [closeIcon]     - FontAwesome icon for the close button (default: 'chevron-left')
+ * @argument {String}   [closeLabel]    - Text label beside the close icon (default: none — icon only)
  */
 export default class TemplateBuilderComponent extends Component {
     @service fetch;

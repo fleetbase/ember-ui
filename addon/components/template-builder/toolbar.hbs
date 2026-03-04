@@ -1,8 +1,24 @@
 {{! Template Builder Toolbar }}
 <div class="tb-toolbar flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" ...attributes>
 
-    {{! Left: Element type buttons }}
+    {{! Left: Close/back button (optional) + Element type buttons }}
     <div class="flex items-center space-x-1">
+
+        {{#if @onClose}}
+            <button
+                type="button"
+                class="tb-toolbar-btn flex items-center space-x-1 px-2 py-1.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors mr-1"
+                title={{or @closeLabel "Close"}}
+                {{on "click" this.close}}
+            >
+                <FaIcon @icon={{or @closeIcon "chevron-left"}} class="w-3.5 h-3.5" />
+                {{#if @closeLabel}}
+                    <span class="hidden xl:inline">{{@closeLabel}}</span>
+                {{/if}}
+            </button>
+            <div class="w-px h-5 bg-gray-200 dark:bg-gray-700 mr-1"></div>
+        {{/if}}
+
         {{#each this.elementTypes as |et|}}
             <button
                 type="button"
