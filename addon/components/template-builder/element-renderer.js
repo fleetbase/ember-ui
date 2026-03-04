@@ -38,6 +38,9 @@ export default class TemplateBuilderElementRendererComponent extends Component {
         const x = parseFloat(el.dataset.x) || 0;
         const y = parseFloat(el.dataset.y) || 0;
         const rotation = this.args.rotation ?? this.args.element.rotation ?? 0;
+        // Keep data-rotation in sync so the canvas interact.js closure can read
+        // the current rotation without holding a stale reference to the element object.
+        el.dataset.rotation = rotation;
         el.style.transform = rotation ? `translate(${x}px, ${y}px) rotate(${rotation}deg)` : `translate(${x}px, ${y}px)`;
     }
 

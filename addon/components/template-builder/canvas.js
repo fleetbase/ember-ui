@@ -189,8 +189,12 @@ export default class TemplateBuilderCanvasComponent extends Component {
         });
 
         // Write a new translate (+ optional rotation) to the element's style.
+        // Read rotation from the DOM data-attribute (kept up-to-date by
+        // ElementRenderer's handleUpdate) so that rotation changes made via
+        // the properties panel are reflected in drag transforms without needing
+        // to recreate the interact.js instance.
         const applyTransform = (x, y) => {
-            const rotation = element.rotation ?? 0;
+            const rotation = parseFloat(el.dataset.rotation) || 0;
             el.style.transform = rotation ? `translate(${x}px, ${y}px) rotate(${rotation}deg)` : `translate(${x}px, ${y}px)`;
             el.dataset.x = x;
             el.dataset.y = y;

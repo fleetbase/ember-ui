@@ -8,7 +8,13 @@
     {{on "click" this.deselectAll}}
     ...attributes
 >
-    {{#each this.elements as |element|}}
+    {{! key="uuid" tells Glimmer to track each ElementRenderer by the element's
+        uuid rather than by array index. When updateElement replaces an element
+        object with a new spread copy (same uuid, new reference), Glimmer reuses
+        the existing component instance and DOM node — so interact.js stays alive —
+        but passes the new object as @element, causing the template to re-render
+        and all getters (textContent, textStyle, wrapperStyle, etc.) to re-evaluate. }}
+    {{#each this.elements key="uuid" as |element|}}
         <TemplateBuilder::ElementRenderer
             @element={{element}}
             @isSelected={{eq element.uuid this.selectedUuid}}
