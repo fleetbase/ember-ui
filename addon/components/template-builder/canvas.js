@@ -86,8 +86,8 @@ export default class TemplateBuilderCanvasComponent extends Component {
     }
 
     get canvasStyle() {
-        const w  = this.canvasWidthPx * this.zoom;
-        const h  = this.canvasHeightPx * this.zoom;
+        const w = this.canvasWidthPx * this.zoom;
+        const h = this.canvasHeightPx * this.zoom;
         const bg = this.args.template?.background_color ?? '#ffffff';
         return `width:${w}px; height:${h}px; background:${bg}; position:relative; overflow:hidden;`;
     }
@@ -122,7 +122,11 @@ export default class TemplateBuilderCanvasComponent extends Component {
     @action
     willDestroyCanvas() {
         this._interactables.forEach((interactable) => {
-            try { interactable.unset(); } catch (_) { /* ignore */ }
+            try {
+                interactable.unset();
+            } catch (_) {
+                /* ignore */
+            }
         });
         this._interactables.clear();
     }
@@ -136,7 +140,11 @@ export default class TemplateBuilderCanvasComponent extends Component {
         // Unset any stale interactable for this uuid before creating a new one.
         const stale = this._interactables.get(element.uuid);
         if (stale) {
-            try { stale.unset(); } catch (_) { /* ignore */ }
+            try {
+                stale.unset();
+            } catch (_) {
+                /* ignore */
+            }
             this._interactables.delete(element.uuid);
         }
         this._setupInteract(element, el);
@@ -146,7 +154,11 @@ export default class TemplateBuilderCanvasComponent extends Component {
     teardownElement(element) {
         const interactable = this._interactables.get(element.uuid);
         if (interactable) {
-            try { interactable.unset(); } catch (_) { /* ignore */ }
+            try {
+                interactable.unset();
+            } catch (_) {
+                /* ignore */
+            }
             this._interactables.delete(element.uuid);
         }
     }
@@ -184,9 +196,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
         // Write a new translate (+ optional rotation) to the element's style.
         const applyTransform = (x, y) => {
             const rotation = element.rotation ?? 0;
-            el.style.transform = rotation
-                ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
-                : `translate(${x}px, ${y}px)`;
+            el.style.transform = rotation ? `translate(${x}px, ${y}px) rotate(${rotation}deg)` : `translate(${x}px, ${y}px)`;
             el.dataset.x = x;
             el.dataset.y = y;
         };
@@ -204,7 +214,6 @@ export default class TemplateBuilderCanvasComponent extends Component {
 
         // ── Interactable ───────────────────────────────────────────────────────
         const interactable = interact(el)
-
             // ── Tap (select) ──────────────────────────────────────────────────
             // interact.js intercepts pointer events for drag/resize detection.
             // Using interact's own `tap` event guarantees selection fires even
@@ -218,9 +227,9 @@ export default class TemplateBuilderCanvasComponent extends Component {
             .draggable({
                 listeners: {
                     move: (event) => {
-                        const zoom   = getZoom();
+                        const zoom = getZoom();
                         const canvas = getCanvasDims();
-                        const pos    = getPos();
+                        const pos = getPos();
 
                         // Divide interact.js deltas by zoom so the element
                         // moves at the same speed as the pointer.
@@ -228,7 +237,7 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         let y = pos.y + event.dy / zoom;
 
                         // Clamp to canvas bounds (element cannot leave the canvas).
-                        const elW = parseFloat(el.style.width)  || (element.width  ?? 100);
+                        const elW = parseFloat(el.style.width) || (element.width ?? 100);
                         const elH = parseFloat(el.style.height) || (element.height ?? 30);
                         x = Math.max(0, Math.min(x, canvas.w - elW));
                         y = Math.max(0, Math.min(y, canvas.h - elH));
@@ -250,20 +259,20 @@ export default class TemplateBuilderCanvasComponent extends Component {
             // ── Resize ────────────────────────────────────────────────────────
             .resizable({
                 edges: {
-                    top:    '.tb-handle-nw, .tb-handle-ne',
-                    left:   '.tb-handle-nw, .tb-handle-sw',
+                    top: '.tb-handle-nw, .tb-handle-ne',
+                    left: '.tb-handle-nw, .tb-handle-sw',
                     bottom: '.tb-handle-sw, .tb-handle-se',
-                    right:  '.tb-handle-ne, .tb-handle-se',
+                    right: '.tb-handle-ne, .tb-handle-se',
                 },
                 listeners: {
                     move: (event) => {
-                        const zoom   = getZoom();
+                        const zoom = getZoom();
                         const canvas = getCanvasDims();
-                        const pos    = getPos();
+                        const pos = getPos();
 
                         let x = pos.x + event.deltaRect.left / zoom;
-                        let y = pos.y + event.deltaRect.top  / zoom;
-                        let w = event.rect.width  / zoom;
+                        let y = pos.y + event.deltaRect.top / zoom;
+                        let w = event.rect.width / zoom;
                         let h = event.rect.height / zoom;
 
                         // Enforce minimum size
@@ -274,20 +283,20 @@ export default class TemplateBuilderCanvasComponent extends Component {
                         x = Math.max(0, Math.min(x, canvas.w - w));
                         y = Math.max(0, Math.min(y, canvas.h - h));
 
-                        el.style.width  = `${w}px`;
+                        el.style.width = `${w}px`;
                         el.style.height = `${h}px`;
                         applyTransform(x, y);
                     },
                     end: (event) => {
                         const zoom = getZoom();
-                        const pos  = getPos();
-                        const w    = Math.max(20, event.rect.width  / zoom);
-                        const h    = Math.max(10, event.rect.height / zoom);
+                        const pos = getPos();
+                        const w = Math.max(20, event.rect.width / zoom);
+                        const h = Math.max(10, event.rect.height / zoom);
                         if (this.args.onMoveElement) {
                             this.args.onMoveElement(element.uuid, {
-                                x:      Math.round(pos.x),
-                                y:      Math.round(pos.y),
-                                width:  Math.round(w),
+                                x: Math.round(pos.x),
+                                y: Math.round(pos.y),
+                                width: Math.round(w),
                                 height: Math.round(h),
                             });
                         }
@@ -305,11 +314,15 @@ export default class TemplateBuilderCanvasComponent extends Component {
     _unitToPx(value, unit) {
         const PPI = 96;
         switch (unit) {
-            case 'mm': return Math.round((value / 25.4) * PPI);
-            case 'cm': return Math.round((value / 2.54)  * PPI);
-            case 'in': return Math.round(value * PPI);
+            case 'mm':
+                return Math.round((value / 25.4) * PPI);
+            case 'cm':
+                return Math.round((value / 2.54) * PPI);
+            case 'in':
+                return Math.round(value * PPI);
             case 'px':
-            default:   return Math.round(value);
+            default:
+                return Math.round(value);
         }
     }
 }

@@ -41,15 +41,33 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
         return this.element?.type ?? null;
     }
 
-    get isText() { return this.elementType === 'text'; }
-    get isImage() { return this.elementType === 'image'; }
-    get isTable() { return this.elementType === 'table'; }
-    get isLine() { return this.elementType === 'line'; }
-    get isShape() { return this.elementType === 'shape'; }
-    get isQrCode() { return this.elementType === 'qr_code'; }
-    get isBarcode() { return this.elementType === 'barcode'; }
-    get hasTextContent() { return this.isText; }
-    get hasBorderOptions() { return !this.isLine; }
+    get isText() {
+        return this.elementType === 'text';
+    }
+    get isImage() {
+        return this.elementType === 'image';
+    }
+    get isTable() {
+        return this.elementType === 'table';
+    }
+    get isLine() {
+        return this.elementType === 'line';
+    }
+    get isShape() {
+        return this.elementType === 'shape';
+    }
+    get isQrCode() {
+        return this.elementType === 'qr_code';
+    }
+    get isBarcode() {
+        return this.elementType === 'barcode';
+    }
+    get hasTextContent() {
+        return this.isText;
+    }
+    get hasBorderOptions() {
+        return !this.isLine;
+    }
 
     @action
     isSectionOpen(section) {
@@ -131,16 +149,16 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     get textAlignOptions() {
         return [
-            { value: 'left',    icon: 'align-left' },
-            { value: 'center',  icon: 'align-center' },
-            { value: 'right',   icon: 'align-right' },
+            { value: 'left', icon: 'align-left' },
+            { value: 'center', icon: 'align-center' },
+            { value: 'right', icon: 'align-right' },
             { value: 'justify', icon: 'align-justify' },
         ];
     }
 
     get lineStyleOptions() {
         return [
-            { value: 'solid',  label: 'Solid' },
+            { value: 'solid', label: 'Solid' },
             { value: 'dashed', label: 'Dashed' },
             { value: 'dotted', label: 'Dotted' },
         ];
@@ -148,10 +166,10 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     get objectFitOptions() {
         return [
-            { value: 'cover',    label: 'Cover' },
-            { value: 'contain',  label: 'Contain' },
-            { value: 'fill',     label: 'Fill' },
-            { value: 'none',     label: 'None' },
+            { value: 'cover', label: 'Cover' },
+            { value: 'contain', label: 'Contain' },
+            { value: 'fill', label: 'Fill' },
+            { value: 'none', label: 'None' },
         ];
     }
 
@@ -226,18 +244,14 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     @action
     updateQueryParamKey(index, event) {
         if (!this.args.onUpdateElement || !this.element) return;
-        const params = this.queryParams.map((p, i) =>
-            i === index ? { ...p, key: event.target.value } : p
-        );
+        const params = this.queryParams.map((p, i) => (i === index ? { ...p, key: event.target.value } : p));
         this.args.onUpdateElement(this.element.uuid, { query_params: params });
     }
 
     @action
     updateQueryParamValue(index, event) {
         if (!this.args.onUpdateElement || !this.element) return;
-        const params = this.queryParams.map((p, i) =>
-            i === index ? { ...p, value: event.target.value } : p
-        );
+        const params = this.queryParams.map((p, i) => (i === index ? { ...p, value: event.target.value } : p));
         this.args.onUpdateElement(this.element.uuid, { query_params: params });
     }
 
@@ -256,10 +270,10 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
         const removedKey = this.tableColumns[index]?.key;
         const rows = removedKey
             ? this.tableRows.map((row) => {
-                const next = Object.assign({}, row);
-                delete next[removedKey];
-                return next;
-            })
+                  const next = Object.assign({}, row);
+                  delete next[removedKey];
+                  return next;
+              })
             : this.tableRows;
         this.args.onUpdateElement(this.element.uuid, { columns, rows });
     }
@@ -267,9 +281,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     @action
     updateColumnLabel(index, event) {
         if (!this.args.onUpdateElement || !this.element) return;
-        const columns = this.tableColumns.map((col, i) =>
-            i === index ? { ...col, label: event.target.value } : col
-        );
+        const columns = this.tableColumns.map((col, i) => (i === index ? { ...col, label: event.target.value } : col));
         this.args.onUpdateElement(this.element.uuid, { columns });
     }
 
@@ -278,9 +290,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
         if (!this.args.onUpdateElement || !this.element) return;
         const oldKey = this.tableColumns[index]?.key;
         const newKey = event.target.value;
-        const columns = this.tableColumns.map((col, i) =>
-            i === index ? { ...col, key: newKey } : col
-        );
+        const columns = this.tableColumns.map((col, i) => (i === index ? { ...col, key: newKey } : col));
         // Rename the key in all existing rows
         const rows = this.tableRows.map((row) => {
             const next = Object.assign({}, row);
@@ -315,9 +325,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     @action
     updateRowCell(rowIndex, key, event) {
         if (!this.args.onUpdateElement || !this.element) return;
-        const rows = this.tableRows.map((row, i) =>
-            i === rowIndex ? { ...row, [key]: event.target.value } : row
-        );
+        const rows = this.tableRows.map((row, i) => (i === rowIndex ? { ...row, [key]: event.target.value } : row));
         this.args.onUpdateElement(this.element.uuid, { rows });
     }
 
@@ -381,24 +389,24 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     get shapeOptions() {
         return [
             { value: 'rectangle', label: 'Rectangle' },
-            { value: 'circle',    label: 'Circle' },
+            { value: 'circle', label: 'Circle' },
         ];
     }
 
     get paperSizeOptions() {
         return [
-            { value: 'A4',     label: 'A4 (210 × 297 mm)' },
-            { value: 'A3',     label: 'A3 (297 × 420 mm)' },
-            { value: 'A5',     label: 'A5 (148 × 210 mm)' },
+            { value: 'A4', label: 'A4 (210 × 297 mm)' },
+            { value: 'A3', label: 'A3 (297 × 420 mm)' },
+            { value: 'A5', label: 'A5 (148 × 210 mm)' },
             { value: 'Letter', label: 'Letter (216 × 279 mm)' },
-            { value: 'Legal',  label: 'Legal (216 × 356 mm)' },
+            { value: 'Legal', label: 'Legal (216 × 356 mm)' },
             { value: 'custom', label: 'Custom' },
         ];
     }
 
     get orientationOptions() {
         return [
-            { value: 'portrait',  label: 'Portrait' },
+            { value: 'portrait', label: 'Portrait' },
             { value: 'landscape', label: 'Landscape' },
         ];
     }

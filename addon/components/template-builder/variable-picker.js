@@ -41,11 +41,7 @@ export default class TemplateBuilderVariablePickerComponent extends Component {
         return this.contextSchemas
             .map((schema) => ({
                 ...schema,
-                variables: (schema.variables ?? []).filter(
-                    (v) =>
-                        v.path.toLowerCase().includes(q) ||
-                        (v.label ?? '').toLowerCase().includes(q)
-                ),
+                variables: (schema.variables ?? []).filter((v) => v.path.toLowerCase().includes(q) || (v.label ?? '').toLowerCase().includes(q)),
             }))
             .filter((schema) => schema.variables.length > 0);
     }
@@ -150,30 +146,30 @@ export default class TemplateBuilderVariablePickerComponent extends Component {
 
     get globalVariables() {
         return [
-            { path: 'company.name',    label: 'Company Name',    type: 'string',  example: 'Acme Logistics' },
-            { path: 'company.email',   label: 'Company Email',   type: 'string',  example: 'hello@acme.com' },
-            { path: 'company.phone',   label: 'Company Phone',   type: 'string',  example: '+1 555 0100' },
-            { path: 'company.address', label: 'Company Address', type: 'string',  example: '123 Main St' },
-            { path: 'company.logo',    label: 'Company Logo URL',type: 'url',     example: 'https://...' },
-            { path: 'user.name',       label: 'Current User',    type: 'string',  example: 'John Doe' },
-            { path: 'user.email',      label: 'User Email',      type: 'string',  example: 'john@acme.com' },
-            { path: 'now',             label: 'Current DateTime',type: 'datetime',example: '2025-03-03 14:00' },
-            { path: 'today',           label: 'Today\'s Date',   type: 'date',    example: '2025-03-03' },
-            { path: 'year',            label: 'Current Year',    type: 'number',  example: '2025' },
+            { path: 'company.name', label: 'Company Name', type: 'string', example: 'Acme Logistics' },
+            { path: 'company.email', label: 'Company Email', type: 'string', example: 'hello@acme.com' },
+            { path: 'company.phone', label: 'Company Phone', type: 'string', example: '+1 555 0100' },
+            { path: 'company.address', label: 'Company Address', type: 'string', example: '123 Main St' },
+            { path: 'company.logo', label: 'Company Logo URL', type: 'url', example: 'https://...' },
+            { path: 'user.name', label: 'Current User', type: 'string', example: 'John Doe' },
+            { path: 'user.email', label: 'User Email', type: 'string', example: 'john@acme.com' },
+            { path: 'now', label: 'Current DateTime', type: 'datetime', example: '2025-03-03 14:00' },
+            { path: 'today', label: "Today's Date", type: 'date', example: '2025-03-03' },
+            { path: 'year', label: 'Current Year', type: 'number', example: '2025' },
         ];
     }
 
     get typeIcon() {
         return (type) => {
             const map = {
-                string:   'font',
-                number:   'hashtag',
-                date:     'calendar',
+                string: 'font',
+                number: 'hashtag',
+                date: 'calendar',
                 datetime: 'clock',
-                url:      'link',
-                boolean:  'toggle-on',
-                array:    'list',
-                object:   'cube',
+                url: 'link',
+                boolean: 'toggle-on',
+                array: 'list',
+                object: 'cube',
             };
             return map[type] ?? 'circle-dot';
         };

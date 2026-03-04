@@ -38,9 +38,7 @@ export default class TemplateBuilderElementRendererComponent extends Component {
         const x = parseFloat(el.dataset.x) || 0;
         const y = parseFloat(el.dataset.y) || 0;
         const rotation = this.args.rotation ?? this.args.element.rotation ?? 0;
-        el.style.transform = rotation
-            ? `translate(${x}px, ${y}px) rotate(${rotation}deg)`
-            : `translate(${x}px, ${y}px)`;
+        el.style.transform = rotation ? `translate(${x}px, ${y}px) rotate(${rotation}deg)` : `translate(${x}px, ${y}px)`;
     }
 
     @action
@@ -118,9 +116,7 @@ export default class TemplateBuilderElementRendererComponent extends Component {
     }
 
     get selectionClass() {
-        return this.args.isSelected
-            ? 'ring-2 ring-blue-500 ring-offset-0'
-            : 'hover:ring-1 hover:ring-blue-300 hover:ring-offset-0';
+        return this.args.isSelected ? 'ring-2 ring-blue-500 ring-offset-0' : 'hover:ring-1 hover:ring-blue-300 hover:ring-offset-0';
     }
 
     get elementType() {

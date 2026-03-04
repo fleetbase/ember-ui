@@ -53,18 +53,18 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         const q = this.args.query;
         if (q) {
             this.form = {
-                label:         q.label         ?? '',
+                label: q.label ?? '',
                 variable_name: q.variable_name ?? '',
-                description:   q.description   ?? '',
-                model_type:    q.model_type     ?? '',
-                conditions:    JSON.parse(JSON.stringify(q.conditions ?? [])),
-                sort:          JSON.parse(JSON.stringify(q.sort       ?? [])),
-                limit:         q.limit         ?? '',
-                with:          Array.isArray(q.with) ? [...q.with] : [],
+                description: q.description ?? '',
+                model_type: q.model_type ?? '',
+                conditions: JSON.parse(JSON.stringify(q.conditions ?? [])),
+                sort: JSON.parse(JSON.stringify(q.sort ?? [])),
+                limit: q.limit ?? '',
+                with: Array.isArray(q.with) ? [...q.with] : [],
             };
             // If editing an existing query that already has a variable_name,
             // treat it as manually set so we don't overwrite it.
-            this._variableNameManuallyEdited = !!(q.variable_name?.trim());
+            this._variableNameManuallyEdited = !!q.variable_name?.trim();
         } else {
             this.form = this._blankForm();
             this._variableNameManuallyEdited = false;
@@ -74,14 +74,14 @@ export default class TemplateBuilderQueryFormComponent extends Component {
 
     _blankForm() {
         return {
-            label:         '',
+            label: '',
             variable_name: '',
-            description:   '',
-            model_type:    '',
-            conditions:    [],
-            sort:          [],
-            limit:         '',
-            with:          [],
+            description: '',
+            model_type: '',
+            conditions: [],
+            sort: [],
+            limit: '',
+            with: [],
         };
     }
 
@@ -102,18 +102,18 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         }
         // 3. Built-in defaults (core Fleetbase models)
         return [
-            { value: 'Fleetbase\\Models\\Order',          label: 'Order',          icon: 'box' },
-            { value: 'Fleetbase\\Models\\Driver',         label: 'Driver',         icon: 'id-card' },
-            { value: 'Fleetbase\\Models\\Vehicle',        label: 'Vehicle',        icon: 'truck' },
-            { value: 'Fleetbase\\Models\\Contact',        label: 'Contact',        icon: 'address-book' },
-            { value: 'Fleetbase\\Models\\Place',          label: 'Place',          icon: 'location-dot' },
-            { value: 'Fleetbase\\Models\\Vendor',         label: 'Vendor',         icon: 'building' },
-            { value: 'Fleetbase\\Models\\Payload',        label: 'Payload',        icon: 'boxes-stacked' },
-            { value: 'Fleetbase\\Models\\Entity',         label: 'Entity',         icon: 'cube' },
-            { value: 'Fleetbase\\Models\\TrackingStatus', label: 'Tracking Status',icon: 'satellite-dish' },
-            { value: 'Fleetbase\\Models\\Zone',           label: 'Zone',           icon: 'draw-polygon' },
-            { value: 'Fleetbase\\Models\\ServiceArea',    label: 'Service Area',   icon: 'map' },
-            { value: 'Fleetbase\\Models\\Route',          label: 'Route',          icon: 'route' },
+            { value: 'Fleetbase\\Models\\Order', label: 'Order', icon: 'box' },
+            { value: 'Fleetbase\\Models\\Driver', label: 'Driver', icon: 'id-card' },
+            { value: 'Fleetbase\\Models\\Vehicle', label: 'Vehicle', icon: 'truck' },
+            { value: 'Fleetbase\\Models\\Contact', label: 'Contact', icon: 'address-book' },
+            { value: 'Fleetbase\\Models\\Place', label: 'Place', icon: 'location-dot' },
+            { value: 'Fleetbase\\Models\\Vendor', label: 'Vendor', icon: 'building' },
+            { value: 'Fleetbase\\Models\\Payload', label: 'Payload', icon: 'boxes-stacked' },
+            { value: 'Fleetbase\\Models\\Entity', label: 'Entity', icon: 'cube' },
+            { value: 'Fleetbase\\Models\\TrackingStatus', label: 'Tracking Status', icon: 'satellite-dish' },
+            { value: 'Fleetbase\\Models\\Zone', label: 'Zone', icon: 'draw-polygon' },
+            { value: 'Fleetbase\\Models\\ServiceArea', label: 'Service Area', icon: 'map' },
+            { value: 'Fleetbase\\Models\\Route', label: 'Route', icon: 'route' },
         ];
     }
 
@@ -123,17 +123,17 @@ export default class TemplateBuilderQueryFormComponent extends Component {
 
     get conditionOperators() {
         return [
-            { value: '=',        label: '= equals' },
-            { value: '!=',       label: '≠ not equals' },
-            { value: '>',        label: '> greater than' },
-            { value: '>=',       label: '≥ greater or equal' },
-            { value: '<',        label: '< less than' },
-            { value: '<=',       label: '≤ less or equal' },
-            { value: 'like',     label: '~ contains' },
+            { value: '=', label: '= equals' },
+            { value: '!=', label: '≠ not equals' },
+            { value: '>', label: '> greater than' },
+            { value: '>=', label: '≥ greater or equal' },
+            { value: '<', label: '< less than' },
+            { value: '<=', label: '≤ less or equal' },
+            { value: 'like', label: '~ contains' },
             { value: 'not like', label: '!~ not contains' },
-            { value: 'in',       label: 'in list' },
-            { value: 'not in',   label: 'not in list' },
-            { value: 'null',     label: 'is null' },
+            { value: 'in', label: 'in list' },
+            { value: 'not in', label: 'not in list' },
+            { value: 'null', label: 'is null' },
             { value: 'not null', label: 'is not null' },
         ];
     }
@@ -151,7 +151,10 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         const raw = event.target.value;
         this.form = {
             ...this.form,
-            with: raw.split(',').map((s) => s.trim()).filter(Boolean),
+            with: raw
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean),
         };
     }
 
@@ -166,9 +169,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         if (field === 'label') {
             // Auto-derive variable_name from label while the user hasn't
             // manually edited the variable_name field.
-            const derived = this._variableNameManuallyEdited
-                ? this.form.variable_name
-                : this._deriveVariableName(value);
+            const derived = this._variableNameManuallyEdited ? this.form.variable_name : this._deriveVariableName(value);
             this.form = { ...this.form, label: value, variable_name: derived };
         } else if (field === 'variable_name') {
             // Mark as manually edited so auto-derive stops overwriting it.
@@ -205,9 +206,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     @action
     updateConditionField(index, field, event) {
         const value = event.target.value;
-        const conditions = this.form.conditions.map((c, i) =>
-            i === index ? { ...c, [field]: value } : c
-        );
+        const conditions = this.form.conditions.map((c, i) => (i === index ? { ...c, [field]: value } : c));
         this.form = { ...this.form, conditions };
     }
 
@@ -234,9 +233,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     @action
     updateSortField(index, field, event) {
         const value = event.target.value;
-        const sort = this.form.sort.map((s, i) =>
-            i === index ? { ...s, [field]: value } : s
-        );
+        const sort = this.form.sort.map((s, i) => (i === index ? { ...s, [field]: value } : s));
         this.form = { ...this.form, sort };
     }
 
@@ -267,15 +264,15 @@ export default class TemplateBuilderQueryFormComponent extends Component {
 
         const data = {
             // Preserve the existing UUID so the backend can update vs. create
-            uuid:          this.args.query?.uuid ?? null,
-            label:         this.form.label.trim(),
+            uuid: this.args.query?.uuid ?? null,
+            label: this.form.label.trim(),
             variable_name: this.form.variable_name.trim() || this._deriveVariableName(this.form.label),
-            description:   this.form.description?.trim() ?? '',
-            model_type:    this.form.model_type,
-            conditions:    this.form.conditions.filter((c) => c.field?.trim()),
-            sort:          this.form.sort.filter((s) => s.field?.trim()),
-            limit:         this.form.limit === '' ? null : this.form.limit,
-            with:          this.form.with,
+            description: this.form.description?.trim() ?? '',
+            model_type: this.form.model_type,
+            conditions: this.form.conditions.filter((c) => c.field?.trim()),
+            sort: this.form.sort.filter((s) => s.field?.trim()),
+            limit: this.form.limit === '' ? null : this.form.limit,
+            with: this.form.with,
         };
 
         if (this.args.onSave) {

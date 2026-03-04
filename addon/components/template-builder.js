@@ -117,11 +117,11 @@ export default class TemplateBuilderComponent extends Component {
         super(owner, args);
         const cloned = this._cloneTemplate(args.template);
         const { content, queries, ...meta } = cloned;
-        this._meta    = meta;
+        this._meta = meta;
         this._content = Array.isArray(content) ? content : [];
         // Seed queries from the template relationship (loaded via hasMany).
         // When the template is new (unsaved), this will be an empty array.
-        this.queries  = Array.isArray(queries) ? queries : [];
+        this.queries = Array.isArray(queries) ? queries : [];
     }
 
     // -------------------------------------------------------------------------
@@ -157,12 +157,12 @@ export default class TemplateBuilderComponent extends Component {
 
         const queriesSchema = {
             namespace: '__queries__',
-            label:     'Queries',
-            icon:      'database',
+            label: 'Queries',
+            icon: 'database',
             variables: this.queries.map((q) => ({
-                path:    q.variable_name,
-                label:   q.label,
-                type:    'array',
+                path: q.variable_name,
+                label: q.label,
+                type: 'array',
                 example: `[{ ... }]  (${q.resource_type_label ?? q.model_type ?? ''})`,
             })),
         };
@@ -188,17 +188,17 @@ export default class TemplateBuilderComponent extends Component {
 
         const defaults = this._defaultsForType(type);
         const newElement = {
-            uuid:     guidFor({}),
+            uuid: guidFor({}),
             type,
-            label:    null,
-            visible:  true,
-            x:        20,
-            y:        20,
-            width:    defaults.width,
-            height:   defaults.height,
-            z_index:  this._content.length + 1,
+            label: null,
+            visible: true,
+            x: 20,
+            y: 20,
+            width: defaults.width,
+            height: defaults.height,
+            z_index: this._content.length + 1,
             rotation: 0,
-            opacity:  1,
+            opacity: 1,
             ...defaults.props,
         };
 
@@ -278,7 +278,7 @@ export default class TemplateBuilderComponent extends Component {
         if (!el) return;
         const current = el.rotation ?? 0;
         // Normalise to [0, 360)
-        const next = ((current + deltaDegrees) % 360 + 360) % 360;
+        const next = (((current + deltaDegrees) % 360) + 360) % 360;
         this.updateElement(uuid, { rotation: next });
     }
 
@@ -296,11 +296,11 @@ export default class TemplateBuilderComponent extends Component {
         this._pushUndo();
 
         const elements = this._content;
-        const element  = elements.find((el) => el.uuid === uuid);
+        const element = elements.find((el) => el.uuid === uuid);
         if (!element) return;
 
         const currentZ = element.z_index ?? 1;
-        const sorted   = [...elements].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
+        const sorted = [...elements].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
         const sortedIndex = sorted.findIndex((el) => el.uuid === uuid);
 
         let swapElement = null;
@@ -315,7 +315,7 @@ export default class TemplateBuilderComponent extends Component {
         const swapZ = swapElement.z_index ?? 1;
 
         // Mutate z_index in-place on both objects
-        element.z_index     = swapZ;
+        element.z_index = swapZ;
         swapElement.z_index = currentZ;
 
         // Replace array reference to trigger reactivity
@@ -382,15 +382,15 @@ export default class TemplateBuilderComponent extends Component {
     @action
     openVariablePicker(targetProp, callback) {
         this.variablePickerTargetProp = targetProp;
-        this.variablePickerCallback   = callback;
-        this.variablePickerOpen       = true;
+        this.variablePickerCallback = callback;
+        this.variablePickerOpen = true;
     }
 
     @action
     closeVariablePicker() {
-        this.variablePickerOpen       = false;
+        this.variablePickerOpen = false;
         this.variablePickerTargetProp = null;
-        this.variablePickerCallback   = null;
+        this.variablePickerCallback = null;
     }
 
     @action
@@ -454,14 +454,11 @@ export default class TemplateBuilderComponent extends Component {
         const merged = Object.assign({}, this._meta, changes);
 
         if (changes.paper_size !== undefined || changes.orientation !== undefined) {
-            const dims = this._dimensionsForPaperSize(
-                merged.paper_size ?? 'A4',
-                merged.orientation ?? 'portrait'
-            );
+            const dims = this._dimensionsForPaperSize(merged.paper_size ?? 'A4', merged.orientation ?? 'portrait');
             if (dims) {
-                merged.width  = dims.width;
+                merged.width = dims.width;
                 merged.height = dims.height;
-                merged.unit   = dims.unit;
+                merged.unit = dims.unit;
             }
         }
 
@@ -477,19 +474,19 @@ export default class TemplateBuilderComponent extends Component {
      */
     _dimensionsForPaperSize(paperSize, orientation) {
         const sizes = {
-            A4:     { width: 210, height: 297 },
-            A3:     { width: 297, height: 420 },
-            A5:     { width: 148, height: 210 },
+            A4: { width: 210, height: 297 },
+            A3: { width: 297, height: 420 },
+            A5: { width: 148, height: 210 },
             Letter: { width: 216, height: 279 },
-            Legal:  { width: 216, height: 356 },
+            Legal: { width: 216, height: 356 },
         };
         const base = sizes[paperSize];
         if (!base) return null;
         const isLandscape = orientation === 'landscape';
         return {
-            width:  isLandscape ? base.height : base.width,
-            height: isLandscape ? base.width  : base.height,
-            unit:   'mm',
+            width: isLandscape ? base.height : base.width,
+            height: isLandscape ? base.width : base.height,
+            unit: 'mm',
         };
     }
 
@@ -513,9 +510,7 @@ export default class TemplateBuilderComponent extends Component {
             const plain = {};
             template.eachAttribute((name) => {
                 const val = template[name];
-                plain[name] = val !== null && val !== undefined
-                    ? JSON.parse(JSON.stringify(val))
-                    : val;
+                plain[name] = val !== null && val !== undefined ? JSON.parse(JSON.stringify(val)) : val;
             });
             plain.uuid = template.uuid ?? template.id ?? null;
             return plain;
@@ -526,13 +521,13 @@ export default class TemplateBuilderComponent extends Component {
 
     _defaultsForType(type) {
         const map = {
-            text:    { width: 200, height: 40,  props: { content: 'Text', font_size: 14, font_family: 'Inter, sans-serif', font_weight: '400', color: '#000000', text_align: 'left' } },
-            image:   { width: 150, height: 100, props: { src: '', alt: '', object_fit: 'cover' } },
-            table:   { width: 400, height: 200, props: { columns: [], rows: [], border_color: '#e5e7eb', header_background: '#f9fafb', header_color: '#111827', cell_padding: 6 } },
-            line:    { width: 200, height: 2,   props: { color: '#000000', line_width: 1, line_style: 'solid' } },
-            shape:   { width: 100, height: 100, props: { shape: 'rectangle', background_color: '#e5e7eb', border_width: 0, border_color: '#000000', border_radius: 0 } },
-            qr_code: { width: 80,  height: 80,  props: { value: '' } },
-            barcode: { width: 200, height: 60,  props: { value: '', barcode_format: 'CODE128' } },
+            text: { width: 200, height: 40, props: { content: 'Text', font_size: 14, font_family: 'Inter, sans-serif', font_weight: '400', color: '#000000', text_align: 'left' } },
+            image: { width: 150, height: 100, props: { src: '', alt: '', object_fit: 'cover' } },
+            table: { width: 400, height: 200, props: { columns: [], rows: [], border_color: '#e5e7eb', header_background: '#f9fafb', header_color: '#111827', cell_padding: 6 } },
+            line: { width: 200, height: 2, props: { color: '#000000', line_width: 1, line_style: 'solid' } },
+            shape: { width: 100, height: 100, props: { shape: 'rectangle', background_color: '#e5e7eb', border_width: 0, border_color: '#000000', border_radius: 0 } },
+            qr_code: { width: 80, height: 80, props: { value: '' } },
+            barcode: { width: 200, height: 60, props: { value: '', barcode_format: 'CODE128' } },
         };
         return map[type] ?? { width: 100, height: 40, props: {} };
     }

@@ -1,6 +1,5 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import { guidFor } from '@ember/object/internals';
 
 /**
  * TemplateBuilderToolbarComponent
@@ -28,13 +27,13 @@ import { guidFor } from '@ember/object/internals';
  */
 export default class TemplateBuilderToolbarComponent extends Component {
     elementTypes = [
-        { type: 'text',    icon: 'font',         label: 'Text' },
-        { type: 'image',   icon: 'image',         label: 'Image' },
-        { type: 'table',   icon: 'table',         label: 'Table' },
-        { type: 'line',    icon: 'minus',         label: 'Line' },
-        { type: 'shape',   icon: 'square',        label: 'Shape' },
-        { type: 'qr_code', icon: 'qrcode',        label: 'QR Code' },
-        { type: 'barcode', icon: 'barcode',       label: 'Barcode' },
+        { type: 'text', icon: 'font', label: 'Text' },
+        { type: 'image', icon: 'image', label: 'Image' },
+        { type: 'table', icon: 'table', label: 'Table' },
+        { type: 'line', icon: 'minus', label: 'Line' },
+        { type: 'shape', icon: 'square', label: 'Shape' },
+        { type: 'qr_code', icon: 'qrcode', label: 'QR Code' },
+        { type: 'barcode', icon: 'barcode', label: 'Barcode' },
     ];
 
     get zoomPercent() {

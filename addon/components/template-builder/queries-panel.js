@@ -33,18 +33,18 @@ export default class TemplateBuilderQueriesPanelComponent extends Component {
     @action
     openAddForm() {
         this.editingQuery = null;
-        this.isFormOpen   = true;
+        this.isFormOpen = true;
     }
 
     @action
     openEditForm(query) {
         this.editingQuery = query;
-        this.isFormOpen   = true;
+        this.isFormOpen = true;
     }
 
     @action
     closeForm() {
-        this.isFormOpen   = false;
+        this.isFormOpen = false;
         this.editingQuery = null;
     }
 
@@ -58,9 +58,7 @@ export default class TemplateBuilderQueriesPanelComponent extends Component {
 
         if (queryData.uuid) {
             // Update existing query in the list
-            updated = this.queries.map((q) =>
-                q.uuid === queryData.uuid ? { ...q, ...queryData } : q
-            );
+            updated = this.queries.map((q) => (q.uuid === queryData.uuid ? { ...q, ...queryData } : q));
         } else {
             // New query — assign a temporary client-side UUID so it can be
             // identified for edits/deletes before the template is saved.

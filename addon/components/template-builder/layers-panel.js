@@ -32,11 +32,11 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
     @action
     elementIcon(type) {
         const icons = {
-            text:    'font',
-            image:   'image',
-            table:   'table',
-            line:    'minus',
-            shape:   'square',
+            text: 'font',
+            image: 'image',
+            table: 'table',
+            line: 'minus',
+            shape: 'square',
             qr_code: 'qrcode',
             barcode: 'barcode',
         };
@@ -47,11 +47,11 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
     elementLabel(element) {
         if (element.label) return element.label;
         const typeLabels = {
-            text:    'Text',
-            image:   'Image',
-            table:   'Table',
-            line:    'Line',
-            shape:   'Shape',
+            text: 'Text',
+            image: 'Image',
+            table: 'Table',
+            line: 'Line',
+            shape: 'Shape',
             qr_code: 'QR Code',
             barcode: 'Barcode',
         };
