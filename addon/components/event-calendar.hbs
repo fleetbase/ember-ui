@@ -1,0 +1,30 @@
+<div
+    class="fleetbase-event-calendar"
+    ...attributes
+    {{did-insert this.setup}}
+    {{did-update this.update
+        @view
+        @resources
+        @events
+        @editable
+        @droppable
+        @selectable
+        @slotMinTime
+        @slotMaxTime
+        @slotDuration
+        @slotLabelInterval
+        @slotWidth
+        @height
+        @headerToolbar
+        @locale
+        @scrollTime
+        @nowIndicator
+        @date
+        @eventContent
+        @resourceLabelContent
+        @dayCellContent
+        @slotLabelContent
+        @options
+    }}
+    {{will-destroy this.teardown}}
+></div>
