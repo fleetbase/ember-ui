@@ -2,16 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
-import {
-    createCalendar,
-    destroyCalendar,
-    ResourceTimeline,
-    ResourceTimeGrid,
-    TimeGrid,
-    DayGrid,
-    List,
-    Interaction,
-} from '@event-calendar/core';
+import { createCalendar, destroyCalendar, ResourceTimeline, ResourceTimeGrid, TimeGrid, DayGrid, List, Interaction } from '@event-calendar/core';
 import '@event-calendar/core/index.css';
 
 /**
@@ -118,16 +109,7 @@ export default class EventCalendarComponent extends Component {
      * because they return content descriptors, not fire-and-forget callbacks.
      * @type {string[]}
      */
-    renderHooks = [
-        'eventContent',
-        'resourceLabelContent',
-        'resourceLabelDidMount',
-        'dayCellContent',
-        'dayCellDidMount',
-        'slotLabelContent',
-        'slotLabelDidMount',
-        'nowIndicatorContent',
-    ];
+    renderHooks = ['eventContent', 'resourceLabelContent', 'resourceLabelDidMount', 'dayCellContent', 'dayCellDidMount', 'slotLabelContent', 'slotLabelDidMount', 'nowIndicatorContent'];
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -292,10 +274,21 @@ export default class EventCalendarComponent extends Component {
         }
 
         const dynamicKeys = [
-            'view', 'resources', 'events', 'editable', 'droppable',
-            'selectable', 'slotMinTime', 'slotMaxTime', 'slotDuration',
-            'height', 'headerToolbar', 'locale', 'scrollTime',
-            'nowIndicator', 'date',
+            'view',
+            'resources',
+            'events',
+            'editable',
+            'droppable',
+            'selectable',
+            'slotMinTime',
+            'slotMaxTime',
+            'slotDuration',
+            'height',
+            'headerToolbar',
+            'locale',
+            'scrollTime',
+            'nowIndicator',
+            'date',
         ];
 
         for (const key of dynamicKeys) {
