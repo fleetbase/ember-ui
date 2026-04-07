@@ -223,26 +223,23 @@ export default class EventCalendarComponent extends Component {
             view: view ?? 'resourceTimelineDay',
             resources: resources ?? [],
             events: events ?? [],
-            editable: editable !== false,
-            droppable: droppable !== false,
-            selectable: selectable ?? false,
-            nowIndicator: nowIndicator !== false,
-            slotMinTime: slotMinTime ?? '00:00:00',
-            slotMaxTime: slotMaxTime ?? '24:00:00',
-            firstDay: firstDay ?? 0,
-            height: height ?? '100%',
-            headerToolbar: headerToolbar ?? {
-                start: 'prev,next today',
-                center: 'title',
-                end: 'resourceTimelineDay,resourceTimelineWeek',
-            },
-            locale: locale ?? 'en',
-            scrollTime: scrollTime ?? '06:00:00',
         };
 
+        // Only pass optional args when explicitly provided — avoids interfering with library defaults
+        if (editable !== undefined) base.editable = editable;
+        if (droppable !== undefined) base.droppable = droppable;
+        if (selectable !== undefined) base.selectable = selectable;
+        if (nowIndicator !== undefined) base.nowIndicator = nowIndicator;
+        if (slotMinTime !== undefined) base.slotMinTime = slotMinTime;
+        if (slotMaxTime !== undefined) base.slotMaxTime = slotMaxTime;
         if (slotDuration !== undefined) base.slotDuration = slotDuration;
         if (slotLabelInterval !== undefined) base.slotLabelInterval = slotLabelInterval;
         if (slotWidth !== undefined) base.slotWidth = slotWidth;
+        if (firstDay !== undefined) base.firstDay = firstDay;
+        if (height !== undefined) base.height = height;
+        if (headerToolbar !== undefined) base.headerToolbar = headerToolbar;
+        if (locale !== undefined) base.locale = locale;
+        if (scrollTime !== undefined) base.scrollTime = scrollTime;
         if (date !== undefined) base.date = date;
 
         // Wire up callback args (@onEventDrop → eventDrop option)
