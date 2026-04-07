@@ -125,6 +125,8 @@ export default class EventCalendarComponent extends Component {
         this.calendarEl = el;
         const plugins = this.args.plugins ?? this.defaultPlugins;
         const options = this._buildOptions();
+        // DEBUG
+        console.log('[EventCalendar] setup() — @date arg:', this.args.date, '| built options.date:', options.date, '| new Date():', new Date(), '| new Date().getHours():', new Date().getHours(), '| new Date().getDate():', new Date().getDate());
         this.calendar = createCalendar(el, plugins, options);
 
         if (typeof this.args.onCalendarReady === 'function') {
@@ -244,6 +246,8 @@ export default class EventCalendarComponent extends Component {
         if (slotLabelInterval !== undefined) base.slotLabelInterval = slotLabelInterval;
         if (slotWidth !== undefined) base.slotWidth = slotWidth;
         if (date !== undefined) base.date = date;
+        // DEBUG
+        console.log('[EventCalendar] _buildOptions() — @date arg:', date, '| base.date set to:', base.date);
 
         // Wire up callback args (@onEventDrop → eventDrop option)
         for (const name of this.callbackOptions) {
