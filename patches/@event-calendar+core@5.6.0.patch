@@ -1,5 +1,5 @@
 diff --git a/dist/index.js b/dist/index.js
-index 25f21ee..d5f530a 100644
+index 25f21ee05280304449d589b9deeb84efb657ca0f..d5f530a041d93f3adca5273f7a29d1e98614bbb7 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -199,6 +199,29 @@ function noTimePart(date) {
