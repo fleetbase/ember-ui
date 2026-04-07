@@ -288,7 +288,6 @@ export default class EventCalendarComponent extends Component {
             'locale',
             'scrollTime',
             'nowIndicator',
-            'date',
         ];
 
         for (const key of dynamicKeys) {
