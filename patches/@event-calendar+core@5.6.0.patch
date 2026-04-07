@@ -1,6 +1,8 @@
---- a/dist/index.js	1985-10-26 04:15:00.000000000 -0400
-+++ b/dist/index.js	2026-04-06 21:06:57.655403625 -0400
-@@ -199,6 +199,29 @@
+diff --git a/dist/index.js b/dist/index.js
+index 25f21ee..d5f530a 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -199,6 +199,29 @@ function noTimePart(date) {
  	return typeof date === "string" && date.length <= 10;
  }
  /**
@@ -30,7 +32,7 @@
  * Copy time from one date to another
  */
  function copyTime(toDate, fromDate) {
-@@ -892,6 +915,7 @@
+@@ -892,6 +915,7 @@ function createOptions(plugins) {
  			day: "numeric"
  		},
  		validRange: void 0,
@@ -38,7 +40,7 @@
  		view: void 0,
  		viewDidMount: void 0,
  		views: {}
-@@ -1016,7 +1040,7 @@
+@@ -1016,7 +1040,7 @@ function loadEvents(mainState, loadingInvoker) {
  	return () => {
  		let { activeRange, fetchedRange: { events: fetchedRange }, viewDates, options: { events, eventSources, lazyFetching } } = mainState;
  		untrack(() => {
@@ -47,7 +49,7 @@
  		});
  	};
  }
-@@ -1093,7 +1117,7 @@
+@@ -1093,7 +1117,7 @@ function createLoadingInvoker(mainState) {
  function setNowAndToday(mainState) {
  	return () => {
  		let interval = setInterval(() => {
@@ -56,7 +58,7 @@
  			let today = setMidnight(cloneDate(now));
  			mainState.now = now;
  			if (!datesEqual(mainState.today, today)) mainState.today = today;
-@@ -1415,7 +1439,7 @@
+@@ -1415,7 +1439,7 @@ var State = class {
  		this.#events = $.state(arrayProxy(this.options.events));
  		this.#filteredEvents = $.derived(filteredEvents(this));
  		this.#mainEl = $.state();
