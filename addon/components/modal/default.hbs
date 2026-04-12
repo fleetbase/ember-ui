@@ -44,6 +44,39 @@
                         @onClick={{modal.close}}
                         @disabled={{or @options.declineButtonDisabled @options.isLoading}}
                     />
+                    {{#each @options.actionButtons as |actionButton|}}
+                        {{#if actionButton.component}}
+                            {{component
+                                actionButton.component
+                                icon=actionButton.icon
+                                iconPrefix=actionButton.iconPrefix
+                                size=(or actionButton.size "md")
+                                text=actionButton.text
+                                options=actionButton.options
+                                isLoading=actionButton.isLoading
+                                disabled=actionButton.disabled
+                                onClick=actionButton.onClick
+                                perform=actionButton.perform
+                            }}
+                        {{else}}
+                            <Button
+                                class="mr-2 {{actionButton.wrapperClass}}"
+                                @type={{or actionButton.type "default"}}
+                                @size={{or actionButton.size (or @options.buttonSize "md")}}
+                                @icon={{actionButton.icon}}
+                                @iconPrefix={{actionButton.iconPrefix}}
+                                @iconPosition={{actionButton.iconPosition}}
+                                @text={{actionButton.text}}
+                                @isLoading={{actionButton.isLoading}}
+                                @disabled={{or actionButton.disabled @options.isLoading}}
+                                @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
+                                @wrapperClass={{actionButton.wrapperClass}}
+                                @textClass={{actionButton.textClass}}
+                                @outline={{actionButton.outline}}
+                                @permission={{actionButton.permission}}
+                            />
+                        {{/if}}
+                    {{/each}}
                     <Button
                         class="{{if @options.hideAcceptButton 'hidden'}}"
                         @type={{or @options.acceptButtonScheme @options.acceptButtonType "primary"}}
