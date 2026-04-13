@@ -39,6 +39,7 @@
         "@ember/string": "^3.0.1",
         "@embroider/addon": "^0.30.0",
         "@embroider/macros": "^1.8.3",
+        "@event-calendar/core": "^5.6.0",
         "@fleetbase/ember-accounting": "^0.0.1",
         "@floating-ui/dom": "^1.0.1",
         "@fortawesome/ember-fontawesome": "^2.0.0",
@@ -106,6 +107,7 @@
         "ember-wormhole": "^0.6.0",
         "gridstack": "^7.3.0",
         "imask": "^6.4.3",
+        "interactjs": "^1.10.27",
         "intl-tel-input": "^22.0.2",
         "leaflet": "^1.9.4",
         "postcss-at-rules-variables": "^0.3.0",
@@ -114,8 +116,7 @@
         "postcss-import": "^15.1.0",
         "postcss-mixins": "^9.0.4",
         "postcss-preset-env": "^9.1.1",
-        "tailwindcss": "^3.1.8",
-        "interactjs": "^1.10.27"
+        "tailwindcss": "^3.1.8"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.22.15",
