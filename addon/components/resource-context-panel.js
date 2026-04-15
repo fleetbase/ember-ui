@@ -78,6 +78,7 @@ export default class ResourceContextPanelComponent extends Component {
                           resource,
                           component: tab.component ?? tab.render,
                           model: resource,
+                          key: tab.key ?? tab.id ?? dasherize(tab.label ?? tab.title),
                           id: tab.id ?? tab.key ?? dasherize(tab.label ?? tab.title),
                           label: tab.label ?? tab.title,
                           icon: tab.icon,

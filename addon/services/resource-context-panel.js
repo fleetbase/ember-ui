@@ -199,7 +199,7 @@ export default class ResourceContextPanelService extends Service {
             throw new Error(`Overlay with ID ${id} does not have tabs`);
         }
 
-        const tab = overlay.tabs.find((t) => t.key === tabKey);
+        const tab = overlay.tabs.find((t) => t.key === tabKey || t.id === tabKey);
         if (!tab) {
             throw new Error(`Tab with key ${tabKey} not found in overlay ${id}`);
         }
