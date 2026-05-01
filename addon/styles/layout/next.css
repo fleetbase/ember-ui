@@ -998,11 +998,22 @@ body[data-theme='dark'] .next-map-container-view-switch > button:active {
 }
 
 .next-view-section-container {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     min-width: 100%;
     min-height: 100%;
     position: relative;
+    overflow: hidden;
+}
+
+.next-view-container > .next-view-section-container,
+.next-view-container > section.next-view-section {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
 }
 
 .next-view-header-item {
@@ -1282,12 +1293,15 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
     @apply border-gray-200 dark:border-gray-700;
     border-bottom-width: 1px;
     display: flex;
+    flex: 0 0 57px;
     min-width: 100%;
     max-width: 100%;
     width: 100%;
     box-align: center;
     padding: 0px 24px 0px 36px;
     height: 57px;
+    min-height: 57px;
+    max-height: 57px;
     /* height: 44px; */
 }
 
@@ -1821,6 +1835,26 @@ body[data-theme='dark'] .next-dd-menu-label {
 
 section.next-view-section {
     width: 100%;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+
+.next-view-section-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.next-view-section-body > .next-table-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
 }
 
 .next-pagination-row {
@@ -1845,15 +1879,19 @@ section.next-view-section {
 }
 
 .next-table-wrapper {
-    overflow: auto;
-    overflow-x: scroll; /* Always show horizontal scrollbar */
-    overflow-y: scroll;
-    height: 100vh;
-    @apply grid grid-cols-1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
 }
 
 .next-table-wrapper > table {
-    @apply table-auto min-w-full h-screen;
+    @apply table-auto min-w-full h-full;
     border-collapse: separate;
     border-spacing: 0;
     width: max-content;
