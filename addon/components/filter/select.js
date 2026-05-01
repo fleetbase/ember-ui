@@ -18,8 +18,8 @@ export default class FilterSelectComponent extends Component {
         super(...arguments);
         this.value = value;
         this.options = isArray(options) ? options : [];
-        this.optionLabel = this.args.optionLabel ?? this.args.filterOptionLabel;
-        this.optionValue = this.args.optionValue ?? this.args.filterOptionValue;
+        this.optionLabel = this.args.optionLabel ?? this.args.filterOptionLabel ?? 'label';
+        this.optionValue = this.args.optionValue ?? this.args.filterOptionValue ?? 'value';
         this.placeholder = this.args.placeholder ?? this.args.filterPlaceholder;
         this.fetchOptions.perform(fetchUri, fetchParams);
     }

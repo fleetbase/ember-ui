@@ -1359,23 +1359,33 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
     pointer-events: auto;
     display: flex;
     flex-direction: row;
+    --sidebar-transition-width: 220px;
     min-width: 220px;
     max-width: 330px;
     width: 220px;
     flex-shrink: 0;
     box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
     -webkit-user-select: auto;
     -moz-user-select: auto;
     user-select: auto;
+    transition:
+        margin-right 500ms,
+        transform 500ms;
 }
 
 .next-sidebar.sidebar-hide {
-    transition: all 500ms;
+    margin-right: calc(-1 * var(--sidebar-transition-width));
     transform: translateX(-100%);
+    pointer-events: none;
 }
 
 .next-sidebar.sidebar-hidden {
-    display: none;
+    margin-right: calc(-1 * var(--sidebar-transition-width));
+    transform: translateX(-100%);
+    pointer-events: none;
 }
 
 .next-sidebar.sidebar-minimized {
@@ -1395,6 +1405,16 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
     @apply px-2 pt-3;
 }
 
+.next-sidebar.sidebar-hide > .next-sidebar-content {
+    opacity: 1;
+    transform: none;
+}
+
+.next-sidebar.sidebar-hidden > .next-sidebar-content {
+    opacity: 1;
+    transform: none;
+}
+
 .next-content-overlay > .next-content-overlay-panel-container > .next-content-overlay-panel + .gutter,
 .next-sidebar > .next-sidebar-content + .gutter,
 .next-sidebar > .next-sidebar-content + .gutter {
@@ -1404,6 +1424,17 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
     background-color: inherit;
     cursor: col-resize;
     border-right: 2px transparent solid;
+    transition: opacity 500ms;
+}
+
+.next-sidebar.sidebar-hide > .gutter {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.next-sidebar.sidebar-hidden > .gutter {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .next-content-overlay.next-content-overlay-pos-right > .next-content-overlay-panel-container > .next-content-overlay-panel + .gutter {

@@ -1,5 +1,7 @@
 <div class="ui-input-info bg-opacity-{{or @opacity 100}}" ...attributes>
-    <FaIcon @icon={{or @icon "info-circle"}} class={{@iconClass}} />
+    {{#unless @hideIcon}}
+        <FaIcon @icon={{or @icon "info-circle"}} class={{@iconClass}} />
+    {{/unless}}
     <div class="text-left {{@spanClass}} {{@yieldClass}}">
         {{#if (has-block)}}
             {{yield}}

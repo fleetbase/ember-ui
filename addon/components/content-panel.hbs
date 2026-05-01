@@ -103,6 +103,8 @@
                         {{#each @actionButtons as |actionButton|}}
                             {{#if actionButton.items}}
                                 <DropdownButton
+                                    @text={{or actionButton.text actionButton.label}}
+                                    @textClass={{actionButton.textClass}}
                                     @icon={{or actionButton.icon "ellipsis"}}
                                     @size={{or actionButton.size "xs"}}
                                     @iconPrefix={{actionButton.prefix}}
@@ -122,9 +124,11 @@
                                                         disabled={{item.disabled}}
                                                         {{on "click" (dropdown-fn dd (or item.fn item.onClick))}}
                                                     >
-                                                        <div class="w-7 flex-grow-0 flex-shrink-0">
-                                                            <FaIcon @icon={{item.icon}} />
-                                                        </div>
+                                                        {{#if item.icon}}
+                                                            <div class="w-7 flex-grow-0 flex-shrink-0">
+                                                                <FaIcon @icon={{item.icon}} />
+                                                            </div>
+                                                        {{/if}}
                                                         <span>{{or item.text item.label}}</span>
                                                     </a>
                                                 </div>
