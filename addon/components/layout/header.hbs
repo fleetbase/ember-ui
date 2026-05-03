@@ -4,7 +4,7 @@
             <LogoIcon @brand={{@brand}} @size="8" />
         </LinkToExternal>
         {{#if (and @showSidebarToggle (not (media "isMobile")))}}
-            <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{not @sidebarToggleEnabled}} />
+            <Layout::Header::SidebarToggle class="mr-2" @onToggle={{@onSidebarToggle}} @disabled={{eq @sidebarToggleEnabled false}} />
         {{/if}}
         {{#unless (media "isMobile")}}
             {{!--

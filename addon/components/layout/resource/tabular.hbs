@@ -57,7 +57,38 @@
             </DropdownButton>
         {{/if}}
         {{#each @actionButtons as |actionButton|}}
-            {{#if actionButton.component}}
+            {{#if actionButton.items}}
+                <DropdownButton
+                    @text={{or actionButton.text actionButton.label}}
+                    @textClass={{actionButton.textClass}}
+                    @type={{actionButton.type}}
+                    @icon={{actionButton.icon}}
+                    @size={{actionButton.size}}
+                    @iconPrefix={{actionButton.prefix}}
+                    @triggerClass={{actionButton.triggerClass}}
+                    @renderInPlace={{or actionButton.renderInPlace true}}
+                    as |dd|
+                >
+                    <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                        {{#each actionButton.items as |item|}}
+                            {{#if item.separator}}
+                                <div class="next-dd-menu-seperator"></div>
+                            {{else}}
+                                <div class="px-1 {{item.wrapperClass}}">
+                                    <a href="javascript:;" class="next-dd-item {{item.class}}" {{on "click" (dropdown-fn dd (or item.fn item.onClick))}} disabled={{item.disabled}}>
+                                        {{#if item.icon}}
+                                            <div class="w-7 flex-grow-0 flex-shrink-0">
+                                                <FaIcon @icon={{item.icon}} />
+                                            </div>
+                                        {{/if}}
+                                        <span>{{or item.text item.label}}</span>
+                                    </a>
+                                </div>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                </DropdownButton>
+            {{else if actionButton.component}}
                 {{component
                     actionButton.component
                     icon=actionButton.icon
@@ -106,13 +137,13 @@
             {{/if}}
         {{/each}}
         {{#if @onPressNew}}
-            <Button @icon="plus" @iconPrefix="fas" @type="primary" @text={{t "common.new"}}  class={{@newButtonClass}} @onClick={{@onPressNew}} />
+            <Button @icon="plus" @iconPrefix="fas" @type="primary" @text={{t "common.new"}} class={{@newButtonClass}} @onClick={{@onPressNew}} />
         {{/if}}
         {{#if @onPressImport}}
-            <Button @icon="upload" @type="magic" @text={{t "common.import"}}  @wrapperClass="hidden md:flex" class={{@importButtonClass}} @onClick={{@onPressImport}} />
+            <Button @icon="upload" @type="magic" @text={{t "common.import"}} @wrapperClass="hidden md:flex" class={{@importButtonClass}} @onClick={{@onPressImport}} />
         {{/if}}
         {{#if @onPressExport}}
-            <Button @icon="long-arrow-up" @iconClass="rotate-icon-45" @wrapperClass="hidden md:flex" @text={{t "common.export"}}  class={{@exportButtonClass}} @onClick={{@onPressExport}} />
+            <Button @icon="long-arrow-up" @iconClass="rotate-icon-45" @wrapperClass="hidden md:flex" @text={{t "common.export"}} class={{@exportButtonClass}} @onClick={{@onPressExport}} />
         {{/if}}
     </Layout::Section::Header>
 {{/unless}}

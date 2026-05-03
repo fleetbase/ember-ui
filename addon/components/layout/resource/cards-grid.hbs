@@ -1,4 +1,4 @@
-<div class="card-grid-container" ...attributes>
+<div class="card-grid-container has-floating-pagination" ...attributes>
     {{#if this.hasData}}
         <div class={{this.containerClass}}>
             {{#each this.data as |model index|}}
@@ -19,10 +19,12 @@
             {{/if}}
         </div>
     {{/if}}
-</div>
 
-{{#if (and this.showPagination this.hasData)}}
-    <div class="card-grid-pagination-container">
-        <Pagination @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
-    </div>
-{{/if}}
+    {{#if (and this.showPagination this.hasData)}}
+        <div class="floating-pagination">
+            <Pagination @meta={{@paginationMeta}} @currentPage={{@page}} @onPageChange={{@onPageChange}} />
+        </div>
+    {{/if}}
+
+    <Spacer @height="125px" />
+</div>

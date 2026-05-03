@@ -8,9 +8,9 @@
             {{else}}
                 <Modal::Header::Title>{{@title}}</Modal::Header::Title>
             {{/if}}
-            {{#if (or @closeButton true)}}
+            {{#unless (eq @closeButton false)}}
                 <Modal::Header::Close @onClick={{@onClose}} />
-            {{/if}}
+            {{/unless}}
         {{/if}}
     </div>
 {{/let}}

@@ -2,22 +2,22 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
-import { later } from '@ember/runloop';
+import { cancel, later } from '@ember/runloop';
 import { capitalize } from '@ember/string';
 
 class SidebarContext {
     constructor(component) {
-        this.hide = component.hide;
-        this.hideNow = component.hideNow;
-        this.show = component.show;
-        this.minimize = component.minimize;
+        this.hide = (immediate = false) => component.hide(undefined, immediate);
+        this.hideNow = () => component.hideNow();
+        this.show = () => component.show();
+        this.minimize = () => component.minimize();
         this.component = component;
     }
 }
 
 export default class LayoutSidebarComponent extends Component {
     @service sidebar;
-    @tracked siderbarNode;
+    @tracked sidebarNode;
     @tracked gutterNode;
     @tracked mouseX = 0;
     @tracked mouseY = 0;
@@ -25,6 +25,8 @@ export default class LayoutSidebarComponent extends Component {
     @tracked isResizing = false;
     @tracked hidden = false;
     @tracked minimized = false;
+    hideTimer = null;
+    context = null;
 
     @action setupNode(property, node) {
         this[`${property}Node`] = node;
@@ -43,12 +45,21 @@ export default class LayoutSidebarComponent extends Component {
     @action onSidebarSetup(sidebarNode) {
         const { hide, onSetup } = this.args;
 
-        if (hide === true) {
+        const context = new SidebarContext(this);
+        this.context = context;
+        this.sidebar.registerContext(context);
+        this.syncTransitionWidth(sidebarNode);
+
+        if (hide === true || this.sidebar.isDisabled) {
             this.hideNow(sidebarNode);
+        } else if (this.sidebar.isHidden) {
+            this.hideNow(sidebarNode);
+        } else if (this.sidebar.isMinimized) {
+            this.minimize(sidebarNode);
+        } else {
+            this.show(sidebarNode);
         }
 
-        const context = new SidebarContext(this);
-        this.sidebar.setSidbarContext(context);
         if (typeof onSetup === 'function') {
             onSetup(context);
         }
@@ -130,6 +141,7 @@ export default class LayoutSidebarComponent extends Component {
         // Remove style changes
         document.body.style.removeProperty('cursor');
         sidebarNode.style.userSelect = 'auto';
+        this.syncTransitionWidth(sidebarNode);
 
         // Remove the handlers of `mousemove` and `mouseup`
         document.removeEventListener('mousemove', this.resize);
@@ -140,6 +152,28 @@ export default class LayoutSidebarComponent extends Component {
         }
     }
 
+    syncState(state) {
+        this.sidebar.setVisualState(state);
+        this.hidden = state === 'hidden';
+        this.minimized = state === 'minimized';
+    }
+
+    cancelHideTimer() {
+        if (this.hideTimer) {
+            cancel(this.hideTimer);
+            this.hideTimer = null;
+        }
+    }
+
+    syncTransitionWidth(sidebarNode = this.sidebarNode) {
+        if (!sidebarNode) return;
+
+        const width = sidebarNode.getBoundingClientRect?.().width;
+        if (!Number.isFinite(width) || width <= 0) return;
+
+        sidebarNode.style.setProperty('--sidebar-transition-width', `${width}px`);
+    }
+
     @action hideNow(sidebarNode) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
         return this.hide(sidebarNode, true);
@@ -147,25 +181,26 @@ export default class LayoutSidebarComponent extends Component {
 
     @action hide(sidebarNode, now = false) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
+        this.cancelHideTimer();
+        this.syncTransitionWidth(sidebarNode);
+        this.syncState('hidden');
 
         if (now === true) {
             sidebarNode.classList.add('sidebar-hidden');
+            sidebarNode.classList.remove('sidebar-hide', 'sidebar-minimized');
 
-            this.minimized = false;
-            this.hidden = true;
             return;
         }
 
+        sidebarNode.classList.remove('sidebar-minimized');
         sidebarNode.classList.add('sidebar-hide');
 
-        later(
+        this.hideTimer = later(
             this,
             () => {
                 sidebarNode.classList.add('sidebar-hidden');
                 sidebarNode.classList.remove('sidebar-hide');
-
-                this.minimized = false;
-                this.hidden = true;
+                this.hideTimer = null;
             },
             500
         );
@@ -173,16 +208,25 @@ export default class LayoutSidebarComponent extends Component {
 
     @action show(sidebarNode) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
+        this.cancelHideTimer();
+        this.syncTransitionWidth(sidebarNode);
         sidebarNode.classList.remove('sidebar-hidden', 'sidebar-hide', 'sidebar-minimized');
-        this.minimized = false;
-        this.hidden = false;
+        this.syncState('visible');
     }
 
     @action minimize(sidebarNode) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
+        this.cancelHideTimer();
+        this.syncTransitionWidth(sidebarNode);
         sidebarNode.classList.remove('sidebar-hidden', 'sidebar-hide');
         sidebarNode.classList.add('sidebar-minimized');
-        this.hidden = false;
-        this.minimized = true;
+        this.syncState('minimized');
+    }
+
+    @action teardown() {
+        this.cancelHideTimer();
+        document.removeEventListener('mousemove', this.resize);
+        document.removeEventListener('mouseup', this.stopResize);
+        this.sidebar.clearContext(this.context);
     }
 }

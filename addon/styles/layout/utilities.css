@@ -255,7 +255,7 @@ a.badge-offline::before {
 }
 
 .dimensions-box {
-    @apply bg-gray-100 relative border border-gray-300 shadow-sm py-3 px-4 rounded;
+    @apply bg-white relative border border-gray-300 shadow-sm py-3 px-4 rounded;
 }
 
 .dimensions-box:after,
@@ -289,7 +289,7 @@ body[data-theme='dark'] .dimensions-box {
 }
 
 body[data-theme='dark'] .dimensions-box:after {
-    border-right-color: rgba(22, 30, 46, 1);
+    border-right-color: rgba(18, 24, 39, 1);
 }
 
 body[data-theme='dark'] .dimensions-box:before {

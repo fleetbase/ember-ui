@@ -1,25 +1,20 @@
 import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
-import { tracked } from '@glimmer/tracking';
 
 export default class LayoutHeaderSidebarToggleComponent extends Component {
-    @service universe;
     @service sidebar;
-    @tracked isSidebarVisible = true;
+
+    get isDisabled() {
+        return this.args.disabled === true || this.sidebar.isDisabled;
+    }
 
     @action toggleSidebar() {
-        if (this.args.disabled === true) return;
+        if (this.isDisabled) return;
 
-        if (this.isSidebarVisible) {
-            this.sidebar.hideNow();
-        } else {
-            this.sidebar.show();
-        }
-
-        this.isSidebarVisible = !this.isSidebarVisible;
+        this.sidebar.toggle();
         if (typeof this.args.onToggle === 'function') {
-            this.args.onToggle(this.sidebar, this.isSidebarVisible);
+            this.args.onToggle(this.sidebar, this.sidebar.isVisible);
         }
     }
 }
