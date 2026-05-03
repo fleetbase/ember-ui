@@ -31,6 +31,9 @@
         {{#each @actionButtons as |actionButton|}}
             {{#if actionButton.items}}
                 <DropdownButton
+                    @text={{or actionButton.text actionButton.label}}
+                    @textClass={{actionButton.textClass}}
+                    @type={{actionButton.type}}
                     @icon={{actionButton.icon}}
                     @size={{actionButton.size}}
                     @iconPrefix={{actionButton.prefix}}
@@ -45,10 +48,12 @@
                             {{else}}
                                 <div class="px-1 {{item.wrapperClass}}">
                                     <a href="javascript:;" class="next-dd-item {{item.class}}" {{on "click" (dropdown-fn dd (or item.fn item.onClick))}} disabled={{item.disabled}}>
-                                        <div class="w-7 flex-grow-0 flex-shrink-0">
-                                            <FaIcon @icon={{item.icon}} />
-                                        </div>
-                                        <span>{{item.text}}</span>
+                                        {{#if item.icon}}
+                                            <div class="w-7 flex-grow-0 flex-shrink-0">
+                                                <FaIcon @icon={{item.icon}} />
+                                            </div>
+                                        {{/if}}
+                                        <span>{{or item.text item.label}}</span>
                                     </a>
                                 </div>
                             {{/if}}
