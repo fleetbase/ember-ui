@@ -10,15 +10,20 @@ export default class LayoutMobileNavbarComponent extends Component {
     @service sidebar;
     @service abilities;
     @service universe;
-    @tracked navbarNode;
-    @tracked sidebarNode;
     @tracked extensions = [];
     @tracked menuItems = [];
+    routeDidChangeHandler = null;
 
     constructor(owner, { menuItems = [] }) {
         super(...arguments);
         this.extensions = getOwner(this).application.extensions ?? [];
         this.menuItems = this.mergeMenuItems(menuItems);
+        this.routeDidChangeHandler = () => this.closeSidebar();
+        this.getRouter().on('routeDidChange', this.routeDidChangeHandler);
+
+        if (typeof this.args.onSetup === 'function') {
+            this.args.onSetup(this);
+        }
     }
 
     mergeMenuItems(menuItems = []) {
@@ -42,32 +47,15 @@ export default class LayoutMobileNavbarComponent extends Component {
         return visibleMenuItems;
     }
 
-    @action setupMobileNavbar(element) {
-        this.navbarNode = element;
-        this.sidebarNode = element.previousElementSibling.querySelector('nav.next-sidebar');
-
-        if (typeof this.args.onSetup === 'function') {
-            this.onSetup(this);
-        }
-
-        // when hostrouter transitions close sidebar automatically
-        this.getRouter().on('routeDidChange', this.closeSidebar.bind(this));
-    }
-
-    @action routeTo(route) {
-        this.getRouter()
-            .transitionTo(route)
-            .then(() => {
-                this.closeSidebar();
-            });
+    @action async routeTo(route) {
+        try {
+            await this.getRouter().transitionTo(route);
+            this.closeSidebar();
+        } catch {}
     }
 
     @action toggleSidebar() {
-        if (this.isSidebarOpen()) {
-            this.closeSidebar();
-        } else {
-            this.openSidebar();
-        }
+        this.sidebar.toggle();
     }
 
     @action isSidebarOpen() {
@@ -76,12 +64,18 @@ export default class LayoutMobileNavbarComponent extends Component {
 
     @action closeSidebar() {
         this.sidebar.hide();
-        this.sidebarNode?.classList?.remove('is-open');
     }
 
     @action openSidebar() {
         this.sidebar.show();
-        this.sidebarNode?.classList?.add('is-open');
+    }
+
+    willDestroy() {
+        super.willDestroy(...arguments);
+        if (this.routeDidChangeHandler) {
+            this.getRouter().off('routeDidChange', this.routeDidChangeHandler);
+            this.routeDidChangeHandler = null;
+        }
     }
 
     getRouter() {
