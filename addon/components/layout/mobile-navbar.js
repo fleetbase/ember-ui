@@ -51,7 +51,9 @@ export default class LayoutMobileNavbarComponent extends Component {
         try {
             await this.getRouter().transitionTo(route);
             this.closeSidebar();
-        } catch {}
+        } catch (error) {
+            void error;
+        }
     }
 
     @action toggleSidebar() {

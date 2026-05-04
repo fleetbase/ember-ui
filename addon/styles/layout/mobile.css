@@ -11,7 +11,7 @@
         @apply transition duration-500 ease-in-out;
     }
 
-    .next-sidebar:not(.sidebar-hidden):not(.sidebar-hide),
+    .next-sidebar:not(.sidebar-hidden, .sidebar-hide),
     .next-sidebar.sidebar-minimized {
         @apply opacity-100;
         transform: translateX(0px);
