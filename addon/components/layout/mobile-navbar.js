@@ -7,6 +7,7 @@ import { action } from '@ember/object';
 export default class LayoutMobileNavbarComponent extends Component {
     @service router;
     @service hostRouter;
+    @service sidebar;
     @service abilities;
     @service universe;
     @tracked navbarNode;
@@ -70,14 +71,16 @@ export default class LayoutMobileNavbarComponent extends Component {
     }
 
     @action isSidebarOpen() {
-        return this.sidebarNode?.classList?.contains('is-open');
+        return this.sidebar.isVisible;
     }
 
     @action closeSidebar() {
+        this.sidebar.hide();
         this.sidebarNode?.classList?.remove('is-open');
     }
 
     @action openSidebar() {
+        this.sidebar.show();
         this.sidebarNode?.classList?.add('is-open');
     }
 
