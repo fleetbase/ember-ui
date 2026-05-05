@@ -1317,7 +1317,7 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
 
 .next-view-section-subheader.is-mobile {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .next-view-section-subheader {
