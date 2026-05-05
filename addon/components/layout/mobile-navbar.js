@@ -10,6 +10,7 @@ export default class LayoutMobileNavbarComponent extends Component {
     @service sidebar;
     @service abilities;
     @service universe;
+    @service media;
     @tracked extensions = [];
     @tracked menuItems = [];
     routeDidChangeHandler = null;
@@ -18,7 +19,10 @@ export default class LayoutMobileNavbarComponent extends Component {
         super(...arguments);
         this.extensions = getOwner(this).application.extensions ?? [];
         this.menuItems = this.mergeMenuItems(menuItems);
-        this.routeDidChangeHandler = () => this.closeSidebar();
+        this.routeDidChangeHandler = () => {
+            if (!this.media.isMobile) return;
+            this.closeSidebar();
+        };
         this.getRouter().on('routeDidChange', this.routeDidChangeHandler);
 
         if (typeof this.args.onSetup === 'function') {

@@ -152,7 +152,7 @@
 
     .next-view-section-subheader {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         @apply px-0 flex-col h-24;
     }
 
@@ -161,11 +161,13 @@
     }
 
     .next-view-section-subheader > .next-view-section-subheader-left {
-        @apply w-full justify-between px-3;
+        @apply w-full justify-between px-3 flex-1;
     }
 
     .next-view-section-subheader > .next-view-section-subheader-actions {
-        @apply w-full items-center justify-start px-3;
+        @apply items-center justify-start px-3;
+        flex: none;
+        width: auto;
     }
 
     .next-view-section-subheader > .next-view-section-subheader-actions > * {
