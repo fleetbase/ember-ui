@@ -1,4 +1,4 @@
-<Overlay @isOpen={{@isOpen}} @onLoad={{this.setOverlayContext}} @position="right" @noBackdrop={{true}} @fullHeight={{true}} @width={{or this.width @width "400px"}}>
+<Overlay @isOpen={{@isOpen}} @onLoad={{this.setOverlayContext}} @position="right" @noBackdrop={{true}} @fullHeight={{true}} @width={{or @width "520px"}}>
     <Overlay::Header @title={{t "dashboard-widget-panel.select-widgets"}} @hideStatusDot={{true}} @titleWrapperClass="leading-5 text-gray-800 dark:text-white">
         <:actions>
             <div class="flex flex-1 justify-end">
@@ -7,37 +7,83 @@
         </:actions>
     </Overlay::Header>
 
-    <Overlay::Body @wrapperClass="new-service-rate-overlay-body px-1 space-y-4 pt-2">
-        <div>
-            <Input
-                @type="text"
-                @value={{this.searchQuery}}
-                placeholder={{or (t "dashboard-widget-panel.filter-widgets") "Filter widgets by keyword"}}
-                class="w-full form-input form-input-sm"
-                {{on "input" this.updateSearchQuery}}
-            />
+    {{!--
+        no-padding on the body kills the global `px-1` so the sticky header sits flush.
+        wrapperClass="dashboard-widget-panel-body" zeroes out its own padding via CSS
+        and lets the child elements manage their own.
+    --}}
+    <Overlay::Body class="no-padding" @wrapperClass="dashboard-widget-panel-body">
+        {{!-- Sticky search + tab strip --}}
+        <div class="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 pt-3 pb-2">
+            <div class="relative mb-2">
+                <FaIcon @icon="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500 pointer-events-none" />
+                <Input
+                    @type="text"
+                    @value={{this.searchQuery}}
+                    placeholder={{t "dashboard-widget-panel.filter-widgets"}}
+                    class="w-full form-input form-input-sm pl-7i pr-7 bg-white dark:bg-gray-900"
+                    {{on "input" this.onSearch}}
+                />
+                {{#if this.searchQuery}}
+                    <button type="button"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            aria-label="Clear search"
+                            {{on "click" this.clearSearch}}>
+                        <FaIcon @icon="times-circle" />
+                    </button>
+                {{/if}}
+            </div>
+
+            <div class="flex bg-gray-100 dark:bg-gray-900/60 rounded-md p-0.5 gap-0.5">
+                {{#each this.tabs as |tab|}}
+                    <button type="button"
+                            class="flex-1 text-[11px] px-2 py-1 rounded font-medium transition flex items-center justify-center gap-1.5
+                                   {{if (eq this.activeTab tab.key)
+                                       'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                       'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}}"
+                            {{on "click" (fn this.selectTab tab.key)}}>
+                        <span>{{t (concat "dashboard-widget-panel." tab.label)}}</span>
+                        <span class="text-[10px] px-1 rounded
+                                     {{if (eq this.activeTab tab.key)
+                                         'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                                         'bg-gray-200/70 dark:bg-gray-700/70 text-gray-500 dark:text-gray-400'}}">
+                            {{tab.count}}
+                        </span>
+                    </button>
+                {{/each}}
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 text-xs dark:text-gray-100">
-            {{#each this.availableWidgets as |widget|}}
-                <div
-                    class="rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out shadow-md px-4 py-2 cursor-pointer"
-                    {{on "click" (perform this.addWidgetToDashboard widget)}}
-                >
-                    <div class="flex flex-row items-center leading-7 mb-2">
-                        <div class="w-7 flex items-center justify-start">
-                            <FaIcon @icon={{widget.icon}} class="text-lg text-gray-600 dark:text-gray-300" />
-                        </div>
-                        <p class="text-sm truncate font-semibold dark:text-gray-100 text-gray-800">
-                            {{t "dashboard-widget-panel.widget-name" widgetName=widget.name}}
-                        </p>
+        <div class="px-3 pt-3 pb-6">
+            {{#each this.groupedWidgets as |group index|}}
+                <div class="{{if (gt index 0) 'mt-4'}}">
+                    <div class="flex items-center gap-2 mb-2 px-0.5">
+                        <span class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
+                            {{group.title}}
+                        </span>
+                        <span class="flex-1 h-px bg-gray-200 dark:bg-gray-700/70"></span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500 tabular-nums">{{group.widgets.length}}</span>
                     </div>
-                    <div>
-                        <p class="text-xs dark:text-gray-100 text-gray-800">{{widget.description}}</p>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        {{#each group.widgets as |widget|}}
+                            <Dashboard::WidgetCard
+                                @widget={{widget}}
+                                @addedCount={{this.addedCount widget.id}}
+                                @isAdding={{this.addWidgetToDashboard.isRunning}}
+                                @onAdd={{perform this.addWidgetToDashboard widget}}
+                                @onHover={{fn this.onHover widget}}
+                                @onUnhover={{this.onUnhover}}
+                            />
+                        {{/each}}
                     </div>
+                </div>
+            {{else}}
+                <div class="text-center text-xs text-gray-500 dark:text-gray-400 py-16">
+                    <FaIcon @icon="inbox" class="text-3xl block mb-3 mx-auto opacity-40" />
+                    {{t "dashboard-widget-panel.no-widgets-match"}}
                 </div>
             {{/each}}
         </div>
-        <Spacer @height="300px" />
     </Overlay::Body>
 </Overlay>

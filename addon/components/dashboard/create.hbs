@@ -1,21 +1,33 @@
 <div class="fleetbase-dashboard-grid" ...attributes>
-    <GridStack @options={{this.gridOptions}} @onChange={{this.onChangeGrid}}>
-        {{#each @dashboard.widgets as |widget|}}
-            {{#let (resolve-component widget.component) as |componentDefinition|}}
-                {{#if componentDefinition}}
-                    <GridStackItem id={{widget.id}} @options={{spread-widget-options (hash id=widget.id options=widget.grid_options)}} class="relative">
-                        <LazyEngineComponent @component={{componentDefinition}} as |resolvedComponent|>
-                            {{component resolvedComponent widget=widget options=widget.options}}
-                        </LazyEngineComponent>
+    {{!--
+        Keyed iteration over a single-element [dashboardId] array. When the
+        active dashboard changes the iteration key changes, ember destroys the
+        existing GridStack (running its willDestroyNode → gridstack.destroy,
+        and crucially removing the .grid-stack DOM node along with all its
+        inline `min-height`/`height` styles that gridstack stamps on it during
+        layout), and re-instantiates a fresh GridStack on the new dashboard's
+        widgets. This is the only reliable way to keep the empty band that
+        gridstack leaves behind from carrying over between dashboards.
+    --}}
+    {{#each this.dashboardKey key="@identity" as |dashId|}}
+        <GridStack @options={{this.gridOptions}} @onChange={{this.onChangeGrid}}>
+            {{#each @dashboard.widgets as |widget|}}
+                {{#let (resolve-component widget.component) as |componentDefinition|}}
+                    {{#if componentDefinition}}
+                        <GridStackItem id={{widget.id}} @options={{spread-widget-options (hash id=widget.id options=widget.grid_options)}} class="relative">
+                            <LazyEngineComponent @component={{componentDefinition}} as |resolvedComponent|>
+                                {{component resolvedComponent widget=widget options=widget.options}}
+                            </LazyEngineComponent>
 
-                        {{#if @isEdit}}
-                            <div class="absolute top-2 right-2">
-                                <Button @type="default" @icon="trash" @helpText="Remove widget from the dashboard" @onClick={{fn this.removeWidget widget}} />
-                            </div>
-                        {{/if}}
-                    </GridStackItem>
-                {{/if}}
-            {{/let}}
-        {{/each}}
-    </GridStack>
+                            {{#if @isEdit}}
+                                <div class="absolute top-2 right-2">
+                                    <Button @type="default" @icon="trash" @helpText="Remove widget from the dashboard" @onClick={{fn this.removeWidget widget}} />
+                                </div>
+                            {{/if}}
+                        </GridStackItem>
+                    {{/if}}
+                {{/let}}
+            {{/each}}
+        </GridStack>
+    {{/each}}
 </div>

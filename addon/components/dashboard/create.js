@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { action, computed } from '@ember/object';
+import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 
 /**
@@ -70,21 +70,29 @@ export default class DashboardCreateComponent extends Component {
     @action removeWidget(widget) {
         const { dashboard } = this.args;
 
-        if (dashboard) {
-            dashboard.removeWidget(widget.id).catch((error) => {
+        if (!dashboard) return;
+
+        dashboard
+            .removeWidget(widget.id)
+            .then(() => this.compactGrid())
+            .catch((error) => {
                 this.notifications.serverError(error);
             });
-        }
     }
 
     /**
-     * Computed property that returns grid options based on the current edit state.
-     * Configures grid behavior such as floating, animation, and drag and resize capabilities.
-     *
-     * @computed
-     * @returns {Object} An object containing grid configuration options.
+     * Trigger gridstack's compaction pass so the grid closes the empty cell left
+     * behind when a widget is removed. Without this, `float: true` leaves a
+     * persistent gap where the deleted widget used to sit.
      */
-    @computed('args.isEdit') get gridOptions() {
+    compactGrid() {
+        // gridstack attaches itself to the .grid-stack element as `el.gridstack`.
+        // Scoped query so we don't fight other grids on the page.
+        const root = document.querySelector('.fleetbase-dashboard-grid .grid-stack');
+        root?.gridstack?.compact?.();
+    }
+
+    get gridOptions() {
         return {
             float: true,
             animate: true,
@@ -95,5 +103,23 @@ export default class DashboardCreateComponent extends Component {
             resizable: { handles: 'all' },
             cellHeight: 30,
         };
+    }
+
+    /**
+     * Wrapping the GridStack in `{{#each (array @dashboard.id) key="@identity"}}`
+     * keys the entire subtree to the active dashboard's id. This getter exists
+     * to give the template a single-element array to iterate. When the id
+     * changes, ember treats the iteration item as a different key, destroys
+     * the existing GridStack (running its willDestroyNode → gridstack.destroy
+     * + DOM removal), and re-instantiates it for the new dashboard.
+     *
+     * This is the only reliable way to clear gridstack's internal engine state
+     * AND the inline `min-height/height` styles it stamps onto `.grid-stack`.
+     * Without a real DOM remount, switching from a tall dashboard to a short
+     * one leaves the empty band where the old widgets used to sit because
+     * gridstack's destroy(false) preserves DOM (and therefore those styles).
+     */
+    get dashboardKey() {
+        return [this.args.dashboard?.id ?? '__empty__'];
     }
 }
