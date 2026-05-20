@@ -90,10 +90,14 @@ module('Unit | Service | dashboard', function (hooks) {
         // succeed and each produces a fresh client-side UUID.
         let firstBatch;
         let secondBatch;
-        assert.doesNotThrow(() => {
+        let thrown = null;
+        try {
             firstBatch = service._createDefaultDashboardWidgets('dashboard');
             secondBatch = service._createDefaultDashboardWidgets('dashboard');
-        });
+        } catch (e) {
+            thrown = e;
+        }
+        assert.strictEqual(thrown, null, 'no identity-map collision when materializing defaults twice');
 
         assert.strictEqual(firstBatch.length, 2);
         assert.strictEqual(secondBatch.length, 2);
