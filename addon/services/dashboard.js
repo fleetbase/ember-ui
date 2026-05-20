@@ -4,6 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
+import { next } from '@ember/runloop';
 
 /**
  * Service for managing dashboards, including loading, creating, and deleting dashboards, as well as managing the current dashboard and widget states.
@@ -175,11 +176,28 @@ export default class DashboardService extends Service {
     reset() {
         this.currentDashboard = null;
         this.dashboards = [];
-        // Unload synchronously so a subsequent loadDashboards.perform() starts from a
-        // clean identity map. Widgets must be unloaded before their parent dashboard
-        // to avoid orphaned-record warnings.
-        this.store.unloadAll('dashboard-widget');
-        this.store.unloadAll('dashboard');
+
+        // Defer the store.unloadAll() pair to the next runloop tick. reset() is
+        // invoked from DashboardComponent's constructor, which itself runs
+        // during a render. Calling unloadAll() synchronously mutates the
+        // `<RelatedCollection:dashboard-widget>.length` tracked tag that the
+        // PREVIOUSLY-rendered Dashboard (if any) consumed earlier in the same
+        // computation, triggering: "Assertion Failed: You attempted to update
+        // <RelatedCollection:dashboard-widget>.length, but it had already been
+        // used previously in the same computation." This blows up the app
+        // whenever a user navigates between two routes that each mount a
+        // Dashboard.
+        //
+        // Scheduling via next() pushes the unloads into the next runloop's
+        // actions queue, after the in-flight render finishes — so the tag
+        // mutation no longer conflicts with the current tracking frame.
+        //
+        // Widgets must be unloaded before their parent dashboard to avoid
+        // orphaned-record warnings.
+        next(() => {
+            this.store.unloadAll('dashboard-widget');
+            this.store.unloadAll('dashboard');
+        });
     }
 
     /**
