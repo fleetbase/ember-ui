@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { next } from '@ember/runloop';
 
 /**
  * DashboardComponent for managing dashboards in an Ember application.
@@ -23,9 +24,16 @@ export default class DashboardComponent extends Component {
      */
     constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' } = {}) {
         super(...arguments);
-        this.dashboard.reset(); // ensure service is reset when re-rendering
-        this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
-        this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
+        // reset() queues its store.unloadAll() calls onto the next runloop tick
+        // to avoid mutating tracked tags from inside the current render. We
+        // mirror that here for loadDashboards.perform() so both happen in the
+        // same next-runloop pass IN ORDER (unloads first, then re-query),
+        // not interleaved with the synchronous reset().
+        this.dashboard.reset();
+        next(() => {
+            this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
+            this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
+        });
     }
 
     /**
