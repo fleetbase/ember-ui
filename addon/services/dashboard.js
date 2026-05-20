@@ -54,7 +54,7 @@ export default class DashboardService extends Service {
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
      * Uses drop modifier to prevent concurrent executions and race conditions.
      */
-    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
+    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' } = {}) {
         this.universe.registerDashboard(defaultDashboardId);
 
         const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
