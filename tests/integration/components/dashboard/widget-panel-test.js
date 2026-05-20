@@ -45,8 +45,14 @@ module('Integration | Component | dashboard/widget-panel', function (hooks) {
         assert.dom('.dashboard-widget-card').exists({ count: 3 }, 'all 3 registry widgets render');
         const groupHeaders = this.element.querySelectorAll('h3');
         const groupTitles = Array.from(groupHeaders).map((h) => h.textContent.replace(/\s+/g, ' ').trim());
-        assert.ok(groupTitles.some((t) => t.startsWith('KPI Tiles')), 'KPI Tiles group header rendered');
-        assert.ok(groupTitles.some((t) => t.startsWith('Analytics')), 'Analytics group header rendered');
+        assert.ok(
+            groupTitles.some((t) => t.startsWith('KPI Tiles')),
+            'KPI Tiles group header rendered'
+        );
+        assert.ok(
+            groupTitles.some((t) => t.startsWith('Analytics')),
+            'Analytics group header rendered'
+        );
     });
 
     test('it shows an "on dashboard" badge with the count when a widget is already added', async function (assert) {

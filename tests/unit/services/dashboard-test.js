@@ -30,16 +30,28 @@ class StubStore {
         return this.records.get(`${modelName}:${id}`) ?? null;
     }
 
-    peekAll() { return []; }
-    unloadAll() { this.records.clear(); }
-    query() { return Promise.resolve([]); }
+    peekAll() {
+        return [];
+    }
+    unloadAll() {
+        this.records.clear();
+    }
+    query() {
+        return Promise.resolve([]);
+    }
 }
 
 class StubWidgetService {
     widgets = [];
-    registerWidgets(_dashboardName, widgets) { this.widgets = widgets; }
-    getWidgets() { return this.widgets; }
-    getDefaultWidgets() { return this.widgets.filter((w) => w.default); }
+    registerWidgets(_dashboardName, widgets) {
+        this.widgets = widgets;
+    }
+    getWidgets() {
+        return this.widgets;
+    }
+    getDefaultWidgets() {
+        return this.widgets.filter((w) => w.default);
+    }
 }
 
 class StubUniverse {

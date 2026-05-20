@@ -10,7 +10,7 @@
         gridstack leaves behind from carrying over between dashboards.
     --}}
     {{#each this.dashboardKey key="@identity" as |dashId|}}
-        <GridStack @options={{this.gridOptions}} @onChange={{this.onChangeGrid}}>
+        <GridStack @options={{this.gridOptions}} @onChange={{this.onChangeGrid}} data-id={{dashId}}>
             {{#each @dashboard.widgets as |widget|}}
                 {{#let (resolve-component widget.component) as |componentDefinition|}}
                     {{#if componentDefinition}}
