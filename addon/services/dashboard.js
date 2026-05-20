@@ -4,7 +4,6 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import { next } from '@ember/runloop';
 
 /**
  * Service for managing dashboards, including loading, creating, and deleting dashboards, as well as managing the current dashboard and widget states.
@@ -55,7 +54,7 @@ export default class DashboardService extends Service {
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
      * Uses drop modifier to prevent concurrent executions and race conditions.
      */
-    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' }) {
+    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' } = {}) {
         this.universe.registerDashboard(defaultDashboardId);
 
         const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
@@ -176,11 +175,11 @@ export default class DashboardService extends Service {
     reset() {
         this.currentDashboard = null;
         this.dashboards = [];
-        // unload from store - must unload widgets first to avoid orphaned records
-        next(() => {
-            this.store.unloadAll('dashboard-widget');
-            this.store.unloadAll('dashboard');
-        });
+        // Unload synchronously so a subsequent loadDashboards.perform() starts from a
+        // clean identity map. Widgets must be unloaded before their parent dashboard
+        // to avoid orphaned-record warnings.
+        this.store.unloadAll('dashboard-widget');
+        this.store.unloadAll('dashboard');
     }
 
     /**
@@ -191,18 +190,9 @@ export default class DashboardService extends Service {
     _createDefaultDashboard(defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard') {
         let defaultDashboard;
 
-        // check store for default dashboard
-        const loadedDashboards = this.store.peekAll('dashboard');
-
-        // check for default dashboard loaded in store
-        defaultDashboard = loadedDashboards.find((dashboard) => {
-            return dashboard && dashboard.id === defaultDashboardId && !dashboard.isDeleted && !dashboard.isDestroying && !dashboard.isDestroyed;
-        });
-        if (defaultDashboard) return defaultDashboard;
-
-        // Peek existing record in identity map
+        // Reuse the in-store record if it's still in a valid state. peekRecord already
+        // does an identity-map lookup, so an additional peekAll().find() is redundant.
         const existingDashboard = this.store.peekRecord('dashboard', defaultDashboardId);
-        // Only return if it's in a valid state (not deleted, destroying, or destroyed)
         if (existingDashboard && !existingDashboard.isDeleted && !existingDashboard.isDestroying && !existingDashboard.isDestroyed) {
             return existingDashboard;
         }
@@ -237,12 +227,25 @@ export default class DashboardService extends Service {
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
         const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId);
+        return widgets.map((defaultWidget) => this._buildDashboardWidget(defaultWidget));
+    }
 
-        return widgets.map((defaultWidget) => {
-            const existingWidget = this.store.peekRecord('dashboard-widget', defaultWidget.id);
-            if (existingWidget) return existingWidget;
-
-            return this.store.createRecord('dashboard-widget', defaultWidget);
+    /**
+     * Materialize a registry widget definition into a transient `dashboard-widget` record.
+     *
+     * The registry id (e.g. 'fleet-ops-kpi-earnings-widget') is a slug shared across every
+     * dashboard that consumes the widget. Passing it through as the Ember Data record id
+     * would collide in the identity map as soon as the widget appears on a second dashboard
+     * (or is added/removed/re-added). Strip the slug and let Ember Data assign a client UUID
+     * — but stash the slug under `options.widget_key` so persisted records can still be
+     * resolved back to their registry definition.
+     */
+    _buildDashboardWidget(definition) {
+        // eslint-disable-next-line no-unused-vars
+        const { id: widgetKey, default: _isDefault, ...rest } = definition;
+        return this.store.createRecord('dashboard-widget', {
+            ...rest,
+            options: { ...(rest.options ?? {}), widget_key: widgetKey },
         });
     }
 

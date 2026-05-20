@@ -1,7 +1,6 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import { next } from '@ember/runloop';
 
 /**
  * DashboardComponent for managing dashboards in an Ember application.
@@ -25,10 +24,16 @@ export default class DashboardComponent extends Component {
     constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' } = {}) {
         super(...arguments);
         this.dashboard.reset(); // ensure service is reset when re-rendering
-        next(() => {
-            this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
-            this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
-        });
+        this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
+        this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
+    }
+
+    /**
+     * True when the active dashboard is the virtual system/default record (not persisted).
+     * Used to hide edit affordances since save/destroy on these records 404s on the backend.
+     */
+    get isSystemDashboard() {
+        return this.dashboard.currentDashboard?.user_uuid === 'system';
     }
 
     /**

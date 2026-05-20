@@ -1,0 +1,68 @@
+{{!--
+    Compact, fixed-height card. Whole card is clickable. Badges live on a row
+    BELOW the title (aligned left). Title is a single truncated line so every
+    card in the grid lines up cleanly.
+
+    template-lint's `require-presentational-children` rule disallows semantic
+    descendants under any `role="button"` element, but this is the standard
+    "clickable card" pattern — the visible icon, name, description, and badges
+    are required content for the user to identify the widget before activating.
+    The card remains keyboard-focusable via tabindex=0 and click-activatable.
+--}}
+{{! template-lint-disable require-presentational-children }}
+<div
+    class="dashboard-widget-card group relative h-[88px] rounded-md border bg-white dark:bg-gray-800
+           transition-colors cursor-pointer overflow-hidden
+           {{if this.isAdded
+               'border-sky-300/70 dark:border-sky-700/70'
+               'border-gray-200 dark:border-gray-700'}}
+           hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50/30 dark:hover:bg-sky-900/10"
+    data-widget-key={{@widget.id}}
+    role="button"
+    tabindex="0"
+    {{on "mouseenter" @onHover}}
+    {{on "mouseleave" @onUnhover}}
+    {{on "click" @onAdd}}
+>
+    <div class="flex items-start gap-2 p-2 h-full">
+        <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 {{this.iconAccent}}">
+            <FaIcon @icon={{this.iconName}} class="text-[11px]" />
+        </div>
+
+        <div class="flex-1 min-w-0 flex flex-col">
+            <div class="text-[12px] font-semibold text-black dark:text-gray-100 truncate leading-tight">
+                {{@widget.name}}
+            </div>
+            <p class="text-[10.5px] leading-snug text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5">
+                {{@widget.description}}
+            </p>
+
+            {{#if this.hasBadges}}
+                <div class="flex items-center gap-1 mt-auto pt-1">
+                    {{#if this.isDefault}}
+                        <span class="text-[8.5px] uppercase font-bold tracking-wide px-1 py-px rounded leading-none
+                                     bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
+                            {{t "dashboard-widget-panel.badge-default"}}
+                        </span>
+                    {{/if}}
+                    {{#if this.isAdded}}
+                        <span class="text-[8.5px] uppercase font-bold tracking-wide px-1 py-px rounded leading-none
+                                     bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                            {{this.addedShortBadge}}
+                        </span>
+                    {{/if}}
+                </div>
+            {{/if}}
+        </div>
+
+        <div class="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            {{#if @isAdding}}
+                <Spinner @class="w-3 h-3 text-sky-600 dark:text-sky-400" />
+            {{else}}
+                <div class="w-5 h-5 rounded-full flex items-center justify-center bg-sky-600 text-white shadow-sm">
+                    <FaIcon @icon="plus" class="text-[9px]" />
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
