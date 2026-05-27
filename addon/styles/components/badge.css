@@ -46,6 +46,7 @@
 .status-badge.dispatched-status-badge > span,
 .status-badge.operational-status-badge > span,
 .status-badge.active-status-badge > span,
+.status-badge.available-status-badge > span,
 .status-badge.completed-status-badge > span,
 /* ── Invoice statuses ── */
 .status-badge.paid-status-badge > span,
@@ -71,6 +72,7 @@
 .status-badge.dispatched-status-badge > span svg,
 .status-badge.operational-status-badge > span svg,
 .status-badge.active-status-badge > span svg,
+.status-badge.available-status-badge > span svg,
 .status-badge.completed-status-badge > span svg,
 .status-badge.paid-status-badge > span svg,
 .status-badge.settled-status-badge > span svg,
