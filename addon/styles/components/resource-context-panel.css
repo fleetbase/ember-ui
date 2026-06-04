@@ -14,6 +14,31 @@
     animation: fadeIn 0.2s ease-in-out;
 }
 
+.resource-context-panel-body.has-tabs {
+    overflow: hidden;
+}
+
+.resource-context-panel-tabs,
+.resource-context-panel-tabs > .tab-navigation {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.resource-context-panel-tabs .resource-context-panel-tablist {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex: 0 0 auto;
+}
+
+.resource-context-panel-tabs .resource-context-panel-tab-content {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
 .resource-context-panel-content {
     animation: fadeIn 0.2s ease-in-out;
 }
@@ -56,4 +81,8 @@
 /* Dark mode support */
 body[data-theme='dark'] .resource-context-panel-backdrop {
     background-color: rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme='dark'] .resource-context-panel-tabs .resource-context-panel-tablist {
+    background-color: #111827;
 }

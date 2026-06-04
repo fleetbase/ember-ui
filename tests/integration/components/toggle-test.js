@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { click, render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | toggle', function (hooks) {
@@ -22,5 +22,24 @@ module('Integration | Component | toggle', function (hooks) {
     `);
 
         assert.dom(this.element).hasText('template block text');
+    });
+
+    test('it reflects controlled isToggled changes', async function (assert) {
+        this.set('enabled', true);
+
+        await render(hbs`<Toggle @isToggled={{this.enabled}} @onToggle={{fn (mut this.enabled)}} />`);
+
+        assert.dom('[role="checkbox"]').hasAttribute('aria-checked', 'true');
+        assert.dom('[role="checkbox"] span:first-child').hasClass('bg-green-400');
+
+        this.set('enabled', false);
+
+        assert.dom('[role="checkbox"]').hasAttribute('aria-checked', 'false');
+        assert.dom('[role="checkbox"] span:first-child').hasClass('bg-gray-200');
+
+        await click('[role="checkbox"]');
+
+        assert.true(this.enabled);
+        assert.dom('[role="checkbox"]').hasAttribute('aria-checked', 'true');
     });
 });

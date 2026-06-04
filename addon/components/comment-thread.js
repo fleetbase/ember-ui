@@ -53,6 +53,15 @@ export default class CommentThreadComponent extends Component {
         reloadComments: () => {
             return this.reloadComments.perform();
         },
+        publishReply: (comment, input) => {
+            return this.publishReply.perform(comment, input);
+        },
+        updateComment: (comment) => {
+            return this.updateComment.perform(comment);
+        },
+        deleteComment: (comment) => {
+            return this.deleteComment.perform(comment);
+        },
     };
 
     /**
@@ -65,8 +74,20 @@ export default class CommentThreadComponent extends Component {
         super(...arguments);
 
         this.subject = subject;
-        this.comments = getWithDefault(subject, 'comments', []);
+        this.comments = getWithDefault(this.args, 'comments', getWithDefault(subject, 'comments', []));
         this.subjectType = subjectType ? subjectType : getModelName(subject);
+    }
+
+    get visibleComments() {
+        return this.args.comments ?? this.comments;
+    }
+
+    get subjectUuid() {
+        return this.subject?.uuid;
+    }
+
+    get subjectPublicId() {
+        return this.subject?.public_id ?? this.subject?.id ?? this.subject?.uuid;
     }
 
     /**
@@ -78,13 +99,18 @@ export default class CommentThreadComponent extends Component {
             return;
         }
 
-        let comment = this.store.createRecord('comment', {
-            content: this.input,
-            subject_uuid: this.subject.id,
-            subject_type: this.subjectType,
-        });
+        if (typeof this.args.onPublishComment === 'function') {
+            yield this.args.onPublishComment(this.input, this.subject);
+        } else {
+            let comment = this.store.createRecord('comment', {
+                content: this.input,
+                subject_id: this.subjectPublicId,
+                subject_type: this.subjectType,
+            });
 
-        yield comment.save();
+            yield comment.save();
+        }
+
         yield this.reloadComments.perform();
 
         this.input = '';
@@ -95,7 +121,62 @@ export default class CommentThreadComponent extends Component {
      * @task
      */
     @task *reloadComments() {
-        this.comments = yield this.store.query('comment', { subject_uuid: this.subject.id, withoutParent: 1, sort: '-created_at' });
+        if (typeof this.args.onReloadComments === 'function') {
+            this.comments = yield this.args.onReloadComments(this.subject);
+        } else {
+            const query = {
+                withoutParent: 1,
+                sort: '-created_at',
+            };
+
+            if (this.subjectUuid) {
+                query.subject_uuid = this.subjectUuid;
+            } else {
+                query.subject = this.subjectPublicId;
+            }
+
+            if (this.subjectType) {
+                query.subject_type = this.subjectType;
+            }
+
+            this.comments = yield this.store.query('comment', query);
+        }
+    }
+
+    @task *publishReply(comment, input) {
+        if (typeof this.args.onPublishReply === 'function') {
+            yield this.args.onPublishReply(comment, input, this.subject);
+            yield this.reloadComments.perform();
+            return;
+        }
+
+        let reply = this.store.createRecord('comment', {
+            content: input,
+            parent_comment_uuid: comment.uuid ?? comment.public_id ?? comment.id,
+        });
+
+        yield reply.save();
+        yield this.reloadComments.perform();
+    }
+
+    @task *updateComment(comment) {
+        if (typeof this.args.onUpdateComment === 'function') {
+            yield this.args.onUpdateComment(comment, this.subject);
+            yield this.reloadComments.perform();
+            return;
+        }
+
+        yield comment.save();
+    }
+
+    @task *deleteComment(comment) {
+        if (typeof this.args.onDeleteComment === 'function') {
+            yield this.args.onDeleteComment(comment, this.subject);
+            yield this.reloadComments.perform();
+            return;
+        }
+
+        yield comment.destroyRecord();
     }
 
     /**

@@ -59,3 +59,12 @@
 @import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
 @import 'ember-power-select/vendor/ember-power-select.css';
 @import 'air-datepicker/air-datepicker.css';
+.fleetbase-docs-panel-body {
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+}
+
+.fleetbase-docs-panel-body > iframe {
+    display: block;
+}

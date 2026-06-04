@@ -20,6 +20,12 @@
     grid-column: 1 / -1;
 }
 
+.fleetbase-dashboard-grid--sticky {
+    position: sticky;
+    top: var(--fleetbase-dashboard-sticky-top, 0);
+    z-index: var(--fleetbase-dashboard-sticky-z-index, 20);
+}
+
 .fleetbase-dashboard-grid .btn-wrapper > .btn,
 .fleetbase-dashboard-grid .ember-basic-dropdown-trigger .btn-wrapper > .btn {
     height: 30px;

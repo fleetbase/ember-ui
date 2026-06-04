@@ -1,0 +1,40 @@
+<section class="chat-inbox-panel" ...attributes>
+    <header class="chat-inbox-panel-header">
+        <div class="chat-inbox-panel-title">
+            <h2>Messages</h2>
+            <span>{{pluralize @unreadCount "unread conversation"}}</span>
+        </div>
+        <div class="chat-inbox-panel-actions">
+            <Button @type="primary" @icon="plus" @text="New Chat" @size="xs" @onClick={{@startChat}} />
+            <button type="button" class="chat-inbox-icon-button" aria-label="Close chat inbox" {{on "click" @close}}>
+                <FaIcon @icon="times" />
+            </button>
+        </div>
+    </header>
+
+    <div class="chat-inbox-search">
+        <FaIcon @icon="search" />
+        <input type="search" value={{@searchQuery}} placeholder="Search conversations" {{on "input" @setSearchQuery}} />
+    </div>
+
+    <div class="chat-inbox-list">
+        {{#if @isLoading}}
+            <div class="chat-inbox-empty-state">
+                <Spinner @loadingMessage="Loading conversations" />
+            </div>
+        {{else if this.hasChannels}}
+            {{#each @channels as |channel|}}
+                <ChatTray::ConversationRow @channel={{channel}} @open={{@openChannel}} @remove={{@removeChannel}} />
+            {{/each}}
+        {{else}}
+            <div class="chat-inbox-empty-state">
+                <div class="chat-inbox-empty-icon">
+                    <FaIcon @icon="message" />
+                </div>
+                <h3>No conversations found</h3>
+                <p>Start a new chat or adjust your search.</p>
+                <Button @type="primary" @icon="plus" @text="New Chat" @size="sm" @onClick={{@startChat}} />
+            </div>
+        {{/if}}
+    </div>
+</section>
