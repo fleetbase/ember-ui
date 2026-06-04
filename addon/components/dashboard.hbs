@@ -1,11 +1,12 @@
-<div class="fleetbase-dashboard-grid" ...attributes>
+<div class="fleetbase-dashboard-grid {{if @stickyHeader 'fleetbase-dashboard-grid--sticky'}}" ...attributes>
     <div class="left-section {{@leftHeaderWrapperClass}}">
         <h1 class="text-lg font-bold">{{this.dashboard.currentDashboard.name}}</h1>
     </div>
     <div class="fleetbase-dashboard-actions right-section {{@rightHeaderWrapperClass}} flex items-center space-x-2">
+        {{yield}}
         <DropdownButton
             @text={{if this.dashboard.currentDashboard.name this.dashboard.currentDashboard.name (t "component.dashboard.select-dashboard")}}
-            @buttonClass="flex-row-reverse w-44 justify-between"
+            @buttonClass="flex-row-reverse w-48 justify-between"
             @icon="caret-down"
             @iconClass="mr-0i"
             @size="xs"

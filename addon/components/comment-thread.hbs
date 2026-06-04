@@ -12,7 +12,7 @@
     </div>
 </div>
 <div>
-    {{#each this.comments as |comment|}}
+    {{#each this.visibleComments as |comment|}}
         {{#if (has-block)}}
             {{yield (component "comment-thread/comment" comment=comment contextApi=this.context) comment}}
         {{else}}

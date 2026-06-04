@@ -1,0 +1,64 @@
+<div class="chat-inbox-conversation-row {{if this.unreadCount 'has-unread'}} {{if this.isOpen 'is-open'}}" ...attributes>
+    <button type="button" class="chat-inbox-conversation-main" {{on "click" this.open}}>
+        <div class="chat-inbox-conversation-avatars">
+            {{#if this.hasVisibleParticipants}}
+                {{#each this.visibleParticipants as |participant|}}
+                    <Image
+                        src={{participant.avatar_url}}
+                        @fallbackSrc={{config "defaultValues.userImage"}}
+                        alt={{participant.name}}
+                        class="chat-inbox-conversation-avatar"
+                    />
+                {{/each}}
+                {{#if this.extraParticipantCount}}
+                    <span class="chat-inbox-conversation-avatar chat-inbox-conversation-avatar-count">+{{this.extraParticipantCount}}</span>
+                {{/if}}
+            {{else}}
+                <span class="chat-inbox-conversation-avatar chat-inbox-conversation-avatar-empty">
+                    <FaIcon @icon="users" />
+                </span>
+            {{/if}}
+        </div>
+
+        <div class="chat-inbox-conversation-body">
+            <div class="chat-inbox-conversation-heading">
+                <span class="chat-inbox-conversation-title">{{this.title}}</span>
+                {{#if this.timestamp}}
+                    <span class="chat-inbox-conversation-time">{{this.timestamp}}</span>
+                {{/if}}
+            </div>
+            <div class="chat-inbox-conversation-preview">
+                <FaIcon @icon="message" class="chat-inbox-conversation-preview-icon" />
+                {{#if this.senderName}}
+                    <span class="chat-inbox-conversation-sender">{{this.senderName}}:</span>
+                {{/if}}
+                <span class="chat-inbox-conversation-preview-text">{{this.preview}}</span>
+            </div>
+            <div class="chat-inbox-conversation-meta">
+                {{#if this.hasAttachments}}
+                    <span class="chat-inbox-conversation-pill">
+                        <FaIcon @icon="paperclip" />
+                        Attachment
+                    </span>
+                {{/if}}
+                <span class="chat-inbox-conversation-pill">
+                    <FaIcon @icon="users" />
+                    {{this.participants.length}}
+                </span>
+            </div>
+        </div>
+
+        <div class="chat-inbox-conversation-side">
+            {{#if this.unreadCount}}
+                <span class="chat-inbox-unread-badge">{{this.unreadCount}}</span>
+            {{/if}}
+        </div>
+    </button>
+    <div class="chat-inbox-conversation-actions">
+        {{#if this.isCreator}}
+            <button type="button" class="chat-inbox-row-action" aria-label="End chat" {{on "click" this.remove}}>
+                <FaIcon @icon="times" />
+            </button>
+        {{/if}}
+    </div>
+</div>

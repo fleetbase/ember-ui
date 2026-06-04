@@ -13,7 +13,7 @@
         >
             {{#if @isLoading}}
                 <span class="btn-icon-wrapper btn-loading-icon-wrapper" data-icon-prefix={{@iconPrefix}}>
-                    <Spinner @width={{or @loaderWidth 14}} @height={{or @loaderHeight 14}} />
+                    <Spinner @width={{or @loaderWidth 14}} @height={{or @loaderHeight 14}} @wrapperClass="{{unless @text 'mr-0i'}}" />
                 </span>
             {{/if}}
             {{#if this.showIcon}}

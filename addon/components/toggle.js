@@ -30,10 +30,18 @@ export default class ToggleComponent extends Component {
         }
     }
 
-    @action toggle(isToggled) {
+    get isOn() {
+        if (typeof this.args.isToggled === 'boolean') {
+            return this.args.isToggled;
+        }
+
+        return this.isToggled;
+    }
+
+    @action toggle() {
         if (this.disabled) return;
 
-        this.isToggled = !isToggled;
+        this.isToggled = !this.isOn;
         if (typeof this.args.onToggle === 'function') {
             this.args.onToggle(this.isToggled);
         }

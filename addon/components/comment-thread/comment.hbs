@@ -100,9 +100,9 @@
         <div class="thread-comment-replies mt-3">
             {{#each this.comment.replies as |reply|}}
                 {{#if (has-block)}}
-                    {{yield (component "comment-thread/comment" comment=reply) reply}}
+                    {{yield (component "comment-thread/comment" comment=reply contextApi=this.contextApi) reply}}
                 {{else}}
-                    <CommentThread::Comment @comment={{reply}} />
+                    <CommentThread::Comment @comment={{reply}} @contextApi={{this.contextApi}} />
                 {{/if}}
             {{/each}}
         </div>

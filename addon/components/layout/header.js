@@ -21,6 +21,7 @@ export default class LayoutHeaderComponent extends Component {
     @service currentUser;
     @service abilities;
     @service fetch;
+    @service docsPanel;
     @tracked company;
     @tracked organizationMenuItems = [];
     @tracked userMenuItems = [];
@@ -242,10 +243,9 @@ export default class LayoutHeaderComponent extends Component {
             {
                 id: 'docs-user-nav-item',
                 wrapperClass: 'docs-user-nav-item',
-                href: 'https://docs.fleetbase.io',
-                target: '_docs',
                 text: 'Documentation',
-                icon: 'arrow-up-right-from-square',
+                icon: 'book-open',
+                onClick: () => this.docsPanel.open('https://www.fleetbase.io/docs', { title: 'Fleetbase Documentation', source: 'user-menu' }),
             },
         ];
 

@@ -1,0 +1,17 @@
+<button type="button" class="chat-compose-contact-row {{if this.isSelected 'is-selected'}}" {{on "click" this.toggle}} ...attributes>
+    <div class="chat-compose-contact-avatar-wrap">
+        <Image src={{@user.avatar_url}} @fallbackSrc={{config "defaultValues.userImage"}} alt={{@user.name}} class="chat-compose-contact-avatar" />
+        <span class="chat-compose-contact-presence {{if @user.is_online 'is-online'}}"></span>
+    </div>
+    <div class="chat-compose-contact-body">
+        <span class="chat-compose-contact-name">{{@user.name}}</span>
+        <span class="chat-compose-contact-subtitle">{{or @user.email @user.phone "Fleetbase user"}}</span>
+    </div>
+    <span class="chat-compose-contact-check">
+        {{#if this.isSelected}}
+            <FaIcon @icon="check" />
+        {{else}}
+            <FaIcon @icon="plus" />
+        {{/if}}
+    </span>
+</button>

@@ -81,6 +81,11 @@ export default class CommentThreadCommentComponent extends Component {
      * @action
      */
     @action delete() {
+        if (this.contextApi?.deleteComment) {
+            this.contextApi.deleteComment(this.comment);
+            return;
+        }
+
         this.comment.destroyRecord();
     }
 
@@ -93,7 +98,12 @@ export default class CommentThreadCommentComponent extends Component {
             return;
         }
 
-        yield this.comment.save();
+        if (this.contextApi?.updateComment) {
+            yield this.contextApi.updateComment(this.comment);
+        } else {
+            yield this.comment.save();
+        }
+
         this.editing = false;
     }
 
@@ -106,15 +116,17 @@ export default class CommentThreadCommentComponent extends Component {
             return;
         }
 
-        let comment = this.store.createRecord('comment', {
-            content: this.input,
-            parent_comment_uuid: this.comment.id,
-            subject_uuid: this.comment.subject_uuid,
-            subject_type: this.comment.subject_type,
-        });
+        if (this.contextApi?.publishReply) {
+            yield this.contextApi.publishReply(this.comment, this.input);
+        } else {
+            let comment = this.store.createRecord('comment', {
+                content: this.input,
+                parent_comment_uuid: this.comment.uuid ?? this.comment.public_id ?? this.comment.id,
+            });
 
-        yield comment.save();
-        yield this.reloadReplies.perform();
+            yield comment.save();
+            yield this.reloadReplies.perform();
+        }
 
         this.replying = false;
         this.input = '';
