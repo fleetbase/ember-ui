@@ -1,0 +1,89 @@
+<div class="next-sidebar-navigator" {{on "keydown" this.handleKeydown}} ...attributes>
+    {{#if @primaryAction}}
+        <button type="button" class="next-sidebar-navigator-primary-action" {{on "click" @primaryAction.onClick}}>
+            {{#if @primaryAction.icon}}
+                <FaIcon @icon={{@primaryAction.icon}} @prefix={{@primaryAction.iconPrefix}} @size="xs" />
+            {{/if}}
+            <span>{{@primaryAction.label}}</span>
+        </button>
+    {{/if}}
+
+    <div class="next-sidebar-navigator-search">
+        <FaIcon @icon="magnifying-glass" @size="xs" />
+        <input
+            type="search"
+            value={{this.query}}
+            placeholder={{or @searchPlaceholder "Search or jump to..."}}
+            aria-label={{or @searchLabel "Search navigation"}}
+            {{on "input" this.updateQuery}}
+        />
+        {{#if this.hasQuery}}
+            <button type="button" aria-label="Clear search" {{on "click" this.clearQuery}}>
+                <FaIcon @icon="xmark" @size="xs" />
+            </button>
+        {{else}}
+            <span class="next-sidebar-navigator-kbd">Cmd K</span>
+        {{/if}}
+    </div>
+
+    <div class="next-sidebar-navigator-viewport {{if this.isNested 'is-nested'}}">
+        {{#if this.hasQuery}}
+            <div class="next-sidebar-navigator-view">
+                <div class="next-sidebar-navigator-view-title">Search results</div>
+                {{#if this.emptySearch}}
+                    <div class="next-sidebar-navigator-empty">No navigation results found.</div>
+                {{else}}
+                    {{#each this.searchResults as |result|}}
+                        <button type="button" class="next-sidebar-navigator-item" {{on "click" (fn this.openSearchResult result)}}>
+                            <span class="next-sidebar-navigator-item-icon">
+                                {{#if result.item.icon}}
+                                    <FaIcon @icon={{result.item.icon}} @prefix={{result.item.iconPrefix}} @size="xs" />
+                                {{/if}}
+                            </span>
+                            <span class="next-sidebar-navigator-item-content">
+                                <span class="next-sidebar-navigator-item-label">{{or result.item.label result.item.title}}</span>
+                                <span class="next-sidebar-navigator-item-description">{{this.breadcrumb result.path}}</span>
+                            </span>
+                        </button>
+                    {{/each}}
+                {{/if}}
+            </div>
+        {{else}}
+            <div class="next-sidebar-navigator-view">
+                {{#if this.isNested}}
+                    <button type="button" class="next-sidebar-navigator-back" {{on "click" this.back}}>
+                        <FaIcon @icon="chevron-left" @size="xs" />
+                        <span>{{this.title}}</span>
+                    </button>
+                {{/if}}
+
+                {{#each this.currentItems as |item|}}
+                    <button
+                        type="button"
+                        class="next-sidebar-navigator-item {{if (this.isActive item) 'is-active'}} {{if (this.isParentActive item) 'is-parent-active'}}"
+                        aria-current={{if (this.isActive item) "page"}}
+                        {{on "click" (fn this.openItem item)}}
+                    >
+                        <span class="next-sidebar-navigator-item-icon">
+                            {{#if item.icon}}
+                                <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="xs" />
+                            {{/if}}
+                        </span>
+                        <span class="next-sidebar-navigator-item-content">
+                            <span class="next-sidebar-navigator-item-label">{{or item.label item.title}}</span>
+                            {{#if item.description}}
+                                <span class="next-sidebar-navigator-item-description">{{item.description}}</span>
+                            {{/if}}
+                        </span>
+                        {{#if item.badge}}
+                            <span class="next-sidebar-navigator-item-badge">{{item.badge}}</span>
+                        {{/if}}
+                        {{#if item.children.length}}
+                            <FaIcon @icon="chevron-right" @size="xs" class="next-sidebar-navigator-item-caret" />
+                        {{/if}}
+                    </button>
+                {{/each}}
+            </div>
+        {{/if}}
+    </div>
+</div>

@@ -6,6 +6,7 @@
                     columns=this.visibleColumns
                     rows=@rows
                     pagination=@pagination
+                    emptyState=this.emptyStateContext
                     body=(component "table/body" selectable=@selectable rows=@rows columns=this.visibleColumns canExpand=@canExpand onRowClick=@onRowClick)
                     head=(component
                         "table/head"
@@ -47,20 +48,51 @@
                     {{/each}}
                 </Table::Row>
             </Table::Head>
-            <Table::Body @selectable={{@selectable}} @rows={{@rows}} @columns={{this.visibleColumns}} @canExpand={{@canExpand}} @onRowClick={{@onRowClick}}>
-                {{#each @rows as |row|}}
-                    <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
-                        {{#if @selectable}}
-                            <Table::Td @sticky={{@checkboxSticky}}>
-                                <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
-                            </Table::Td>
-                        {{/if}}
-                        {{#each this.visibleColumns as |column|}}
-                            <Table::Td @column={{column}} @row={{row}} @value={{get row column.valuePath}} />
-                        {{/each}}
-                    </Table::Row>
-                {{/each}}
-            </Table::Body>
+            {{#if this.hasRows}}
+                <Table::Body @selectable={{@selectable}} @rows={{@rows}} @columns={{this.visibleColumns}} @canExpand={{@canExpand}} @onRowClick={{@onRowClick}}>
+                    {{#each @rows as |row|}}
+                        <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
+                            {{#if @selectable}}
+                                <Table::Td @sticky={{@checkboxSticky}}>
+                                    <Table::Cell::Checkbox @row={{row}} @value={{get row "checked"}} />
+                                </Table::Td>
+                            {{/if}}
+                            {{#each this.visibleColumns as |column|}}
+                                <Table::Td @column={{column}} @row={{row}} @value={{get row column.valuePath}} />
+                            {{/each}}
+                        </Table::Row>
+                    {{/each}}
+                </Table::Body>
+            {{else}}
+                <tbody>
+                    <tr class="next-table-empty-state-row">
+                        <td colspan={{this.emptyStateColspan}} class="next-table-empty-state-cell">
+                            {{#if (has-block "emptyState")}}
+                                {{yield this.emptyStateContext to="emptyState"}}
+                            {{else if @emptyStateComponent}}
+                                {{component @emptyStateComponent context=this.emptyStateContext}}
+                            {{else}}
+                                <div class="next-table-empty-state">
+                                    {{#if @emptyStateIcon}}
+                                        <div class="next-table-empty-state-icon">
+                                            <FaIcon @icon={{@emptyStateIcon}} @prefix={{@emptyStateIconPrefix}} />
+                                        </div>
+                                    {{/if}}
+                                    <div class="next-table-empty-state-title">{{or @emptyStateTitle "No records found"}}</div>
+                                    {{#if @emptyStateDescription}}
+                                        <div class="next-table-empty-state-description">{{@emptyStateDescription}}</div>
+                                    {{/if}}
+                                    {{#if @emptyStateAction}}
+                                        <button type="button" class="next-table-empty-state-action" {{on "click" @emptyStateAction.onClick}}>
+                                            {{@emptyStateAction.label}}
+                                        </button>
+                                    {{/if}}
+                                </div>
+                            {{/if}}
+                        </td>
+                    </tr>
+                </tbody>
+            {{/if}}
             {{#if (or @tfoot (and @pagination @useTfootPagination))}}
                 <Table::Foot @columns={{this.visibleColumns}} @tfootVerticalOffset={{@tfootVerticalOffset}} @tfootVerticalOffsetElements={{@tfootVerticalOffsetElements}}>
                     <tr class="tfoot-row {{if @pagination 'next-pagination-row'}}">

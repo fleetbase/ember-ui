@@ -19,6 +19,19 @@ module('Integration | Component | layout/sidebar', function (hooks) {
         assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-hidden');
     });
 
+    test('it yields contextual sidebar components', async function (assert) {
+        this.set('items', [{ label: 'Orders', icon: 'box' }]);
+
+        await render(hbs`
+            <Layout::Sidebar as |Sidebar|>
+                <Sidebar.Navigator @items={{this.items}} />
+            </Layout::Sidebar>
+        `);
+
+        assert.dom('.next-sidebar-navigator').exists();
+        assert.dom('.next-sidebar-navigator-item').hasText('Orders');
+    });
+
     test('it initializes hidden state when rendered with @hide', async function (assert) {
         await render(hbs`<Layout::Sidebar @hide={{true}} />`);
 

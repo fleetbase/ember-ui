@@ -25,6 +25,7 @@ export default class LayoutSidebarComponent extends Component {
     @tracked isResizing = false;
     @tracked hidden = false;
     @tracked minimized = false;
+    @tracked lastVisibleWidth = 0;
     hideTimer = null;
     context = null;
 
@@ -78,22 +79,13 @@ export default class LayoutSidebarComponent extends Component {
         const width = dx * multiplier + this.sidebarWidth;
         const minResizeWidth = this.args.minResizeWidth ?? 200;
         const maxResizeWidth = this.args.maxResizeWidth ?? 330;
-
-        // Min resize width
-        if (width <= minResizeWidth) {
-            sidebarNode.style.width = `${minResizeWidth}px`;
-            return;
-        }
-
-        // Max resize width
-        if (width >= maxResizeWidth) {
-            sidebarNode.style.width = `${maxResizeWidth}px`;
-            return;
-        }
+        const collapseBelowWidth = this.args.collapseBelowWidth ?? 160;
+        const resizeWidth = Math.max(collapseBelowWidth, Math.min(width, maxResizeWidth));
 
         // Style changes
-        sidebarNode.style.width = `${width}px`;
+        sidebarNode.style.width = `${resizeWidth}px`;
         sidebarNode.style.userSelect = 'none';
+        sidebarNode.classList.toggle('sidebar-resizing-to-collapse', resizeWidth <= minResizeWidth);
         document.body.style.cursor = 'col-resize';
 
         if (typeof onResize === 'function') {
@@ -113,6 +105,7 @@ export default class LayoutSidebarComponent extends Component {
 
         // Set the sidebar width
         this.sidebarWidth = bounds.width;
+        this.lastVisibleWidth = bounds.width;
 
         // Start resizing
         this.isResizing = true;
@@ -134,6 +127,9 @@ export default class LayoutSidebarComponent extends Component {
     @action stopResize(event) {
         const { onResizeEnd } = this.args;
         const { sidebarNode } = this;
+        const collapseBelowWidth = this.args.collapseBelowWidth ?? 160;
+        const restoreWidth = this.args.restoreWidth ?? 220;
+        const currentWidth = sidebarNode?.getBoundingClientRect?.().width ?? 0;
 
         // End resizing
         this.isResizing = false;
@@ -141,7 +137,15 @@ export default class LayoutSidebarComponent extends Component {
         // Remove style changes
         document.body.style.removeProperty('cursor');
         sidebarNode.style.userSelect = 'auto';
-        this.syncTransitionWidth(sidebarNode);
+        sidebarNode.classList.remove('sidebar-resizing-to-collapse');
+
+        if (currentWidth <= collapseBelowWidth) {
+            sidebarNode.style.width = `${this.lastVisibleWidth || restoreWidth}px`;
+            this.hide(sidebarNode);
+        } else {
+            this.lastVisibleWidth = currentWidth;
+            this.syncTransitionWidth(sidebarNode);
+        }
 
         // Remove the handlers of `mousemove` and `mouseup`
         document.removeEventListener('mousemove', this.resize);
@@ -172,6 +176,16 @@ export default class LayoutSidebarComponent extends Component {
         if (!Number.isFinite(width) || width <= 0) return;
 
         sidebarNode.style.setProperty('--sidebar-transition-width', `${width}px`);
+    }
+
+    restoreVisibleWidth(sidebarNode = this.sidebarNode) {
+        if (!sidebarNode) return;
+
+        const restoreWidth = this.args.restoreWidth ?? 220;
+        const width = this.lastVisibleWidth || restoreWidth;
+
+        sidebarNode.style.width = `${width}px`;
+        this.syncTransitionWidth(sidebarNode);
     }
 
     @action hideNow(sidebarNode) {
@@ -209,6 +223,7 @@ export default class LayoutSidebarComponent extends Component {
     @action show(sidebarNode) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
         this.cancelHideTimer();
+        this.restoreVisibleWidth(sidebarNode);
         this.syncTransitionWidth(sidebarNode);
         sidebarNode.classList.remove('sidebar-hidden', 'sidebar-hide', 'sidebar-minimized');
         this.syncState('visible');
