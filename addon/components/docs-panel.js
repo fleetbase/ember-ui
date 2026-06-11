@@ -16,6 +16,11 @@ export default class DocsPanelComponent extends Component {
     }
 
     @action
+    markIframeLoaded() {
+        this.docsPanel.markIframeLoaded();
+    }
+
+    @action
     openExternal() {
         this.docsPanel.openExternal();
     }

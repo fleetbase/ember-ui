@@ -2,7 +2,11 @@
     <div class="next-sidebar-content">
         <div class="next-sidebar-content-inner">
             <div role="menu" id="sidebar-menu-items">
-                {{yield}}
+                {{yield
+                    (hash
+                        Navigator=(component "layout/sidebar/navigator")
+                    )
+                }}
             </div>
         </div>
     </div>

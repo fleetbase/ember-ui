@@ -1,26 +1,155 @@
+import { helper } from '@ember/component/helper';
+import Service from '@ember/service';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, triggerEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | activity-log', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    hooks.beforeEach(function () {
+        this.activities = [];
 
-        await render(hbs`<ActivityLog />`);
+        const activities = this.activities;
+        const translations = {
+            'common.activity': 'Activity',
+            'common.date': 'Date',
+            'common.filter-by-field': 'Filter by Date',
+            'common.refresh': 'Refresh',
+        };
 
-        assert.dom().hasText('');
+        class StoreStub extends Service {
+            query() {
+                return Promise.resolve({
+                    toArray() {
+                        return activities;
+                    },
+                });
+            }
+        }
 
-        // Template block usage:
+        this.owner.register('service:store', StoreStub);
+        this.owner.register(
+            'helper:t',
+            helper(([key]) => translations[key] ?? key)
+        );
+    });
+
+    test('it renders the empty state', async function (assert) {
+        await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+        assert.dom('.activity-log-title').hasText('Activity');
+        assert.dom('.activity-log-empty').includesText('No activity yet');
+    });
+
+    test('it renders a multi-attribute change row with relative timestamp', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'updated',
+                causer: { name: 'Shiv Thakker' },
+                subject_type: 'Fleetbase\\Models\\User',
+                properties: {
+                    old: { status: 'pending', email: 'old@example.com' },
+                    attributes: { status: 'active', email: 'new@example.com' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+        assert.dom('.activity-log-item').exists({ count: 1 });
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker changed 2 attributes');
+        assert.dom('.activity-log-time').hasAttribute('datetime', '2026-06-01T12:00:00Z');
+        assert.dom('.activity-log-time').includesText('ago');
+    });
+
+    test('it shows changed attributes with previous and new values in a hover popover', async function (assert) {
+        this.activities.push(
+            activity({
+                properties: {
+                    old: { status: 'pending', email: 'old@example.com' },
+                    attributes: { status: 'active', email: 'new@example.com' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @showControls={{false}} />`);
+        await triggerEvent('.activity-log-change-trigger', 'mouseenter');
+
+        assert.dom('.activity-log-changes-popover').exists();
+        assert.dom('.activity-log-changes-popover').includesText('Attribute');
+        assert.dom('.activity-log-changes-popover').includesText('Previous value');
+        assert.dom('.activity-log-changes-popover').includesText('New value');
+        assert.dom('.activity-log-changes-popover').includesText('Status');
+        assert.dom('.activity-log-changes-popover').includesText('pending');
+        assert.dom('.activity-log-changes-popover').includesText('active');
+    });
+
+    test('it renders a single attribute change inline', async function (assert) {
+        this.activities.push(
+            activity({
+                properties: {
+                    old: { status: 'pending' },
+                    attributes: { status: 'active' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+        assert.dom('.activity-log-inline-change').includesText('Status from pending to active');
+        assert.dom('.activity-log-sentence').includesText('on User');
+    });
+
+    test('it renders created and deleted rows with object labels', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'created',
+                created_at: '2026-06-02T12:00:00Z',
+                subject: { name: 'User' },
+            }),
+            activity({
+                event: 'deleted',
+                created_at: '2026-06-01T12:00:00Z',
+                subject: { name: 'Order' },
+                subject_type: 'Fleetbase\\Models\\Order',
+            })
+        );
+
+        await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+        assert.dom('.activity-log-item').exists({ count: 2 });
+        assert.dom('.activity-log-list').includesText('Shiv Thakker created User');
+        assert.dom('.activity-log-list').includesText('Shiv Thakker deleted Order');
+    });
+
+    test('it preserves named slots and the default block', async function (assert) {
         await render(hbs`
-      <ActivityLog>
-        template block text
-      </ActivityLog>
-    `);
+            <ActivityLog @showControls={{false}}>
+                <:viewAll><a href="/activity">View all</a></:viewAll>
+                <:filters><span data-test-filter>Custom filter</span></:filters>
+                <:default><span data-test-default>Default content</span></:default>
+            </ActivityLog>
+        `);
 
-        assert.dom().hasText('template block text');
+        assert.dom('a').hasText('View all');
+        assert.dom('[data-test-filter]').doesNotExist('filters are hidden when controls are disabled');
+        assert.dom('[data-test-default]').hasText('Default content');
     });
 });
+
+function activity(options = {}) {
+    return {
+        event: 'updated',
+        created_at: '2026-06-01T12:00:00Z',
+        causer: { name: 'Shiv Thakker' },
+        subject: { name: 'User' },
+        subject_type: 'Fleetbase\\Models\\User',
+        properties: {
+            old: {},
+            attributes: {},
+        },
+        ...options,
+    };
+}

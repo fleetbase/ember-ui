@@ -82,9 +82,9 @@ export default class FloatingComponent extends Component {
         const { defaultOptions } = this;
         const mware = this.args.middleware;
         const offsetBy = this.args.offset;
-        const displayArrow = this.args.offset;
+        const displayArrow = this.args.arrow;
 
-        const middleware = isArray(mware) ? mware : defaultOptions.middleware;
+        const middleware = isArray(mware) ? [...mware] : [...defaultOptions.middleware];
 
         if (typeof offsetBy === 'number') {
             middleware.push(offset(offsetBy));

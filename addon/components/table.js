@@ -5,7 +5,6 @@ import { inject as service } from '@ember/service';
 import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
 import { filter, alias } from '@ember/object/computed';
-import { isEqual } from '@fleetbase/ember-core/decorators/is-equal';
 
 export default class TableComponent extends Component {
     @service tableContext;
@@ -16,12 +15,37 @@ export default class TableComponent extends Component {
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
     @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
-    @isEqual('selectedRows.length', 'rows.length') allRowsSelected;
 
     constructor() {
         super(...arguments);
         // Initialize sort columns from args if provided
         this.initializeSortColumns();
+    }
+
+    get hasRows() {
+        return Array.isArray(this.args.rows) && this.args.rows.length > 0;
+    }
+
+    get allRowsSelected() {
+        return this.selectedRows.length === (this.rows?.length ?? 0);
+    }
+
+    get emptyStateColspan() {
+        const selectableColumnCount = this.args.selectable ? 1 : 0;
+        const expandColumnCount = this.args.canExpand ? 1 : 0;
+
+        return (this.visibleColumns?.length ?? 0) + selectableColumnCount + expandColumnCount;
+    }
+
+    get emptyStateContext() {
+        return {
+            columns: this.visibleColumns,
+            rows: this.args.rows ?? [],
+            pagination: this.args.pagination,
+            paginationMeta: this.args.paginationMeta,
+            searchQuery: this.args.searchQuery,
+            isFiltered: this.args.isFiltered,
+        };
     }
 
     initializeSortColumns() {
