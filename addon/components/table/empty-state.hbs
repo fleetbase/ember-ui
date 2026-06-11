@@ -1,0 +1,49 @@
+<div class={{this.wrapperClass}} ...attributes>
+    <div class="next-table-empty-state-icon">
+        <FaIcon @icon={{this.icon}} @prefix={{@iconPrefix}} />
+    </div>
+
+    <div class="next-table-empty-state-content">
+        <h3 class="next-table-empty-state-title">{{this.title}}</h3>
+        {{#if this.description}}
+            <p class="next-table-empty-state-description">{{this.description}}</p>
+        {{/if}}
+        {{#if this.note}}
+            <p class="next-table-empty-state-note">{{this.note}}</p>
+        {{/if}}
+    </div>
+
+    {{#if (or @primaryAction @secondaryAction)}}
+        <div class="next-table-empty-state-actions">
+            {{#if @secondaryAction}}
+                <Button
+                    @type="default"
+                    @size={{this.actionButtonSize}}
+                    @icon={{@secondaryIcon}}
+                    @text={{@secondaryText}}
+                    @onClick={{@secondaryAction}}
+                    class="next-table-empty-state-secondary-action"
+                />
+            {{/if}}
+            {{#if @primaryAction}}
+                <Button
+                    @type="primary"
+                    @size={{this.actionButtonSize}}
+                    @icon={{@primaryIcon}}
+                    @text={{@primaryText}}
+                    @onClick={{@primaryAction}}
+                    class="next-table-empty-state-primary-action"
+                />
+            {{/if}}
+        </div>
+    {{/if}}
+
+    {{#if this.docsTarget}}
+        <div class="next-table-empty-state-docs">
+            <button type="button" class="next-table-empty-state-docs-action" {{on "click" this.openDocs}}>
+                <FaIcon @icon="book-open" />
+                <span>{{this.docsText}}</span>
+            </button>
+        </div>
+    {{/if}}
+</div>

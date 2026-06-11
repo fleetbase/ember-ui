@@ -1,9 +1,21 @@
 import Service from '@ember/service';
 import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 
 export default class SidebarNavigatorService extends Service {
-    @service router;
     @service abilities;
+
+    get router() {
+        return this.lookupService('router') ?? this.lookupService('host-router');
+    }
+
+    lookupService(name) {
+        try {
+            return getOwner(this).lookup(`service:${name}`);
+        } catch (_) {
+            return null;
+        }
+    }
 
     normalizeItems(items = []) {
         if (!Array.isArray(items)) {
@@ -61,7 +73,23 @@ export default class SidebarNavigatorService extends Service {
         });
     }
 
-    activePath(items = [], routeName = this.router.currentRouteName, currentURL = this.router.currentURL) {
+    normalizeSearchResults(results = []) {
+        if (!Array.isArray(results)) {
+            return [];
+        }
+
+        return results.filter(Boolean).map((result) => {
+            return {
+                type: 'Result',
+                ...result,
+                item: result.item ?? result,
+                label: result.label ?? result.title,
+                breadcrumb: result.breadcrumb,
+            };
+        });
+    }
+
+    activePath(items = [], routeName = this.router?.currentRouteName, currentURL = this.router?.currentURL) {
         for (const item of items) {
             const childPath = this.activePath(item.children ?? [], routeName, currentURL);
 
@@ -77,7 +105,7 @@ export default class SidebarNavigatorService extends Service {
         return [];
     }
 
-    isActive(item = {}, routeName = this.router.currentRouteName, currentURL = this.router.currentURL) {
+    isActive(item = {}, routeName = this.router?.currentRouteName, currentURL = this.router?.currentURL) {
         if (item.route && routeName?.startsWith(item.route)) {
             return true;
         }

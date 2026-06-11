@@ -37,6 +37,7 @@
 .status-badge.published-status-badge > span,
 .status-badge.live-status-badge > span,
 .status-badge.online-status-badge > span,
+.status-badge.connected-status-badge > span,
 .status-badge.created-status-badge > span,
 .status-badge.open-status-badge > span,
 .status-badge.enabled-status-badge > span,
@@ -65,6 +66,7 @@
 .status-badge.published-status-badge > span svg,
 .status-badge.live-status-badge > span svg,
 .status-badge.online-status-badge > span svg,
+.status-badge.connected-status-badge > span svg,
 .status-badge.created-status-badge > span svg,
 .status-badge.open-status-badge > span svg,
 .status-badge.enabled-status-badge > span svg,
@@ -137,11 +139,17 @@
 }
 
 .status-badge.closed-status-badge > span,
+.status-badge.not-configured-status-badge > span,
+.status-badge.not-verified-status-badge > span,
+.status-badge.not-tested-status-badge > span,
 .status-badge.slate-status-badge > span {
     @apply bg-slate-800 border-slate-700 text-slate-100;
 }
 
 .status-badge.closed-status-badge > span svg,
+.status-badge.not-configured-status-badge > span svg,
+.status-badge.not-verified-status-badge > span svg,
+.status-badge.not-tested-status-badge > span svg,
 .status-badge.slate-status-badge > span svg {
     @apply text-slate-300;
 }
@@ -161,6 +169,8 @@
 .status-badge.faulty-status-badge > span,
 .status-badge.degraded-status-badge > span,
 .status-badge.error-status-badge > span,
+.status-badge.connection-failed-status-badge > span,
+.status-badge.sync-failed-status-badge > span,
 .status-badge.escalated-status-badge > span,
 .status-badge.urgent-status-badge > span,
 .status-badge.high-status-badge > span,
@@ -186,6 +196,8 @@
 .status-badge.faulty-status-badge > span svg,
 .status-badge.degraded-status-badge > span svg,
 .status-badge.error-status-badge > span svg,
+.status-badge.connection-failed-status-badge > span svg,
+.status-badge.sync-failed-status-badge > span svg,
 .status-badge.escalated-status-badge > span svg,
 .status-badge.high-status-badge > span svg,
 .status-badge.rejected-status-badge > span svg,
@@ -221,6 +233,9 @@
 .status-badge.maintenance-status-badge > span,
 .status-badge.test-status-badge > span,
 .status-badge.warning-status-badge > span,
+.status-badge.synchronizing-status-badge > span,
+.status-badge.syncing-status-badge > span,
+.status-badge.sync-queued-status-badge > span,
 .status-badge.medium-status-badge > span,
 .status-badge.preparing-status-badge > span,
 .status-badge.trial-status-badge > span,
@@ -252,6 +267,9 @@
 .status-badge.maintenance-status-badge > span svg,
 .status-badge.test-status-badge > span svg,
 .status-badge.warning-status-badge > span svg,
+.status-badge.synchronizing-status-badge > span svg,
+.status-badge.syncing-status-badge > span svg,
+.status-badge.sync-queued-status-badge > span svg,
 .status-badge.medium-status-badge > span svg,
 .status-badge.preparing-status-badge > span svg,
 .status-badge.trial-status-badge > span svg,
