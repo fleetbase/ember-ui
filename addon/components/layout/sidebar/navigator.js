@@ -82,7 +82,25 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     get currentParent() {
-        return this.viewStack[this.viewStack.length - 1];
+        return this.currentStack[this.currentStack.length - 1];
+    }
+
+    get currentStack() {
+        let items = this.items;
+        const stack = [];
+
+        for (const stackedItem of this.viewStack) {
+            const item = this.findMatchingItem(items, stackedItem);
+
+            if (!item) {
+                break;
+            }
+
+            stack.push(item);
+            items = item.children ?? [];
+        }
+
+        return stack;
     }
 
     get title() {
@@ -90,7 +108,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     get isNested() {
-        return this.viewStack.length > 0;
+        return this.currentStack.length > 0;
     }
 
     get hasQuery() {
@@ -262,7 +280,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     @action openItem(item) {
         if (item.children?.length) {
             this.query = '';
-            this.transitionToStack([...this.viewStack, item], 'forward');
+            this.transitionToStack([...this.currentStack, item], 'forward');
             return;
         }
 
@@ -278,7 +296,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         this.closeSearch();
 
         if (item.children?.length) {
-            this.transitionToStack(result.path ?? [...this.viewStack, item], 'forward');
+            this.transitionToStack(result.path ?? [...this.currentStack, item], 'forward');
             return;
         }
 
@@ -291,7 +309,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
     @action back() {
         this.query = '';
-        this.transitionToStack(this.viewStack.slice(0, -1), 'back');
+        this.transitionToStack(this.currentStack.slice(0, -1), 'back');
     }
 
     @action transitionItem(item) {
@@ -442,6 +460,15 @@ export default class LayoutSidebarNavigatorComponent extends Component {
             this.outgoingView = null;
             this.viewportNode?.style.removeProperty('--next-sidebar-navigator-transition-height');
         }, 220);
+    }
+
+    findMatchingItem(items = [], item = {}) {
+        const key = this.itemKey(item);
+        return items.find((candidate) => this.itemKey(candidate) === key);
+    }
+
+    itemKey(item = {}) {
+        return item.id ?? item.route ?? item.url ?? item.label ?? item.title;
     }
 
     searchProvider() {

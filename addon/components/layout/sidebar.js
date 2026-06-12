@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { cancel, later } from '@ember/runloop';
 import { capitalize } from '@ember/string';
+import config from 'ember-get-config';
 
 class SidebarContext {
     constructor(component) {
@@ -31,6 +32,10 @@ export default class LayoutSidebarComponent extends Component {
     pendingResizeWidth = null;
     activeResizeContainer = null;
     context = null;
+
+    get showDefaultAttribution() {
+        return config.APP?.disableFleetbaseAttribution !== true;
+    }
 
     @action setupNode(property, node) {
         this[`${property}Node`] = node;

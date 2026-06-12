@@ -1377,7 +1377,7 @@ body[data-theme='dark'] .next-view-header .next-view-header-right .next-user-but
 }
 
 .next-sidebar {
-    height: 100vh;
+    height: 100%;
     pointer-events: auto;
     display: flex;
     flex-direction: row;
@@ -1454,6 +1454,13 @@ nav.next-sidebar {
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    opacity: calc(1 - var(--sidebar-collapse-progress));
+}
+
+.next-sidebar > .next-sidebar-content > .next-sidebar-footer {
+    @apply px-2 py-3 border-t border-gray-200;
+    flex: 0 0 auto;
+    min-width: 0;
     opacity: calc(1 - var(--sidebar-collapse-progress));
 }
 
@@ -2414,6 +2421,10 @@ body[data-theme='dark'] .next-table-wrapper table tbody tr:hover td a {
 
 body[data-theme='dark'] .next-sidebar {
     @apply bg-gray-900;
+}
+
+body[data-theme='dark'] .next-sidebar > .next-sidebar-content > .next-sidebar-footer {
+    @apply border-gray-700;
 }
 
 body[data-theme='dark'] .next-sidebar::after {

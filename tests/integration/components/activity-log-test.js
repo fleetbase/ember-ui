@@ -64,6 +64,97 @@ module('Integration | Component | activity-log', function (hooks) {
         assert.dom('.activity-log-time').includesText('ago');
     });
 
+    test('it keeps subject scoped multi-attribute rows compact', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'updated',
+                subject: { name: 'Ron' },
+                subject_type: 'Fleetbase\\Models\\Driver',
+                properties: {
+                    old: { status: 'offline', phone: '555-0000' },
+                    attributes: { status: 'online', phone: '555-1111' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @subjectId="driver-1" @showControls={{false}} />`);
+
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker changed 2 attributes');
+        assert.dom('.activity-log-sentence').doesNotIncludeText('driver (Ron)');
+    });
+
+    test('it shows subject context for company scoped multi-attribute rows', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'updated',
+                subject: { name: 'Production Key' },
+                subject_type: 'Fleetbase\\Models\\ApiKey',
+                properties: {
+                    old: { name: 'Old Key', status: 'inactive', description: 'Old' },
+                    attributes: { name: 'Production Key', status: 'active', description: 'Current' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @companyUuid="company-1" @showControls={{false}} />`);
+
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker updated an api key (Production Key) with 3 attributes');
+    });
+
+    test('it shows subject context for causer scoped multi-attribute rows', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'created',
+                subject: {},
+                subject_type: 'Fleetbase\\Models\\ApiKey',
+                properties: {
+                    attributes: { name: 'Production Key', status: 'active', description: 'Current', token: 'secret' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @causerId="user-1" @showControls={{false}} />`);
+
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker created a new api key with 4 attributes');
+    });
+
+    test('it can suppress subject context with an explicit override', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'updated',
+                subject: { name: 'Production Key' },
+                subject_type: 'Fleetbase\\Models\\ApiKey',
+                properties: {
+                    old: { status: 'inactive', description: 'Old' },
+                    attributes: { status: 'active', description: 'Current' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @companyUuid="company-1" @showSubjectContext={{false}} @showControls={{false}} />`);
+
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker changed 2 attributes');
+        assert.dom('.activity-log-sentence').doesNotIncludeText('api key');
+    });
+
+    test('it can force subject context with an explicit override', async function (assert) {
+        this.activities.push(
+            activity({
+                event: 'updated',
+                subject: { name: 'Production Key' },
+                subject_type: 'Fleetbase\\Models\\ApiKey',
+                properties: {
+                    old: { status: 'inactive', description: 'Old' },
+                    attributes: { status: 'active', description: 'Current' },
+                },
+            })
+        );
+
+        await render(hbs`<ActivityLog @subjectId="api-key-1" @showSubjectContext={{true}} @showControls={{false}} />`);
+
+        assert.dom('.activity-log-sentence').includesText('Shiv Thakker updated an api key (Production Key) with 2 attributes');
+    });
+
     test('it shows changed attributes with previous and new values in a hover popover', async function (assert) {
         this.activities.push(
             activity({

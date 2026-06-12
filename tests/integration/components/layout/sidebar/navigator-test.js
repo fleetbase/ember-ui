@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { click, fillIn, render, triggerEvent, triggerKeyEvent, waitFor } from '@ember/test-helpers';
+import { click, fillIn, render, settled, triggerEvent, triggerKeyEvent, waitFor } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | layout/sidebar/navigator', function (hooks) {
@@ -86,6 +86,39 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').hasClass('has-description');
         assert.dom('.next-sidebar-navigator-item-description').hasText('Pricing rules for operations.');
         assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').hasAttribute('title', 'Manage service pricing');
+    });
+
+    test('it updates an open nested menu when item children change', async function (assert) {
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+        await click('.next-sidebar-navigator-view-in .next-sidebar-navigator-item:nth-of-type(2)');
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Settings');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('Service Rates');
+
+        this.set('items', [
+            {
+                label: 'Orders',
+                icon: 'box',
+                onClick: () => this.set('selected', 'orders'),
+            },
+            {
+                label: 'Settings',
+                icon: 'gear',
+                children: [
+                    {
+                        label: 'Notifications',
+                        icon: 'bell',
+                        onClick: () => this.set('selected', 'notifications'),
+                    },
+                ],
+            },
+        ]);
+        await settled();
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Settings');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('Notifications');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').doesNotIncludeText('Service Rates');
     });
 
     test('it morphs search into a portal command panel without replacing the menu body', async function (assert) {

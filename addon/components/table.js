@@ -11,7 +11,6 @@ export default class TableComponent extends Component {
     @tracked tableNode;
     @tracked allRowsToggled = false;
     @tracked sortColumns = [];
-    @alias('args.rows') rows;
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
     @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
@@ -22,8 +21,15 @@ export default class TableComponent extends Component {
         this.initializeSortColumns();
     }
 
+    get rows() {
+        const rows = this.args.rows ?? [];
+        if (isArray(rows)) return rows;
+        if (typeof rows?.toArray === 'function') return rows.toArray();
+        return Array.from(rows);
+    }
+
     get hasRows() {
-        return Array.isArray(this.args.rows) && this.args.rows.length > 0;
+        return isArray(this.rows) && this.rows.length > 0;
     }
 
     get allRowsSelected() {
@@ -40,7 +46,7 @@ export default class TableComponent extends Component {
     get emptyStateContext() {
         return {
             columns: this.visibleColumns,
-            rows: this.args.rows ?? [],
+            rows: this.rows ?? [],
             pagination: this.args.pagination,
             paginationMeta: this.args.paginationMeta,
             searchQuery: this.args.searchQuery,

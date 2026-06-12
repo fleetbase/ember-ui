@@ -45,6 +45,10 @@
                                 <span class="activity-log-verb">{{item.verb}}</span>
 
                                 {{#if item.hasMultipleChanges}}
+                                    {{#if item.targetPhrase}}
+                                        <button type="button" class="activity-log-object" {{on "click" (fn this.onSubjectClick item.subject)}}>{{item.targetPhrase}}</button>
+                                        <span class="activity-log-muted">with</span>
+                                    {{/if}}
                                     <span class="activity-log-change-trigger">
                                         <button type="button" class="activity-log-change-count">{{item.changeCount}} attributes</button>
 

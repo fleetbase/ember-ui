@@ -110,10 +110,12 @@ export default class ActivityLogComponent extends Component {
         const event = String(activity?.event || '').toLowerCase();
         const changes = this.#computeChanges(activity?.properties);
         const changeCount = changes.length;
-        const verb = this.#eventToVerb(event, activity?.description, changeCount);
+        const shouldShowSubjectContext = this.#shouldShowSubjectContext();
+        const verb = this.#eventToVerb(event, activity?.description, changeCount, shouldShowSubjectContext);
         const hasMultipleChanges = changeCount > 1;
         const inlineChange = changeCount === 1 ? this.#inlineChangeSummary(changes[0]) : null;
         const objectLabel = this.#objectLabel(activity, subjectTypeLabel);
+        const targetPhrase = shouldShowSubjectContext ? this.#targetPhrase(activity, subjectTypeLabel, event) : null;
         const actorName = causer?.name ?? 'Someone';
 
         const badge = this.#eventBadge(event);
@@ -134,6 +136,7 @@ export default class ActivityLogComponent extends Component {
             badge,
             subjectTypeLabel,
             objectLabel,
+            targetPhrase,
             changes,
             changeCount,
             hasChanges: changeCount > 0,
@@ -169,8 +172,9 @@ export default class ActivityLogComponent extends Component {
         };
     }
 
-    #eventToVerb(event, description, changeCount = 0) {
+    #eventToVerb(event, description, changeCount = 0, showSubjectContext = false) {
         if (description && typeof description === 'string') return description;
+        if (showSubjectContext && event === 'updated') return 'updated';
         if (changeCount > 0 && (!event || event === 'updated')) return 'changed';
         switch (event) {
             case 'created':
@@ -279,6 +283,43 @@ export default class ActivityLogComponent extends Component {
     #objectLabel(activity, subjectTypeLabel) {
         const subjectDisplay = this.#subjectDisplay(activity?.subject);
         return subjectDisplay !== 'Unknown' ? subjectDisplay : subjectTypeLabel;
+    }
+
+    #shouldShowSubjectContext() {
+        if (typeof this.args.showSubjectContext === 'boolean') {
+            return this.args.showSubjectContext;
+        }
+
+        if (this.args.subjectId) {
+            return false;
+        }
+
+        return Boolean(this.args.companyUuid || this.args.causerId);
+    }
+
+    #targetPhrase(activity, subjectTypeLabel, event) {
+        const typeLabel = this.#sentenceCaseLabel(subjectTypeLabel);
+        if (!typeLabel) return null;
+
+        const subjectDisplay = this.#subjectDisplay(activity?.subject);
+        const hasDisplay = subjectDisplay !== 'Unknown' && subjectDisplay.toLowerCase() !== typeLabel;
+        const displaySuffix = hasDisplay ? ` (${subjectDisplay})` : '';
+        const article = this.#indefiniteArticle(typeLabel);
+
+        if (event === 'created') {
+            return `${article} new ${typeLabel}${displaySuffix}`;
+        }
+
+        return `${article} ${typeLabel}${displaySuffix}`;
+    }
+
+    #sentenceCaseLabel(label) {
+        if (!label || typeof label !== 'string') return '';
+        return label.trim().toLowerCase();
+    }
+
+    #indefiniteArticle(label) {
+        return /^[aeiou]/i.test(label) ? 'an' : 'a';
     }
 
     #initial(name) {

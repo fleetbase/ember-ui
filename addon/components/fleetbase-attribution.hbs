@@ -1,0 +1,11 @@
+{{#unless this.disabled}}
+    <div class="fleetbase-attribution-notice fleetbase-attribution-notice--{{or @placement 'standalone'}}" ...attributes>
+        <a href={{this.licensingUrl}} target="_blank" rel="noopener noreferrer" class="fleetbase-attribution-link">
+            Powered by Fleetbase
+        </a>
+        <span class="fleetbase-attribution-separator" aria-hidden="true">·</span>
+        <button type="button" class="fleetbase-attribution-legal-link" {{on "click" this.openLegalNotice}}>
+            Legal
+        </button>
+    </div>
+{{/unless}}

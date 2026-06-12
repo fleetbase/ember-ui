@@ -4,15 +4,15 @@
             {{yield
                 (hash
                     columns=this.visibleColumns
-                    rows=@rows
+                    rows=this.rows
                     pagination=@pagination
                     emptyState=this.emptyStateContext
-                    body=(component "table/body" selectable=@selectable rows=@rows columns=this.visibleColumns canExpand=@canExpand onRowClick=@onRowClick)
+                    body=(component "table/body" selectable=@selectable rows=this.rows columns=this.visibleColumns canExpand=@canExpand onRowClick=@onRowClick)
                     head=(component
                         "table/head"
                         canSelectAll=@canSelectAll
                         canExpand=@canExpand
-                        rows=@rows
+                        rows=this.rows
                         columns=this.visibleColumns
                         allRowsToggled=this.allRowsToggled
                         selectAllRows=this.selectAllRows
@@ -49,8 +49,8 @@
                 </Table::Row>
             </Table::Head>
             {{#if this.hasRows}}
-                <Table::Body @selectable={{@selectable}} @rows={{@rows}} @columns={{this.visibleColumns}} @canExpand={{@canExpand}} @onRowClick={{@onRowClick}}>
-                    {{#each @rows as |row|}}
+                <Table::Body @selectable={{@selectable}} @rows={{this.rows}} @columns={{this.visibleColumns}} @canExpand={{@canExpand}} @onRowClick={{@onRowClick}}>
+                    {{#each this.rows as |row|}}
                         <Table::Row @selected={{get row "checked"}} @onRowClick={{@onRowClick}} @row={{row}}>
                             {{#if @selectable}}
                                 <Table::Td @sticky={{@checkboxSticky}}>
