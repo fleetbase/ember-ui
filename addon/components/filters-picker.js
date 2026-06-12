@@ -13,6 +13,7 @@ export default class FiltersPickerComponent extends Component {
     @tracked filters = [];
 
     get activeRouter() {
+        /* eslint-disable-next-line ember/no-private-routing-service */
         return this.hostRouter ?? this.router ?? getOwner(this).lookup('router:main');
     }
 
