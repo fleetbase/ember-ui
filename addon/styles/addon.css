@@ -12,6 +12,7 @@
 @import 'components/button.css';
 @import 'components/input.css';
 @import 'components/sidebar-panels.css';
+@import 'components/sidebar-navigator.css';
 @import 'components/table.css';
 @import 'components/panes.css';
 @import 'components/navbar.css';
@@ -54,17 +55,50 @@
 @import 'components/activity-log.css';
 @import 'components/smart-nav-menu.css';
 @import 'components/template-builder.css';
+@import 'components/fleetbase-attribution.css';
 
 /** Third party */
 @import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
 @import 'ember-power-select/vendor/ember-power-select.css';
 @import 'air-datepicker/air-datepicker.css';
 .fleetbase-docs-panel-body {
+    position: relative;
     height: 100%;
     min-height: 0;
     padding: 0;
 }
 
+.fleetbase-docs-panel-body-light {
+    background: #fff;
+}
+
+.fleetbase-docs-panel-body-dark {
+    background: #111827;
+}
+
 .fleetbase-docs-panel-body > iframe {
     display: block;
+}
+
+.fleetbase-docs-panel-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: #4b5563;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.fleetbase-docs-panel-body-light .fleetbase-docs-panel-loading {
+    background: #fff;
+}
+
+.fleetbase-docs-panel-body-dark .fleetbase-docs-panel-loading {
+    color: #d1d5db;
+    background: #111827;
 }

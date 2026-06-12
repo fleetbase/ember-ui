@@ -1,26 +1,71 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { fillIn, render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | date-time-input', function (hooks) {
     setupRenderingTest(hooks);
 
     test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
-
         await render(hbs`<DateTimeInput />`);
 
         assert.dom(this.element).hasText('');
+    });
 
-        // Template block usage:
-        await render(hbs`
-      <DateTimeInput>
-        template block text
-      </DateTimeInput>
-    `);
+    test('it renders a date instance value', async function (assert) {
+        this.set('value', new Date(2026, 5, 18, 18, 47));
 
-        assert.dom(this.element).hasText('template block text');
+        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+
+        assert.dom('[aria-label="Date Input"]').hasValue('2026-06-18');
+        assert.dom('[aria-label="Time Input"]').hasValue('18:47');
+    });
+
+    test('it renders a persisted date-time string value', async function (assert) {
+        this.set('value', '2026-06-18 18:47');
+
+        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+
+        assert.dom('[aria-label="Date Input"]').hasValue('2026-06-18');
+        assert.dom('[aria-label="Time Input"]').hasValue('18:47');
+    });
+
+    test('it renders empty inputs for an invalid date-time string value', async function (assert) {
+        this.set('value', 'not a date');
+
+        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+
+        assert.dom('[aria-label="Date Input"]').hasValue('');
+        assert.dom('[aria-label="Time Input"]').hasValue('');
+    });
+
+    test('it calls onUpdate with a date instance and formatted date-time string', async function (assert) {
+        assert.expect(4);
+
+        this.set('value', '2026-06-18 18:47');
+        this.set('onUpdate', (dateTimeInstance, dateTime) => {
+            assert.true(dateTimeInstance instanceof Date);
+            assert.strictEqual(dateTimeInstance.getFullYear(), 2026);
+            assert.strictEqual(dateTimeInstance.getMonth(), 5);
+            assert.strictEqual(dateTime, '2026-06-19 18:47');
+        });
+
+        await render(hbs`<DateTimeInput @value={{this.value}} @onUpdate={{this.onUpdate}} />`);
+        await fillIn('[aria-label="Date Input"]', '2026-06-19');
+    });
+
+    test('it calls onUpdate when the time input changes', async function (assert) {
+        assert.expect(4);
+
+        this.set('value', '2026-06-18 18:47');
+        this.set('onUpdate', (dateTimeInstance, dateTime) => {
+            assert.true(dateTimeInstance instanceof Date);
+            assert.strictEqual(dateTimeInstance.getFullYear(), 2026);
+            assert.strictEqual(dateTimeInstance.getMonth(), 5);
+            assert.strictEqual(dateTime, '2026-06-18 19:12');
+        });
+
+        await render(hbs`<DateTimeInput @value={{this.value}} @onUpdate={{this.onUpdate}} />`);
+        await fillIn('[aria-label="Time Input"]', '19:12');
     });
 });

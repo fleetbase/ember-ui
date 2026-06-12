@@ -2,13 +2,20 @@ import Component from '@glimmer/component';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { getOwner } from '@ember/application';
 import { isArray } from '@ember/array';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
     @service hostRouter;
+    @service router;
     @service events;
     @tracked filters = [];
+
+    get activeRouter() {
+        /* eslint-disable-next-line ember/no-private-routing-service */
+        return this.hostRouter ?? this.router ?? getOwner(this).lookup('router:main');
+    }
 
     get activeFilters() {
         return this.filters.filter((f) => f.isFilterActive);
@@ -25,12 +32,12 @@ export default class FiltersPickerComponent extends Component {
 
         // Refresh whenever the route (→ query-params) changes
         this._routeHandler = () => this.#rebuildFilters();
-        this.hostRouter.on('routeDidChange', this._routeHandler);
+        this.activeRouter?.on?.('routeDidChange', this._routeHandler);
     }
 
     willDestroy() {
         super.willDestroy(...arguments);
-        this.hostRouter.off('routeDidChange', this._routeHandler);
+        this.activeRouter?.off?.('routeDidChange', this._routeHandler);
     }
 
     #readUrlValue(param) {
@@ -103,7 +110,8 @@ export default class FiltersPickerComponent extends Component {
         }
 
         // Build a qp bag that explicitly clears the filter params
-        const qp = { ...this.hostRouter.currentRoute.queryParams };
+        const router = this.activeRouter;
+        const qp = { ...router.currentRoute.queryParams };
 
         (this.args.columns ?? [])
             .filter((c) => c.filterable)
@@ -122,7 +130,7 @@ export default class FiltersPickerComponent extends Component {
             });
 
         try {
-            await this.hostRouter.transitionTo(this.hostRouter.currentRouteName, {
+            await router.transitionTo(router.currentRouteName, {
                 queryParams: qp,
             });
         } catch (error) {

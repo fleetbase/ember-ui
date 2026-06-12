@@ -16,14 +16,21 @@
                 </div>
             </:actions>
         </Overlay::Header>
-        <Overlay::Body class="no-padding" @wrapperClass="fleetbase-docs-panel-body">
+        <Overlay::Body class="no-padding" @wrapperClass={{this.docsPanel.bodyWrapperClass}}>
             {{#if (and this.docsPanel.canEmbed (not this.docsPanel.iframeFailed))}}
+                {{#if this.docsPanel.isIframeLoading}}
+                    <div class="fleetbase-docs-panel-loading">
+                        <Spinner @iconClass="text-sky-500 fa-spin-800ms" />
+                        <span>Loading documentation...</span>
+                    </div>
+                {{/if}}
                 <iframe
                     src={{this.docsPanel.url}}
                     title={{this.docsPanel.title}}
-                    class="h-full w-full border-0 bg-white dark:bg-gray-900"
+                    class="h-full w-full border-0 {{if this.docsPanel.isIframeThemeDark "bg-gray-900" "bg-white"}}"
                     loading="lazy"
                     referrerpolicy="strict-origin-when-cross-origin"
+                    {{on "load" this.markIframeLoaded}}
                     {{on "error" this.markIframeFailed}}
                 ></iframe>
             {{else}}

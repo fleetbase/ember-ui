@@ -2,9 +2,22 @@
     <div class="next-sidebar-content">
         <div class="next-sidebar-content-inner">
             <div role="menu" id="sidebar-menu-items">
-                {{yield}}
+                {{yield
+                    (hash
+                        Navigator=(component "layout/sidebar/navigator")
+                    )
+                }}
             </div>
         </div>
+        {{#if (has-block "footer")}}
+            <div class="next-sidebar-footer">
+                {{yield to="footer"}}
+            </div>
+        {{else if this.showDefaultAttribution}}
+            <div class="next-sidebar-footer">
+                <FleetbaseAttribution @placement="sidebar" />
+            </div>
+        {{/if}}
     </div>
     <div class="gutter" {{did-insert (fn this.setupNode "gutter")}} {{on "mousedown" this.startResize}}></div>
 </nav>

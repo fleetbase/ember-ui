@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { parse, format } from 'date-fns';
+import { parse, format, isValid } from 'date-fns';
 
 export default class DateTimeInputComponent extends Component {
     @tracked timeFormat = 'HH:mm';
@@ -13,8 +13,26 @@ export default class DateTimeInputComponent extends Component {
     constructor() {
         super(...arguments);
 
-        this.date = this.args.value instanceof Date ? format(this.args.value, this.dateFormat) : null;
-        this.time = this.args.value instanceof Date ? format(this.args.value, this.timeFormat) : null;
+        const value = this.parseValue(this.args.value);
+
+        this.date = value ? format(value, this.dateFormat) : null;
+        this.time = value ? format(value, this.timeFormat) : null;
+    }
+
+    parseValue(value) {
+        if (value instanceof Date && isValid(value)) {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const parsedValue = parse(value, this.dateTimeFormat, new Date());
+
+            if (isValid(parsedValue)) {
+                return parsedValue;
+            }
+        }
+
+        return null;
     }
 
     /**

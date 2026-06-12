@@ -5,7 +5,6 @@ import { action } from '@ember/object';
 import { debug } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { capitalize } from '@ember/string';
-import { htmlSafe } from '@ember/template';
 import { task } from 'ember-concurrency';
 import { parseISO, isDate, isValid, format, formatDistanceToNow } from 'date-fns';
 import smartHumanize from '../utils/smart-humanize';
@@ -13,33 +12,46 @@ import smartHumanize from '../utils/smart-humanize';
 export default class ActivityLogComponent extends Component {
     @service store;
     @tracked activities = [];
-    @tracked expanded = new Set();
     @tracked dateFilter = null;
-    @tracked query = null;
 
-    // Optional style “knobs” (you can pass in from the parent)
     get density() {
         return this.args.density ?? 'compact';
-    } // 'cozy'|'compact'
+    }
+
     get showAvatars() {
         return this.args.showAvatars ?? true;
     }
+
     get showBadges() {
-        return this.args.showBadges ?? true;
+        return this.args.showBadges ?? false;
     }
 
-    get groups() {
+    get showHeader() {
+        return this.args.showHeader ?? true;
+    }
+
+    get showControls() {
+        return this.args.showControls ?? true;
+    }
+
+    get showAttributePreviousValues() {
+        return this.args.showAttributePreviousValues ?? true;
+    }
+
+    get items() {
         const activities = isArray(this.activities) ? this.activities : [];
+        const normalized = activities.map((activity, index) => this.#normalizeActivity(activity, index)).sort((a, b) => (b.timestamp?.dateMs ?? 0) - (a.timestamp?.dateMs ?? 0));
+        const limit = Number(this.args.maxVisibleActivities);
 
-        const normalized = activities.map((a, i) => this.#normalizeActivity(a, i)).sort((a, b) => (b.timestamp?.dateMs ?? 0) - (a.timestamp?.dateMs ?? 0));
-
-        const byDay = new Map();
-        for (const item of normalized) {
-            const key = item.dayKey ?? 'unknown';
-            if (!byDay.has(key)) byDay.set(key, { dateLabel: item.dayLabel ?? key, items: [] });
-            byDay.get(key).items.push(item);
+        if (Number.isFinite(limit) && limit > 0) {
+            return normalized.slice(0, limit);
         }
-        return [...byDay.values()];
+
+        return normalized;
+    }
+
+    get hasItems() {
+        return this.items.length > 0;
     }
 
     constructor() {
@@ -51,6 +63,7 @@ export default class ActivityLogComponent extends Component {
     @task *loadActivities() {
         try {
             const params = {};
+            if (this.args.companyUuid) params.company_uuid = this.args.companyUuid;
             if (this.args.subjectId) params.subject_id = this.args.subjectId;
             if (this.args.causerId) params.causer_id = this.args.causerId;
             if (this.dateFilter) params.created_at = this.dateFilter;
@@ -79,12 +92,6 @@ export default class ActivityLogComponent extends Component {
         if (typeof this.args.onSubjectClick === 'function') this.args.onSubjectClick(subject);
     }
 
-    @action toggleAdvanced(itemKey) {
-        const next = new Set(this.expanded);
-        next.has(itemKey) ? next.delete(itemKey) : next.add(itemKey);
-        this.expanded = next;
-    }
-
     // ── Normalize & Phrase ──────────────────────────────────────────────────────
     #normalizeActivity(activity, idx = 0) {
         const createdISO = activity?.created_at ?? null;
@@ -94,37 +101,23 @@ export default class ActivityLogComponent extends Component {
         const d = this.#parseDate(tsISO);
         const dateMs = d ? d.getTime() : 0;
         const dayKey = d ? format(d, 'yyyy-MM-dd') : 'unknown';
-        const dayLabel = d ? format(d, 'EEE, MMM dd, yyyy') : 'Unknown date';
         const exactLocal = d ? format(d, 'PP p') : '';
         const relative = d ? formatDistanceToNow(d, { addSuffix: true }) : '';
 
         const causer = activity?.causer ?? {};
         const subject = activity?.subject ?? {};
         const subjectTypeLabel = activity?.humanized_subject_type ?? this.#subjectTypeLabel(activity?.subject_type);
-        const subjectDisplay = this.#subjectDisplay(subject);
         const event = String(activity?.event || '').toLowerCase();
+        const changes = this.#computeChanges(activity?.properties);
+        const changeCount = changes.length;
+        const shouldShowSubjectContext = this.#shouldShowSubjectContext();
+        const verb = this.#eventToVerb(event, activity?.description, changeCount, shouldShowSubjectContext);
+        const hasMultipleChanges = changeCount > 1;
+        const inlineChange = changeCount === 1 ? this.#inlineChangeSummary(changes[0]) : null;
+        const objectLabel = this.#objectLabel(activity, subjectTypeLabel);
+        const targetPhrase = shouldShowSubjectContext ? this.#targetPhrase(activity, subjectTypeLabel, event) : null;
+        const actorName = causer?.name ?? 'Someone';
 
-        const eventLabel = capitalize(event || 'updated');
-        const verb = this.#eventToVerb(event, activity?.description);
-
-        // Diffs → split into simple vs advanced, and also build a human inline sentence
-        const allChanges = this.#computeChanges(activity?.properties);
-        const simpleChanges = [];
-        const advancedChanges = [];
-
-        for (const c of allChanges) {
-            if (this.#isAdvancedValue(c.fromRaw, c.toRaw) || this.#isLikelyUuidKey(c.key)) {
-                advancedChanges.push(c);
-            } else {
-                simpleChanges.push(c);
-            }
-        }
-
-        const inlineSummary = this.#summarizeSimple(simpleChanges);
-
-        const sentence = `${causer?.name ?? 'Someone'} ${verb} ${subjectTypeLabel} (${subjectDisplay})`;
-
-        // Event → badge style (Fleetbase-ish accent mapping)
         const badge = this.#eventBadge(event);
 
         return {
@@ -132,18 +125,23 @@ export default class ActivityLogComponent extends Component {
             actor: {
                 name: causer?.name ?? 'Unknown',
                 avatarUrl: causer?.avatar_url ?? null,
+                initial: this.#initial(actorName),
                 raw: causer,
             },
             subject,
             causer,
             verb,
             event,
-            eventLabel,
-            badge, // {text, class}
+            eventLabel: capitalize(event || 'updated'),
+            badge,
             subjectTypeLabel,
-            subjectDisplay,
-            sentence,
-            inlineSummary, // "set color to red; status to live"
+            objectLabel,
+            targetPhrase,
+            changes,
+            changeCount,
+            hasChanges: changeCount > 0,
+            hasMultipleChanges,
+            inlineChange,
             timestamp: {
                 iso: tsISO,
                 exactLocal,
@@ -151,48 +149,33 @@ export default class ActivityLogComponent extends Component {
                 dateMs,
             },
             dayKey,
-            dayLabel,
-            simpleChanges,
-            advancedChanges,
             raw: activity,
         };
     }
 
-    #summarizeSimple(simpleChanges) {
-        if (!simpleChanges?.length) return '';
-
-        const parts = [];
-        for (const c of simpleChanges) {
-            const k = c.key.replace(/_/g, ' ');
-
-            if (c.from !== 'null' && c.from !== undefined && c.from !== '' && c.from !== c.to) {
-                parts.push(
-                    `<span class="activity-change">changed <span class="activity-change-prop highlight-gray ${
-                        this.args.activityChangePropClass ?? ''
-                    }">${k}</span> from <span class="activity-change-prop highlight-gray ${this.args.activityPreviousValueClass ?? ''}">${this.#code(
-                        c.from
-                    )}</span> to <span class="activity-change-prop highlight-blue ${this.args.activityNewValueClass ?? ''}">${this.#code(c.to)}</span></span>`
-                );
-            } else {
-                parts.push(
-                    `<span class="activity-change">set <span class="activity-change-prop highlight-gray ${
-                        this.args.activityChangePropClass ?? ''
-                    }">${k}</span> to <span class="activity-change-prop highlight-blue ${this.args.activityNewValueClass ?? ''}">${this.#code(c.to)}</span></span>`
-                );
-            }
+    #inlineChangeSummary(change) {
+        if (!change) return null;
+        if (this.#isAdvancedValue(change.fromRaw, change.toRaw) || this.#isLikelyUuidKey(change.key)) return null;
+        if (change.from !== 'null' && change.from !== undefined && change.from !== '' && change.from !== change.to) {
+            return {
+                attribute: change.label,
+                from: change.from,
+                to: change.to,
+                hasPreviousValue: true,
+            };
         }
 
-        // Make the entire thing safe once at the end
-        return htmlSafe(parts.join(', '));
+        return {
+            attribute: change.label,
+            to: change.to,
+            hasPreviousValue: false,
+        };
     }
 
-    #code(v) {
-        // lightweight backtick wrapper for inline emphasis
-        return this.args.backtickValues ? `\`${String(v)}\`` : v;
-    }
-
-    #eventToVerb(event, description) {
+    #eventToVerb(event, description, changeCount = 0, showSubjectContext = false) {
         if (description && typeof description === 'string') return description;
+        if (showSubjectContext && event === 'updated') return 'updated';
+        if (changeCount > 0 && (!event || event === 'updated')) return 'changed';
         switch (event) {
             case 'created':
                 return 'created';
@@ -234,6 +217,7 @@ export default class ActivityLogComponent extends Component {
 
             out.push({
                 key,
+                label: this.#attributeLabel(key),
                 from: this.#formatValue(prev),
                 to: this.#formatValue(next),
                 fromRaw: prev,
@@ -259,6 +243,10 @@ export default class ActivityLogComponent extends Component {
 
     #isLikelyUuidKey(key) {
         return typeof key === 'string' && (key.endsWith('_uuid') || key === 'uuid' || key.endsWith('Id') || key.endsWith('_id'));
+    }
+
+    #attributeLabel(key) {
+        return smartHumanize(String(key).replace(/_/g, ' '));
     }
 
     #looksLikeUuid(v) {
@@ -290,6 +278,55 @@ export default class ActivityLogComponent extends Component {
     #subjectDisplay(subject) {
         if (!subject) return 'Unknown';
         return subject.display_name || subject.name || subject.title || subject.address || subject.tracking || subject.public_id || subject.uuid || 'Unknown';
+    }
+
+    #objectLabel(activity, subjectTypeLabel) {
+        const subjectDisplay = this.#subjectDisplay(activity?.subject);
+        return subjectDisplay !== 'Unknown' ? subjectDisplay : subjectTypeLabel;
+    }
+
+    #shouldShowSubjectContext() {
+        if (typeof this.args.showSubjectContext === 'boolean') {
+            return this.args.showSubjectContext;
+        }
+
+        if (this.args.subjectId) {
+            return false;
+        }
+
+        return Boolean(this.args.companyUuid || this.args.causerId);
+    }
+
+    #targetPhrase(activity, subjectTypeLabel, event) {
+        const typeLabel = this.#sentenceCaseLabel(subjectTypeLabel);
+        if (!typeLabel) return null;
+
+        const subjectDisplay = this.#subjectDisplay(activity?.subject);
+        const hasDisplay = subjectDisplay !== 'Unknown' && subjectDisplay.toLowerCase() !== typeLabel;
+        const displaySuffix = hasDisplay ? ` (${subjectDisplay})` : '';
+        const article = this.#indefiniteArticle(typeLabel);
+
+        if (event === 'created') {
+            return `${article} new ${typeLabel}${displaySuffix}`;
+        }
+
+        return `${article} ${typeLabel}${displaySuffix}`;
+    }
+
+    #sentenceCaseLabel(label) {
+        if (!label || typeof label !== 'string') return '';
+        return label.trim().toLowerCase();
+    }
+
+    #indefiniteArticle(label) {
+        return /^[aeiou]/i.test(label) ? 'an' : 'a';
+    }
+
+    #initial(name) {
+        return String(name || 'S')
+            .trim()
+            .charAt(0)
+            .toUpperCase();
     }
 
     #isPlainObject(v) {

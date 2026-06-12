@@ -1,0 +1,211 @@
+<div class="next-sidebar-navigator" {{on "keydown" this.handleKeydown}} ...attributes>
+    {{#if @primaryAction}}
+        <button type="button" class="next-sidebar-navigator-primary-action" {{on "click" @primaryAction.onClick}}>
+            {{#if @primaryAction.icon}}
+                <FaIcon @icon={{@primaryAction.icon}} @prefix={{@primaryAction.iconPrefix}} @size="xs" />
+            {{/if}}
+            <span>{{@primaryAction.label}}</span>
+        </button>
+    {{/if}}
+
+    <div class="next-sidebar-navigator-search-wrap" {{did-insert this.registerSearchWrap}}>
+        <div class="next-sidebar-navigator-search {{if this.searchVisualHidden 'is-morphing'}}">
+            <FaIcon @icon="magnifying-glass" @size="xs" />
+            <input
+                type="search"
+                value={{this.query}}
+                placeholder={{or @searchPlaceholder "Search or jump to..."}}
+                aria-label={{or @searchLabel "Search navigation"}}
+                {{did-insert this.registerSearchInput}}
+                {{on "focus" this.openSearch}}
+                {{on "input" this.updateQuery}}
+            />
+            {{#if this.hasQuery}}
+                <button type="button" class="next-sidebar-navigator-search-clear" aria-label="Clear search" {{on "click" this.clearQuery}}>
+                    <FaIcon @icon="times" @size="xs" />
+                </button>
+            {{else if this.searchShortcutEnabled}}
+                <span class="next-sidebar-navigator-kbd">{{this.shortcutLabel}}</span>
+            {{/if}}
+        </div>
+
+        {{#if (and this.hasSearchPopover this.popoverTarget)}}
+            {{#in-element this.popoverTarget insertBefore=null}}
+                <button type="button" class={{this.searchOverlayClass}} aria-label="Close search" {{on "click" this.closeSearch}}></button>
+
+                <div
+                    class={{this.searchPopoverClass}}
+                    role="dialog"
+                    aria-label="Navigation search results"
+                    style={{this.popoverStyle}}
+                    {{on "keydown" this.handleSearchPanelKeydown}}
+                >
+                    <div class="next-sidebar-navigator-search-popover-input">
+                        <FaIcon @icon="magnifying-glass" @size="sm" />
+                        <input
+                            type="search"
+                            value={{this.query}}
+                            placeholder={{or @searchPlaceholder "Search or jump to..."}}
+                            aria-label={{or @searchLabel "Search navigation"}}
+                            {{did-insert this.registerPortalSearchInput}}
+                            {{on "input" this.updateQuery}}
+                        />
+                        {{#if this.hasQuery}}
+                            <button type="button" class="next-sidebar-navigator-search-clear" aria-label="Clear search" {{on "click" this.clearQuery}}>
+                                <FaIcon @icon="times" @size="xs" />
+                            </button>
+                        {{else}}
+                            <span class="next-sidebar-navigator-kbd">Esc</span>
+                        {{/if}}
+                        <button type="button" class="next-sidebar-navigator-search-close" aria-label="Close search" {{on "click" this.closeSearch}}>
+                            <FaIcon @icon="times" @size="xs" />
+                        </button>
+                    </div>
+
+                    {{#if this.isSearching}}
+                        <div class="next-sidebar-navigator-search-status">
+                            <FaIcon @icon="spinner" @spin={{true}} />
+                            <span>Searching...</span>
+                        </div>
+                    {{else if this.emptySearch}}
+                        <div class="next-sidebar-navigator-search-status">
+                            <FaIcon @icon="magnifying-glass" />
+                            <span>No navigation results found.</span>
+                        </div>
+                    {{else if this.hasQuery}}
+                        <div class="next-sidebar-navigator-search-results" {{did-insert this.registerSearchResults}}>
+                            {{#each this.limitedSearchResults as |result index|}}
+                                <button
+                                    type="button"
+                                    class="next-sidebar-navigator-search-result {{if (eq index this.activeSearchIndex) 'is-active'}}"
+                                    data-search-result-index={{index}}
+                                    {{on "mouseenter" (fn this.setActiveSearchIndex index)}}
+                                    {{on "click" (fn this.openSearchResult result)}}
+                                >
+                                    <span class="next-sidebar-navigator-search-result-icon">
+                                        {{#if result.icon}}
+                                            <FaIcon @icon={{result.icon}} @prefix={{result.iconPrefix}} />
+                                        {{/if}}
+                                    </span>
+                                    <span class="next-sidebar-navigator-search-result-content">
+                                        <span class="next-sidebar-navigator-search-result-label">{{result.label}}</span>
+                                        <span class="next-sidebar-navigator-search-result-description">
+                                            {{#if result.description}}
+                                                {{result.description}}
+                                            {{else if result.breadcrumb}}
+                                                {{result.breadcrumb}}
+                                            {{else}}
+                                                {{result.type}}
+                                            {{/if}}
+                                        </span>
+                                        <span class="next-sidebar-navigator-search-result-meta">
+                                            {{#if result.type}}
+                                                <span>{{result.type}}</span>
+                                            {{/if}}
+                                            {{#if result.breadcrumb}}
+                                                <span>{{result.breadcrumb}}</span>
+                                            {{/if}}
+                                        </span>
+                                    </span>
+                                </button>
+                            {{/each}}
+                        </div>
+                    {{else}}
+                        <div class="next-sidebar-navigator-search-status">
+                            <FaIcon @icon="keyboard" />
+                            <span>Start typing to search</span>
+                        </div>
+                    {{/if}}
+                </div>
+            {{/in-element}}
+        {{/if}}
+    </div>
+
+    <div
+        class="next-sidebar-navigator-viewport {{if this.isNested 'is-nested'}} {{if this.outgoingView 'is-transitioning'}} is-{{this.transitionDirection}}"
+        {{did-insert this.registerViewport}}
+    >
+        {{#if this.outgoingView as |outgoing|}}
+            <div class="next-sidebar-navigator-view next-sidebar-navigator-view-out">
+                {{#if outgoing.parent}}
+                    <div class="next-sidebar-navigator-nested-header">
+                        <span class="next-sidebar-navigator-back-icon">
+                            <FaIcon @icon="chevron-left" @size="xs" />
+                        </span>
+                        <span>{{or outgoing.parent.label outgoing.parent.title}}</span>
+                    </div>
+                {{/if}}
+
+                {{#each outgoing.items as |item|}}
+                    <button
+                        type="button"
+                        class="next-sidebar-navigator-item {{if (this.isActive item) 'is-active'}} {{if (this.isParentActive item) 'is-parent-active'}} {{if (this.itemDescriptionVisible item) 'has-description'}}"
+                        aria-current={{if (this.isActive item) "page"}}
+                        title={{this.tooltipFor item}}
+                    >
+                        <span class="next-sidebar-navigator-item-icon">
+                            {{#if item.icon}}
+                                <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="xs" />
+                            {{/if}}
+                        </span>
+                        <span class="next-sidebar-navigator-item-content">
+                            <span class="next-sidebar-navigator-item-label">{{or item.label item.title}}</span>
+                            {{#if (this.itemDescriptionVisible item)}}
+                                <span class="next-sidebar-navigator-item-description">{{item.description}}</span>
+                            {{/if}}
+                        </span>
+                        {{#if item.badge}}
+                            <span class="next-sidebar-navigator-item-badge">{{item.badge}}</span>
+                        {{/if}}
+                        {{#if item.children.length}}
+                            <span class="next-sidebar-navigator-item-caret">
+                                <FaIcon @icon="chevron-right" @size="xs" />
+                            </span>
+                        {{/if}}
+                    </button>
+                {{/each}}
+            </div>
+        {{/if}}
+
+        <div class="next-sidebar-navigator-view next-sidebar-navigator-view-in">
+            {{#if this.isNested}}
+                <button type="button" class="next-sidebar-navigator-back" {{on "click" this.back}}>
+                    <span class="next-sidebar-navigator-back-icon">
+                        <FaIcon @icon="chevron-left" @size="xs" />
+                    </span>
+                    <span>{{this.title}}</span>
+                </button>
+            {{/if}}
+
+            {{#each this.currentItems as |item|}}
+                <button
+                    type="button"
+                    class="next-sidebar-navigator-item {{if (this.isActive item) 'is-active'}} {{if (this.isParentActive item) 'is-parent-active'}} {{if (this.itemDescriptionVisible item) 'has-description'}}"
+                    aria-current={{if (this.isActive item) "page"}}
+                    title={{this.tooltipFor item}}
+                    {{on "click" (fn this.openItem item)}}
+                >
+                    <span class="next-sidebar-navigator-item-icon">
+                        {{#if item.icon}}
+                            <FaIcon @icon={{item.icon}} @prefix={{item.iconPrefix}} @size="xs" />
+                        {{/if}}
+                    </span>
+                    <span class="next-sidebar-navigator-item-content">
+                        <span class="next-sidebar-navigator-item-label">{{or item.label item.title}}</span>
+                        {{#if (this.itemDescriptionVisible item)}}
+                            <span class="next-sidebar-navigator-item-description">{{item.description}}</span>
+                        {{/if}}
+                    </span>
+                    {{#if item.badge}}
+                        <span class="next-sidebar-navigator-item-badge">{{item.badge}}</span>
+                    {{/if}}
+                    {{#if item.children.length}}
+                        <span class="next-sidebar-navigator-item-caret">
+                            <FaIcon @icon="chevron-right" @size="xs" />
+                        </span>
+                    {{/if}}
+                </button>
+            {{/each}}
+        </div>
+    </div>
+</div>
