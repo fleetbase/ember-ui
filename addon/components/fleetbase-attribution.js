@@ -12,6 +12,10 @@ export default class FleetbaseAttributionComponent extends Component {
         return config.APP?.disableFleetbaseAttribution === true;
     }
 
+    get appVersion() {
+        return config.version ? `v${config.version}` : null;
+    }
+
     @action openLegalNotice() {
         this.modalsManager.show('modals/fleetbase-legal-notice', {
             title: 'Fleetbase Legal Notices',

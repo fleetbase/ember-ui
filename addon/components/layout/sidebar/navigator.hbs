@@ -1,10 +1,10 @@
 <div class="next-sidebar-navigator" {{on "keydown" this.handleKeydown}} ...attributes>
-    {{#if @primaryAction}}
-        <button type="button" class="next-sidebar-navigator-primary-action" {{on "click" @primaryAction.onClick}}>
-            {{#if @primaryAction.icon}}
-                <FaIcon @icon={{@primaryAction.icon}} @prefix={{@primaryAction.iconPrefix}} @size="xs" />
+    {{#if this.primaryAction}}
+        <button type="button" class={{this.primaryActionClass}} {{on "click" this.primaryAction.onClick}}>
+            {{#if this.primaryAction.icon}}
+                <FaIcon @icon={{this.primaryAction.icon}} @prefix={{this.primaryAction.iconPrefix}} @size="xs" />
             {{/if}}
-            <span>{{@primaryAction.label}}</span>
+            <span>{{this.primaryAction.label}}</span>
         </button>
     {{/if}}
 
@@ -208,4 +208,6 @@
             {{/each}}
         </div>
     </div>
+
+    {{yield this.footerState to="footer"}}
 </div>

@@ -1,8 +1,11 @@
 {{#unless this.disabled}}
     <div class="fleetbase-attribution-notice fleetbase-attribution-notice--{{or @placement 'standalone'}}" ...attributes>
         <a href={{this.licensingUrl}} target="_blank" rel="noopener noreferrer" class="fleetbase-attribution-link">
-            Powered by Fleetbase
+            {{#if @showPoweredBy}}Powered by {{/if}}Fleetbase
         </a>
+        {{#if this.appVersion}}
+            <span class="fleetbase-attribution-version">{{this.appVersion}}</span>
+        {{/if}}
         <span class="fleetbase-attribution-separator" aria-hidden="true">·</span>
         <button type="button" class="fleetbase-attribution-legal-link" {{on "click" this.openLegalNotice}}>
             Legal

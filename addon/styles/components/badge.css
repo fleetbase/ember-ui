@@ -247,6 +247,7 @@
 .status-badge.partially-paid-status-badge > span,
 .status-badge.sent-status-badge > span,
 .status-badge.viewed-status-badge > span,
+.status-badge.never-connected-status-badge > span,
 .status-badge.expired-status-badge > span {
     @apply bg-yellow-700 border-yellow-700 text-yellow-100;
 }
@@ -280,6 +281,7 @@
 .status-badge.partially-paid-status-badge > span svg,
 .status-badge.sent-status-badge > span svg,
 .status-badge.viewed-status-badge > span svg,
+.status-badge.never-connected-status-badge > span svg,
 .status-badge.expired-status-badge > span svg {
     @apply text-yellow-300;
 }
