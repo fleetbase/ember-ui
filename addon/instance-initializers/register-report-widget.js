@@ -1,5 +1,12 @@
 export function initialize(appInstance) {
-    const widgetService = appInstance.lookup?.('service:universe/widget-service');
+    let widgetService;
+
+    try {
+        widgetService = appInstance.lookup?.('service:universe/widget-service');
+    } catch (_) {
+        widgetService = null;
+    }
+
     if (!widgetService) {
         return;
     }
