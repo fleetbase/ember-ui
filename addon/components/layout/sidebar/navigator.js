@@ -31,7 +31,11 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
     constructor() {
         super(...arguments);
-        this.syncViewStackToRoute();
+
+        if (this.initialActiveParentSyncEnabled) {
+            this.syncViewStackToRoute();
+        }
+
         this.router?.on?.('routeDidChange', this.syncViewStackToRoute);
 
         if (typeof document !== 'undefined' && this.searchShortcutEnabled) {
@@ -77,6 +81,20 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         return this.sidebarNavigator.normalizeItems(this.args.items ?? []);
     }
 
+    get primaryAction() {
+        const primaryAction = this.args.primaryAction;
+
+        if (!primaryAction || !this.sidebarNavigator.isVisible(primaryAction)) {
+            return null;
+        }
+
+        return primaryAction;
+    }
+
+    get primaryActionClass() {
+        return ['next-sidebar-navigator-primary-action', this.primaryAction.class, this.primaryAction.buttonClass].filter(Boolean).join(' ');
+    }
+
     get currentItems() {
         return this.currentParent?.children ?? this.items;
     }
@@ -117,6 +135,10 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
     get searchShortcutEnabled() {
         return this.args.enableSearchShortcut !== false;
+    }
+
+    get initialActiveParentSyncEnabled() {
+        return this.args.initialActiveParentSync !== false;
     }
 
     get shortcutLabel() {
@@ -173,12 +195,23 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         return this.hasQuery && !this.isSearching && this.searchResults.length === 0;
     }
 
+    get footerState() {
+        return {
+            currentParent: this.currentParent,
+            currentItems: this.currentItems,
+            isNested: this.isNested,
+        };
+    }
+
     @action syncViewStackToRoute() {
         const activePath = this.sidebarNavigator.activePath(this.items);
 
         if (activePath.length > 1) {
             this.viewStack = activePath.slice(0, -1);
+            return;
         }
+
+        this.viewStack = [];
     }
 
     @action registerSearchInput(inputNode) {
@@ -281,6 +314,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         if (item.children?.length) {
             this.query = '';
             this.transitionToStack([...this.currentStack, item], 'forward');
+            this.transitionDefaultRoute(item);
             return;
         }
 
@@ -297,6 +331,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
         if (item.children?.length) {
             this.transitionToStack(result.path ?? [...this.currentStack, item], 'forward');
+            this.transitionDefaultRoute(item);
             return;
         }
 
@@ -336,6 +371,19 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
             this.router.transitionTo(item.route, ...(item.models ?? []));
         }
+    }
+
+    transitionDefaultRoute(item = {}) {
+        if (!item.defaultRoute || !this.router) {
+            return;
+        }
+
+        if (item.defaultQueryParams) {
+            this.router.transitionTo(item.defaultRoute, ...(item.defaultModels ?? []), { queryParams: item.defaultQueryParams });
+            return;
+        }
+
+        this.router.transitionTo(item.defaultRoute, ...(item.defaultModels ?? []));
     }
 
     @action handleKeydown(event) {

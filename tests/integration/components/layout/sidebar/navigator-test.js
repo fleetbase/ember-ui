@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { click, fillIn, render, settled, triggerEvent, triggerKeyEvent, waitFor } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import Service from '@ember/service';
 
 module('Integration | Component | layout/sidebar/navigator', function (hooks) {
     setupRenderingTest(hooks);
@@ -71,6 +72,83 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
 
         assert.dom('.next-sidebar-navigator-viewport').hasClass('is-back');
         assert.dom('.next-sidebar-navigator-view-in').includesText('Orders');
+    });
+
+    test('it routes to a branch default route when opening nested menus', async function (assert) {
+        class RouterStub extends Service {
+            currentRouteName = 'console.orders';
+            currentURL = '/orders';
+
+            transitionTo(route, ...args) {
+                assert.strictEqual(route, 'console.settings.index');
+                assert.deepEqual(args, [{ queryParams: { section: 'general' } }]);
+            }
+        }
+
+        this.owner.register('service:router', RouterStub);
+        this.set('items', [
+            {
+                label: 'Settings',
+                defaultRoute: 'console.settings.index',
+                defaultQueryParams: { section: 'general' },
+                children: [
+                    {
+                        label: 'General',
+                        route: 'console.settings.index',
+                    },
+                ],
+            },
+        ]);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+        await click('.next-sidebar-navigator-view-in .next-sidebar-navigator-item');
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Settings');
+    });
+
+    test('it yields nested footer state', async function (assert) {
+        await render(hbs`
+            <Layout::Sidebar::Navigator @items={{this.items}}>
+                <:footer as |state|>
+                    <div class="test-navigator-footer">
+                        {{if state.isNested state.currentParent.label "Root"}}
+                    </div>
+                </:footer>
+            </Layout::Sidebar::Navigator>
+        `);
+
+        assert.dom('.test-navigator-footer').hasText('Root');
+
+        await click('.next-sidebar-navigator-view-in .next-sidebar-navigator-item:nth-of-type(2)');
+
+        assert.dom('.test-navigator-footer').hasText('Settings');
+    });
+
+    test('it applies primary action custom classes and visibility', async function (assert) {
+        this.set('primaryAction', {
+            label: 'Create Order',
+            buttonClass: 'fleet-ops-sidebar-primary-action',
+            onClick: () => assert.step('primary-action'),
+        });
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @primaryAction={{this.primaryAction}} />`);
+
+        assert.dom('.next-sidebar-navigator-primary-action').hasClass('fleet-ops-sidebar-primary-action');
+
+        await click('.next-sidebar-navigator-primary-action');
+
+        assert.verifySteps(['primary-action']);
+
+        this.set('primaryAction', {
+            label: 'Hidden Action',
+            buttonClass: 'hidden-action',
+            visible: false,
+            onClick: () => assert.step('hidden-action'),
+        });
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @primaryAction={{this.primaryAction}} />`);
+
+        assert.dom('.next-sidebar-navigator-primary-action').doesNotExist();
     });
 
     test('it renders compact rows and only shows descriptions when requested', async function (assert) {

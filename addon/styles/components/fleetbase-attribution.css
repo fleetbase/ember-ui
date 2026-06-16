@@ -31,6 +31,11 @@
     font-weight: 600;
 }
 
+.fleetbase-attribution-version {
+    color: rgb(156 163 175);
+    flex: 0 0 auto;
+}
+
 .fleetbase-attribution-separator {
     color: rgb(156 163 175);
     flex: 0 0 auto;
@@ -158,6 +163,10 @@ body[data-theme='dark'] .fleetbase-attribution-notice {
 }
 
 body[data-theme='dark'] .fleetbase-attribution-separator {
+    color: rgb(107 114 128);
+}
+
+body[data-theme='dark'] .fleetbase-attribution-version {
     color: rgb(107 114 128);
 }
 

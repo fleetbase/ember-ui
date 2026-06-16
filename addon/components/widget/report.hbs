@@ -1,0 +1,23 @@
+<div class="widget-report flex h-full min-h-0 flex-col" ...attributes>
+    {{#if this.report}}
+        <div class="min-h-0 flex-1 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <Report::Data @resource={{this.report}} />
+        </div>
+    {{else if this.loadReport.isRunning}}
+        <div class="flex min-h-24 flex-1 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:bg-gray-800">
+            <div class="flex flex-col items-center justify-center text-center">
+                <Spinner class="mb-2" />
+                <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Loading report...</div>
+            </div>
+        </div>
+    {{else}}
+        <div class="flex min-h-24 flex-1 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:bg-gray-800">
+            <div class="flex flex-col items-center justify-center text-center">
+                <FaIcon @icon="file-invoice" @size="2x" class="mb-2 text-gray-400" />
+                <div class="text-sm font-medium text-gray-600 dark:text-gray-400">No report</div>
+                <div class="mt-1 mb-2 text-xs text-gray-500 dark:text-gray-500">Select a report to view.</div>
+                <Button @size="xs" @type="primary" @text="Select Report" @icon="plus" @onClick={{this.selectReport}} data-test-widget-report-select />
+            </div>
+        </div>
+    {{/if}}
+</div>

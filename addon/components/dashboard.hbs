@@ -4,6 +4,7 @@
     </div>
     <div class="fleetbase-dashboard-actions right-section {{@rightHeaderWrapperClass}} flex items-center space-x-2">
         {{yield}}
+        {{yield to="actions"}}
         <DropdownButton
             @text={{if this.dashboard.currentDashboard.name this.dashboard.currentDashboard.name (t "component.dashboard.select-dashboard")}}
             @buttonClass="flex-row-reverse w-48 justify-between"
@@ -85,6 +86,7 @@
 </div>
 
 <div class="{{@createWrapperClass}}">
+    {{yield to="body"}}
     <Dashboard::Create
         @isEdit={{and this.dashboard.isEditingDashboard (not this.isSystemDashboard)}}
         @isAddingWidget={{this.dashboard.isAddingWidget}}
