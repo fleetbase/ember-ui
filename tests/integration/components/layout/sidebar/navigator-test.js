@@ -106,6 +106,40 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-back').includesText('Settings');
     });
 
+    test('it uses item activeWhen callbacks for nested route sync and active state', async function (assert) {
+        class RouterStub extends Service {
+            currentRouteName = 'console.virtual';
+            currentURL = '/fleet-ops/management/contracts';
+
+            on() {}
+            off() {}
+        }
+
+        this.owner.register('service:router', RouterStub);
+        this.set('items', [
+            {
+                label: 'Resources',
+                children: [
+                    {
+                        label: 'Contracts',
+                        activeWhen: ({ routeName, currentURL }) => routeName === 'console.virtual' && currentURL === '/fleet-ops/management/contracts',
+                        onClick: () => this.set('selected', 'contracts'),
+                    },
+                ],
+            },
+            {
+                label: 'Settings',
+                route: 'console.settings',
+            },
+        ]);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Resources');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('Contracts');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').hasClass('is-active');
+    });
+
     test('it yields nested footer state', async function (assert) {
         await render(hbs`
             <Layout::Sidebar::Navigator @items={{this.items}}>
