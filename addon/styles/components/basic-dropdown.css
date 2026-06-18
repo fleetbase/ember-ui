@@ -55,6 +55,10 @@ body.fleetbase-console .ember-basic-dropdown-content {
     margin: 0 !important;
 }
 
+.ember-basic-dropdown-content-wormhole-origin {
+    display: contents;
+}
+
 body.fleetbase-console .ember-power-select-trigger {
     padding: 0.5rem 2.5rem 0.5rem 0.75rem;
 }

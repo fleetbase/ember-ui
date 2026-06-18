@@ -56,13 +56,16 @@ export default class TableCellDropdownComponent extends Component {
         }
     }
 
-    @action calculatePosition(trigger) {
-        let { width } = trigger.getBoundingClientRect();
+    @action calculatePosition(trigger, content) {
+        const triggerRect = trigger.getBoundingClientRect();
+        const contentRect = content?.getBoundingClientRect?.();
+        const contentWidth = contentRect?.width || 224;
 
         let style = {
+            position: 'fixed',
             marginTop: '0px',
-            right: width + 3,
-            top: 0,
+            left: `${triggerRect.left - contentWidth - 3}px`,
+            top: `${triggerRect.top}px`,
         };
 
         return { style };
