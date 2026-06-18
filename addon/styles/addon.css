@@ -1,5 +1,8 @@
 /** Layout */
 @import 'layout/reset.css';
+@import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
+@import 'ember-power-select/vendor/ember-power-select.css';
+@import 'air-datepicker/air-datepicker.css';
 @import 'layout/next.css';
 @import 'layout/legacy.css';
 @import 'layout/mobile.css';
@@ -57,10 +60,6 @@
 @import 'components/template-builder.css';
 @import 'components/fleetbase-attribution.css';
 
-/** Third party */
-@import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
-@import 'ember-power-select/vendor/ember-power-select.css';
-@import 'air-datepicker/air-datepicker.css';
 .fleetbase-docs-panel-body {
     position: relative;
     height: 100%;

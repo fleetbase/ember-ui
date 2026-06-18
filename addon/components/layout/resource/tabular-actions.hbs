@@ -25,10 +25,11 @@
     @buttonWrapperClass={{@filterPickerButtonClass}}
     @gridCols={{@filterPickerGridCols}}
     @width={{@filterPickerWidth}}
+    @size={{@filterPickerSize}}
     @iconOnly={{true}}
 />
 {{#unless @hideColumnsPicker}}
-    <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} class={{@columnPickerButtonClass}} />
+    <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} @size={{@columnPickerSize}} class={{@columnPickerButtonClass}} />
 {{/unless}}
 {{#if (safe-has @table "selectedRows")}}
     <DropdownButton
@@ -68,8 +69,14 @@
             @icon={{actionButton.icon}}
             @size={{actionButton.size}}
             @iconPrefix={{actionButton.prefix}}
+            @buttonClass={{actionButton.buttonClass}}
+            @buttonWrapperClass={{actionButton.wrapperClass}}
             @triggerClass={{actionButton.triggerClass}}
-            @renderInPlace={{or actionButton.renderInPlace true}}
+            @renderInPlace={{actionButton.renderInPlace}}
+            @isLoading={{actionButton.isLoading}}
+            @disabled={{actionButton.disabled}}
+            @helpText={{actionButton.helpText}}
+            @tooltipPlacement={{actionButton.tooltipPlacement}}
             as |dd|
         >
             <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">

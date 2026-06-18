@@ -106,6 +106,16 @@ export default class SidebarNavigatorService extends Service {
     }
 
     isActive(item = {}, routeName = this.router?.currentRouteName, currentURL = this.router?.currentURL) {
+        if (typeof item.activeWhen === 'function') {
+            try {
+                if (item.activeWhen({ routeName, currentURL, router: this.router })) {
+                    return true;
+                }
+            } catch (_) {
+                // Fall back to normal route/url matching below.
+            }
+        }
+
         if (item.route && routeName?.startsWith(item.route)) {
             return true;
         }
