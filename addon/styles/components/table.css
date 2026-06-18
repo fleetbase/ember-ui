@@ -153,6 +153,14 @@
     @apply bg-blue-700;
 }
 
+.next-table-wrapper.no-table-extra-spacing.has-floating-pagination {
+    padding-bottom: 0;
+}
+
+.next-table-wrapper.no-table-extra-spacing > table > tbody:after {
+    height: 0;
+}
+
 .next-table-wrapper table tbody tr td .next-table-empty-state span.btn-wrapper > button.btn {
     height: auto;
     min-height: unset;
