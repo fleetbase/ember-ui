@@ -52,24 +52,30 @@ export default class DashboardService extends Service {
     @tracked showPanelWhenZeroWidgets = false;
 
     /**
+     * Last options used to load dashboards. Used when a delete/reload needs to
+     * preserve the current component scope.
+     *
+     * @memberof DashboardService
+     */
+    lastLoadOptions = {};
+
+    /**
      * Task for loading dashboards from the store. It sets the current dashboard and checks if adding widget is necessary.
      * Uses drop modifier to prevent concurrent executions and race conditions.
      */
-    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core' } = {}) {
+    @task({ drop: true }) *loadDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core', slot = null } = {}) {
+        this.lastLoadOptions = { defaultDashboardId, defaultDashboardName, extension, slot };
         this.universe.registerDashboard(defaultDashboardId);
 
         const dashboards = yield this.store.query('dashboard', { limit: -1, extension });
         if (isArray(dashboards)) {
-            this.dashboards = typeof dashboards.toArray === 'function' ? dashboards.toArray() : dashboards;
+            const savedDashboards = typeof dashboards.toArray === 'function' ? dashboards.toArray() : dashboards;
+            const systemDashboards = this._createSystemDashboards({ defaultDashboardId, defaultDashboardName, extension, slot });
 
-            // insert default dashboard if it's not loaded
-            const defaultDashboard = this._createDefaultDashboard(defaultDashboardId, defaultDashboardName);
-            if (this._isDefaultDashboardNotLoaded(defaultDashboardId)) {
-                this.dashboards.unshiftObject(defaultDashboard);
-            }
+            this.dashboards = [...systemDashboards, ...savedDashboards];
 
             // Set the current dashboard
-            this.currentDashboard = this._getNextDashboard();
+            this.currentDashboard = this._getNextDashboard({ defaultDashboardId, slot });
             if (this.currentDashboard && this.currentDashboard.widgets.length === 0 && this.showPanelWhenZeroWidgets === true) {
                 this.onAddingWidget(true);
             }
@@ -130,8 +136,8 @@ export default class DashboardService extends Service {
         });
 
         this.notifications.success(this.intl.t('services.dashboard-service.delete-dashboard-success-notification', { dashboardName: dashboard.name }));
-        yield this.loadDashboards.perform();
-        yield this.selectDashboard.perform(this._getNextDashboard());
+        yield this.loadDashboards.perform(this.lastLoadOptions);
+        yield this.selectDashboard.perform(this._getNextDashboard(this.lastLoadOptions));
 
         if (typeof options.callback === 'function') {
             options.callback(this.currentDashboard);
@@ -201,6 +207,23 @@ export default class DashboardService extends Service {
     }
 
     /**
+     * Dashboard namespace used for the widget selector panel.
+     *
+     * System dashboards use their own ID. Saved dashboards can pin a widget
+     * source in options, otherwise they fall back to the current load scope.
+     *
+     * @readonly
+     * @memberof DashboardService
+     */
+    get currentWidgetSourceDashboardId() {
+        if (this.currentDashboard?.user_uuid === 'system') {
+            return this.currentDashboard.id;
+        }
+
+        return this.currentDashboard?.options?.widget_source_dashboard_id ?? this.lastLoadOptions.defaultDashboardId ?? 'dashboard';
+    }
+
+    /**
      * Creates a default dashboard with predefined widgets.
      * @private
      * @returns {Object} The default dashboard object.
@@ -236,6 +259,40 @@ export default class DashboardService extends Service {
         }
 
         return defaultDashboard;
+    }
+
+    /**
+     * Creates every system dashboard registered for a slot.
+     * Falls back to the historical single default dashboard when no slot
+     * dashboards are registered.
+     *
+     * @private
+     * @returns {Array}
+     */
+    _createSystemDashboards({ defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', extension = 'core', slot = null } = {}) {
+        const slotDashboards = slot && typeof this.widgetService.getDashboardsForSlot === 'function' ? this.widgetService.getDashboardsForSlot(slot) : [];
+
+        if (!slotDashboards.length) {
+            return [this._createDefaultDashboard(defaultDashboardId, defaultDashboardName)];
+        }
+
+        const hasDefaultDashboard = slotDashboards.some((dashboard) => dashboard.id === defaultDashboardId || dashboard.dashboardId === defaultDashboardId);
+        const dashboards = hasDefaultDashboard
+            ? slotDashboards
+            : [
+                  {
+                      id: defaultDashboardId,
+                      dashboardId: defaultDashboardId,
+                      name: defaultDashboardName,
+                      extension,
+                      priority: 0,
+                  },
+                  ...slotDashboards,
+              ];
+
+        return dashboards.map((dashboard) =>
+            this._createDefaultDashboard(dashboard.dashboardId ?? dashboard.id, dashboard.name ?? dashboard.defaultDashboardName ?? dashboard.dashboardId ?? dashboard.id)
+        );
     }
 
     /**
@@ -293,7 +350,14 @@ export default class DashboardService extends Service {
      * @return {DashboardModel}
      * @memberof DashboardService
      */
-    _getNextDashboard() {
-        return this.dashboards.find((dashboard) => dashboard.is_default) || this.dashboards[0];
+    _getNextDashboard({ defaultDashboardId = 'dashboard', slot = null } = {}) {
+        const configuredDefaultDashboardId =
+            (slot && typeof this.widgetService.getDefaultDashboardForSlot === 'function' && this.widgetService.getDefaultDashboardForSlot(slot)) || defaultDashboardId;
+        return (
+            this.dashboards.find((dashboard) => dashboard.user_uuid !== 'system' && dashboard.is_default) ||
+            this.dashboards.find((dashboard) => dashboard.user_uuid === 'system' && dashboard.id === configuredDefaultDashboardId) ||
+            this.dashboards.find((dashboard) => dashboard.id === defaultDashboardId) ||
+            this.dashboards[0]
+        );
     }
 }

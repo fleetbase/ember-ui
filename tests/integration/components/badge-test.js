@@ -23,4 +23,17 @@ module('Integration | Component | badge', function (hooks) {
 
         assert.dom(this.element).hasText('template block text');
     });
+
+    test('it applies compact size classes', async function (assert) {
+        this.set('status', 'available');
+
+        await render(hbs`<Badge @status={{this.status}} @size="xxs" />`);
+        assert.dom('.status-badge').hasClass('status-badge-xxs');
+
+        await render(hbs`<Badge @status={{this.status}} @size="xs" />`);
+        assert.dom('.status-badge').hasClass('status-badge-xs');
+
+        await render(hbs`<Badge @status={{this.status}} @size="sm" />`);
+        assert.dom('.status-badge').hasClass('status-badge-sm');
+    });
 });

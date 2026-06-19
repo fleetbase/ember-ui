@@ -6,8 +6,10 @@ import Service from '@ember/service';
 
 class StubWidgetService extends Service {
     widgets = [];
-    getWidgets() {
-        return this.widgets;
+    catalogs = {};
+
+    getWidgets(dashboardName) {
+        return this.catalogs[dashboardName] ?? this.widgets;
     }
 }
 
@@ -88,5 +90,18 @@ module('Integration | Component | dashboard/widget-panel', function (hooks) {
         await click(recommendedTab);
 
         assert.dom('.dashboard-widget-card').exists({ count: 2 }, 'only the two default:true widgets remain');
+    });
+
+    test('it can render widgets from an explicit widget source dashboard', async function (assert) {
+        this.widgetService.catalogs = {
+            dashboard: [{ id: 'fleetbase-blog', name: 'Fleetbase Blog', description: 'News', icon: 'newspaper', category: 'Core', default: true }],
+            alrashd: [{ id: 'alrashd-kpi-total-trucks', name: 'Total Trucks', description: 'Fleet size', icon: 'truck', category: 'KPI Tiles', default: true }],
+        };
+
+        await render(hbs`<Dashboard::WidgetPanel @isOpen={{true}} @dashboard={{this.dashboard}} @defaultDashboardId="dashboard" @widgetSourceDashboardId="alrashd" />`);
+        await waitFor('.dashboard-widget-card');
+
+        assert.dom('[data-widget-key="alrashd-kpi-total-trucks"]').exists('renders the selected widget source catalog');
+        assert.dom('[data-widget-key="fleetbase-blog"]').doesNotExist('does not fall back to the default dashboard catalog when an explicit source is present');
     });
 });

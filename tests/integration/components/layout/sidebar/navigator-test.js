@@ -140,6 +140,151 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').hasClass('is-active');
     });
 
+    test('it lets an initial active parent predicate suppress initial nested sync through the first route event', async function (assert) {
+        class RouterStub extends Service {
+            currentRouteName = 'console.settings.index';
+            currentURL = '/settings';
+            handler;
+
+            on(eventName, handler) {
+                if (eventName === 'routeDidChange') {
+                    this.handler = handler;
+                }
+            }
+
+            off() {}
+
+            triggerRouteDidChange() {
+                this.handler?.();
+            }
+        }
+
+        this.owner.register('service:router', RouterStub);
+        this.set('items', [
+            {
+                label: 'Settings',
+                children: [
+                    {
+                        label: 'General',
+                        route: 'console.settings.index',
+                    },
+                ],
+            },
+        ]);
+        this.set('shouldSyncInitialActiveParent', ({ activePath, routeName, currentURL }) => {
+            if (routeName === 'console.settings.index') {
+                assert.deepEqual(
+                    activePath.map((item) => item.label),
+                    ['Settings', 'General']
+                );
+                assert.strictEqual(currentURL, '/settings');
+                return false;
+            }
+
+            return true;
+        });
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @shouldSyncInitialActiveParent={{this.shouldSyncInitialActiveParent}} />`);
+
+        assert.dom('.next-sidebar-navigator-back').doesNotExist('initial render stays at root when predicate returns false');
+        assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
+
+        const router = this.owner.lookup('service:router');
+        router.triggerRouteDidChange();
+        await settled();
+
+        assert.dom('.next-sidebar-navigator-back').doesNotExist('first route event is still treated as initial entry');
+        assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
+
+        router.currentRouteName = 'console.settings.security';
+        router.currentURL = '/settings/security';
+        this.set('items', [
+            {
+                label: 'Settings',
+                children: [
+                    {
+                        label: 'General',
+                        route: 'console.settings.index',
+                    },
+                    {
+                        label: 'Security',
+                        route: 'console.settings.security',
+                    },
+                ],
+            },
+        ]);
+        router.triggerRouteDidChange();
+        await settled();
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Settings', 'later route changes sync nested state normally');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('General');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('Security');
+    });
+
+    test('it syncs initial nested state when the active parent predicate allows it', async function (assert) {
+        class RouterStub extends Service {
+            currentRouteName = 'console.settings.index';
+            currentURL = '/settings';
+
+            on() {}
+            off() {}
+        }
+
+        this.owner.register('service:router', RouterStub);
+        this.set('items', [
+            {
+                label: 'Settings',
+                children: [
+                    {
+                        label: 'General',
+                        route: 'console.settings.index',
+                    },
+                ],
+            },
+        ]);
+        this.set('shouldSyncInitialActiveParent', () => true);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @shouldSyncInitialActiveParent={{this.shouldSyncInitialActiveParent}} />`);
+
+        assert.dom('.next-sidebar-navigator-back').includesText('Settings');
+        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('General');
+    });
+
+    test('it keeps the existing initialActiveParentSync false opt-out', async function (assert) {
+        class RouterStub extends Service {
+            currentRouteName = 'console.settings.index';
+            currentURL = '/settings';
+
+            on() {}
+            off() {}
+        }
+
+        this.owner.register('service:router', RouterStub);
+        this.set('items', [
+            {
+                label: 'Settings',
+                children: [
+                    {
+                        label: 'General',
+                        route: 'console.settings.index',
+                    },
+                ],
+            },
+        ]);
+        this.set('shouldSyncInitialActiveParent', () => true);
+
+        await render(hbs`
+            <Layout::Sidebar::Navigator
+                @items={{this.items}}
+                @initialActiveParentSync={{false}}
+                @shouldSyncInitialActiveParent={{this.shouldSyncInitialActiveParent}}
+            />
+        `);
+
+        assert.dom('.next-sidebar-navigator-back').doesNotExist();
+        assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
+    });
+
     test('it yields nested footer state', async function (assert) {
         await render(hbs`
             <Layout::Sidebar::Navigator @items={{this.items}}>

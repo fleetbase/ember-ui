@@ -22,7 +22,7 @@ export default class DashboardComponent extends Component {
      * Creates an instance of DashboardComponent.
      * @memberof DashboardComponent
      */
-    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core' } = {}) {
+    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core', slot = null } = {}) {
         super(...arguments);
         // reset() queues its store.unloadAll() calls onto the next runloop tick
         // to avoid mutating tracked tags from inside the current render. We
@@ -32,7 +32,7 @@ export default class DashboardComponent extends Component {
         this.dashboard.reset();
         next(() => {
             this.dashboard.showPanelWhenZeroWidgets = showPanelWhenZeroWidgets;
-            this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension });
+            this.dashboard.loadDashboards.perform({ defaultDashboardId, defaultDashboardName, extension, slot });
         });
     }
 
@@ -75,7 +75,12 @@ export default class DashboardComponent extends Component {
                 // Get the name from the modal options
                 const { name } = modal.getOptions();
 
-                await this.dashboard.createDashboard.perform(name, { extension: this.args.extension });
+                await this.dashboard.createDashboard.perform(name, {
+                    extension: this.args.extension,
+                    options: {
+                        widget_source_dashboard_id: this.dashboard.currentWidgetSourceDashboardId,
+                    },
+                });
                 done();
             },
             ...options,

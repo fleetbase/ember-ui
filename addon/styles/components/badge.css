@@ -29,6 +29,26 @@
     @apply px-3 py-1 text-base leading-5;
 }
 
+.status-badge.status-badge-xxs > span {
+    @apply px-1 py-0 text-[10px] leading-3 rounded;
+}
+
+.status-badge.status-badge-xxs > span svg {
+    @apply mr-1;
+}
+
+.status-badge.status-badge-xs > span {
+    @apply px-1.5 py-0 text-[11px] leading-4 rounded;
+}
+
+.status-badge.status-badge-xs > span svg {
+    @apply mr-1;
+}
+
+.status-badge.status-badge-sm > span {
+    @apply px-2 py-0.5 text-xs leading-4 rounded;
+}
+
 .status-badge[class*='2'] > span,
 .status-badge.confirmed-status-badge > span,
 .status-badge.confirm-status-badge > span,
