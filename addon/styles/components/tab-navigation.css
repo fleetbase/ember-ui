@@ -37,8 +37,14 @@ body[data-theme='dark'] {
 
 .tab-list {
     @apply flex items-end;
+    position: relative;
+    min-width: 0;
     background-color: var(--tab-bg-primary);
     border-color: var(--tab-border-color);
+}
+
+.tab-items {
+    flex: 1 1 auto;
 }
 
 .tab-navigation.tab-navigation-fill > .tab-list {
@@ -58,6 +64,7 @@ body[data-theme='dark'] {
 
 .tab-item {
     @apply relative flex items-center gap-2 font-medium transition-all duration-200 focus:outline-none;
+    flex: 0 0 auto;
     color: var(--tab-text-secondary);
 }
 
@@ -156,6 +163,7 @@ body[data-theme='dark'] .tab-badge {
 
 .tab-add-button {
     @apply flex items-center justify-center rounded transition-all duration-150 ease-in-out;
+    flex: 0 0 auto;
     color: var(--tab-text-secondary);
 }
 
@@ -284,6 +292,7 @@ body[data-theme='dark'] .tab-badge {
 
 .tab-navigation-actions {
     display: flex;
+    flex: 0 0 auto;
     flex-direction: row;
     align-items: center;
     height: 100%;
@@ -292,4 +301,69 @@ body[data-theme='dark'] .tab-badge {
 .tab-navigation-actions input.form-input,
 .tab-navigation-actions span.btn-wrapper > button.btn {
     height: 28px;
+}
+
+.tab-more-trigger {
+    height: 100%;
+    justify-content: center;
+}
+
+.tab-navigation[data-size='sm'] .tab-more-trigger {
+    min-width: 34px;
+}
+
+.tab-navigation[data-size='md'] .tab-more-trigger {
+    min-width: 42px;
+}
+
+.tab-navigation[data-size='lg'] .tab-more-trigger {
+    min-width: 50px;
+}
+
+.tab-overflow-menu {
+    min-width: 180px;
+    max-width: 260px;
+}
+
+.tab-overflow-dropdown-content {
+    z-index: 9999;
+}
+
+.tab-overflow-menu-item {
+    display: flex !important;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+body[data-theme='dark'] .tab-overflow-menu .tab-overflow-menu-item {
+    color: theme('colors.gray.200');
+}
+
+.tab-overflow-menu-icon {
+    @apply flex-shrink-0;
+    width: 1rem;
+}
+
+.tab-overflow-menu-label {
+    @apply truncate;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.tab-overflow-measurer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    display: flex;
+    width: max-content;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+    white-space: nowrap;
 }

@@ -5,6 +5,7 @@ class StubStore {
     records = new Map();
     nextId = 1;
     createdPayloads = [];
+    queryRecords = [];
 
     createRecord(modelName, data) {
         this.createdPayloads.push({ modelName, data });
@@ -37,12 +38,15 @@ class StubStore {
         this.records.clear();
     }
     query() {
-        return Promise.resolve([]);
+        return Promise.resolve(this.queryRecords);
     }
 }
 
 class StubWidgetService {
     widgets = [];
+    slotDashboards = [];
+    slotDefault = null;
+
     registerWidgets(_dashboardName, widgets) {
         this.widgets = widgets;
     }
@@ -51,6 +55,12 @@ class StubWidgetService {
     }
     getDefaultWidgets() {
         return this.widgets.filter((w) => w.default);
+    }
+    getDashboardsForSlot() {
+        return this.slotDashboards;
+    }
+    getDefaultDashboardForSlot() {
+        return this.slotDefault;
     }
 }
 
@@ -111,5 +121,59 @@ module('Unit | Service | dashboard', function (hooks) {
         firstBatch.forEach((r) => assert.ok(r.options.widget_key, 'widget_key is stashed in options'));
         assert.strictEqual(firstBatch[0].options.widget_key, 'fleet-ops-kpi-earnings-widget');
         assert.strictEqual(firstBatch[1].options.widget_key, 'fleet-ops-revenue-trend-widget');
+    });
+
+    test('it loads multiple system dashboards for a slot and selects the configured slot default', async function (assert) {
+        this.widgetService.slotDashboards = [
+            { id: 'dashboard', name: 'Default Dashboard' },
+            { id: 'alrashd', name: 'Al-Rashed KPI Dashboard' },
+        ];
+        this.widgetService.slotDefault = 'alrashd';
+
+        const service = this.owner.lookup('service:dashboard');
+
+        await service.loadDashboards.perform({
+            defaultDashboardId: 'dashboard',
+            defaultDashboardName: 'Default Dashboard',
+            extension: 'core',
+            slot: 'console.home',
+        });
+
+        assert.deepEqual(
+            service.dashboards.map((dashboard) => dashboard.id),
+            ['dashboard', 'alrashd'],
+            'both system dashboards are materialized'
+        );
+        assert.strictEqual(service.currentDashboard.id, 'alrashd', 'slot default loads first when there is no saved dashboard default');
+        assert.strictEqual(service.currentWidgetSourceDashboardId, 'alrashd', 'widget source follows the active system dashboard');
+    });
+
+    test('saved default dashboard still wins over slot default', async function (assert) {
+        this.widgetService.slotDashboards = [
+            { id: 'dashboard', name: 'Default Dashboard' },
+            { id: 'alrashd', name: 'Al-Rashed KPI Dashboard' },
+        ];
+        this.widgetService.slotDefault = 'alrashd';
+        this.store.queryRecords = [
+            {
+                id: 'saved-dashboard',
+                name: 'My Dashboard',
+                is_default: true,
+                user_uuid: 'user-1',
+                widgets: [],
+                options: { widget_source_dashboard_id: 'dashboard' },
+            },
+        ];
+
+        const service = this.owner.lookup('service:dashboard');
+
+        await service.loadDashboards.perform({
+            defaultDashboardId: 'dashboard',
+            extension: 'core',
+            slot: 'console.home',
+        });
+
+        assert.strictEqual(service.currentDashboard.id, 'saved-dashboard', 'persisted default dashboard takes precedence');
+        assert.strictEqual(service.currentWidgetSourceDashboardId, 'dashboard', 'saved dashboard keeps its persisted widget catalog source');
     });
 });

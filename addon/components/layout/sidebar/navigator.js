@@ -28,13 +28,12 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     openSearchTimer;
     openSearchFrame;
     searchToken = 0;
+    hasHandledInitialRouteSync = false;
 
     constructor() {
         super(...arguments);
 
-        if (this.initialActiveParentSyncEnabled) {
-            this.syncViewStackToRoute();
-        }
+        this.hasHandledInitialRouteSync = this.syncInitialViewStackToRoute();
 
         this.router?.on?.('routeDidChange', this.syncViewStackToRoute);
 
@@ -204,8 +203,52 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     @action syncViewStackToRoute() {
+        if (!this.hasHandledInitialRouteSync) {
+            this.syncInitialViewStackToRoute();
+            this.hasHandledInitialRouteSync = true;
+            return;
+        }
+
         const activePath = this.sidebarNavigator.activePath(this.items);
 
+        this.applyActivePath(activePath);
+    }
+
+    syncInitialViewStackToRoute() {
+        const activePath = this.sidebarNavigator.activePath(this.items);
+
+        if (!this.shouldSyncInitialActiveParent(activePath)) {
+            return false;
+        }
+
+        this.applyActivePath(activePath);
+        return true;
+    }
+
+    shouldSyncInitialActiveParent(activePath = []) {
+        if (!this.initialActiveParentSyncEnabled) {
+            return false;
+        }
+
+        const predicate = this.args.shouldSyncInitialActiveParent;
+
+        if (typeof predicate !== 'function') {
+            return true;
+        }
+
+        try {
+            return predicate({
+                activePath,
+                routeName: this.router?.currentRouteName,
+                currentURL: this.router?.currentURL,
+                router: this.router,
+            }) !== false;
+        } catch (_) {
+            return true;
+        }
+    }
+
+    applyActivePath(activePath = []) {
         if (activePath.length > 1) {
             this.viewStack = activePath.slice(0, -1);
             return;

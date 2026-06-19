@@ -31,7 +31,7 @@ export default class DashboardWidgetPanelComponent extends Component {
     @tracked hoveredWidget = null;
 
     get defaultDashboardId() {
-        return this.args.defaultDashboardId ?? 'dashboard';
+        return this.args.widgetSourceDashboardId ?? this.args.defaultDashboardId ?? 'dashboard';
     }
 
     /** Every widget registered against the current dashboard scope. */
