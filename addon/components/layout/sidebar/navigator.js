@@ -237,12 +237,14 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         }
 
         try {
-            return predicate({
-                activePath,
-                routeName: this.router?.currentRouteName,
-                currentURL: this.router?.currentURL,
-                router: this.router,
-            }) !== false;
+            return (
+                predicate({
+                    activePath,
+                    routeName: this.router?.currentRouteName,
+                    currentURL: this.router?.currentURL,
+                    router: this.router,
+                }) !== false
+            );
         } catch (_) {
             return true;
         }
