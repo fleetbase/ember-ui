@@ -31,7 +31,7 @@
 | `labelFormatter` | Callback for the primary label. |
 | `mediaPath` / `photoPath` | Path on `row` for the image URL. |
 | `fallbackImage` / `fallbackSrc` | Fallback image passed to the shared `Image` component. |
-| `imageSizeClass` | Tailwind size classes for the image and image frame. Defaults to `h-8 w-8`. |
+| `imageSizeClass` | Tailwind size classes for the image and image frame. Defaults to `h-7 w-7`. |
 | `imageRounded` | When true, renders the image as `rounded-full`. |
 | `imageRoundedClass` | Custom rounded class. Defaults to `rounded-md`. |
 | `identifierPath` | Path on `row` for the first secondary metadata value. |
