@@ -312,6 +312,7 @@
 .status-badge.dispatched-status-badge > span,
 .status-badge.matched-status-badge > span,
 .status-badge.assigned-status-badge > span,
+.status-badge.recently-offline-status-badge > span,
 /* ── Transaction type labels ── */
 .status-badge.invoice-payment-status-badge > span,
 .status-badge.revenue-recognition-status-badge > span,
@@ -325,6 +326,7 @@
 .status-badge.dispatched-status-badge > span svg,
 .status-badge.matched-status-badge > span svg,
 .status-badge.assigned-status-badge > span svg,
+.status-badge.recently-offline-status-badge > span svg,
 .status-badge.invoice-payment-status-badge > span svg,
 .status-badge.revenue-recognition-status-badge > span svg,
 .status-badge.journal-entry-status-badge > span svg {

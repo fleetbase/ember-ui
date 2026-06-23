@@ -1,5 +1,16 @@
 export const currencies = [
     {
+        code: 'KUDOS',
+        title: 'GNU Taler KUDO Currency',
+        symbol: 'KUDOS ',
+        precision: 2,
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+        symbolPlacement: 'before',
+        name: 'GNU Taler KUDO Currency',
+        hidden: true,
+    },
+    {
         iso2: 'AW',
         name: 'Aruba',
         emoji: '🇦🇼',
@@ -1560,20 +1571,29 @@ export const currencies = [
     },
 ];
 
-export default function getCurrency(code) {
+export default function getCurrency(code, options = {}) {
+    const includeHidden = options.includeHidden === true;
+    const availableCurrencies = includeHidden ? currencies : currencies.filter((currency) => !currency.hidden);
+
     if (!code) {
-        return currencies;
+        return availableCurrencies;
     }
 
+    const normalizedCode = code.toLowerCase();
+
     return currencies.find((currency) => {
+        if (currency.code?.toLowerCase() === normalizedCode) {
+            return true;
+        }
+
         if (code.length === 2) {
-            return currency.iso2.toLowerCase() === code.toLowerCase();
+            return currency.iso2?.toLowerCase() === normalizedCode;
         }
 
         if (code.length === 3) {
-            return currency.code.toLowerCase() === code.toLowerCase();
+            return currency.code?.toLowerCase() === normalizedCode;
         }
 
-        return currency.name.toLowerCase() === code.toLowerCase();
+        return currency.name?.toLowerCase() === normalizedCode;
     });
 }
