@@ -4,10 +4,28 @@ import { click, fillIn, render, settled, triggerEvent, triggerKeyEvent, waitFor 
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 
+class AbilitiesStub extends Service {
+    denied = new Set();
+    throwFor = new Set();
+
+    can(permission) {
+        if (this.throwFor.has(permission)) {
+            throw new Error(`Permission check failed for ${permission}`);
+        }
+
+        return !this.denied.has(permission);
+    }
+
+    cannot(permission) {
+        return !this.can(permission);
+    }
+}
+
 module('Integration | Component | layout/sidebar/navigator', function (hooks) {
     setupRenderingTest(hooks);
 
     hooks.beforeEach(function () {
+        this.owner.register('service:abilities', AbilitiesStub);
         this.wormholeRoot = document.getElementById('application-root-wormhole');
 
         if (!this.wormholeRoot) {
@@ -51,6 +69,140 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         if (this.createdWormholeRoot) {
             this.wormholeRoot.remove();
         }
+    });
+
+    test('it hides items with denied visiblePermission and prunes empty branches', async function (assert) {
+        const abilities = this.owner.lookup('service:abilities');
+        abilities.denied.add('fleet-ops see service-rate');
+        abilities.denied.add('fleet-ops see hidden-section');
+
+        this.set('items', [
+            {
+                label: 'Operations',
+                children: [
+                    {
+                        label: 'Orders',
+                        visiblePermission: 'fleet-ops see order',
+                        onClick: () => this.set('selected', 'orders'),
+                    },
+                    {
+                        label: 'Service Rates',
+                        visiblePermission: 'fleet-ops see service-rate',
+                        permission: 'fleet-ops list service-rate',
+                        keywords: ['rates'],
+                        onClick: () => this.set('selected', 'service-rates'),
+                    },
+                ],
+            },
+            {
+                label: 'Hidden Section',
+                children: [
+                    {
+                        label: 'Hidden Child',
+                        visiblePermission: 'fleet-ops see hidden-section',
+                        onClick: () => this.set('selected', 'hidden'),
+                    },
+                ],
+            },
+        ]);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+        assert.dom('.next-sidebar-navigator').includesText('Operations');
+        assert.dom('.next-sidebar-navigator').doesNotIncludeText('Hidden Section');
+
+        await click('.next-sidebar-navigator-view-in .next-sidebar-navigator-item:first-of-type');
+
+        assert.dom('.next-sidebar-navigator').includesText('Orders');
+        assert.dom('.next-sidebar-navigator').doesNotIncludeText('Service Rates');
+
+        await fillIn('.next-sidebar-navigator-search input', 'rates');
+        await settled();
+
+        assert.dom('.next-sidebar-navigator-search-result').doesNotExist('hidden items are excluded from search');
+    });
+
+    test('it fails closed when an explicit permission check throws', async function (assert) {
+        const abilities = this.owner.lookup('service:abilities');
+        abilities.throwFor.add('fleet-ops list service-rate');
+
+        this.set('items', [
+            {
+                label: 'Orders',
+                onClick: () => this.set('selected', 'orders'),
+            },
+            {
+                label: 'Service Rates',
+                permission: 'fleet-ops list service-rate',
+                onClick: () => this.set('selected', 'service-rates'),
+            },
+        ]);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+        assert.dom('.next-sidebar-navigator').includesText('Orders');
+        assert.dom('.next-sidebar-navigator').doesNotIncludeText('Service Rates');
+    });
+
+    test('it can require a branch to have visible non-hub children', async function (assert) {
+        const abilities = this.owner.lookup('service:abilities');
+        abilities.denied.add('fleet-ops see work-order');
+
+        this.set('items', [
+            {
+                label: 'Maintenance',
+                requiresVisibleChildren: true,
+                children: [
+                    {
+                        label: 'Maintenance Hub',
+                        isNavigationHub: true,
+                        route: 'console.fleet-ops.maintenance.index',
+                    },
+                    {
+                        label: 'Work Orders',
+                        visiblePermission: 'fleet-ops see work-order',
+                        route: 'console.fleet-ops.maintenance.work-orders',
+                    },
+                ],
+            },
+            {
+                label: 'Regular Section',
+                children: [
+                    {
+                        label: 'Regular Hub',
+                        isNavigationHub: true,
+                        route: 'console.regular.index',
+                    },
+                ],
+            },
+            {
+                label: 'Resources',
+                requiresVisibleChildren: true,
+                children: [
+                    {
+                        label: 'Resources Hub',
+                        isNavigationHub: true,
+                        route: 'console.fleet-ops.management.index',
+                    },
+                    {
+                        label: 'Drivers',
+                        visiblePermission: 'fleet-ops see driver',
+                        route: 'console.fleet-ops.management.drivers',
+                    },
+                ],
+            },
+        ]);
+
+        await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+        assert.dom('.next-sidebar-navigator').doesNotIncludeText('Maintenance', 'hub-only required branch is hidden');
+        assert.dom('.next-sidebar-navigator').includesText('Regular Section', 'normal branches keep existing behavior');
+        assert.dom('.next-sidebar-navigator').includesText('Resources', 'branch with a visible real child remains visible');
+
+        await click('.next-sidebar-navigator-view-in .next-sidebar-navigator-item:nth-of-type(2)');
+
+        assert.dom('.next-sidebar-navigator').includesText('Resources Hub');
+        assert.dom('.next-sidebar-navigator').includesText('Drivers');
     });
 
     test('it transitions between root and nested menus with directional classes', async function (assert) {
@@ -140,7 +292,7 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').hasClass('is-active');
     });
 
-    test('it lets an initial active parent predicate suppress initial nested sync through the first route event', async function (assert) {
+    test('it lets an initial active parent predicate suppress initial nested sync once', async function (assert) {
         class RouterStub extends Service {
             currentRouteName = 'console.settings.index';
             currentURL = '/settings';
@@ -190,12 +342,6 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
 
         const router = this.owner.lookup('service:router');
-        router.triggerRouteDidChange();
-        await settled();
-
-        assert.dom('.next-sidebar-navigator-back').doesNotExist('first route event is still treated as initial entry');
-        assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
-
         router.currentRouteName = 'console.settings.security';
         router.currentURL = '/settings/security';
         this.set('items', [
@@ -217,8 +363,8 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         await settled();
 
         assert.dom('.next-sidebar-navigator-back').includesText('Settings', 'later route changes sync nested state normally');
-        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('General');
-        assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('Security');
+        assert.dom('.next-sidebar-navigator-view-in').includesText('General');
+        assert.dom('.next-sidebar-navigator-view-in').includesText('Security');
     });
 
     test('it syncs initial nested state when the active parent predicate allows it', async function (assert) {

@@ -22,14 +22,23 @@ export default class SidebarNavigatorService extends Service {
             return [];
         }
 
-        return items
-            .filter((item) => this.isVisible(item))
-            .map((item) => {
-                return {
-                    ...item,
-                    children: this.normalizeItems(item.children ?? []),
-                };
-            });
+        return items.reduce((normalizedItems, item) => {
+            if (!this.isVisible(item)) {
+                return normalizedItems;
+            }
+
+            const normalizedItem = {
+                ...item,
+                children: this.normalizeItems(item.children ?? []),
+            };
+
+            if (!this.hasVisibleTarget(normalizedItem) || !this.hasRequiredVisibleChildren(normalizedItem)) {
+                return normalizedItems;
+            }
+
+            normalizedItems.push(normalizedItem);
+            return normalizedItems;
+        }, []);
     }
 
     isVisible(item = {}) {
@@ -37,15 +46,35 @@ export default class SidebarNavigatorService extends Service {
             return false;
         }
 
+        if (item.visiblePermission && !this.can(item.visiblePermission)) {
+            return false;
+        }
+
         if (item.permission) {
-            try {
-                return this.abilities.can(item.permission);
-            } catch (_) {
-                return true;
-            }
+            return this.can(item.permission);
         }
 
         return true;
+    }
+
+    can(permission) {
+        try {
+            return this.abilities.can(permission);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    hasVisibleTarget(item = {}) {
+        return Boolean(item.route || item.url || item.onClick || item.children?.length);
+    }
+
+    hasRequiredVisibleChildren(item = {}) {
+        if (!item.requiresVisibleChildren) {
+            return true;
+        }
+
+        return item.children?.some((child) => child.isNavigationHub !== true) === true;
     }
 
     flattenItems(items = [], trail = []) {

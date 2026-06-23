@@ -28,12 +28,11 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     openSearchTimer;
     openSearchFrame;
     searchToken = 0;
-    hasHandledInitialRouteSync = false;
 
     constructor() {
         super(...arguments);
 
-        this.hasHandledInitialRouteSync = this.syncInitialViewStackToRoute();
+        this.syncInitialViewStackToRoute();
 
         this.router?.on?.('routeDidChange', this.syncViewStackToRoute);
 
@@ -203,12 +202,6 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     @action syncViewStackToRoute() {
-        if (!this.hasHandledInitialRouteSync) {
-            this.syncInitialViewStackToRoute();
-            this.hasHandledInitialRouteSync = true;
-            return;
-        }
-
         const activePath = this.sidebarNavigator.activePath(this.items);
 
         this.applyActivePath(activePath);
@@ -217,7 +210,13 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     syncInitialViewStackToRoute() {
         const activePath = this.sidebarNavigator.activePath(this.items);
 
+        if (!this.initialActiveParentSyncEnabled) {
+            this.viewStack = [];
+            return false;
+        }
+
         if (!this.shouldSyncInitialActiveParent(activePath)) {
+            this.viewStack = [];
             return false;
         }
 
@@ -226,10 +225,6 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     shouldSyncInitialActiveParent(activePath = []) {
-        if (!this.initialActiveParentSyncEnabled) {
-            return false;
-        }
-
         const predicate = this.args.shouldSyncInitialActiveParent;
 
         if (typeof predicate !== 'function') {
