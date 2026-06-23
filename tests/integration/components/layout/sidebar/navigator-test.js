@@ -117,7 +117,6 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator').doesNotIncludeText('Service Rates');
 
         await fillIn('.next-sidebar-navigator-search input', 'rates');
-        await settled();
 
         assert.dom('.next-sidebar-navigator-search-result').doesNotExist('hidden items are excluded from search');
     });
