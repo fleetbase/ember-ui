@@ -23,4 +23,26 @@ module('Integration | Component | table/cell/dropdown/action-item', function (ho
 
         assert.dom().hasText('template block text');
     });
+
+    test('separator obeys isVisible', async function (assert) {
+        this.set('row', { id: 'row_1', shouldShowSeparator: true });
+        this.set('visibleSeparator', {
+            separator: true,
+            isVisible(row) {
+                return row.shouldShowSeparator;
+            },
+        });
+        this.set('hiddenSeparator', {
+            separator: true,
+            isVisible() {
+                return false;
+            },
+        });
+
+        await render(hbs`<Table::Cell::Dropdown::ActionItem @columnAction={{this.visibleSeparator}} @row={{this.row}} />`);
+        assert.dom('.next-dd-menu-seperator').exists('visible separator renders');
+
+        await render(hbs`<Table::Cell::Dropdown::ActionItem @columnAction={{this.hiddenSeparator}} @row={{this.row}} />`);
+        assert.dom('.next-dd-menu-seperator').doesNotExist('hidden separator does not render');
+    });
 });

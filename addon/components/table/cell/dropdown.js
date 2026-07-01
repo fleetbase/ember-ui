@@ -7,7 +7,7 @@ export default class TableCellDropdownComponent extends Component {
     defaultButtonText = 'Actions';
 
     @computed('args.column.ddButtonText', 'defaultButtonText') get buttonText() {
-        const { ddButtonText } = this.args.column;
+        const { ddButtonText } = this.args.column ?? {};
 
         if (ddButtonText === undefined) {
             return this.defaultButtonText;
@@ -20,25 +20,43 @@ export default class TableCellDropdownComponent extends Component {
         return ddButtonText;
     }
 
+    get renderInPlace() {
+        return this.args.column?.renderInPlace ?? true;
+    }
+
     @action setupComponent(dropdownWrapperNode) {
         const tableCellNode = this.getOwnerTableCell(dropdownWrapperNode);
-        tableCellNode.style.overflow = 'visible';
+
+        if (tableCellNode) {
+            tableCellNode.style.overflow = 'visible';
+        }
+
         this.tableCellNode = tableCellNode;
     }
 
     @action onOpen() {
-        this.tableCellNode.style.zIndex = parseInt(this.tableCellNode.style.zIndex) + 1;
+        if (!this.tableCellNode) {
+            return;
+        }
+
+        const currentZIndex = Number.parseInt(this.tableCellNode.style.zIndex, 10) || 0;
+        this.tableCellNode.style.zIndex = currentZIndex + 1;
     }
 
     @action onClose() {
-        this.tableCellNode.style.zIndex = parseInt(this.tableCellNode.style.zIndex) - 1;
+        if (!this.tableCellNode) {
+            return;
+        }
+
+        const currentZIndex = Number.parseInt(this.tableCellNode.style.zIndex, 10) || 1;
+        this.tableCellNode.style.zIndex = currentZIndex - 1;
     }
 
     @action getOwnerTableCell(dropdownWrapperNode) {
         while (dropdownWrapperNode) {
             dropdownWrapperNode = dropdownWrapperNode.parentNode;
 
-            if (dropdownWrapperNode.tagName.toLowerCase() === 'td') {
+            if (dropdownWrapperNode?.tagName?.toLowerCase() === 'td') {
                 return dropdownWrapperNode;
             }
         }
@@ -57,15 +75,19 @@ export default class TableCellDropdownComponent extends Component {
     }
 
     @action calculatePosition(trigger, content) {
+        if (typeof this.args.column?.calculatePosition === 'function') {
+            return this.args.column.calculatePosition(trigger, content);
+        }
+
         const triggerRect = trigger.getBoundingClientRect();
         const contentRect = content?.getBoundingClientRect?.();
         const contentWidth = contentRect?.width || 224;
 
-        let style = {
+        const style = {
             position: 'fixed',
             marginTop: '0px',
-            left: `${triggerRect.left - contentWidth - 3}px`,
-            top: `${triggerRect.top}px`,
+            left: triggerRect.left - contentWidth - 3,
+            top: triggerRect.top,
         };
 
         return { style };

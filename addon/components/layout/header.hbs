@@ -18,11 +18,7 @@
                 Pass `@mutateMenuItems={{fn}}` to mutate items before rendering
                 (same contract as the previous static implementation).
             --}}
-            <Layout::Header::SmartNavMenu
-                class="next-catalog-menu-items mr-4"
-                @maxVisible={{or @maxVisibleNavItems 5}}
-                @mutateMenuItems={{@mutateMenuItems}}
-            />
+            <Layout::Header::SmartNavMenu class="next-catalog-menu-items mr-4" @maxVisible={{or @maxVisibleNavItems 5}} @mutateMenuItems={{@mutateMenuItems}} />
         {{/unless}}
         <div id="view-header-left-content-a"></div>
         {{yield}}
@@ -32,7 +28,10 @@
         <Layout::Header::LoadingIndicator />
         <div id="view-header-actions"></div>
         <div class="flex items-center justify-between">
-            <div class="flex-1 flex items-center pr-1 space-x-1">
+            <div id="view-header-tray-items" class="flex-1 flex items-center pr-1 gap-1">
+                <RegistryYield @registry="header-tray-items" as |RegistryComponent|>
+                    <RegistryComponent @header={{this}} />
+                </RegistryYield>
                 <LocaleSelectorTray />
                 <NotificationTray @registerAPI={{@registerNotificationTrayApi}} @onClickNotification={{@onClickNotification}} />
                 <ChatTray />

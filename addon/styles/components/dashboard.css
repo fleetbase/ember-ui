@@ -103,13 +103,13 @@
         transform 180ms ease-out,
         box-shadow 180ms ease-out,
         border-color 180ms ease-out;
-    background-color: theme('colors.white');
-    border-color: theme('colors.gray.200');
+    background-color: #ffffff;
+    border-color: #e5e7eb;
 }
 
 body[data-theme='dark'] .fleet-ops-kpi-tile-pop {
-    background-color: theme('colors.gray.800');
-    border-color: theme('colors.gray.700');
+    background-color: #1f2937;
+    border-color: #374151;
 }
 
 .fleet-ops-kpi-tile-pop:hover {
@@ -193,16 +193,16 @@ body[data-theme='dark'] .fleet-ops-kpi-tile-pop.kpi-accent-neutral {
  *  - A neon-hued value number that pops against the dark theme.
  * ============================================================ */
 .fleet-ops-pulse-tile {
-    background-color: theme('colors.gray.50');
-    border-color: theme('colors.gray.200');
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
     transition:
         transform 160ms ease-out,
         box-shadow 160ms ease-out;
 }
 
 body[data-theme='dark'] .fleet-ops-pulse-tile {
-    background-color: theme('colors.gray.800');
-    border-color: theme('colors.gray.700');
+    background-color: #1f2937;
+    border-color: #374151;
 }
 
 .fleet-ops-pulse-tile:hover {
