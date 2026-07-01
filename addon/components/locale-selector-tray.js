@@ -13,6 +13,15 @@ export default class LocaleSelectorTrayComponent extends Component {
     @tracked locales = [];
     @tracked currentLocale;
 
+    get renderInPlace() {
+        if (this.media.isMobile) return false;
+        if (typeof this.args.renderInPlace === 'boolean') {
+            return this.args.renderInPlace;
+        }
+
+        return false;
+    }
+
     /**
      * Creates an instance of LocaleSelectorComponent.
      * @memberof LocaleSelectorComponent

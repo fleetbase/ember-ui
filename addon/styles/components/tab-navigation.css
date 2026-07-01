@@ -1,27 +1,27 @@
 :root {
-    --tab-bg-primary: theme('colors.white');
-    --tab-bg-secondary: theme('colors.gray.50');
-    --tab-border-color: theme('colors.gray.200');
-    --tab-text-primary: theme('colors.gray.900');
-    --tab-text-secondary: theme('colors.gray.600');
-    --tab-text-hover: theme('colors.gray.900');
-    --tab-hover-bg: theme('colors.gray.100');
-    --tab-active-indicator: theme('colors.blue.500');
-    --tab-focus-ring: theme('colors.blue.500');
-    --tab-close-hover: theme('colors.gray.200');
+    --tab-bg-primary: #ffffff;
+    --tab-bg-secondary: #f9fafb;
+    --tab-border-color: #e5e7eb;
+    --tab-text-primary: #111827;
+    --tab-text-secondary: #4b5563;
+    --tab-text-hover: #111827;
+    --tab-hover-bg: #f3f4f6;
+    --tab-active-indicator: #3b82f6;
+    --tab-focus-ring: #3b82f6;
+    --tab-close-hover: #e5e7eb;
 }
 
 body[data-theme='dark'] {
-    --tab-bg-primary: theme('colors.gray.900');
-    --tab-bg-secondary: theme('colors.gray.800');
-    --tab-border-color: theme('colors.gray.700');
-    --tab-text-primary: theme('colors.white');
-    --tab-text-secondary: theme('colors.gray.400');
-    --tab-text-hover: theme('colors.white');
-    --tab-hover-bg: theme('colors.gray.700');
-    --tab-active-indicator: theme('colors.blue.500');
-    --tab-focus-ring: theme('colors.blue.500');
-    --tab-close-hover: theme('colors.gray.600');
+    --tab-bg-primary: #111827;
+    --tab-bg-secondary: #1f2937;
+    --tab-border-color: #374151;
+    --tab-text-primary: #ffffff;
+    --tab-text-secondary: #9ca3af;
+    --tab-text-hover: #ffffff;
+    --tab-hover-bg: #374151;
+    --tab-active-indicator: #3b82f6;
+    --tab-focus-ring: #3b82f6;
+    --tab-close-hover: #4b5563;
 }
 
 .tab-navigation {
@@ -269,7 +269,7 @@ body[data-theme='dark'] .tab-badge {
 
 @media (prefers-contrast: high) {
     .tab-navigation[data-style='github'] .tab-item--active {
-        --tab-active-indicator: theme('colors.blue.600');
+        --tab-active-indicator: #2563eb;
     }
 
     .tab-navigation .tab-item {
@@ -340,7 +340,7 @@ body[data-theme='dark'] .tab-badge {
 }
 
 body[data-theme='dark'] .tab-overflow-menu .tab-overflow-menu-item {
-    color: theme('colors.gray.200');
+    color: #e5e7eb;
 }
 
 .tab-overflow-menu-icon {

@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { parse, format, isValid } from 'date-fns';
+import { parse, parseISO, format, isValid } from 'date-fns';
 
 export default class DateTimeInputComponent extends Component {
     @tracked timeFormat = 'HH:mm';
@@ -13,10 +13,14 @@ export default class DateTimeInputComponent extends Component {
     constructor() {
         super(...arguments);
 
-        const value = this.parseValue(this.args.value);
+        this.syncValue(this.args.value);
+    }
 
-        this.date = value ? format(value, this.dateFormat) : null;
-        this.time = value ? format(value, this.timeFormat) : null;
+    syncValue(value) {
+        const parsedValue = this.parseValue(value);
+
+        this.date = parsedValue ? format(parsedValue, this.dateFormat) : null;
+        this.time = parsedValue ? format(parsedValue, this.timeFormat) : null;
     }
 
     parseValue(value) {
@@ -25,49 +29,81 @@ export default class DateTimeInputComponent extends Component {
         }
 
         if (typeof value === 'string') {
-            const parsedValue = parse(value, this.dateTimeFormat, new Date());
+            const dateTimeValue = parse(value, this.dateTimeFormat, new Date());
 
-            if (isValid(parsedValue)) {
-                return parsedValue;
+            if (isValid(dateTimeValue)) {
+                return dateTimeValue;
+            }
+
+            const isoLocalValue = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+
+            if (isoLocalValue) {
+                const localDateTimeValue = parse(`${isoLocalValue[1]} ${isoLocalValue[2]}`, this.dateTimeFormat, new Date());
+
+                if (isValid(localDateTimeValue)) {
+                    return localDateTimeValue;
+                }
+            }
+
+            const isoValue = parseISO(value);
+
+            if (isValid(isoValue)) {
+                return isoValue;
             }
         }
 
         return null;
     }
 
+    @action updateValue(value) {
+        this.syncValue(value);
+    }
+
     /**
-     * Update component value
+     * Update component value.
      *
      * @param {*} prop
      * @param {*} { target }
      * @memberof DateTimeInputComponent
      */
     @action update(prop, { target }) {
-        const { onUpdate } = this.args;
+        const { onUpdate, onChange } = this.args;
         let { dateTimeFormat, date, time } = this;
         let { value } = target;
-        let dateTime, dateTimeInstance;
+        let dateTimeInstance;
+
+        this[prop] = value;
 
         if (prop === 'time') {
-            if (date) {
-                dateTimeInstance = parse(`${date} ${value}`, dateTimeFormat, new Date());
-            } else {
-                dateTimeInstance = parse(`${value}`, this.timeFormat, new Date());
-            }
+            time = value;
+            dateTimeInstance = date ? parse(`${date} ${time}`, dateTimeFormat, new Date()) : parse(`${time}`, this.timeFormat, new Date());
         }
 
         if (prop === 'date') {
-            if (time) {
-                dateTimeInstance = parse(`${value} ${time}`, dateTimeFormat, new Date());
-            } else {
-                dateTimeInstance = parse(`${value}`, this.dateFormat, new Date());
-            }
+            date = value;
+            dateTimeInstance = time ? parse(`${date} ${time}`, dateTimeFormat, new Date()) : parse(`${date}`, this.dateFormat, new Date());
         }
 
-        dateTime = format(dateTimeInstance, dateTimeFormat);
+        if (!dateTimeInstance || !isValid(dateTimeInstance)) {
+            if (typeof onUpdate === 'function') {
+                onUpdate(null, null);
+            }
+
+            if (typeof onChange === 'function') {
+                onChange(null, null);
+            }
+
+            return;
+        }
+
+        const dateTime = format(dateTimeInstance, dateTimeFormat);
 
         if (typeof onUpdate === 'function') {
             onUpdate(dateTimeInstance, dateTime);
+        }
+
+        if (typeof onChange === 'function') {
+            onChange(dateTimeInstance, dateTime);
         }
     }
 }

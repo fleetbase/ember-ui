@@ -10,7 +10,7 @@ export default class LayoutResourceCardComponent extends Component {
     }
 
     get cardClass() {
-        const baseClasses = 'bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden';
+        const baseClasses = 'bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden';
         return this.args.class ? `${baseClasses} ${this.args.class}` : baseClasses;
     }
 

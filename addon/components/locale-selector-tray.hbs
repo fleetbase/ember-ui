@@ -6,7 +6,7 @@
         @calculatePosition={{this.calculatePosition}}
         @verticalPosition={{@verticalPosition}}
         @horizontalPosition={{@horizontalPosition}}
-        @renderInPlace={{or @renderInPlace (not (media "isMobile"))}}
+        @renderInPlace={{this.renderInPlace}}
         as |dd|
     >
         <dd.Trigger class="{{@triggerClass}} local-selector-tray-trigger {{if (media 'isMobile') 'is-mobile'}}">

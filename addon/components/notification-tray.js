@@ -45,6 +45,15 @@ export default class NotificationTrayComponent extends Component {
      */
     @tracked notificationSound = new Audio('/sounds/notification-sound.mp3');
 
+    get renderInPlace() {
+        if (this.media.isMobile) return false;
+        if (typeof this.args.renderInPlace === 'boolean') {
+            return this.args.renderInPlace;
+        }
+
+        return false;
+    }
+
     /**
      * Creates an instance of the NotificationTrayComponent
      */
