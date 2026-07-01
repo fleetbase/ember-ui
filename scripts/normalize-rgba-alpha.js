@@ -6,9 +6,7 @@ const path = require('path');
 
 const root = process.cwd();
 const checkOnly = process.argv.includes('--check');
-const cssRoots = ['addon', 'app', 'tests']
-    .map((dir) => path.join(root, dir))
-    .filter((dir) => fs.existsSync(dir));
+const cssRoots = ['addon', 'app', 'tests'].map((dir) => path.join(root, dir)).filter((dir) => fs.existsSync(dir));
 const rgbaPercentAlphaPattern = /rgba\(\s*([+-]?(?:\d*\.)?\d+)\s*,\s*([+-]?(?:\d*\.)?\d+)\s*,\s*([+-]?(?:\d*\.)?\d+)\s*,\s*([+-]?(?:\d*\.)?\d+)%\s*\)/g;
 
 function collectCssFiles(dir, files = []) {

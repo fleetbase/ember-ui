@@ -26,7 +26,13 @@
                     {{#each-in @metadata as |key value|}}
                         <tr>
                             <td>{{key}}</td>
-                            <td>{{value}}</td>
+                            <td>
+                                {{#if (or (is-array @value) (is-object @value))}}
+                                    {{format-json @value}}
+                                {{else}}
+                                    {{value}}
+                                {{/if}}
+                            </td>
                         </tr>
                     {{/each-in}}
                 </tbody>
