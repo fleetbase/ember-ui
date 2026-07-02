@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { fillIn, render, settled } from '@ember/test-helpers';
+import { fillIn, render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | date-time-input', function (hooks) {
@@ -108,15 +108,38 @@ module('Integration | Component | date-time-input', function (hooks) {
         await fillIn('[aria-label="Time Input"]', '19:12');
     });
 
-    test('it syncs when the external value changes', async function (assert) {
+    test('it does not reset while controlled by a parent value', async function (assert) {
+        assert.expect(4);
+
         this.set('value', '2026-06-18 18:47');
+        this.set('onUpdate', (dateTimeInstance) => {
+            this.set('value', dateTimeInstance);
+        });
 
-        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+        await render(hbs`<DateTimeInput @value={{this.value}} @onUpdate={{this.onUpdate}} />`);
 
-        this.set('value', '2026-07-03T15:00:00+08:00');
-        await settled();
+        await fillIn('[aria-label="Date Input"]', '2026-06-19');
 
-        assert.dom('[aria-label="Date Input"]').hasValue('2026-07-03');
-        assert.dom('[aria-label="Time Input"]').hasValue('15:00');
+        assert.dom('[aria-label="Date Input"]').hasValue('2026-06-19');
+        assert.dom('[aria-label="Time Input"]').hasValue('18:47');
+
+        await fillIn('[aria-label="Time Input"]', '19:12');
+
+        assert.dom('[aria-label="Date Input"]').hasValue('2026-06-19');
+        assert.dom('[aria-label="Time Input"]').hasValue('19:12');
+    });
+
+    test('it does not emit null while native inputs are incomplete', async function (assert) {
+        assert.expect(1);
+
+        this.set('value', '2026-06-18 18:47');
+        this.set('onUpdate', () => {
+            assert.ok(false, 'onUpdate should not be called for incomplete input');
+        });
+
+        await render(hbs`<DateTimeInput @value={{this.value}} @onUpdate={{this.onUpdate}} />`);
+        await fillIn('[aria-label="Date Input"]', '');
+
+        assert.dom('[aria-label="Date Input"]').hasValue('');
     });
 });
