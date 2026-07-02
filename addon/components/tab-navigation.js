@@ -139,7 +139,11 @@ export default class TabNavigationComponent extends Component {
     }
 
     @action argsDidChange() {
-        const nextActiveTabId = this.args.activeTabId || (this.args.tabs?.[0]?.id ?? null);
+        const tabs = this.args.tabs ?? [];
+        const hasControlledActiveTab = this.args.activeTabId !== undefined;
+        const currentActiveTabExists = tabs.some((tab) => tab.id === this._activeTabId);
+        const nextActiveTabId = hasControlledActiveTab ? this.args.activeTabId : currentActiveTabExists ? this._activeTabId : (tabs[0]?.id ?? null);
+
         if (nextActiveTabId !== this._activeTabId) {
             this._activeTabId = nextActiveTabId;
         }

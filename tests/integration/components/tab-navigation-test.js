@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { click, render } from '@ember/test-helpers';
+import { click, render, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | tab-navigation', function (hooks) {
@@ -96,6 +96,59 @@ module('Integration | Component | tab-navigation', function (hooks) {
         assert.dom('[role="tab"][data-tab-id="positions"]').exists();
         assert.dom('[role="tab"][data-tab-id="devices"]').exists();
         assert.dom('[data-tab-navigation-more]').doesNotExist();
+    });
+
+    test('it preserves uncontrolled active tab when tabs are refreshed with the same ids', async function (assert) {
+        this.set('tabs', [
+            { id: 'overview', label: 'Overview' },
+            { id: 'positions', label: 'Positions' },
+            { id: 'devices', label: 'Devices' },
+        ]);
+
+        await render(hbs`
+            <TabNavigation @tabs={{this.tabs}} as |activeTab|>
+                {{activeTab.label}}
+            </TabNavigation>
+        `);
+
+        await click('[role="tab"][data-tab-id="positions"]');
+        assert.dom('.tab-content').hasText('Positions');
+
+        this.set('tabs', [
+            { id: 'overview', label: 'Overview refreshed' },
+            { id: 'positions', label: 'Positions refreshed' },
+            { id: 'devices', label: 'Devices refreshed' },
+        ]);
+        await settled();
+
+        assert.dom('.tab-content').hasText('Positions refreshed');
+        assert.dom('[role="tab"][data-tab-id="positions"]').hasClass('tab-item--active');
+    });
+
+    test('it falls back to the first tab when uncontrolled active tab is removed', async function (assert) {
+        this.set('tabs', [
+            { id: 'overview', label: 'Overview' },
+            { id: 'positions', label: 'Positions' },
+            { id: 'devices', label: 'Devices' },
+        ]);
+
+        await render(hbs`
+            <TabNavigation @tabs={{this.tabs}} as |activeTab|>
+                {{activeTab.label}}
+            </TabNavigation>
+        `);
+
+        await click('[role="tab"][data-tab-id="positions"]');
+        assert.dom('.tab-content').hasText('Positions');
+
+        this.set('tabs', [
+            { id: 'overview', label: 'Overview refreshed' },
+            { id: 'devices', label: 'Devices refreshed' },
+        ]);
+        await settled();
+
+        assert.dom('.tab-content').hasText('Overview refreshed');
+        assert.dom('[role="tab"][data-tab-id="overview"]').hasClass('tab-item--active');
     });
 
     test('it moves overflowing array tabs into a More menu', async function (assert) {
