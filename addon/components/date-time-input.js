@@ -55,10 +55,6 @@ export default class DateTimeInputComponent extends Component {
         return null;
     }
 
-    @action updateValue(value) {
-        this.syncValue(value);
-    }
-
     /**
      * Update component value.
      *
@@ -85,14 +81,6 @@ export default class DateTimeInputComponent extends Component {
         }
 
         if (!dateTimeInstance || !isValid(dateTimeInstance)) {
-            if (typeof onUpdate === 'function') {
-                onUpdate(null, null);
-            }
-
-            if (typeof onChange === 'function') {
-                onChange(null, null);
-            }
-
             return;
         }
 
