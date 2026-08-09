@@ -31,6 +31,10 @@
         "start": "ember serve",
         "test": "concurrently \"npm:lint\" \"npm:test:*\" --names \"lint,test:\"",
         "test:ember": "ember test",
+        "test:coverage": "COVERAGE=true ember test",
+        "coverage:check": "node scripts/check-coverage.js",
+        "coverage:selftest": "node scripts/check-coverage-test.js",
+        "test:ci": "pnpm run coverage:selftest && pnpm run test:coverage && pnpm run coverage:check",
         "test:ember-compatibility": "ember try:each",
         "publish:npm": "npm config set registry https://registry.npmjs.org/ && npm publish",
         "publish:github": "npm config set '@fleetbase:registry' https://npm.pkg.github.com/ && npm publish"
@@ -43,6 +47,8 @@
         "@embroider/macros": "^1.8.3",
         "@event-calendar/core": "^5.6.0",
         "@fleetbase/ember-accounting": "^0.0.1",
+        "@fleetbase/ember-core": "^0.3.24",
+        "@fleetbase/fleetops-data": "^0.1.40",
         "@floating-ui/dom": "^1.0.1",
         "@fortawesome/ember-fontawesome": "^2.0.0",
         "@fortawesome/fontawesome-svg-core": "6.4.0",
@@ -100,6 +106,7 @@
         "ember-on-helper": "^0.1.0",
         "ember-power-calendar": "^0.18.0",
         "ember-power-select": "8.6.2",
+        "ember-radio-button": "3.0.0-beta.1",
         "ember-ref-bucket": "^4.1.0",
         "ember-responsive": "^5.0.0",
         "ember-style-modifier": "^3.0.1",
@@ -136,10 +143,12 @@
         "concurrently": "^8.2.2",
         "ember-cli": "~5.4.1",
         "ember-cli-clean-css": "^3.0.0",
+        "ember-cli-code-coverage": "3.1.0",
         "ember-cli-dependency-checker": "^3.3.2",
         "ember-cli-inject-live-reload": "^2.1.0",
         "ember-cli-sri": "^2.1.1",
         "ember-cli-terser": "^4.0.2",
+        "ember-data": "^4.12.8",
         "ember-load-initializers": "^2.1.2",
         "ember-page-title": "^8.0.0",
         "ember-qunit": "^8.0.1",
@@ -147,6 +156,7 @@
         "ember-source": "~5.4.0",
         "ember-source-channel-url": "^3.0.0",
         "ember-template-lint": "^5.11.2",
+        "ember-tracked-storage-polyfill": "1.0.1",
         "ember-try": "^3.0.0",
         "eslint": "^8.52.0",
         "eslint-config-prettier": "^9.0.0",
@@ -167,6 +177,7 @@
     "engines": {
         "node": ">= 18"
     },
+    "packageManager": "pnpm@11.7.0",
     "ember": {
         "edition": "octane"
     },

@@ -1,7 +1,8 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { isBlank } from '@ember/utils';
-import { later } from '@ember/runloop';
+import { later, cancel } from '@ember/runloop';
+import { registerDestructor } from '@ember/destroyable';
 
 export default class TableFootComponent extends Component {
     @tracked tfootVerticalOffset;
@@ -14,7 +15,7 @@ export default class TableFootComponent extends Component {
         this.tfootVerticalOffsetElements = tfootVerticalOffsetElements;
         this.tfootVerticalOffset = tfootVerticalOffset;
 
-        later(
+        this.readyTimer = later(
             this,
             () => {
                 if (isBlank(this.tfootVerticalOffsetElements) && isBlank(this.tfootVerticalOffset)) {
@@ -25,6 +26,11 @@ export default class TableFootComponent extends Component {
             },
             0
         );
+
+        // This runs outside the render pass, so it must not outlive the
+        // component — otherwise a table that re-renders immediately writes to a
+        // destroyed component and throws asynchronously.
+        registerDestructor(this, () => cancel(this.readyTimer));
     }
 
     calculateTableFooterVerticalOffset() {
@@ -33,7 +39,7 @@ export default class TableFootComponent extends Component {
         let calculatedOffset = 0;
 
         for (let i = 0; i < offsetElements.length; i++) {
-            const element = offsetElements.objectAt(i);
+            const element = offsetElements[i];
 
             if (element instanceof HTMLElement) {
                 calculatedOffset += element.offsetHeight;

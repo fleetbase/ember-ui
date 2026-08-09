@@ -29,7 +29,6 @@ import '@event-calendar/core/index.css';
  *   @resources={{this.calendarResources}}
  *   @events={{this.calendarEvents}}
  *   @editable={{true}}
- *   @droppable={{true}}
  *   @onEventDrop={{this.handleEventDrop}}
  *   @onEventReceive={{this.handleEventReceive}}
  *   @onEventClick={{this.handleEventClick}}
@@ -202,7 +201,6 @@ export default class EventCalendarComponent extends Component {
             resources,
             events,
             editable,
-            droppable,
             selectable,
             nowIndicator,
             slotMinTime,
@@ -224,7 +222,9 @@ export default class EventCalendarComponent extends Component {
             resources: resources ?? [],
             events: events ?? [],
             editable: editable !== false,
-            droppable: droppable !== false,
+            // No `droppable` here: @event-calendar/core has no such option (it configures
+            // external drag-and-drop through the Interaction plugin and `editable`), so the
+            // argument was accepted, documented and then silently discarded.
             selectable: selectable ?? false,
             nowIndicator: nowIndicator !== false,
             slotMinTime: slotMinTime ?? '00:00:00',
@@ -278,7 +278,6 @@ export default class EventCalendarComponent extends Component {
             'resources',
             'events',
             'editable',
-            'droppable',
             'selectable',
             'slotMinTime',
             'slotMaxTime',

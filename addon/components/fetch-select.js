@@ -122,7 +122,7 @@ export default class FetchSelectComponent extends Component {
         const _optionsFromObject = [];
 
         objectKeys.forEach((key) => {
-            _optionsFromObject.pushObject({
+            _optionsFromObject.push({
                 key,
                 value: _options[key],
             });

@@ -44,8 +44,11 @@ export default class OtpInputComponent extends Component {
     constructor(owner, { size, value, placeholder }) {
         super(...arguments);
         this.value = value;
-        this.size = size;
-        this.placeholder = placeholder ?? '0'.repeat(size);
+        // Do not let an absent @size clobber the default: an undefined size collapses the
+        // placeholder to '' and makes `value.length === this.size` permanently false, so
+        // `@onInputCompleted` would never fire.
+        this.size = size ?? 6;
+        this.placeholder = placeholder ?? '0'.repeat(this.size);
     }
 
     /**

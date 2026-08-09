@@ -75,7 +75,7 @@ module('Integration | Component | widget/report', function (hooks) {
     });
 
     test('it saves the selected report id to widget options', async function (assert) {
-        assert.expect(6);
+        assert.expect(7);
 
         const selectedReport = { id: 'report-2', title: 'Utilization' };
         const widget = {

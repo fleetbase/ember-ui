@@ -141,7 +141,9 @@ export default class UnitInputComponent extends Component {
             return placeholder;
         }
 
-        return `Enter ${this.unitName}`;
+        // `unitName` falls back to `this.unit`, which is undefined with no @unit — the field
+        // rendered the user-visible placeholder "Enter undefined".
+        return this.unitName ? `Enter ${this.unitName}` : null;
     }
 
     /**

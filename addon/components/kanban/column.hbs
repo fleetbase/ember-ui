@@ -20,13 +20,16 @@
                     <div class="kanban-drop-indicator"></div>
                 {{/if}}
 
+                {{!-- The drag handlers are passed through unwrapped: Kanban::Card's own
+                    onDragStart/onDragEnd already forward the card ahead of the event, so
+                    currying it here as well would deliver (card, card, event). --}}
                 {{yield
                     (component
                         "kanban/card"
                         card=card
                         isDragging=(eq @draggedCard card)
-                        onDragStart=(fn (or @onCardDragStart (noop)) card)
-                        onDragEnd=(fn (or @onCardDragEnd (noop)) card)
+                        onDragStart=@onCardDragStart
+                        onDragEnd=@onCardDragEnd
                         onUpdate=(fn (or @onCardUpdate (noop)) card)
                         onDelete=(fn (or @onCardDelete (noop)) card)
                         readonly=@readonly
@@ -50,8 +53,8 @@
                 <Kanban::Card
                     @card={{card}}
                     @isDragging={{eq @draggedCard card}}
-                    @onDragStart={{fn (or @onCardDragStart (noop)) card}}
-                    @onDragEnd={{fn (or @onCardDragEnd (noop)) card}}
+                    @onDragStart={{@onCardDragStart}}
+                    @onDragEnd={{@onCardDragEnd}}
                     @onUpdate={{fn (or @onCardUpdate (noop)) card}}
                     @onDelete={{fn (or @onCardDelete (noop)) card}}
                     @readonly={{@readonly}}

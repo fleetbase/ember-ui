@@ -314,6 +314,18 @@ export default class ResourceContextPanelService extends Service {
     }
 
     /**
+     * Releases every `routeWillChange` listener still held when the service goes away.
+     * Without this, overlays that were open at teardown leave their handlers attached to
+     * the router forever.
+     *
+     * @method willDestroy
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+        this.#unbindAllCloseOnTransition();
+    }
+
+    /**
      * Gets the currently active overlay (top-most in the stack).
      *
      * @method getActive

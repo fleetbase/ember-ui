@@ -37,7 +37,7 @@ export default class FilterMultiInputComponent extends Component {
     @action addTag(tag) {
         const { onChange, filter } = this.args;
 
-        this.tags.pushObject(tag);
+        this.tags = [...this.tags, tag];
         const value = this.buildValue();
 
         if (typeof onChange === 'function') {
@@ -48,7 +48,7 @@ export default class FilterMultiInputComponent extends Component {
     @action removeTag(index) {
         const { onChange, filter } = this.args;
 
-        this.tags.removeAt(index);
+        this.tags = this.tags.filter((_, tagIndex) => tagIndex !== index);
         const value = this.buildValue();
 
         if (typeof onChange === 'function') {

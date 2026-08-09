@@ -92,6 +92,18 @@ export default class KanbanComponent extends Component {
     }
 
     /**
+     * Handle column drag start
+     */
+    @action
+    onColumnDragStart(column, event) {
+        this.draggedColumn = column;
+
+        if (this.args.onColumnDragStart) {
+            this.args.onColumnDragStart(column, event);
+        }
+    }
+
+    /**
      * Handle column drag end
      */
     @action

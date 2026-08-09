@@ -17,12 +17,15 @@ export default class TranslationsEditorComponent extends Component {
     constructor() {
         super(...arguments);
 
-        this.languages = Object.keys(this.args.value ?? {}) ?? [];
+        // Derive the tabs from the SANITISED value: reading the raw argument gave an array
+        // `@value` one language tab per numeric index ('0', '1', '2'), even though
+        // `setDefaultKeys` correctly discards the array.
         this.translations = this.setDefaultKeys(this.args.value, this.args.defaultKeys);
+        this.languages = Object.keys(this.translations ?? {});
 
         // load first languages
-        if (this.languages.firstObject) {
-            this.loadLanguage(this.languages.firstObject);
+        if (this.languages.length) {
+            this.loadLanguage(this.languages[0]);
         }
     }
 
@@ -37,7 +40,7 @@ export default class TranslationsEditorComponent extends Component {
 
         if (forceKeys === true) {
             for (let i = 0; i < defaultKeys.length; i++) {
-                const defaultKey = defaultKeys.objectAt(i);
+                const defaultKey = defaultKeys[i];
 
                 if (!value[defaultKey]) {
                     value[defaultKey] = null;
@@ -49,7 +52,7 @@ export default class TranslationsEditorComponent extends Component {
 
         for (let lang in value) {
             for (let i = 0; i < defaultKeys.length; i++) {
-                const defaultKey = defaultKeys.objectAt(i);
+                const defaultKey = defaultKeys[i];
 
                 if (!value[lang][defaultKey]) {
                     value[lang][defaultKey] = null;
@@ -91,9 +94,16 @@ export default class TranslationsEditorComponent extends Component {
 
     @action addTranslation() {
         const { translations } = this;
-        const count = Object.keys(this.translations[this.language]).length;
 
-        translations[this.language][`translation_${count}`] = null;
+        // A count-based index is not a fresh index once anything has been removed — it collides
+        // with a surviving key and silently overwrites it. Take one past the highest in use.
+        const indexes = Object.keys(translations[this.language] ?? {})
+            .map((key) => /^translation_(\d+)$/.exec(key))
+            .filter(Boolean)
+            .map((match) => Number(match[1]));
+        const next = indexes.length ? Math.max(...indexes) + 1 : 0;
+
+        translations[this.language][`translation_${next}`] = null;
         this.updateTranslations(translations);
     }
 
@@ -113,7 +123,7 @@ export default class TranslationsEditorComponent extends Component {
         const { defaultKeys } = this.args;
         const lang = iso2.toLowerCase();
 
-        this.languages.pushObject(lang);
+        this.languages = [...this.languages, lang];
         this.language = lang;
         translations[lang] = this.setDefaultKeys({}, defaultKeys, true);
         this.updateTranslations(translations);

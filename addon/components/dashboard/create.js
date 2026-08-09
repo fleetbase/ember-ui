@@ -23,13 +23,6 @@ export default class DashboardCreateComponent extends Component {
     @tracked updatedWidgets = [];
 
     /**
-     * Action to toggle the floating state of widgets on the grid.
-     */
-    @action toggleFloat() {
-        this.shouldFloat = !this.shouldFloat;
-    }
-
-    /**
      * Handles changes to the grid layout, such as repositioning or resizing widgets.
      * Iterates over each widget event detail and updates the corresponding widget's properties if necessary.
      *
@@ -41,7 +34,10 @@ export default class DashboardCreateComponent extends Component {
 
         event.detail.forEach((currentWidgetEvent) => {
             const alreadyUpdated = this.updatedWidgets.find((item) => item.id === currentWidgetEvent.id);
-            if (alreadyUpdated || !this.dashboard) {
+            // `this.dashboard` is not a property of this component — only `this.args.dashboard`
+            // is — so this guard was always true and the loop bailed on the first widget,
+            // meaning grid moves and resizes were never persisted.
+            if (alreadyUpdated || !dashboard) {
                 return;
             }
 

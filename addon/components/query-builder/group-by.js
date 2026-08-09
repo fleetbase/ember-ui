@@ -181,9 +181,9 @@ export default class QueryBuilderGroupByComponent extends Component {
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.groupByItems = [...this.groupByItems];

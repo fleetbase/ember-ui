@@ -13,7 +13,7 @@ function calculateOffset(offset = 0, elements) {
 
     if (isArray(elements)) {
         for (let i = 0; i < elements.length; i++) {
-            const element = elements.objectAt(i);
+            const element = elements[i];
 
             if (element instanceof HTMLElement) {
                 calculatedOffset += element.offsetHeight;

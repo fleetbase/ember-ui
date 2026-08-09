@@ -1,5 +1,4 @@
 import { getOwner } from '@ember/application';
-import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { isArray } from '@ember/array';
@@ -39,8 +38,7 @@ export function findElementById(doc, id) {
 export function getDOM(context) {
     let { renderer } = context;
     if (!renderer?._dom) {
-        // pre glimmer2
-        let container = getOwner ? getOwner(context) : context.container;
+        let container = getOwner(context);
         let documentService = container.lookup('service:-document');
 
         if (documentService) {
@@ -62,7 +60,10 @@ export function getDestinationElement(context) {
     const id = 'ember-bootstrap-wormhole';
     let destinationElement = findElementById(dom, id) || findElemementByIdInShadowDom(context, id);
 
-    if (DEBUG && !destinationElement) {
+    // The fallbacks below only ever apply outside a production environment, so
+    // they are gated on the resolved environment rather than on a build-time
+    // `DEBUG` macro (which cannot survive coverage instrumentation).
+    if (!destinationElement) {
         let config = getOwner(context).resolveRegistration('config:environment');
         if (config.environment === 'test' && typeof FastBoot === 'undefined') {
             let id;
@@ -114,7 +115,9 @@ export function afterPaint() {
 }
 
 export function renderCompleted() {
-    return all([afterRender, afterPaint]);
+    // These must be invoked — passing the function references resolves
+    // immediately and waits for nothing.
+    return all([afterRender(), afterPaint()]);
 }
 
 export function waitForInsertedAndSized(getElOrEl, { timeoutMs = 4000 } = {}) {

@@ -553,8 +553,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      */
     @action reorderPinned({ sourceList, sourceIndex, targetList, targetIndex }) {
         if (sourceList === targetList && sourceIndex === targetIndex) return;
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
     }
 }

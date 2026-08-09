@@ -34,8 +34,10 @@ export default class CustomFieldsManagerComponent extends Component {
         this.subjects = subjects ?? [];
         next(() => {
             if (!this.subjects || this.subjects.length === 0) return;
-            // Load the first subject immediately
+            // Load the first subject immediately, then re-attach anything the registry already
+            // holds for the remaining tabs so navigating away and back does not refetch them.
             this.loadCustomFields.perform(this.subjects[0]);
+            this.restoreFromCache();
         });
     }
 

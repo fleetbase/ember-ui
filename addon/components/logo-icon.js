@@ -5,9 +5,13 @@ import { computed } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import { task } from 'ember-concurrency';
 
+// The documented default; also used by getSize() so the constructor never has to read the
+// tracked field it is about to write.
+const DEFAULT_SIZE = 8;
+
 export default class LogoIconComponent extends Component {
     @service store;
-    @tracked size = 8;
+    @tracked size = DEFAULT_SIZE;
     @tracked brand;
     @tracked ready = false;
 
@@ -38,13 +42,17 @@ export default class LogoIconComponent extends Component {
     }
 
     getSize() {
-        let size = this.args.size;
+        const size = this.args.size;
 
         if (size) {
             return parseInt(size);
         }
 
-        return this.size;
+        // Must NOT read `this.size` here: the constructor assigns the result straight back to
+        // it, and reading-then-writing a tracked property in one computation raises
+        // "You attempted to update `size` … but it had already been used previously in the
+        // same computation", which left the component rendering nothing.
+        return DEFAULT_SIZE;
     }
 
     @task *loadIcon() {

@@ -38,7 +38,7 @@ export default class ArrayInputComponent extends Component {
     }
 
     @action addData() {
-        this.data.pushObject('');
+        this.data = [...this.data, ''];
 
         if (typeof this.args.onDataChanged === 'function') {
             this.args.onDataChanged(this.data);
@@ -46,7 +46,7 @@ export default class ArrayInputComponent extends Component {
     }
 
     @action removeData(index) {
-        this.data.removeAt(index);
+        this.data = this.data.filter((_, i) => i !== index);
 
         if (typeof this.args.onDataChanged === 'function') {
             this.args.onDataChanged(this.data);

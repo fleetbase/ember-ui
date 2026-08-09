@@ -42,6 +42,8 @@ module.exports = {
                     'autoprefixer',
                     'tailwindcss',
                     '@tailwindcss/forms',
+                    // Build-time only: required from index.js when COVERAGE=true.
+                    'ember-cli-code-coverage',
                 ],
             },
         ],
@@ -59,6 +61,8 @@ module.exports = {
                 './testem.js',
                 './blueprints/*/index.js',
                 './config/**/*.js',
+                './scripts/check-coverage.js',
+                './scripts/check-coverage-test.js',
                 './tests/dummy/config/**/*.js',
             ],
             parserOptions: {

@@ -573,6 +573,14 @@ export default class Modal extends Component {
      * @private
      */
     @action adjustDialog() {
+        // This is bound to a *window* resize listener that stays attached for as
+        // long as the modal is in the DOM, but `modalElement` is a ref to an
+        // element inside a nested conditional and is null while the modal is
+        // closed. Guarding matches how `show()` treats the same ref.
+        if (!this.modalElement) {
+            return;
+        }
+
         let modalIsOverflowing = this.modalElement.scrollHeight > document.documentElement.clientHeight;
         this.paddingLeft = !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : undefined;
         this.paddingRight = this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : undefined;

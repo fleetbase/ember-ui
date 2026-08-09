@@ -105,9 +105,14 @@ export default class CustomFieldInputComponent extends Component {
         let path = `uploads/${this.extension ?? 'cf-files'}/${this.customField.id}`;
         let type = `custom_field_file`;
 
-        if (subject) {
-            path = `uploads/${this.extension ?? 'cf-files'}/${getModelName(subject)}-cf-files`;
-            type = `${underscore(getModelName(subject))}_file`;
+        // `getModelName` returns null for anything ember-data does not recognise as a model, and
+        // `underscore(null)` throws — which left the file stuck in the queue with no error
+        // surfaced. Fall back to the generic custom-field path when the subject is not nameable.
+        const subjectModelName = subject ? getModelName(subject) : null;
+
+        if (subjectModelName) {
+            path = `uploads/${this.extension ?? 'cf-files'}/${subjectModelName}-cf-files`;
+            type = `${underscore(subjectModelName)}_file`;
         }
 
         // Queue and upload immediatley
@@ -181,7 +186,11 @@ export default class CustomFieldInputComponent extends Component {
     }
 
     #getValueFromSubject(customField, subject) {
-        const cfValue = (subject.get('custom_field_values') ?? []).find((cfv) => cfv.custom_field_uuid === customField.id);
+        // `subject?.get(...)` optional-chains the subject but hard-calls `.get`, so any subject
+        // that is not an Ember object threw right here, during construction — before the
+        // component could render at all. Read the plain property when there is no `get`.
+        const values = (typeof subject?.get === 'function' ? subject.get('custom_field_values') : subject?.custom_field_values) ?? [];
+        const cfValue = values.find((cfv) => cfv.custom_field_uuid === customField.id);
         if (cfValue) return cfValue.value;
         return null;
     }

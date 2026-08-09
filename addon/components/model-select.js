@@ -183,7 +183,9 @@ export default class ModelSelectComponent extends Component {
                 __value__: term,
                 __isSuggestion__: true,
             };
-            createOption[this.args.labelProperty] = this.args.buildSuggestion ? this.args.buildSuggestion(term) : `Add "${term}"...`;
+            // `labelProperty` is passed by nothing in the addon, so the label used to be stored
+            // under the key `undefined` while the row renders `{{get model @optionLabel}}`.
+            createOption[this.args.optionLabel ?? this.args.labelProperty] = this.args.buildSuggestion ? this.args.buildSuggestion(term) : `Add "${term}"...`;
             this._options = A([createOption]);
         }
 
@@ -249,7 +251,9 @@ export default class ModelSelectComponent extends Component {
         }
 
         if (createOption) {
-            _options.unshiftObjects([createOption]);
+            // Plain assignment, not `unshiftObjects`: on the customSearchEndpoint path `_options`
+            // is a plain array from `results.map(...)` and has no Ember array methods.
+            _options = [createOption, ..._options];
         }
 
         this._options = _options;
@@ -296,9 +300,15 @@ export default class ModelSelectComponent extends Component {
     }
 
     @action change(model, select) {
-        const { onCreate, onChange, onChangeId } = this.args;
+        const { onCreate, onChange, onChangeId, onClear } = this.args;
 
         this.selectedModel = model;
+
+        // PowerSelect's clear button arrives here as a change to null. Callers that passed an
+        // `@onClear` were never told, so `filter/model`'s clear action could not run.
+        if (isEmpty(model) && typeof onClear === 'function') {
+            onClear(select);
+        }
 
         if (!isEmpty(model) && model.__isSuggestion__) {
             if (typeof onCreate === 'function') {

@@ -10,6 +10,7 @@ export default class ChatWindowComponent extends Component {
     @service socket;
     @service currentUser;
     @service modalsManager;
+    @service notifications;
     @service fetch;
     @service store;
     @tracked chatWindowElement;
@@ -50,13 +51,18 @@ export default class ChatWindowComponent extends Component {
         this.sender = this.getSenderFromParticipants(channel);
         // if not participant close window
         if (!this.sender) {
-            return later(
+            // `later` returns a timer id, and a derived constructor may only
+            // return an object or undefined — returning it throws a TypeError
+            // before the component is ever created.
+            later(
                 this,
                 () => {
                     this.chat.closeChannel(channel);
                 },
                 300
             );
+
+            return;
         }
 
         this.listenChatChannel(channel);
@@ -118,7 +124,7 @@ export default class ChatWindowComponent extends Component {
                 subject_type: 'chat_channel',
             },
             (uploadedFile) => {
-                this.pendingAttachmentFiles.pushObject(uploadedFile);
+                this.pendingAttachmentFiles = [...this.pendingAttachmentFiles, uploadedFile];
                 this.pendingAttachmentFile = undefined;
             },
             () => {
@@ -132,7 +138,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     @action removePendingAttachmentFile(pendingFile) {
-        this.pendingAttachmentFiles.removeObject(pendingFile);
+        this.pendingAttachmentFiles = this.pendingAttachmentFiles.filter((file) => file !== pendingFile);
     }
 
     @task *sendMessage() {

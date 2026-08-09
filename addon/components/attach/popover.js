@@ -267,7 +267,11 @@ export default class AttachPopoverComponent extends Component {
             return;
         }
 
-        if (hideOn.includes('click')) {
+        // Swapping the show-on-click listener for the hide-on-click one is only correct once the
+        // attachment is on its way to being shown. Doing it during initial setup would delete the
+        // show listener before the user ever clicks, leaving a popover with `click` in BOTH
+        // @showOn and @hideOn permanently unopenable.
+        if (hideOn.includes('click') && (this.mustRender || !this.showEvents.includes('click'))) {
             const showOnClickListener = this.showListenersOnTargetByEvent.click;
 
             if (showOnClickListener) {

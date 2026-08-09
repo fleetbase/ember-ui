@@ -1,26 +1,162 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import Service from '@ember/service';
 
 module('Integration | Component | registry-yield', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    let menuItems;
+    let components;
+    let universeMenuItems;
+    let universeComponents;
 
-        await render(hbs`<RegistryYield />`);
+    function registerServices(owner, { withMenuService = true, withRegistryService = true, withUniverseFallbacks = true } = {}) {
+        owner.unregister('service:universe/menu-service');
+        if (withMenuService) {
+            owner.register(
+                'service:universe/menu-service',
+                class extends Service {
+                    getMenuItems(registry) {
+                        return menuItems[registry] ?? [];
+                    }
+                }
+            );
+        }
 
-        assert.dom().hasText('');
+        owner.unregister('service:universe/registry-service');
+        if (withRegistryService) {
+            owner.register(
+                'service:universe/registry-service',
+                class extends Service {
+                    getRenderableComponents(registry) {
+                        return components[registry] ?? [];
+                    }
+                }
+            );
+        }
 
-        // Template block usage:
-        await render(hbs`
-      <RegistryYield>
-        template block text
-      </RegistryYield>
-    `);
+        owner.unregister('service:universe');
+        owner.register(
+            'service:universe',
+            withUniverseFallbacks
+                ? class extends Service {
+                      getMenuItemsFromRegistry(registry) {
+                          return universeMenuItems[registry] ?? [];
+                      }
+                      getRenderableComponentsFromRegistry(registry) {
+                          return universeComponents[registry] ?? [];
+                      }
+                  }
+                : class extends Service {}
+        );
+    }
 
-        assert.dom().hasText('template block text');
+    hooks.beforeEach(function () {
+        menuItems = {};
+        components = {};
+        universeMenuItems = {};
+        universeComponents = {};
+    });
+
+    const TEMPLATE = hbs`
+        <RegistryYield @registry={{this.registry}} @type={{this.type}} as |item|>
+            <span class="yielded">{{item.title}}</span>
+        </RegistryYield>
+    `;
+
+    function yielded() {
+        return findAll('.yielded').map((node) => node.textContent.trim());
+    }
+
+    module('menu items', function () {
+        for (const type of ['buttons', 'menu', 'menuItems', 'menu-item']) {
+            test(`type "${type}" yields menu items from the menu service`, async function (assert) {
+                menuItems = { header: [{ title: 'Orders' }, { title: 'Settings' }] };
+                registerServices(this.owner);
+                this.set('registry', 'header');
+                this.set('type', type);
+
+                await render(TEMPLATE);
+
+                assert.deepEqual(yielded(), ['Orders', 'Settings']);
+            });
+        }
+
+        test('it falls back to the universe service when the menu service has nothing', async function (assert) {
+            menuItems = { header: [] };
+            universeMenuItems = { header: [{ title: 'From universe' }] };
+            registerServices(this.owner);
+            this.set('registry', 'header');
+            this.set('type', 'menu');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['From universe']);
+        });
+
+        test('with neither source it yields nothing', async function (assert) {
+            registerServices(this.owner, { withUniverseFallbacks: false });
+            this.set('registry', 'header');
+            this.set('type', 'menu');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), []);
+        });
+    });
+
+    module('components', function () {
+        test('an unknown type yields renderable components from the registry service', async function (assert) {
+            components = { panels: [{ title: 'Panel one' }] };
+            registerServices(this.owner);
+            this.set('registry', 'panels');
+            this.set('type', 'components');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['Panel one']);
+        });
+
+        test('no type at all is also treated as components', async function (assert) {
+            components = { panels: [{ title: 'Panel one' }] };
+            registerServices(this.owner);
+            this.set('registry', 'panels');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['Panel one']);
+        });
+
+        test('it falls back to the universe service when the registry service has nothing', async function (assert) {
+            components = { panels: [] };
+            universeComponents = { panels: [{ title: 'From universe' }] };
+            registerServices(this.owner);
+            this.set('registry', 'panels');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['From universe']);
+        });
+
+        test('with neither source it yields nothing', async function (assert) {
+            registerServices(this.owner, { withUniverseFallbacks: false });
+            this.set('registry', 'panels');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), []);
+        });
+
+        test('an unknown registry yields nothing', async function (assert) {
+            components = { panels: [{ title: 'Panel one' }] };
+            registerServices(this.owner);
+            this.set('registry', 'nothing-here');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), []);
+        });
     });
 });

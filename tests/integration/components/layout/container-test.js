@@ -6,21 +6,16 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | layout/container', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it wraps its block in the app container', async function (assert) {
+        await render(hbs`<Layout::Container><span class="inside">app</span></Layout::Container>`);
 
-        await render(hbs`<Layout::Container />`);
+        assert.dom('.fleetbase-next-container .inside').hasText('app');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Layout::Container class="h-full" data-test-container="yes" />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Layout::Container>
-        template block text
-      </Layout::Container>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.fleetbase-next-container').hasClass('h-full');
+        assert.dom('.fleetbase-next-container').hasAttribute('data-test-container', 'yes');
     });
 });

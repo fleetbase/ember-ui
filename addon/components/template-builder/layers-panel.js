@@ -122,6 +122,13 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
 
     @action
     commitRename(element) {
+        // Closing the field removes the input, and that teardown fires `blur`, which lands
+        // back here mid-render. Without this guard the second pass updates `renamingUuid`
+        // after `isRenaming` has already consumed it and Ember asserts.
+        if (this.renamingUuid === null) {
+            return;
+        }
+
         if (this.renameValue.trim() && this.args.onUpdateElement) {
             this.args.onUpdateElement(element.uuid, { label: this.renameValue.trim() });
         }
@@ -131,6 +138,10 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
 
     @action
     cancelRename() {
+        if (this.renamingUuid === null) {
+            return;
+        }
+
         this.renamingUuid = null;
         this.renameValue = '';
     }

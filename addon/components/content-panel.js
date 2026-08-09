@@ -105,6 +105,13 @@ export default class ContentPanelComponent extends Component {
      * @public
      */
     @action toggle(event) {
+        // A disabled or permission-denied panel is only dimmed in CSS, and `disabled` means
+        // nothing on an anchor — so without this the header still opens and reveals the
+        // content it was meant to protect.
+        if (this.disabled) {
+            return;
+        }
+
         // Fire onclick
         this.fireOnClick();
 
@@ -164,7 +171,7 @@ export default class ContentPanelComponent extends Component {
      * @public
      */
     @action trackIconContainer(node) {
-        this.iconContainers.pushObject(node);
+        this.iconContainers = [...this.iconContainers, node];
     }
 
     /**

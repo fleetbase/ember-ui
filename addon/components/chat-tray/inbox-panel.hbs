@@ -6,7 +6,7 @@
         </div>
         <div class="chat-inbox-panel-actions">
             <Button @type="primary" @icon="plus" @text="New Chat" @size="xs" @onClick={{@startChat}} />
-            <button type="button" class="chat-inbox-icon-button" aria-label="Close chat inbox" {{on "click" @close}}>
+            <button type="button" class="chat-inbox-icon-button" aria-label="Close chat inbox" {{on "click" (or @close (noop))}}>
                 <FaIcon @icon="times" />
             </button>
         </div>
@@ -14,7 +14,7 @@
 
     <div class="chat-inbox-search">
         <FaIcon @icon="search" />
-        <input type="search" value={{@searchQuery}} placeholder="Search conversations" {{on "input" @setSearchQuery}} />
+        <input type="search" value={{@searchQuery}} placeholder="Search conversations" {{on "input" (or @setSearchQuery (noop))}} />
     </div>
 
     <div class="chat-inbox-list">

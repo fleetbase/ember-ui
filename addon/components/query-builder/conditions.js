@@ -239,11 +239,9 @@ export default class QueryBuilderConditionsComponent extends Component {
             return ['active', 'inactive', 'pending', 'completed', 'cancelled', 'draft', 'published', 'archived', 'deleted'].map((value) => ({ value, label: value }));
         }
 
-        // For boolean fields
-        if (field.type === 'boolean') {
-            return this.booleanOptions;
-        }
-
+        // Boolean fields never reach here: they are only offered =, !=, is_null and
+        // is_not_null, so the `in`/`not_in` editor that calls this is never rendered for
+        // them, and the template's boolean editor reads `booleanOptions` directly.
         return [];
     }
 
@@ -392,9 +390,9 @@ export default class QueryBuilderConditionsComponent extends Component {
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.conditionGroups = [...this.conditionGroups];
@@ -406,9 +404,9 @@ export default class QueryBuilderConditionsComponent extends Component {
     reorderConditions(groupIndex, { sourceList, sourceIndex, targetList, targetIndex }) {
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // force a tick for Glimmer just in case
         this.conditionGroups = [...this.conditionGroups];

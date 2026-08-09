@@ -46,7 +46,8 @@ export default class LayoutResourcePanelComponent extends Component {
 
     get resourceType() {
         const modelName = getModelName(this.resource);
-        return titleize(modelName) ?? 'Resource';
+        // `titleize(undefined)` returns '' — not nullish — so `??` never reaches the fallback.
+        return titleize(modelName) || 'Resource';
     }
 
     get saveButtonText() {
@@ -73,10 +74,12 @@ export default class LayoutResourcePanelComponent extends Component {
     }
 
     @action onViewDetails() {
-        const isActionOverrided = contextComponentCallback(this, 'onViewDetails', this.vendor);
+        // `this.vendor` does not exist on this component — every sibling action uses
+        // `this.resource`, and both calls here were silently passing undefined.
+        const isActionOverrided = contextComponentCallback(this, 'onViewDetails', this.resource);
 
         if (!isActionOverrided) {
-            this.contextPanel.focus(this.vendor, 'viewing');
+            this.contextPanel.focus(this.resource, 'viewing');
         }
     }
 

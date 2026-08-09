@@ -44,9 +44,9 @@ export default class ComboBoxComponent extends Component {
     }
 
     @action confirmPending() {
-        this.options.removeObjects(this.pending);
-        this.selected.pushObjects(this.pending);
-        this.pending.clear();
+        this.options = this.options.filter((option) => !this.pending.includes(option));
+        this.selected = [...this.selected, ...this.pending];
+        this.pending = [];
 
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(this.selected);
@@ -54,9 +54,9 @@ export default class ComboBoxComponent extends Component {
     }
 
     @action confirmUnpending() {
-        this.selected.removeObjects(this.unpending);
-        this.options.pushObjects(this.unpending);
-        this.unpending.clear();
+        this.selected = this.selected.filter((selection) => !this.unpending.includes(selection));
+        this.options = [...this.options, ...this.unpending];
+        this.unpending = [];
 
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(this.selected);
@@ -64,22 +64,22 @@ export default class ComboBoxComponent extends Component {
     }
 
     @action toggleSelection(index) {
-        const selection = this.selected.objectAt(index);
+        const selection = this.selected[index];
 
         if (this.unpending.includes(selection)) {
-            this.unpending.removeObject(selection);
+            this.unpending = this.unpending.filter((pendingSelection) => pendingSelection !== selection);
         } else {
-            this.unpending.pushObject(selection);
+            this.unpending = [...this.unpending, selection];
         }
     }
 
     @action toggleOption(index) {
-        const option = this.options.objectAt(index);
+        const option = this.options[index];
 
         if (this.pending.includes(option)) {
-            this.pending.removeObject(option);
+            this.pending = this.pending.filter((pendingOption) => pendingOption !== option);
         } else {
-            this.pending.pushObject(option);
+            this.pending = [...this.pending, option];
         }
     }
 }

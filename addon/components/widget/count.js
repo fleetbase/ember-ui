@@ -48,25 +48,31 @@ export default class WidgetCountComponent extends Component {
 
         let { format, currency, dateFormat, value } = options;
 
+        // These are plain utils with real positional parameters, not Ember helpers — they were
+        // being called with an array of positional params. `formatCurrency([value, currency])`
+        // put the array in `amount`, so every money widget rendered $0.00 and the currency was
+        // ignored; `formatDate([value, dateFormat])` handed date-fns an array and THREW during
+        // render. meters/bytes/duration only worked by accident, a one-element array coercing
+        // to a number in the arithmetic those utils happen to perform.
         switch (format) {
             case 'money':
-                value = formatCurrency([value, currency]);
+                value = formatCurrency(value, currency);
                 break;
 
             case 'meters':
-                value = formatMeters([value]);
+                value = formatMeters(value);
                 break;
 
             case 'bytes':
-                value = formatBytes([value]);
+                value = formatBytes(value);
                 break;
 
             case 'duration':
-                value = formatDuration([value]);
+                value = formatDuration(value);
                 break;
 
             case 'date':
-                value = formatDate([value, dateFormat]);
+                value = formatDate(value, dateFormat);
                 break;
 
             default:

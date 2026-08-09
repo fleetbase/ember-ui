@@ -4,6 +4,7 @@ import { inject as service } from '@ember/service';
 import { isArray } from '@ember/array';
 import { action } from '@ember/object';
 import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
+import noop from '../utils/noop';
 
 function uniqBy(arr, key) {
     return arr.reduce((unique, item) => {
@@ -209,9 +210,9 @@ export default class NotificationTrayComponent extends Component {
         let _notifications = [...this.notifications];
 
         if (isArray(notifications)) {
-            _notifications.pushObjects(notifications);
+            _notifications.push(...notifications);
         } else {
-            _notifications.pushObject(notifications);
+            _notifications.push(notifications);
         }
 
         this.mutateNotifications(_notifications);
@@ -224,13 +225,8 @@ export default class NotificationTrayComponent extends Component {
      * @memberof NotificationTrayComponent
      */
     removeNotifications(notifications) {
-        let _notifications = [...this.notifications];
-
-        if (isArray(notifications)) {
-            _notifications.removeObjects(notifications);
-        } else {
-            _notifications.removeObject(notifications);
-        }
+        const doomed = new Set(isArray(notifications) ? notifications : [notifications]);
+        const _notifications = [...this.notifications].filter((notification) => !doomed.has(notification));
 
         this.mutateNotifications(_notifications);
     }
@@ -284,6 +280,9 @@ export default class NotificationTrayComponent extends Component {
      * @memberof NotificationTrayComponent
      */
     ping() {
-        this.notificationSound.play();
+        // `play()` returns a promise that rejects whenever autoplay is blocked (no user
+        // gesture yet) or the asset is missing — without this every incoming notification
+        // produced an unhandled rejection. Same guard chat-tray already uses.
+        this.notificationSound.play().catch(noop);
     }
 }
