@@ -289,7 +289,9 @@ export default class Modal extends Component {
      * @readonly
      * @private
      */
-    @usesTransition('_fade') usesTransition;
+    // Must name the ARGUMENT: the decorator reads `this.args[prop]`, and `_fade` is a getter on
+    // the component, so `this.args._fade` was always undefined and `@fade={{false}}` was ignored.
+    @usesTransition('fade') usesTransition;
 
     destinationElement = getDestinationElement(this);
 

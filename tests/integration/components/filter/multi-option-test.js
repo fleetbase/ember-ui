@@ -4,6 +4,7 @@ import { render, settled, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 import { selectChoose, getDropdownItems } from 'ember-power-select/test-support';
+import { clickTrigger, typeInSearch } from 'ember-power-select/test-support/helpers';
 
 const FILTER = { param: 'status', label: 'Status' };
 const OPTIONS = [
@@ -251,6 +252,77 @@ module('Integration | Component | filter/multi-option', function (hooks) {
             await render(TEMPLATE);
 
             assert.deepEqual(requests, []);
+        });
+    });
+    module('searching', function (hooks) {
+        // The search box only renders when the filter definition asks for it.
+        hooks.beforeEach(function () {
+            this.set('filter', { ...FILTER, multiOptionSearchEnabled: true });
+        });
+
+        test('a local option list is narrowed by the query, and restored when it is cleared', async function (assert) {
+            this.set('options', OPTIONS);
+
+            await render(TEMPLATE);
+            await clickTrigger(SCOPE);
+            await typeInSearch(SCOPE, 'act');
+
+            assert.deepEqual(
+                findAll('.ember-power-select-option').map((node) => node.textContent.trim()),
+                ['Active'],
+                'only the matching option is offered'
+            );
+
+            await typeInSearch(SCOPE, '');
+
+            assert.deepEqual(
+                findAll('.ember-power-select-option').map((node) => node.textContent.trim()),
+                ['Active', 'Pending', 'Cancelled'],
+                'clearing the query brings every option back rather than losing them for good'
+            );
+        });
+
+        test('with no optionLabel the option itself is matched', async function (assert) {
+            this.set('options', ['active', 'pending']);
+            this.set('optionLabel', undefined);
+
+            await render(TEMPLATE);
+            await clickTrigger(SCOPE);
+            await typeInSearch(SCOPE, 'pend');
+
+            assert.deepEqual(
+                findAll('.ember-power-select-option').map((node) => node.textContent.trim()),
+                ['pending']
+            );
+        });
+
+        test('an option with no text to match on is dropped rather than throwing', async function (assert) {
+            this.set('options', [{ name: 'Active', id: 'active' }, { id: 7 }]);
+
+            await render(TEMPLATE);
+            await clickTrigger(SCOPE);
+            await typeInSearch(SCOPE, 'a');
+
+            assert.deepEqual(
+                findAll('.ember-power-select-option').map((node) => node.textContent.trim()),
+                ['Active'],
+                'the option with no name is filtered out'
+            );
+        });
+
+        test('with a fetch uri the query is sent to the server instead', async function (assert) {
+            this.set('fetchUri', 'statuses');
+            this.set('fetchParams', { scope: 'orders' });
+
+            await render(TEMPLATE);
+            assert.strictEqual(requests.length, 1, 'the initial load');
+
+            await clickTrigger(SCOPE);
+            await typeInSearch(SCOPE, 'act');
+
+            assert.strictEqual(requests.length, 2, 'typing searches remotely rather than filtering locally');
+            assert.strictEqual(requests[1].params.query, 'act', 'the query is forwarded');
+            assert.strictEqual(requests[1].params.scope, 'orders', 'alongside the standing fetch params');
         });
     });
 });

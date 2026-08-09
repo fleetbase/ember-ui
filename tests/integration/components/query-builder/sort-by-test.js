@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, findAll, triggerEvent } from '@ember/test-helpers';
+import { render, click, findAll, settled, triggerEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { selectChoose, getDropdownItems } from 'ember-power-select/test-support';
 
@@ -333,5 +333,39 @@ module('Integration | Component | query-builder/sort-by', function (hooks) {
         await render(hbs`<QueryBuilder::SortBy data-test-sort-by="yes" />`);
 
         assert.dom('.query-builder-panel').hasAttribute('data-test-sort-by', 'yes');
+    });
+    // Regression: `validateSortItems` existed but nothing called it, so narrowing the column list
+    // left the panel sorting by a column that was no longer selected.
+    async function addSortByLabel(label) {
+        await selectChoose(COLUMN_SELECT, label);
+        await click(addButton());
+    }
+
+    test('narrowing the selected columns drops a sort that no longer applies', async function (assert) {
+        await render(TEMPLATE);
+        await addSortByLabel('Status');
+        await addSortByLabel('Total');
+
+        assert.strictEqual(sortItems().length, 2, 'both sorts are listed');
+
+        this.set('allSelectedColumns', [COLUMNS[1]]);
+        this.set('selectedColumns', [COLUMNS[1]]);
+        await settled();
+
+        assert.strictEqual(sortItems().length, 1, 'the sort on the removed column is dropped');
+        assert.true(itemText(0).includes('Total'), 'the surviving sort is the one still selected');
+        assert.strictEqual(changes[changes.length - 1].length, 1, 'and the change is reported');
+    });
+
+    test('removing every column clears the sorting', async function (assert) {
+        await render(TEMPLATE);
+        await addSortByLabel('Status');
+
+        this.set('allSelectedColumns', []);
+        this.set('selectedColumns', []);
+        await settled();
+
+        assert.strictEqual(sortItems().length, 0);
+        assert.deepEqual(changes[changes.length - 1], [], 'the empty list is reported');
     });
 });

@@ -230,4 +230,18 @@ module('Integration | Component | modal', function (hooks) {
             assert.strictEqual(dialog(), null, 'closing removes it again');
         });
     });
+    // The decorator reads `this.args[prop]`, so it had been pointed at the `_fade` getter and
+    // `this.args._fade` was always undefined — @fade={{false}} never disabled anything.
+    test('@fade={{false}} renders without the fade class', async function (assert) {
+        await render(hbs`<Modal @open={{true}} @fade={{false}} />`);
+
+        assert.dom('.flb--modal-backdrop').doesNotHaveClass('fade', 'the backdrop is not faded in');
+        assert.dom('.flb--modal-backdrop').hasClass('show', 'and is shown straight away');
+    });
+
+    test('the backdrop fades by default', async function (assert) {
+        await render(hbs`<Modal @open={{true}} />`);
+
+        assert.dom('.flb--modal-backdrop').hasClass('fade');
+    });
 });
