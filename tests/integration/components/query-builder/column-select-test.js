@@ -196,6 +196,20 @@ module('Integration | Component | query-builder/column-select', function (hooks)
             assert.true(selectedChips()[0].includes('as order_state'), 'the chip shows the alias');
         });
 
+        // Regression: the alias field used to be a two-way `<Input @value>`, whose write-back
+        // landed AFTER updateAlias and re-inserted the raw text into the hash the callback had
+        // already been handed.
+        test('a whitespace-only alias is not written back into the reported aliases', async function (assert) {
+            await render(TEMPLATE);
+            await click(checkboxAt(0));
+            await fillIn('.column-alias-input', '   ');
+
+            const reported = lastChange().aliases;
+
+            assert.deepEqual(reported, {}, 'the hash handed to onChange holds no alias');
+            assert.notOk('status' in reported, 'and the key is absent rather than holding whitespace');
+        });
+
         test('a whitespace-only alias is treated as no alias', async function (assert) {
             await render(TEMPLATE);
             await click(checkboxAt(0));

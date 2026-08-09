@@ -3,7 +3,6 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { underscore } from '@ember/string';
-import isObject from '@fleetbase/ember-core/utils/is-object';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 import getCustomFieldTypeMap from '../../utils/get-custom-field-type-map';
@@ -141,8 +140,10 @@ export default class CustomFieldInputComponent extends Component {
     }
 
     @action onChangeHandler(event, otherValue) {
+        // <MoneyInput> reports `onChange(storedValue, detail)` where storedValue is a number, so
+        // a money field is a raw input like any other. The old `isMoneyInput` arm required an
+        // object, could never run, and would have reported the formatted value instead of cents.
         const isRawInput = typeof event === 'string' || typeof event === 'number';
-        const isMoneyInput = this.customFieldComponent === 'money-input' && isObject(event);
         const isEventInput = event instanceof window.Event;
         const isDateTimeInput = this.customFieldComponent === 'date-time-input' && typeof otherValue === 'string';
         const isDatePicker = this.customFieldComponent === 'date-picker' && typeof otherValue === 'string';
@@ -162,14 +163,6 @@ export default class CustomFieldInputComponent extends Component {
 
             if (typeof this.args.onChange === 'function') {
                 this.args.onChange(event, this.customField);
-            }
-            return;
-        }
-
-        if (isMoneyInput) {
-            const value = event.newValue;
-            if (typeof this.args.onChange === 'function') {
-                this.args.onChange(value, this.customField);
             }
             return;
         }

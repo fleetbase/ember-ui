@@ -231,10 +231,7 @@ module('Unit | Service | leaflet', function (hooks) {
 
         assert.strictEqual(readyCount, 1, 'the callback is guarded by an exact tick count');
     });
-    // The first-initialization arm only claims the global when `instance` is still undefined, and
-    // it is the only thing that sets `initialized` — so a preset instance leaves the poll running
-    // forever. See DEFECTS.md #160.
-    test('an instance already set is kept, and the service never finishes initializing', function (assert) {
+    test('an instance already set is kept, and the service still finishes initializing', function (assert) {
         const existing = fakeLeaflet('preset');
         this.service.instance = existing;
         this.service.load();
@@ -244,7 +241,7 @@ module('Unit | Service | leaflet', function (hooks) {
         this.tick();
 
         assert.strictEqual(this.service.instance, existing, 'the preset instance is kept');
-        assert.false(this.service.initialized, 'but nothing ever marks the service initialized');
-        assert.deepEqual(this.service.instances, [], 'and the global is not recorded as a re-initialization');
+        assert.true(this.service.initialized, 'and the poll is marked done rather than running forever');
+        assert.strictEqual(this.service.instances.length, 1, 'a later global is now noticed as a re-initialization instead of being ignored forever');
     });
 });
