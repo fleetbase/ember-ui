@@ -393,4 +393,32 @@ module('Integration | Component | overlay', function (hooks) {
             mouse('mouseup', document, { clientX: 700 });
         });
     });
+    test('a bottom-positioned overlay resizes by height', async function (assert) {
+        await render(hbs`<Overlay @position="bottom" @isResizable={{true}} @onResize={{this.onResize}} />`);
+
+        const startingHeight = panel().getBoundingClientRect().height;
+
+        // Dragging a bottom panel upward grows it: the multiplier is inverted.
+        mouse('mousedown', gutter(), { clientY: 0 });
+        mouse('mousemove', document, { clientY: -700 });
+
+        assert.strictEqual(named('onResize').length, 1, 'the movement is reported');
+        assert.strictEqual(panel().style.height, `${startingHeight + 700}px`, 'the drag distance is added to the starting height');
+        assert.strictEqual(panel().style.width, '', 'and its width is left alone by a vertical drag');
+        assert.strictEqual(document.body.style.cursor, 'row-resize');
+
+        mouse('mouseup', document, { clientY: -700 });
+    });
+
+    test('a vertical resize clamps on height, not on width', async function (assert) {
+        await render(hbs`<Overlay @position="bottom" @isResizable={{true}} @maxResizeHeight={{400}} @onResize={{this.onResize}} />`);
+
+        mouse('mousedown', gutter(), { clientY: 0 });
+        mouse('mousemove', document, { clientY: -5000 });
+
+        assert.strictEqual(panel().style.height, '400px', 'the height clamp applies');
+        assert.strictEqual(panel().style.width, '', 'the width clamp does not fire on a vertical drag');
+
+        mouse('mouseup', document, { clientY: -5000 });
+    });
 });

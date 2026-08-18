@@ -38,14 +38,19 @@ export default class FilterMultiOptionComponent extends Component {
         }
     }
 
+    // power-select expects `@search` to RETURN the matches (or a promise of them). The previous
+    // version called `this.fetchOptions(...)` — a Task object, not a function, so the remote path
+    // threw — and on the local path assigned `this.options`, which both raised a backtracking
+    // assertion (it runs inside a modifier update) and permanently discarded every non-matching
+    // option, so clearing the query could not bring them back.
     @action search(query) {
         const { optionLabel, fetchUri, fetchParams = {} } = this.args;
 
         if (typeof fetchUri === 'string') {
-            return this.fetchOptions(fetchUri, { query, ...fetchParams });
+            return this.fetchOptions.perform(fetchUri, { query, ...fetchParams });
         }
 
-        this.options = this.options.filter((option) => {
+        return this.options.filter((option) => {
             const optionText = get(option, optionLabel ?? 'name') ?? option;
 
             if (typeof optionText === 'string') {
@@ -65,9 +70,15 @@ export default class FilterMultiOptionComponent extends Component {
         try {
             const options = yield this.fetch.get(uri, queryParams);
             this.options = options;
+
+            // Returned as well as stored: `search` hands this task's promise straight to
+            // power-select, which uses the resolved value as the result list.
+            return options;
         } catch (err) {
             debug('Error loading options: ' + err.message);
         }
+
+        return [];
     }
 
     parseValue(value) {

@@ -13,7 +13,6 @@ export default class AttachPopoverComponent extends Component {
     @tracked hideDuration = 300;
     @tracked hideOn = 'mouseleave blur escapekey';
     @tracked interactive = false;
-    @tracked isOffset = false;
     @tracked isShown = false;
     @tracked lazyRender = false;
     @tracked modifiers = null;
@@ -192,7 +191,11 @@ export default class AttachPopoverComponent extends Component {
         }
 
         // If cursor is not on the attachment or target, hide the popover
-        if (!target.contains(event.target) && !(this.isOffset && this.isCursorBetweenTargetAndAttachment(event)) && this.floatingElement && !this.floatingElement.contains(event.target)) {
+        // NOTE: this used to read `!(this.isOffset && this.isCursorBetweenTargetAndAttachment(event))`.
+        // `isOffset` was never assigned from an argument or anywhere else, so it was permanently
+        // false — and `isCursorBetweenTargetAndAttachment` does not exist on this component, so
+        // had anything ever set the flag the popover would have thrown on every mousemove.
+        if (!target.contains(event.target) && this.floatingElement && !this.floatingElement.contains(event.target)) {
             // Remove this listener before hiding the attachment
             delete this.hideListenersOnDocumentByEvent.mousemove;
             document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
