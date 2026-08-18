@@ -30,9 +30,7 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
         assert.dom('.table-cell-resource-identity').exists();
         assert.dom('[data-test-resource-identity-image]').hasAttribute('src', 'https://example.com/truck.png');
         assert.dom('button').hasClass('items-start');
-        // DEFECT (see DEFECTS.md #108): the trigger hard-codes `py-0.5` with no argument to switch
-        // it off, so the "compact" identity is never actually compact. Pinned as-is.
-        assert.dom('button').hasClass('py-0.5');
+        assert.dom('button').hasClass('py-0.5', 'the default padding is unchanged');
         assert.dom('[data-test-resource-identity-image]').hasClass('h-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('w-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('border');
@@ -333,6 +331,61 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
 
             const shown = this.element.textContent.match(/ABC-123/g) ?? [];
             assert.strictEqual(shown.length, 1, 'the repeated value is de-duplicated');
+        });
+    });
+    // #108: the trigger's vertical padding used to be a literal in the template, so a dense table
+    // had no way to compact the identity cell however its column was configured.
+    module('the trigger padding', function () {
+        test('it carries the standard padding by default', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-0.5');
+        });
+
+        test('a compact column drops it', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-0', 'the dense variant is actually dense');
+            assert.dom('button').doesNotHaveClass('py-0.5');
+        });
+
+        test('an explicit triggerClass replaces the padding outright', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', triggerClass: 'py-2 font-bold' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-2');
+            assert.dom('button').hasClass('font-bold');
+            assert.dom('button').doesNotHaveClass('py-0.5');
+        });
+
+        test('an explicit triggerClass wins over compact', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true, triggerClass: 'py-3' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-3', 'the specific option beats the shorthand');
+            assert.dom('button').doesNotHaveClass('py-0');
+        });
+
+        test('the layout classes survive either way', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('flex');
+            assert.dom('button').hasClass('items-start');
+            assert.dom('button').hasClass('gap-2');
+            assert.dom('button').hasClass('text-left');
         });
     });
 });
