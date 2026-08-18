@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, triggerEvent, findAll, find } from '@ember/test-helpers';
+import { render, click, fillIn, findAll, find } from '@ember/test-helpers';
 import { selectChoose } from 'ember-power-select/test-support';
 import { hbs } from 'ember-cli-htmlbars';
 
@@ -32,12 +32,11 @@ function removeButtons() {
     return findAll('.text-danger');
 }
 
-// Setting .value directly and firing only `blur` exercises the component's own handler
-// without a re-render landing while the field is still focused, which otherwise reassigns the
-// tracked `translations` object mid-render and raises a backtracking assertion (DEFECTS.md #26).
+// The fields are one-way and commit on `change`, which is what `fillIn` fires. No special
+// handling is needed any more — the editor no longer writes to state the render is consuming
+// (DEFECTS.md #26).
 async function editAndBlur(input, value) {
-    input.value = value;
-    await triggerEvent(input, 'blur');
+    await fillIn(input, value);
 }
 
 function addButton() {
@@ -286,5 +285,78 @@ module('Integration | Component | translations-editor', function (hooks) {
             assert.deepEqual(tabLabels(), [], 'there is nothing to show');
             assert.dom('.translations-editor-input').exists('but the editor still renders');
         });
+    });
+    module('editing without tearing down the row', function () {
+        test('renaming a key keeps the very same input element', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello' } });
+
+            await render(TEMPLATE);
+
+            const before = keyInputs()[0];
+            before.dataset.identity = 'original-node';
+
+            await fillIn(before, 'salutation');
+
+            const after = keyInputs()[0];
+            assert.strictEqual(after.dataset.identity, 'original-node', 'the row survives the rename rather than being rebuilt');
+            assert.strictEqual(after.value, 'salutation', 'and shows the new key');
+            assert.deepEqual(lastChange(), { en: { salutation: 'Hello' } }, 'the value moves with it');
+        });
+
+        test('a key can be renamed twice in a row', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello' } });
+
+            await render(TEMPLATE);
+            await fillIn(keyInputs()[0], 'salutation');
+            await fillIn(keyInputs()[0], 'welcome_message');
+
+            assert.deepEqual(renderedKeys(), ['welcome_message']);
+            assert.deepEqual(lastChange(), { en: { welcome_message: 'Hello' } }, 'the value survives both renames');
+        });
+
+        test('editing a key and then its value reports both', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello' } });
+
+            await render(TEMPLATE);
+            await fillIn(keyInputs()[0], 'salutation');
+            await fillIn(valueInputs()[0], 'Hi there');
+
+            assert.deepEqual(lastChange(), { en: { salutation: 'Hi there' } });
+        });
+
+        test('two rows are edited independently', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello', farewell: 'Bye' } });
+
+            await render(TEMPLATE);
+            await fillIn(valueInputs()[1], 'Goodbye');
+
+            assert.deepEqual(lastChange(), { en: { greeting: 'Hello', farewell: 'Goodbye' } }, 'only the edited row changes');
+            assert.strictEqual(valueInputs()[0].value, 'Hello', 'the other row is untouched');
+        });
+
+        test('a key is underscored as it is committed', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello' } });
+
+            await render(TEMPLATE);
+            await fillIn(keyInputs()[0], 'Welcome Message');
+
+            assert.deepEqual(renderedKeys(), ['welcome_message'], 'the normalised key is shown back to the user');
+            assert.deepEqual(lastChange(), { en: { welcome_message: 'Hello' } });
+        });
+    });
+
+    // The editor used to write the defaults straight into the object it was handed.
+    test('it does not modify the value it was given', async function (assert) {
+        const original = { en: { greeting: 'Hello' } };
+        this.set('value', original);
+        this.set('defaultKeys', ['greeting', 'farewell']);
+
+        await render(TEMPLATE);
+
+        assert.deepEqual(original, { en: { greeting: 'Hello' } }, 'the caller keeps its own object intact');
+
+        await fillIn(valueInputs()[0], 'Hi');
+
+        assert.deepEqual(original, { en: { greeting: 'Hello' } }, 'and edits do not reach back into it either');
     });
 });

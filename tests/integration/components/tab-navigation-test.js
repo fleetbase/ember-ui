@@ -167,8 +167,8 @@ module('Integration | Component | tab-navigation', function (hooks) {
 
             await render(TEMPLATE);
 
-            const container = find('.tab-list').parentElement;
             assert.dom('[role="tablist"]').exists('the requested style renders a tablist');
+            assert.dom('.tab-list').exists('alongside the tab list itself');
         });
     });
 
