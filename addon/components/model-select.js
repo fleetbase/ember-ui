@@ -128,8 +128,14 @@ export default class ModelSelectComponent extends Component {
      */
 
     @tracked _options;
-    @tracked model;
     @tracked selectedModel;
+
+    /** Paging state for infinite scroll. */
+    @tracked page = 1;
+    @tracked hasMoreOptions = false;
+
+    /** The term the current option list was loaded for, so later pages repeat the same search. */
+    lastTerm = null;
     @tracked permissionRequired = null;
     @tracked disabled = false;
     @tracked doesntHavePermissions = false;
@@ -201,6 +207,45 @@ export default class ModelSelectComponent extends Component {
             return;
         }
 
+        this.lastTerm = term;
+        this.page = 1;
+
+        const query = this.queryFor(term, 1);
+        const _options = yield this.fetchPage(query);
+
+        this.hasMoreOptions = this.hasMoreAfter(_options, _options.length);
+
+        this._options = createOption
+            ? // Plain assignment, not `unshiftObjects`: on the customSearchEndpoint path the
+              // results are a plain array from `results.map(...)` with no Ember array methods.
+              [createOption, ...this.toPlainArray(_options)]
+            : _options;
+    };
+
+    /**
+     * Appends the next page to the visible options. Driven by the options component when the
+     * dropdown is scrolled to the bottom.
+     */
+    @dropTask loadMoreOptions = function* () {
+        // `hasMoreOptions` is only ever set by a loadModels run that got past its own
+        // permission/disabled guard, so re-checking those here would be dead code.
+        if (!this.infiniteScroll || !this.hasMoreOptions) {
+            return;
+        }
+
+        const nextPage = this.page + 1;
+
+        // Keep the raw result: `toPlainArray` drops the `meta` the server reports its total in.
+        const raw = yield this.fetchPage(this.queryFor(this.lastTerm, nextPage));
+        const results = this.toPlainArray(raw);
+
+        this.page = nextPage;
+        this._options = [...this.toPlainArray(this._options), ...results];
+        this.hasMoreOptions = results.length > 0 && this.hasMoreAfter(raw, this._options.length);
+    };
+
+    /** The query for one page, built the same way whichever page it is. */
+    queryFor(term, page) {
         // query might be an EmptyObject/{{hash}}, make it a normal Object
         const query = Object.assign({}, this.args.query);
 
@@ -208,13 +253,37 @@ export default class ModelSelectComponent extends Component {
             set(query, 'query', term);
         }
 
-        let _options;
+        set(query, this.pageParam, page);
+        set(query, this.perPageParam, this.pageSize);
 
+        return query;
+    }
+
+    /** Ember arrays, plain arrays and the custom endpoint's `results.map(...)` all arrive here. */
+    toPlainArray(options) {
+        return typeof options.toArray === 'function' ? options.toArray() : [...options];
+    }
+
+    /**
+     * Whether another page is worth asking for. Prefers the total the server reported; falls back
+     * to "the server filled the page", which is all the custom endpoint gives us.
+     */
+    hasMoreAfter(results, loadedCount) {
+        const total = get(results, this.totalPagesParam);
+
+        if (typeof total === 'number') {
+            return loadedCount < total;
+        }
+
+        return this.toPlainArray(results).length >= this.pageSize;
+    }
+
+    fetchPage(query) {
         if (typeof this.args.customSearchEndpoint === 'string') {
-            const customQuery = (endpoint, query, options = {}) => {
+            const customQuery = (endpoint, params, options = {}) => {
                 return new Promise((resolve) => {
                     this.fetch
-                        .get(endpoint, query, options)
+                        .get(endpoint, params, options)
                         .then((results) => {
                             let records = results.map((result) => {
                                 let modelName = this.args.modelName;
@@ -242,22 +311,16 @@ export default class ModelSelectComponent extends Component {
                 });
             };
 
-            _options = yield customQuery(this.args.customSearchEndpoint, query);
-        } else {
-            set(query, this.pageParam, 1);
-            set(query, this.perPageParam, this.pageSize);
-
-            _options = yield this.source.query(this.args.modelName, query);
+            return customQuery(this.args.customSearchEndpoint, query);
         }
 
-        if (createOption) {
-            // Plain assignment, not `unshiftObjects`: on the customSearchEndpoint path `_options`
-            // is a plain array from `results.map(...)` and has no Ember array methods.
-            _options = [createOption, ..._options];
-        }
+        return this.source.query(this.args.modelName, query);
+    }
 
-        this._options = _options;
-    };
+    /** Handed to the options component, which calls it when the list is scrolled to the bottom. */
+    @action onLoadMore() {
+        this.loadMoreOptions.perform();
+    }
 
     loadDefaultOptions() {
         const { loadDefaultOptions } = this.args;
