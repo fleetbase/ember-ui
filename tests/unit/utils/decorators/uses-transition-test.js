@@ -60,7 +60,7 @@ module('Unit | Utility | decorators/uses-transition', function (hooks) {
         const value = this.build({ fade: 'truthy string' }).usesTransition;
 
         assert.strictEqual(typeof value, 'boolean');
-        assert.strictEqual(value, true);
+        assert.true(value);
     });
 
     test('transitions are disabled entirely under FastBoot', function (assert) {

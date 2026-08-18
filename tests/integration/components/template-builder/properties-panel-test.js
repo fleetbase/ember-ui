@@ -289,13 +289,13 @@ module('Integration | Component | template-builder/properties-panel', function (
 
             await render(TEMPLATE);
 
-            const numberInput = find('input[type="number"]');
-            if (numberInput) {
-                await fillIn(numberInput, '300');
-                assert.strictEqual(templateUpdates.length, 1, 'the template change is reported');
-            } else {
-                assert.dom(this.element).exists('the canvas settings panel rendered');
-            }
+            const nameInput = find('input[type="text"].tb-input');
+            assert.ok(nameInput, 'the canvas settings panel offers a template name field');
+
+            await fillIn(nameInput, 'Invoice A4');
+
+            assert.strictEqual(templateUpdates.length, 1, 'the template change is reported');
+            assert.strictEqual(templateUpdates[0].name, 'Invoice A4', 'with the new value');
         });
     });
 
@@ -308,11 +308,7 @@ module('Integration | Component | template-builder/properties-panel', function (
             await render(TEMPLATE);
 
             const pickerButton = findAll('button').find((b) => /variable/i.test(b.textContent) || /\{\}/.test(b.textContent));
-            if (!pickerButton) {
-                assert.strictEqual(opened.length, 0, 'no variable picker affordance for this element type');
-
-                return;
-            }
+            assert.ok(pickerButton, 'a text element offers a variable picker affordance');
 
             await click(pickerButton);
             assert.strictEqual(opened.length, 1, 'the picker is opened for a target property');
@@ -618,7 +614,7 @@ module('Integration | Component | template-builder/properties-panel', function (
         assert.dom('[data-test-panel="yes"]').exists();
     });
 
-    module('table columns', function () {
+    module('table column editing', function () {
         function columnInputs() {
             return findAll('input[placeholder="Column label"]');
         }
@@ -788,7 +784,7 @@ module('Integration | Component | template-builder/properties-panel', function (
         });
     });
 
-    module('the image source', function () {
+    module('the image source picker', function () {
         function clearButton() {
             return findAll('button[title="Clear"]')[0];
         }

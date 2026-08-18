@@ -53,7 +53,7 @@
                     </div>
 
                     <div>
-                        <a href="javascript:;" {{on "click" (fn @options.remove selected)}} class="my-1">
+                        <a href="javascript:;" {{on "click" (fn (or @options.remove (noop)) selected)}} class="my-1">
                             <FaIcon @icon="times-circle" />
                         </a>
                     </div>

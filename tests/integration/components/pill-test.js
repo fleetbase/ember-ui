@@ -157,7 +157,8 @@ module('Integration | Component | pill', function (hooks) {
                 </Pill>
             `);
 
-            assert.ok(find('.tip') || find('.fleetbase-pill'), 'the pill renders with a tooltip attached');
+            assert.dom('.fleetbase-pill').exists('the pill renders');
+            assert.ok(find('.tip'), 'with a tooltip attached to it');
         });
     });
 

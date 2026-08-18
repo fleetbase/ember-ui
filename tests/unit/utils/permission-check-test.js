@@ -94,7 +94,7 @@ module('Unit | Utility | permission-check', function () {
 
             const result = checkPermission(abilities, 'fleet-ops view order', subject);
 
-            assert.strictEqual(result, true, 'the truthy result is coerced to true');
+            assert.true(result, 'the truthy result is coerced to true');
             assert.deepEqual(calls, [['fleet-ops view order', subject]], 'the permission string and subject are forwarded verbatim');
         });
 
@@ -253,8 +253,8 @@ module('Unit | Utility | permission-check', function () {
         test('it coerces a non-boolean defaultWhenUnknown', function (assert) {
             const abilitiesService = abilitiesWithCan(() => true);
 
-            assert.strictEqual(evaluatePermission({ abilitiesService, defaultWhenUnknown: 'yes' }), true, 'truthy defaults coerce to true');
-            assert.strictEqual(evaluatePermission({ abilitiesService, defaultWhenUnknown: 0 }), false, 'falsy defaults coerce to false');
+            assert.true(evaluatePermission({ abilitiesService, defaultWhenUnknown: 'yes' }), 'truthy defaults coerce to true');
+            assert.false(evaluatePermission({ abilitiesService, defaultWhenUnknown: 0 }), 'falsy defaults coerce to false');
         });
 
         test('it never calls the abilities service when resolution fails', function (assert) {

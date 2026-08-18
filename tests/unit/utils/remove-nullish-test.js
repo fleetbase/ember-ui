@@ -15,7 +15,7 @@ module('Unit | Utility | remove-nullish', function () {
         assert.deepEqual(Object.keys(result).sort(), ['empty', 'nan', 'negZero', 'no', 'zero'], 'only null/undefined are nullish');
         assert.strictEqual(result.zero, 0);
         assert.strictEqual(result.empty, '');
-        assert.strictEqual(result.no, false);
+        assert.false(result.no);
         assert.true(Number.isNaN(result.nan));
     });
 

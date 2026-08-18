@@ -17,18 +17,18 @@ module('Unit | Utility | get-active-url-param', function (hooks) {
     });
 
     test('it returns boolean true', function (assert) {
-        assert.strictEqual(getActiveUrlParam(), true, 'the value is exactly true, not merely truthy');
+        assert.true(getActiveUrlParam(), 'the value is exactly true, not merely truthy');
     });
 
     test('it ignores any arguments it is given', function (assert) {
-        assert.strictEqual(getActiveUrlParam('anything'), true);
-        assert.strictEqual(getActiveUrlParam(null, undefined, 0), true);
+        assert.true(getActiveUrlParam('anything'));
+        assert.true(getActiveUrlParam(null, undefined, 0));
     });
 
     test('it does not depend on the current query string', function (assert) {
         window.history.replaceState(null, '', '?active=false&other=1');
 
-        assert.strictEqual(getActiveUrlParam(), true, 'the result is independent of the URL');
+        assert.true(getActiveUrlParam(), 'the result is independent of the URL');
     });
 
     test('it is stable across repeated calls', function (assert) {

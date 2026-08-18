@@ -241,7 +241,7 @@ module('Integration | Component | dropdown-button', function (hooks) {
 
             await render(TEMPLATE);
 
-            assert.ok(find(`${TRIGGER} .ember-attacher`) || find(TRIGGER), 'the trigger renders with a tooltip attached');
+            assert.dom(TRIGGER).exists('the trigger renders when help text is permitted');
         });
 
         test('visibility and disabled state follow their arguments', async function (assert) {

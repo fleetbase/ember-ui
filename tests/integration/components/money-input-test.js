@@ -130,7 +130,8 @@ module('Integration | Component | money-input', function (hooks) {
 
             await render(TEMPLATE);
 
-            assert.true(input().value.includes('£') || input().value.includes('25'), 'the amount is formatted for the currency');
+            assert.true(input().value.includes('25'), `the amount is present (got ${input().value})`);
+            assert.true(input().value.includes('£'), `and carries the currency symbol (got ${input().value})`);
         });
 
         test('a comma-decimal currency uses its own separator', async function (assert) {

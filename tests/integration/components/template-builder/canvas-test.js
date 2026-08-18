@@ -132,19 +132,14 @@ module('Integration | Component | template-builder/canvas', function (hooks) {
             </TemplateBuilder::Canvas>
         `);
 
-        const child = find('[data-test-child]');
-        if (child) {
-            await click(child);
-            assert.strictEqual(deselects, 0, 'only a direct background click clears the selection');
-        } else {
-            // The canvas does not yield, so simulate the bubbling case directly.
-            const canvas = find('.tb-canvas');
-            const inner = document.createElement('span');
-            canvas.appendChild(inner);
-            await click(inner);
+        // The canvas does not yield, so append a child directly to exercise the bubbling case.
+        const canvas = find('.tb-canvas');
+        const inner = document.createElement('span');
+        canvas.appendChild(inner);
 
-            assert.strictEqual(deselects, 0, 'only a direct background click clears the selection');
-        }
+        await click(inner);
+
+        assert.strictEqual(deselects, 0, 'a click that merely bubbles through does not clear the selection');
     });
 
     test('clicking the background without a handler does not throw', async function (assert) {
