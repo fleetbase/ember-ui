@@ -12,7 +12,6 @@ export default class QueryBuilderComponent extends Component {
     @tracked sortBy = [];
     @tracked limit = null;
     @tracked computedColumns = [];
-    @tracked showQueryPreview = false;
 
     constructor() {
         super(...arguments);
@@ -139,11 +138,6 @@ export default class QueryBuilderComponent extends Component {
     }
 
     @action
-    toggleQueryPreview() {
-        this.showQueryPreview = !this.showQueryPreview;
-    }
-
-    @action
     loadFromQuery(queryData) {
         if (queryData.table) this.table = queryData.table;
         if (queryData.columns) {
@@ -162,14 +156,6 @@ export default class QueryBuilderComponent extends Component {
         if (queryData.groupBy) this.groupBy = queryData.groupBy;
         if (queryData.sortBy) this.sortBy = queryData.sortBy;
         if (queryData.limit) this.limit = queryData.limit;
-    }
-
-    @action
-    exportQuery() {
-        return {
-            sql: this.generatedQuery,
-            object: this.queryObject,
-        };
     }
 
     @action onExecute() {
@@ -201,7 +187,6 @@ export default class QueryBuilderComponent extends Component {
         this.groupBy = [];
         this.sortBy = [];
         this.limit = null;
-        this.showQueryPreview = false;
 
         if (this.args.onChange) {
             this.args.onChange(this.queryObject);

@@ -98,22 +98,6 @@ export default class QueryBuilderConditionsComponent extends Component {
         return summary;
     }
 
-    get canAddConditions() {
-        return this.availableColumns.length > 0;
-    }
-
-    get conditionsMessage() {
-        if (!this.args.selectedColumns?.length && !this.args.joins?.length) {
-            return 'Select columns first to enable filtering';
-        }
-
-        if (!this.canAddConditions) {
-            return 'No selected columns available for filtering';
-        }
-
-        return null;
-    }
-
     get booleanOptions() {
         return [
             { value: true, label: 'True' },

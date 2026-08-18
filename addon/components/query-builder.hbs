@@ -12,7 +12,6 @@
             group=(component
                 "query-builder/group-by"
                 groupBy=this.groupBy
-                columns=this.columns
                 selectedColumns=this.selectedColumns
                 allSelectedColumns=this.allSelectedColumns
                 onChange=(fn this.callbackChange "groupBy")
@@ -20,7 +19,6 @@
             sort=(component
                 "query-builder/sort-by"
                 sortBy=this.sortBy
-                columns=this.columns
                 selectedColumns=this.selectedColumns
                 allSelectedColumns=this.allSelectedColumns
                 onChange=(fn this.callbackChange "sortBy")
@@ -60,14 +58,12 @@
             />
             <QueryBuilder::GroupBy
                 @groupBy={{this.groupBy}}
-                @columns={{this.columns}}
                 @selectedColumns={{this.selectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @onChange={{fn this.callbackChange "groupBy"}}
             />
             <QueryBuilder::SortBy
                 @sortBy={{this.sortBy}}
-                @columns={{this.columns}}
                 @selectedColumns={{this.selectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @onChange={{fn this.callbackChange "sortBy"}}
