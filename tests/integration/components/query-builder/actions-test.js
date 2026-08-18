@@ -65,4 +65,25 @@ module('Integration | Component | query-builder/actions', function (hooks) {
 
         assert.dom('.query-builder-panel').hasAttribute('data-test-actions', 'yes');
     });
+    test('each handler receives the query object the component was given', async function (assert) {
+        const received = [];
+        const queryObject = { sql: 'select 1' };
+        this.set('queryObject', queryObject);
+        this.set('onExecute', (value) => received.push(['execute', value]));
+        this.set('onSave', (value) => received.push(['save', value]));
+        this.set('onClear', (value) => received.push(['clear', value]));
+
+        await render(hbs`<QueryBuilder::Actions @queryObject={{this.queryObject}} @onExecute={{this.onExecute}} @onSave={{this.onSave}} @onClear={{this.onClear}} />`);
+
+        for (const button of findAll('button')) {
+            await click(button);
+        }
+
+        assert.deepEqual(received.map(([name]) => name).sort(), ['clear', 'execute', 'save'], 'all three handlers fire');
+        assert.deepEqual(
+            received.map(([, value]) => value),
+            [queryObject, queryObject, queryObject],
+            'and each is handed the query object rather than undefined'
+        );
+    });
 });

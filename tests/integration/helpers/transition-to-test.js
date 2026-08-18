@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { helper } from '@ember/component/helper';
 
 /**
  * The helper transitions through `router:main`, so record the calls on the real router instance
@@ -116,16 +117,25 @@ module('Integration | Helper | transition-to', function (hooks) {
 
         assert.deepEqual(calls, [['orders'], ['places']], 'the second click uses the updated route name');
     });
-    // `prefixMountPoint` guards its argument with an assertion whose condition is inverted, so a
-    // non-string route name passes straight through it — see DEFECTS.md #156.
-    test('a non-string route name is still handed to the router', async function (assert) {
+    // The closure is captured and called directly: thrown from inside `{{on "click"}}` the
+    // assertion escapes as an uncaught global error that assert.throws cannot intercept.
+    test('a non-string route name is rejected rather than interpolated', async function (assert) {
         const calls = stubRouter(this.owner);
         this.owner.mountPoint = 'console.fleet-ops';
         this.set('route', 404);
 
-        await render(hbs`<button type="button" class="go" {{on "click" (transition-to this.route)}}>Go</button>`);
-        await click('.go');
+        const captured = [];
+        this.owner.register(
+            'helper:capture-value',
+            helper(function ([value]) {
+                captured.push(value);
+                return '';
+            })
+        );
 
-        assert.deepEqual(calls, [['console.fleet-ops.404']], 'it is interpolated into the mount-point prefix');
+        await render(hbs`{{capture-value (transition-to this.route)}}`);
+
+        assert.throws(captured[0], /propValue argument must be an string/, 'the caller is told about its own bug');
+        assert.deepEqual(calls, [], 'and no transition is attempted');
     });
 });

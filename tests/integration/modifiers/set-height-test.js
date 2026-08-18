@@ -103,13 +103,19 @@ module('Integration | Modifier | set-height', function (hooks) {
 
         assert.strictEqual(find('[data-test-el]').style.height, '', 'a negative height is invalid css and is not applied');
     });
-    // A keyword height never matches the number-with-unit pattern, so it reaches the final
-    // `${numbersOnly(value)}px` unchanged and produces the invalid string "px" — see DEFECTS.md #160.
-    test('a keyword height leaves the element unsized rather than applying it', async function (assert) {
+    test('a keyword height is applied verbatim', async function (assert) {
         this.set('height', 'auto');
 
         await render(hbs`<div data-test-el {{set-height this.height}}></div>`);
 
-        assert.strictEqual(find('[data-test-el]').style.height, '', 'the keyword is dropped, not honoured');
+        assert.strictEqual(find('[data-test-el]').style.height, 'auto', 'a value with no numeric part is passed straight through');
+    });
+
+    test('a percentage height is applied verbatim', async function (assert) {
+        this.set('height', '100%');
+
+        await render(hbs`<div data-test-el {{set-height this.height}}></div>`);
+
+        assert.strictEqual(find('[data-test-el]').style.height, '100%');
     });
 });

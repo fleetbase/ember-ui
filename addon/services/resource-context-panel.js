@@ -46,6 +46,10 @@ export default class ResourceContextPanelService extends Service {
      * @returns {String} The overlay ID
      */
     @action open(definition) {
+        // Validate first: the checks below dereference `definition`, so a missing one used to die
+        // with a TypeError before ever reaching `#validateDefinition`'s own error.
+        this.#validateDefinition(definition);
+
         // Generate ID if not provided
         if (!definition.id) {
             definition.id = this.#generateId();
@@ -60,9 +64,6 @@ export default class ResourceContextPanelService extends Service {
         if (definition.closeOnTransition === true) {
             this.#registerCloseOnTransition(definition);
         }
-
-        // Validate definition
-        this.#validateDefinition(definition);
 
         // Set initial active tab if tabs are provided
         if (definition.tabs && definition.tabs.length > 0) {

@@ -916,4 +916,11 @@ module('Unit | Service | resource-context-panel', function (hooks) {
             assert.strictEqual(service.overlays.length, 0, 'invoking it dismisses the overlay');
         });
     });
+    test('opening nothing at all is refused with a useful error', function (assert) {
+        const service = this.owner.lookup('service:resource-context-panel');
+
+        assert.throws(() => service.open(), /Overlay definition is required/, 'with no argument');
+        assert.throws(() => service.open(null), /Overlay definition is required/, 'and with an explicit null');
+        assert.strictEqual(service.overlays.length, 0, 'nothing is left behind');
+    });
 });

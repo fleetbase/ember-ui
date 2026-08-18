@@ -31,9 +31,9 @@ export default class TransitionToHelper extends Helper {
 }
 
 function prefixMountPoint(mountPoint, propValue) {
-    if (typeOf(propValue) !== 'string') {
-        assert('propValue argument must be an string', typeOf(propValue) !== 'string');
-    }
+    // The guard used to assert the same condition as the `if` that wrapped it, so it could never
+    // fire and a non-string route name was interpolated into the route instead of being rejected.
+    assert('propValue argument must be an string', typeOf(propValue) === 'string');
 
     if (typeOf(mountPoint) !== 'string' || isBlank(mountPoint)) {
         return propValue;

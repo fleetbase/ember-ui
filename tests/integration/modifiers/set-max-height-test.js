@@ -94,13 +94,18 @@ module('Integration | Modifier | set-max-height', function (hooks) {
         assert.strictEqual(find('[data-test-el]').style.maxHeight, '', 'a negative max height is invalid css and is not applied');
         assert.dom('[data-test-el]').hasStyle({ maxHeight: 'none' }, 'element keeps the default max height');
     });
-    // Same shape as set-height: a keyword never matches the number-with-unit pattern and ends up
-    // as the invalid string "px" — see DEFECTS.md #160.
-    test('a keyword max height leaves the element unconstrained rather than applying it', async function (assert) {
+    test('a keyword max height is applied verbatim', async function (assert) {
         this.set('maxHeight', 'none');
 
         await render(hbs`<div data-test-el {{set-max-height this.maxHeight}}></div>`);
 
-        assert.strictEqual(find('[data-test-el]').style.maxHeight, '', 'the keyword is dropped, not honoured');
+        assert.strictEqual(find('[data-test-el]').style.maxHeight, 'none', 'a value with no numeric part is passed straight through');
+    });
+    test('a percentage max height is applied verbatim', async function (assert) {
+        this.set('maxHeight', '80%');
+
+        await render(hbs`<div data-test-el {{set-max-height this.maxHeight}}></div>`);
+
+        assert.strictEqual(find('[data-test-el]').style.maxHeight, '80%', 'a unit the modifier cannot convert is honoured, not turned into px');
     });
 });
