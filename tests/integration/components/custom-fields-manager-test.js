@@ -52,7 +52,7 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
 
         store = { created: [] };
         modals = { shown: [], confirmed: [] };
-        registry = { edited: [], loads: [] };
+        registry = { edited: [], loads: [], cacheLookups: [] };
         notifications = { serverErrors: [] };
 
         this.owner.unregister('service:store');
@@ -117,8 +117,11 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
                         return Promise.resolve({ customFieldGroups: loadedGroups });
                     },
                 };
-                forSubject() {
-                    return null;
+                // The real service never returns nothing: on a cache miss it builds an empty
+                // manager. Whether anything was cached is decided by the groups it carries.
+                forSubject(company, options) {
+                    registry.cacheLookups.push({ company, options });
+                    return { customFieldGroups: [] };
                 }
             }
         );
@@ -477,7 +480,7 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
 
         test('a cached subject is restored without a second fetch', async function (assert) {
             const asked = cacheReturning(this, {
-                groups: [recordFixture({ id: 'grp_cached', name: 'Cached driver details', customFields: [{ id: 'cf_9', label: 'Licence', type: 'text' }] })],
+                customFieldGroups: [recordFixture({ id: 'grp_cached', name: 'Cached driver details', customFields: [{ id: 'cf_9', label: 'Licence', type: 'text' }] })],
             });
 
             await render(TEMPLATE);
@@ -489,12 +492,24 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
         });
 
         test('a cache entry holding no groups leaves the subject alone', async function (assert) {
-            cacheReturning(this, { groups: [] });
+            cacheReturning(this, { customFieldGroups: [] });
 
             await render(TEMPLATE);
 
             assert.strictEqual(registry.loads.length, 1, 'nothing else is fetched');
             assert.notOk(this.element.textContent.includes('Cached'), 'and nothing is attached');
+        });
+
+        test('a company that will not load stops the restore before any lookup', async function (assert) {
+            // Every lookup needs the company, so failing to load it once is worth reporting once
+            // rather than per subject.
+            this.owner.lookup('service:currentUser').loadCompany = () => Promise.reject(new Error('no company'));
+            const asked = cacheReturning(this, { customFieldGroups: [] });
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(asked, [], 'no subject is asked about');
+            assert.dom(this.element).containsText('Custom Fields Manager', 'and the manager still renders');
         });
 
         test('a cache lookup that throws does not stop the manager rendering', async function (assert) {
@@ -511,7 +526,7 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
 
     test('switching to a tab that is already loaded does not refetch it', async function (assert) {
         this.owner.lookup('service:customFieldsRegistry').forSubject = () => ({
-            groups: [recordFixture({ id: 'grp_cached', name: 'Cached driver details', customFields: [] })],
+            customFieldGroups: [recordFixture({ id: 'grp_cached', name: 'Cached driver details', customFields: [] })],
         });
 
         await render(TEMPLATE);
@@ -521,6 +536,47 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
         await click(driverTab);
 
         assert.strictEqual(registry.loads.length, 1, 'selecting it fetches nothing');
+    });
+
+    // The tab guard used to read `subject.groups.length`, which cannot tell "never fetched" apart
+    // from "fetched, and this subject has no field groups" — so an empty subject was refetched on
+    // every single tab selection.
+    module('a subject with no field groups', function () {
+        function tabFor(label) {
+            return findAll('.ui-tab, [role="tab"]').find((tab) => tab.textContent.trim().includes(label));
+        }
+
+        test('it is fetched once, however often its tab is selected', async function (assert) {
+            loadedGroups = [];
+
+            await render(TEMPLATE);
+            assert.strictEqual(registry.loads.length, 1, 'the first subject is loaded on insert');
+
+            await click(tabFor('driver'));
+            assert.strictEqual(registry.loads.length, 2, 'the second subject is fetched the first time');
+
+            await click(tabFor('order'));
+            await click(tabFor('driver'));
+            await click(tabFor('order'));
+            await click(tabFor('driver'));
+
+            assert.strictEqual(registry.loads.length, 2, 'and never again, despite having no groups to show for it');
+        });
+
+        test('a failed fetch is retried the next time the tab is selected', async function (assert) {
+            await render(TEMPLATE);
+
+            loadShouldFail = true;
+            await click(tabFor('driver'));
+            assert.strictEqual(registry.loads.length, 2, 'the fetch was attempted');
+            assert.strictEqual(notifications.serverErrors.length, 1, 'and reported');
+
+            loadShouldFail = false;
+            await click(tabFor('order'));
+            await click(tabFor('driver'));
+
+            assert.strictEqual(registry.loads.length, 3, 'a subject that failed to load is not treated as loaded');
+        });
     });
 
     test('it renders without a subjects argument at all', async function (assert) {
