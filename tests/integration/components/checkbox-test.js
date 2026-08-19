@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, find } from '@ember/test-helpers';
+import { render, click, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 
@@ -185,5 +185,18 @@ module('Integration | Component | checkbox', function (hooks) {
 
             assert.dom(BOX).isDisabled();
         });
+    });
+    // `{{did-update this.trackValue @value}}` destructures with a default, which only applies
+    // when the argument changes *to* undefined — clearing a previously set value.
+    test('clearing @value unchecks the box rather than leaving it checked', async function (assert) {
+        this.set('value', true);
+
+        await render(hbs`<Checkbox @value={{this.value}} />`);
+        assert.dom(BOX).isChecked('checked to begin with');
+
+        this.set('value', undefined);
+        await settled();
+
+        assert.dom(BOX).isNotChecked('a cleared value falls back to unchecked');
     });
 });

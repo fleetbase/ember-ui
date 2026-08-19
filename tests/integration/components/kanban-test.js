@@ -318,4 +318,31 @@ module('Integration | Component | kanban', function (hooks) {
             assert.strictEqual(calls[0][1], COLUMNS[0], 'the column comes first');
         });
     });
+    // `onCardDrop` and `onColumnDrop` read the same configuration as the drag-start handlers, but
+    // from their own code paths.
+    module('the drop handlers on their own terms', function () {
+        test('a custom columnIdPath is honoured when the card lands, not just when it lifts', async function (assert) {
+            this.set('columnIdPath', 'id');
+
+            await render(TEMPLATE);
+            const [source, target] = findAll('.kanban-column');
+            await triggerEvent(findAll('.kanban-card')[0], 'dragstart', { dataTransfer: makeDataTransfer() });
+            await triggerEvent(target, 'drop', { dataTransfer: makeDataTransfer(JSON.stringify({ type: 'card', cardId: 'card_a' })) });
+
+            const move = calls.find(([name]) => name === 'cardMove');
+            assert.ok(move, 'the move is reported');
+            assert.ok(source, 'both columns rendered');
+        });
+
+        test('a column drop with no onColumnMove handler is a no-op rather than a crash', async function (assert) {
+            await render(hbs`<Kanban @columns={{this.columns}} />`);
+
+            const [source, target] = findAll('.kanban-column');
+            await triggerEvent(source, 'dragstart', { dataTransfer: makeDataTransfer() });
+            await triggerEvent(target, 'drop', { dataTransfer: makeDataTransfer(JSON.stringify({ type: 'column', columnId: 'col_todo' })) });
+
+            assert.dom('.kanban-board').exists('the board survives a drop with nothing listening');
+            assert.deepEqual(calls, [], 'and nothing is reported');
+        });
+    });
 });
