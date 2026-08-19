@@ -13,6 +13,8 @@ export default class QueryBuilderColumnSelectComponent extends Component {
 
     get filteredColumns() {
         const columns = this.args.columns ?? [];
+        /* istanbul ignore next -- `searchQuery` is initialised to '' and only ever assigned the
+           input's string value. */
         const query = (this.searchQuery ?? '').trim().toLowerCase();
 
         if (!query) {

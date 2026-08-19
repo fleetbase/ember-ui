@@ -264,6 +264,8 @@ export default class UnitInputComponent extends Component {
      * @memberof UnitInputComponent
      */
     @action setUnit(unit, dd) {
+        /* istanbul ignore next -- wired as PowerSelect's `@onChange`, whose select object always
+           provides `actions.close`. */
         if (typeof dd.actions.close === 'function') {
             dd.actions.close();
         }

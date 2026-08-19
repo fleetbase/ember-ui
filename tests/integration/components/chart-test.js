@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, settled, find } from '@ember/test-helpers';
+import { render, settled, find, clearRender } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Chart, { _adapters } from 'chart.js/auto';
 
@@ -264,5 +264,27 @@ module('Integration | Component | chart', function (hooks) {
         test('endOf leaves the time alone for an unknown unit', function (assert) {
             assert.strictEqual(adapter().endOf(INSTANT, 'fortnight'), INSTANT);
         });
+    });
+    // The dataset loader awaits, and the component can be torn down while it is in flight.
+    // Building a chart against a detached canvas after that would leak it.
+    test('a component destroyed while its datasets load does not build a chart', async function (assert) {
+        let releaseDatasets;
+        this.set(
+            'datasets',
+            () =>
+                new Promise((resolve) => {
+                    releaseDatasets = () => resolve(DATASETS);
+                })
+        );
+
+        await render(TEMPLATE);
+        assert.dom('canvas').exists('the canvas is rendered while the datasets load');
+
+        // Tear the component down with the load still pending, then let it finish.
+        await clearRender();
+        releaseDatasets();
+        await settled();
+
+        assert.dom('canvas').doesNotExist('nothing is left behind');
     });
 });

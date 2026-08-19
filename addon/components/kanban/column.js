@@ -125,6 +125,8 @@ export default class KanbanColumnComponent extends Component {
      */
     calculateDropPosition(event) {
         const columnBody = event.currentTarget.querySelector('.kanban-column-body');
+        /* istanbul ignore next -- the column template always renders a `.kanban-column-body`, and
+           this only runs with the column element as currentTarget. */
         if (!columnBody) return;
 
         const cards = columnBody.querySelectorAll('.kanban-card');

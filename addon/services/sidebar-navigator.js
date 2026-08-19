@@ -15,6 +15,8 @@ export default class SidebarNavigatorService extends Service {
         try {
             return getOwner(this).lookup(`service:${name}`);
         } catch (_) {
+            /* istanbul ignore next -- `router` always resolves, so the lookup above never falls
+           through to here. */
             return null;
         }
     }
