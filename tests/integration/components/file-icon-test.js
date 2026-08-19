@@ -146,4 +146,35 @@ module('Integration | Component | file-icon', function (hooks) {
         assert.dom('.file-extension').hasClass('my-extension');
         assert.dom('.file-icon .inside').hasText('caption');
     });
+    // Both arms of the extension lookup have a null fallback, and the fixtures above always carry
+    // a well-formed name.
+    module('when no extension can be read', function () {
+        test('an upload file with no underlying file falls back to the generic icon', async function (assert) {
+            // `isUploadFile` is an instanceof check, and the guard exists for exactly this state.
+            this.set('file', Object.create(UploadFile.prototype));
+
+            await render(hbs`<FileIcon @file={{this.file}} />`);
+
+            assert.dom('.file-extension').hasText('', 'nothing to read an extension from');
+            assert.dom('svg').exists('the generic icon still renders');
+        });
+
+        test('a filename with no extension at all falls back to the generic icon', async function (assert) {
+            this.set('file', uploadFile('README'));
+
+            await render(hbs`<FileIcon @file={{this.file}} />`);
+
+            assert.dom('.file-extension').hasText('');
+            assert.dom('svg').exists();
+        });
+
+        test('a record whose filename has no extension does too', async function (assert) {
+            this.set('file', fileRecord({ original_filename: 'LICENSE' }));
+
+            await render(hbs`<FileIcon @file={{this.file}} />`);
+
+            assert.dom('.file-extension').hasText('');
+            assert.dom('svg').exists();
+        });
+    });
 });

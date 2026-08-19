@@ -2,7 +2,11 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 
 export default class SpinnerComponent extends Component {
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked height = 16;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked width = 16;
 
     get sizeMap() {

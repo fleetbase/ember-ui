@@ -215,4 +215,36 @@ module('Integration | Component | layout/resource/cards-grid', function (hooks) 
             assert.strictEqual(find('.floating-pagination'), null);
         });
     });
+    // `cardClass` is only read when the block actually renders a yielded card — the hash in
+    // cards-grid.hbs is not built otherwise.
+    module('the yielded card', function () {
+        const WITH_CARD = hbs`
+            <Layout::Resource::CardsGrid @data={{this.data}} @resource={{this.resource}} @cardClass={{this.cardClass}} as |grid|>
+                <grid.card data-test-card="yes">{{grid.model.name}}</grid.card>
+            </Layout::Resource::CardsGrid>
+        `;
+
+        test('each model renders a card carrying the base card classes', async function (assert) {
+            this.setProperties({ data: [{ name: 'First' }, { name: 'Second' }], resource: 'order', cardClass: undefined });
+
+            await render(WITH_CARD);
+
+            const cards = findAll('[data-test-card="yes"]');
+            assert.strictEqual(cards.length, 2, 'one card per model');
+            assert.dom(cards[0]).hasClass('bg-white');
+            assert.dom(cards[0]).hasClass('rounded-md');
+            assert.dom(cards[0]).hasClass('shadow-sm');
+            assert.dom(cards[0]).hasText('First', 'and the model is yielded alongside it');
+        });
+
+        test('a cardClass is appended to the base classes rather than replacing them', async function (assert) {
+            this.setProperties({ data: [{ name: 'First' }], resource: 'order', cardClass: 'ring-2 ring-blue-500' });
+
+            await render(WITH_CARD);
+
+            const card = find('[data-test-card="yes"]');
+            assert.dom(card).hasClass('ring-2', 'the supplied class is there');
+            assert.dom(card).hasClass('bg-white', 'and so are the defaults');
+        });
+    });
 });

@@ -240,4 +240,13 @@ module('Integration | Component | table/th', function (hooks) {
             assert.strictEqual(find('th').style.position, '');
         });
     });
+    // Every other test supplies a column; the sort-priority getter has its own guard for when one
+    // is not passed at all.
+    test('a header with no column at all still renders', async function (assert) {
+        await render(hbs`<table><thead><tr><Table::Th>Plain</Table::Th></tr></thead></table>`);
+
+        assert.dom('th').exists();
+        assert.dom('th').containsText('Plain');
+        assert.dom('th .sort-priority').doesNotExist('and claims no sort priority');
+    });
 });

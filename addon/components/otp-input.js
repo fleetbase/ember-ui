@@ -16,6 +16,8 @@ export default class OtpInputComponent extends Component {
      * @type {Number}
      * @default 6
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked size = 6;
 
     /**

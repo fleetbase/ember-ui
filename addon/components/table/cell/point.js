@@ -11,6 +11,8 @@ const isPoint = (point) => {
 
 export default class TableCellPointComponent extends Component {
     @tracked display = '';
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked isClickable = false;
 
     constructor(owner, { row, column }) {

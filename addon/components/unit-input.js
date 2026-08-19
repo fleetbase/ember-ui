@@ -211,6 +211,8 @@ export default class UnitInputComponent extends Component {
      *
      * @memberof UnitInputComponent
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked disabled = false;
 
     /**
