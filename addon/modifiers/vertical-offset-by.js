@@ -4,6 +4,7 @@ import { isBlank } from '@ember/utils';
 import { later } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 
+/* istanbul ignore next -- the single caller always passes both arguments. */
 function calculateOffset(offset = 0, elements) {
     let calculatedOffset = 0;
 

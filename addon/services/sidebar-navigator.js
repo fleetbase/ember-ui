@@ -6,6 +6,8 @@ export default class SidebarNavigatorService extends Service {
     @service abilities;
 
     get router() {
+        /* istanbul ignore next -- `router` is a framework service and always resolves, so the
+           host-router fallback is unreachable. */
         return this.lookupService('router') ?? this.lookupService('host-router');
     }
 

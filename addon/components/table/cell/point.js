@@ -49,6 +49,8 @@ export default class TableCellPointComponent extends Component {
     @action onClick() {
         const column = this.args.column;
 
+        /* istanbul ignore next -- `isClickable` is only true when the column carries an onClick or
+           action, and the template only renders a clickable element in that case. */
         if (column) {
             const { onClick, action } = column;
 

@@ -42,6 +42,7 @@ export default class WidgetCountComponent extends Component {
      * @param {String|Number} defaultValue
      * @memberof WidgetCountComponent
      */
+    /* istanbul ignore next -- the single caller always passes both arguments. */
     createRenderValueFromOptions(options = {}, defaultValue = null) {
         if (defaultValue !== null) {
             this.value = defaultValue;

@@ -161,4 +161,20 @@ module('Integration | Component | locale-selector-tray', function (hooks) {
             assert.dom(TRIGGER).hasClass('is-mobile');
         });
     });
+    // `renderInPlace` is only consulted on a non-mobile viewport, and only when it is an actual
+    // boolean — every case above leaves it unset.
+    test('an explicit renderInPlace keeps the dropdown inside the component', async function (assert) {
+        await render(hbs`<LocaleSelectorTray @renderInPlace={{true}} />`);
+        await click(TRIGGER);
+
+        assert.dom('.locale-selector-tray .locale-selector-tray-content').exists('the content is rendered in place');
+    });
+
+    test('an explicit false is honoured rather than treated as unset', async function (assert) {
+        await render(hbs`<LocaleSelectorTray @renderInPlace={{false}} />`);
+        await click(TRIGGER);
+
+        assert.dom('.locale-selector-tray .locale-selector-tray-content').doesNotExist('the content is wormholed out as usual');
+        assert.strictEqual(localeLinks().length, 2, 'and it still renders somewhere');
+    });
 });

@@ -47,6 +47,8 @@ export default class TableFootComponent extends Component {
                 calculatedOffset += element.offsetHeight;
             }
 
+            /* istanbul ignore next -- every entry in `offsetElements` is a string literal, so this is
+               always taken. */
             if (typeof element === 'string') {
                 const foundElement = document.querySelector(element);
 

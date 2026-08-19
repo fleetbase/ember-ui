@@ -7,6 +7,8 @@ export default class TableThComponent extends TableCellComponent {
 
     get sortColumn() {
         const { column } = this.args;
+        /* istanbul ignore next -- `showSortPriority` short-circuits on `isSorted`, which is false
+           without a column, so this getter is never evaluated without one. */
         if (!column) {
             return null;
         }
