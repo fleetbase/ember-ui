@@ -1,7 +1,13 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn } from '@ember/test-helpers';
+import { render, click, fillIn, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+
+const TRIGGER = '.ember-basic-dropdown-trigger';
+
+function buttonWithText(text) {
+    return findAll('button').find((button) => button.textContent.trim().includes(text));
+}
 
 module('Integration | Component | bulk-search-dropdown', function (hooks) {
     setupRenderingTest(hooks);
@@ -59,5 +65,30 @@ module('Integration | Component | bulk-search-dropdown', function (hooks) {
         await click('.ember-basic-dropdown-trigger');
 
         assert.dom('.filters-dropdown-body textarea').hasValue('', 'the value stays cleared when reopened');
+    });
+    // Both actions guard their callback, and every case above supplies one.
+    module('with no handlers supplied', function () {
+        test('clearing still empties the field', async function (assert) {
+            await render(hbs`<BulkSearchDropdown />`);
+            await click(TRIGGER);
+            await fillIn('textarea', 'ord_1, ord_2');
+
+            await click(buttonWithText('Clear'));
+            // `dropdown-fn` closes the dropdown, taking the textarea with it.
+            await click(TRIGGER);
+
+            assert.dom('textarea').hasValue('', 'the value is reset without a callback to report it to');
+        });
+
+        test('searching is a no-op rather than a crash', async function (assert) {
+            await render(hbs`<BulkSearchDropdown />`);
+            await click(TRIGGER);
+            await fillIn('textarea', 'ord_1');
+
+            await click(buttonWithText('Search'));
+            await click(TRIGGER);
+
+            assert.dom('textarea').hasValue('ord_1', 'the value is left alone');
+        });
     });
 });

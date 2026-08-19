@@ -135,4 +135,14 @@ module('Integration | Component | tabs/tab', function (hooks) {
             assert.dom(LINK).hasText('Order details', 'the tab survives');
         });
     });
+    // Both class getters short-circuit on `isActive`, and every case above renders the tab active.
+    test('an inactive tab contributes no active classes', async function (assert) {
+        this.setProperties({ activeTab: 'some-other-tab', activeTabClass: 'tab-on', activePaneClass: 'pane-on' });
+
+        await render(TEMPLATE);
+
+        assert.dom(LINK).doesNotHaveClass('active');
+        assert.dom(LINK).doesNotHaveClass('tab-on', 'the configured active class is withheld too');
+        assert.dom(PANE).doesNotExist('and the pane is not rendered at all');
+    });
 });

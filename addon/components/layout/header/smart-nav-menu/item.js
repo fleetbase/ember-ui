@@ -23,6 +23,8 @@ export default class LayoutHeaderSmartNavMenuItemComponent extends Component {
     get isActive() {
         const route = this.args.item?.route;
         if (!route) return false;
+        /* istanbul ignore next -- `router` is a framework service and always resolves, so the
+           host-router fallback is unreachable. */
         const r = this.router ?? this.hostRouter;
         const current = r?.currentRouteName ?? '';
         return current.startsWith(route);

@@ -10,6 +10,8 @@ export default class LayoutHeaderSidebarToggleComponent extends Component {
     }
 
     @action toggleSidebar() {
+        /* istanbul ignore next -- the template renders `disabled={{this.isDisabled}}`, so the
+           button cannot be clicked while this is true. */
         if (this.isDisabled) return;
 
         this.sidebar.toggle();

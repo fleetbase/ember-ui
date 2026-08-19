@@ -102,4 +102,14 @@ module('Integration | Component | with-record', function (hooks) {
         await render(TEMPLATE);
         assert.deepEqual(peeked, [], 'no type means no lookup');
     });
+    test('a rejection carrying no message falls back to a generic one', async function (assert) {
+        // Not every rejection is an Error — a bare object reaches the same handler.
+        store.findRecord = () => Promise.reject({});
+        this.setProperties({ id: VALID_UUID, type: 'Order' });
+
+        await render(TEMPLATE);
+
+        assert.dom('.error').hasText('Failed to load record.');
+        assert.dom('.name').hasText('', 'and no record is yielded');
+    });
 });
