@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, settled, find, findAll } from '@ember/test-helpers';
+import { render, click, settled, find, findAll, triggerKeyEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const DIALOG = '.flb--modal';
@@ -243,5 +243,50 @@ module('Integration | Component | modal', function (hooks) {
         await render(hbs`<Modal @open={{true}} />`);
 
         assert.dom('.flb--modal-backdrop').hasClass('fade');
+    });
+    // <Modal> declares `keyboard` and `backdropClose` and hands them to <Modal::Dialog>, which
+    // only reads them from inside its keydown and click handlers. Glimmer evaluates arguments
+    // lazily, so until one of those handlers actually runs through a real <Modal>, the modal's own
+    // defaults are never resolved.
+    module('the dialog arguments the modal supplies', function () {
+        test('escape closes the modal by default', async function (assert) {
+            const closes = [];
+            this.set('onClose', () => closes.push('closed'));
+
+            await render(hbs`<Modal @renderInPlace={{true}} @fade={{false}} @onClose={{this.onClose}}>body</Modal>`);
+            await triggerKeyEvent(DIALOG, 'keydown', 'Escape');
+
+            assert.deepEqual(closes, ['closed'], 'the default keyboard handling is on');
+        });
+
+        test('escape is ignored when keyboard handling is switched off', async function (assert) {
+            const closes = [];
+            this.set('onClose', () => closes.push('closed'));
+
+            await render(hbs`<Modal @renderInPlace={{true}} @fade={{false}} @keyboard={{false}} @onClose={{this.onClose}}>body</Modal>`);
+            await triggerKeyEvent(DIALOG, 'keydown', 'Escape');
+
+            assert.deepEqual(closes, [], 'the modal stays open');
+        });
+
+        test('clicking the backdrop area closes the modal by default', async function (assert) {
+            const closes = [];
+            this.set('onClose', () => closes.push('closed'));
+
+            await render(hbs`<Modal @renderInPlace={{true}} @fade={{false}} @onClose={{this.onClose}}>body</Modal>`);
+            await click(DIALOG);
+
+            assert.deepEqual(closes, ['closed'], 'the default backdrop-close is on');
+        });
+
+        test('clicking it is ignored when backdropClose is switched off', async function (assert) {
+            const closes = [];
+            this.set('onClose', () => closes.push('closed'));
+
+            await render(hbs`<Modal @renderInPlace={{true}} @fade={{false}} @backdropClose={{false}} @onClose={{this.onClose}}>body</Modal>`);
+            await click(DIALOG);
+
+            assert.deepEqual(closes, [], 'the modal stays open');
+        });
     });
 });
