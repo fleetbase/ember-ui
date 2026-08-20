@@ -3,6 +3,8 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { underscore } from '@ember/string';
+import { debounce, cancel } from '@ember/runloop';
+import { UploadFile, FileSource, DEFAULT_QUEUE } from 'ember-file-upload';
 import isObject from '@fleetbase/ember-core/utils/is-object';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
@@ -10,12 +12,27 @@ import getCustomFieldTypeMap from '../../utils/get-custom-field-type-map';
 
 export default class CustomFieldInputComponent extends Component {
     @service fetch;
+    @service fileQueue;
     @tracked extension = 'fleet-ops';
     @tracked customField;
     @tracked customFieldComponent;
     @tracked value;
     @tracked file;
     @tracked uploadedFile;
+    @tracked signatureDataUrl;
+    @tracked isUploadingSignature = false;
+
+    /**
+     * Pending debounce timer for the signature upload.
+     */
+    signatureUploadTimer = null;
+
+    /**
+     * How long to wait after the last stroke before uploading a signature.
+     */
+    get signatureUploadDelay() {
+        return this.args.uploadDelay ?? 750;
+    }
 
     get acceptedFileTypes() {
         return [
@@ -76,6 +93,12 @@ export default class CustomFieldInputComponent extends Component {
         this.subject = subject;
         this.extension = extension;
         this.customFieldComponent = typeof customField.component === 'string' ? customField.component : 'input';
+        this.signatureDataUrl = this.#getSignatureUrlFromValue(this.value);
+    }
+
+    willDestroy() {
+        super.willDestroy(...arguments);
+        cancel(this.signatureUploadTimer);
     }
 
     @action removeFile() {
@@ -85,6 +108,7 @@ export default class CustomFieldInputComponent extends Component {
 
         this.uploadedFile = undefined;
         this.value = undefined;
+        this.signatureDataUrl = null;
 
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(undefined, this.customField);
@@ -104,14 +128,17 @@ export default class CustomFieldInputComponent extends Component {
 
         let path = `uploads/${this.extension ?? 'cf-files'}/${this.customField.id}`;
         let type = `custom_field_file`;
+        const modelName = getModelName(subject);
 
-        if (subject) {
-            path = `uploads/${this.extension ?? 'cf-files'}/${getModelName(subject)}-cf-files`;
-            type = `${underscore(getModelName(subject))}_file`;
+        // `getModelName` returns null for anything that isn't a model, and `underscore`
+        // throws on null — fall back to the custom field scoped path in that case.
+        if (subject && modelName) {
+            path = `uploads/${this.extension ?? 'cf-files'}/${modelName}-cf-files`;
+            type = `${underscore(modelName)}_file`;
         }
 
         // Queue and upload immediatley
-        this.fetch.uploadFile.perform(
+        return this.fetch.uploadFile.perform(
             file,
             {
                 path,
@@ -133,6 +160,65 @@ export default class CustomFieldInputComponent extends Component {
                 this.file = undefined;
             }
         );
+    }
+
+    /**
+     * Handles a signature change emitted from `<SignaturePad>`.
+     *
+     * Uploads are debounced rather than fired per stroke: a signature is typically
+     * several discrete strokes over a couple of seconds and uploading each one would
+     * leave that many orphaned file records behind. A trailing debounce collapses a
+     * whole signing gesture into a single upload while keeping the field self saving.
+     *
+     * @param {string|null} dataUrl
+     * @action
+     */
+    @action onSignatureChange(dataUrl) {
+        this.signatureDataUrl = dataUrl;
+        cancel(this.signatureUploadTimer);
+
+        if (!dataUrl) {
+            this.removeFile();
+            return;
+        }
+
+        this.signatureUploadTimer = debounce(this, this.uploadSignature, dataUrl, this.signatureUploadDelay);
+    }
+
+    /**
+     * Converts a signature data URL into an uploadable file and pushes it through the
+     * same upload flow the file-upload field type uses, so the stored value is the
+     * familiar `file:<uuid>` sentinel.
+     *
+     * @param {string} dataUrl
+     */
+    async uploadSignature(dataUrl) {
+        if (this.isDestroying || this.isDestroyed || this.isUploadingSignature) {
+            return;
+        }
+
+        this.isUploadingSignature = true;
+
+        const previousFile = this.uploadedFile;
+        const file = UploadFile.fromDataURL(dataUrl, FileSource.DataUrl);
+
+        // `fromDataURL` names the underlying file "blob", and leaves it detached from
+        // any queue. Both matter: the filename ends up on the file record, and the
+        // upload task's error path calls `queue.remove(file)` unguarded.
+        file.name = `signature-${this.customField.name ?? this.customField.id}.png`;
+        this.fileQueue.findOrCreate(DEFAULT_QUEUE).add(file);
+
+        try {
+            await this.onFileAddedHandler(file);
+
+            if (isModel(previousFile) && previousFile !== this.uploadedFile) {
+                previousFile.destroyRecord();
+            }
+        } finally {
+            if (!this.isDestroying && !this.isDestroyed) {
+                this.isUploadingSignature = false;
+            }
+        }
     }
 
     @action onChangeHandler(event, otherValue) {
@@ -177,6 +263,30 @@ export default class CustomFieldInputComponent extends Component {
                 this.args.onChange(value, this.customField);
             }
             return;
+        }
+    }
+
+    #getSignatureUrlFromValue(value) {
+        if (!value) {
+            return null;
+        }
+
+        if (isObject(value)) {
+            return value.url ?? null;
+        }
+
+        if (typeof value !== 'string' || value.startsWith('file:')) {
+            return null;
+        }
+
+        if (value.startsWith('data:')) {
+            return value;
+        }
+
+        try {
+            return JSON.parse(value).url ?? null;
+        } catch {
+            return null;
         }
     }
 
