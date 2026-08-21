@@ -152,6 +152,11 @@ export default class FiltersPickerComponent extends Component {
                 queryParams: qp,
             });
         } catch (error) {
+            /* istanbul ignore next -- reachable in production (any non-abort transition failure)
+               but not from this suite: `clearFilters` is async, so the rethrow surfaces as an
+               unhandled rejection, which QUnit reports as a global failure. Neither a try/catch
+               around the click nor `setupOnerror` intercepts it, and suppressing the report would
+               pin nothing useful. */
             if (error?.name !== 'TransitionAborted') {
                 throw error;
             }
