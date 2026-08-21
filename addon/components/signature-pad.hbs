@@ -1,0 +1,60 @@
+<div class="signature-pad {{if this.isDisabled "signature-pad-is-disabled"}} {{@wrapperClass}}">
+    {{#if this.isReadonly}}
+        {{#if @value}}
+            <div class="signature-pad-surface signature-pad-surface-readonly" {{style height=this.heightStyle}} ...attributes>
+                <img src={{@value}} alt={{this.alt}} class="signature-pad-image {{@canvasClass}}" />
+            </div>
+        {{else}}
+            <div class="signature-pad-surface signature-pad-surface-readonly" {{style height=this.heightStyle}} ...attributes>
+                <span class="signature-pad-empty">{{this.emptyText}}</span>
+            </div>
+        {{/if}}
+    {{else}}
+        <div class="signature-pad-surface">
+            <canvas
+                class="signature-pad-canvas {{@canvasClass}}"
+                aria-label={{this.alt}}
+                data-test-signature-pad-canvas
+                ...attributes
+                {{did-insert this.setup}}
+                {{did-update this.trackHeight @height}}
+                {{did-update this.trackValue @value}}
+                {{did-update this.trackDisabled @disabled}}
+                {{did-update this.trackOptions @penColor @backgroundColor @minWidth @maxWidth @dotSize @minDistance @velocityFilterWeight @compositeOperation}}
+                {{will-destroy this.teardown}}
+            ></canvas>
+            {{#if this.showPlaceholder}}
+                <div class="signature-pad-placeholder" aria-hidden="true">
+                    <span class="signature-pad-placeholder-text">{{this.placeholder}}</span>
+                </div>
+            {{/if}}
+        </div>
+        {{#if (or this.hasActions (has-block))}}
+            <div class="signature-pad-toolbar {{@toolbarClass}}">
+                {{#if this.hasActions}}
+                    <Button
+                        @type="default"
+                        @size="xs"
+                        @icon="rotate-left"
+                        @text={{this.undoLabel}}
+                        @disabled={{or this.isDisabled (not this.canUndo)}}
+                        @onClick={{this.undo}}
+                        class="signature-pad-undo-button"
+                        data-test-signature-pad-undo
+                    />
+                    <Button
+                        @type="default"
+                        @size="xs"
+                        @icon="eraser"
+                        @text={{this.clearLabel}}
+                        @disabled={{or this.isDisabled this.isEmpty}}
+                        @onClick={{this.clear}}
+                        class="signature-pad-clear-button"
+                        data-test-signature-pad-clear
+                    />
+                {{/if}}
+                {{yield this.api}}
+            </div>
+        {{/if}}
+    {{/if}}
+</div>

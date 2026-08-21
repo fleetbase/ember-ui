@@ -26,6 +26,12 @@ The following components are included in the Fleetbase Ember UI Components libra
 </details>
 
 <details>
+  <summary>Signature Pad</summary>
+
+  * [`signature-pad`](./signature-pad.md) A canvas based signature capture component with clear/undo, retina aware resizing and a readonly image mode. Also available as a custom field type.
+</details>
+
+<details>
     <summary>Filter</summary>
   
   * [`date-filter`](./date.md): A component for filtering a list of data based on a date range.

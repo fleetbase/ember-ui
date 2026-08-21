@@ -254,6 +254,9 @@ importers:
       postcss-preset-env:
         specifier: ^9.1.1
         version: 9.6.0(postcss@8.5.14)
+      signature_pad:
+        specifier: ^5.1.4
+        version: 5.1.4
       tailwindcss:
         specifier: ^3.1.8
         version: 3.4.19(yaml@2.9.0)
@@ -336,6 +339,9 @@ importers:
       ember-template-lint:
         specifier: ^5.11.2
         version: 5.13.0
+      ember-tracked-storage-polyfill:
+        specifier: 1.0.1
+        version: 1.0.1
       ember-try:
         specifier: ^3.0.0
         version: 3.0.0
@@ -7316,6 +7322,9 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
+
+  signature_pad@5.1.4:
+    resolution: {integrity: sha512-q0wO5a+U+AWPVcVmiNXz7FY4Ad1QiE8wto/3Yn41WVqepoVVYMvkb1CTokaWPUUAHWDLLabH3/acODeWM9jCrg==}
 
   silent-error@1.1.1:
     resolution: {integrity: sha512-n4iEKyNcg4v6/jpb3c0/iyH2G1nzUNl7Gpqtn/mHIJK9S/q/7MCfoO4rwVOoO59qPFIc0hVHvMbiOJ0NdtxKKw==}
@@ -17321,6 +17330,8 @@ snapshots:
   signal-exit@3.0.7: {}
 
   signal-exit@4.1.0: {}
+
+  signature_pad@5.1.4: {}
 
   silent-error@1.1.1:
     dependencies:

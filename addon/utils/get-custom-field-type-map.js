@@ -30,6 +30,9 @@ export default function getCustomFieldTypeMap() {
         fileUpload: {
             component: 'file-upload',
         },
+        signaturePad: {
+            component: 'signature-pad',
+        },
         // dropzone: {
         //     component: 'file-dropzone',
         // },
