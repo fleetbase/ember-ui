@@ -134,6 +134,33 @@ consumers can restart a countdown in place. Same family as #6 and the dead gette
 written for an intent the wiring never delivered.
 Blocks the gate while it exists — an uncalled method cannot be covered.
 
+## 9. `addon/components/table/cell/dropdown.js` — `onDropdownItemClick` is orphaned, duplicating ActionItem
+
+**Status:** NEEDS DECISION
+**Found:** the whole method reported as never invoked (`[0,0]` on both its guards).
+**Evidence:** `dropdown.hbs:23-25` renders each action through
+`<Table::Cell::Dropdown::ActionItem …>`, which carries its own `@action onClick(columnAction, row, dd)`
+doing the same two things (close the dropdown, run the action). Nothing references the parent's
+`onDropdownItemClick`. Note the name IS live elsewhere — `content-panel` and `layout/sidebar/item`
+both wire their own copies from their templates — so a grep for the name alone is misleading; this
+particular one is orphaned.
+**Impact:** none. Clicking an action works, via ActionItem.
+**Fix:** delete it. Same shape as #6: a second implementation of something already handled, left
+behind when the work moved into a child component.
+Blocks the gate while it exists.
+
+## 10. `addon/components/pagination.js` — `pageNumbers` is a superseded page-list implementation
+
+**Status:** NEEDS DECISION
+**Found:** the getter reported as never evaluated (`[0,0]`).
+**Evidence:** `grep -rn pageNumbers addon/ app/` returns only the declaration. `pagination.hbs:69`
+iterates `this.pageItems` instead. The getter's `dots: page === 12` / `slice(0, 12)` logic looks like
+an earlier hard-coded truncation, superseded by `pageItems` and the `truncate-pages` utility.
+**Impact:** none — pagination renders and truncates correctly through `pageItems`.
+**Fix:** delete it. Third instance of the same shape as #6 and #9: a superseded implementation left
+in place beside the one that actually runs.
+Blocks the gate while it exists.
+
 ---
 
 ## Settled — not defects, recorded so they are not "fixed" again

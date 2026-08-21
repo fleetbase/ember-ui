@@ -299,4 +299,17 @@ module('Integration | Component | pagination', function (hooks) {
         await click(directionButtons()[1]);
         assert.deepEqual(changes, [2], 'stepping still works from the defaulted page');
     });
+    test('paging with no @onPageChange handler still moves the page', async function (assert) {
+        // Every other case supplies the handler; the guard around it was never skipped.
+        this.set('meta', { current_page: 1, last_page: 3, total: 30, from: 1, to: 10 });
+
+        await render(hbs`<Pagination @meta={{this.meta}} />`);
+
+        const forward = this.element.querySelector('.page-item-arrow:not(.disabled)');
+        assert.ok(forward, 'a forward control is offered');
+
+        await click(forward);
+
+        assert.dom('.fleetbase-pagination-page-item.active').hasText('2', 'the page advanced with nothing listening');
+    });
 });
