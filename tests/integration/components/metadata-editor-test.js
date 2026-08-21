@@ -200,7 +200,7 @@ module('Integration | Component | metadata-editor', function (hooks) {
         await render(TEMPLATE);
         await click(rows()[0].querySelector('input[type="checkbox"]'));
 
-        assert.strictEqual(changes[changes.length - 1].active, true);
+        assert.true(changes[changes.length - 1].active);
     });
 
     test('changing the type coerces the existing value', async function (assert) {
@@ -228,7 +228,7 @@ module('Integration | Component | metadata-editor', function (hooks) {
         await render(TEMPLATE);
         await fillIn(rows()[0].querySelector('select'), 'boolean');
 
-        assert.strictEqual(changes[changes.length - 1].thing, true);
+        assert.true(changes[changes.length - 1].thing);
     });
 
     test('boolean rows are omitted from the output when allowBoolean is false', async function (assert) {

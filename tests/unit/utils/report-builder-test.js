@@ -115,7 +115,7 @@ module('Unit | Utility | report-builder', function () {
         test('it round-trips primitives and arrays', function (assert) {
             assert.strictEqual(deepClone(0), 0, 'zero is not treated as nullish');
             assert.strictEqual(deepClone(''), '', 'an empty string is not treated as nullish');
-            assert.strictEqual(deepClone(false), false);
+            assert.false(deepClone(false));
             assert.strictEqual(deepClone('text'), 'text');
             assert.deepEqual(deepClone([1, [2]]), [1, [2]]);
             assert.true(Array.isArray(deepClone([])), 'array-ness survives the round trip');
@@ -204,8 +204,8 @@ module('Unit | Utility | report-builder', function () {
     module('default export', function () {
         test('it is a function returning boolean true', function (assert) {
             assert.strictEqual(typeof reportBuilder, 'function');
-            assert.strictEqual(reportBuilder(), true);
-            assert.strictEqual(reportBuilder('ignored', 1), true, 'arguments are ignored');
+            assert.true(reportBuilder());
+            assert.true(reportBuilder('ignored', 1), 'arguments are ignored');
         });
     });
 });

@@ -126,7 +126,7 @@ module('Integration | Component | query-builder/computed-columns', function (hoo
 
             const badges = items().map((item) => item.querySelector('.rounded.text-xs').textContent.trim());
             assert.deepEqual(badges, ['Text', 'Integer', 'Decimal', 'Date', 'Date & Time', 'Boolean']);
-            assert.strictEqual(findAll('.computed-column-item svg').length >= 6, true, 'each row carries a type icon');
+            assert.true(findAll('.computed-column-item svg').length >= 6, 'each row carries a type icon');
         });
 
         test('an unrecognised type falls back to a question icon and no label', async function (assert) {

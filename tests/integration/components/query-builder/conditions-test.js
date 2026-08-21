@@ -187,12 +187,11 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         await render(TEMPLATE);
 
         const valueInput = find('.condition-content input[type="text"]');
-        if (valueInput) {
-            await fillIn(valueInput, 'active');
-            assert.strictEqual(changes[changes.length - 1].flat[0].value, 'active', 'the typed value is reported');
-        } else {
-            assert.dom('.condition-group').exists('the seeded condition rendered');
-        }
+        assert.ok(valueInput, 'the seeded condition renders a value input');
+
+        await fillIn(valueInput, 'active');
+
+        assert.strictEqual(changes[changes.length - 1].flat[0].value, 'active', 'the typed value is reported');
     });
 
     module('field and operator selection', function () {

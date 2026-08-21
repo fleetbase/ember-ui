@@ -15,7 +15,7 @@ module('Unit | Utility | is-fastboot', function (hooks) {
     setupTest(hooks);
 
     test('it returns false when no fastboot service is registered', function (assert) {
-        assert.strictEqual(isFastBoot(ownedContext(this.owner)), false, 'a browser app has no fastboot service');
+        assert.false(isFastBoot(ownedContext(this.owner)), 'a browser app has no fastboot service');
     });
 
     test('it reports true when the fastboot service says so', function (assert) {

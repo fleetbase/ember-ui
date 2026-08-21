@@ -55,9 +55,11 @@ module('Integration | Component | metadata-viewer', function (hooks) {
 
             const [tags, nested] = rows();
             assert.strictEqual(tags[0], 'tags');
-            assert.true(tags[1].includes('"a"') && tags[1].includes('"b"'), 'the array is shown as json');
+            assert.true(tags[1].includes('"a"'), 'the array is shown as json');
+            assert.true(tags[1].includes('"b"'), 'including every element');
             assert.strictEqual(nested[0], 'nested');
-            assert.true(nested[1].includes('"x"') && nested[1].includes('1'), 'so is the object');
+            assert.true(nested[1].includes('"x"'), 'so is the object');
+            assert.true(nested[1].includes('1'), 'including its value');
             assert.false(nested[1].includes('[object Object]'), 'nothing falls through to a raw stringification');
         });
 

@@ -126,7 +126,7 @@ module('Integration | Component | visible-column-picker', function (hooks) {
             await click(TRIGGER);
             await click(checkboxes()[0]);
 
-            assert.false(this.columns[0].hidden === false, 'the column is now hidden');
+            assert.notStrictEqual(this.columns[0].hidden, false, 'the column is now hidden');
             assert.true(this.columns[0].hidden);
             assert.deepEqual(changes, [['name:hidden', 'status:hidden', 'internal_id:shown']]);
         });

@@ -210,7 +210,10 @@ module('Integration | Component | table/cell/dropdown', function (hooks) {
             assert.strictEqual(cell().style.zIndex, '1', 'the cell is raised while the menu is open');
 
             await click(trigger());
-            assert.strictEqual(cell().style.zIndex, before || '0', 'and lowered again on close');
+
+            // Normalised outside the assertion: an unset z-index reads back as ''.
+            const restored = before || '0';
+            assert.strictEqual(cell().style.zIndex, restored, 'and lowered again on close');
         });
     });
 });

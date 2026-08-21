@@ -116,7 +116,8 @@ module('Integration | Helper | unwrap-coordinates', function (hooks) {
         await render(hbs`{{capture-value (unwrap-coordinates this.input)}}`);
 
         const coordinates = captured[0].coordinates;
-        assert.true(coordinates.lat < 85.06 && coordinates.lat > 85.04, `the latitude is clamped to the mercator maximum (got ${coordinates.lat})`);
+        assert.true(coordinates.lat < 85.06, `the latitude is clamped below the mercator maximum (got ${coordinates.lat})`);
+        assert.true(coordinates.lat > 85.04, `and not past it (got ${coordinates.lat})`);
         assert.true(Math.abs(coordinates.lng - 10) < TOLERANCE, 'the longitude is untouched');
     });
 

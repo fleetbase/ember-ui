@@ -79,7 +79,7 @@
                                         {{#each @options.fileQueueColumns as |column|}}
                                             <td>
                                                 {{#if (eq column.key "delete")}}
-                                                    <a href="javascript:;" {{on "click" (fn @options.removeFile file)}}>
+                                                    <a href="javascript:;" {{on "click" (fn (or @options.removeFile (noop)) file)}}>
                                                         <FaIcon @icon="trash" class="text-red-500" />
                                                     </a>
                                                 {{else if (eq column.key "type")}}

@@ -210,7 +210,7 @@ module('Integration | Component | template-builder/element-renderer', function (
             await render(TEMPLATE);
 
             const style = styleOf('.tb-element-text');
-            assert.true(style.includes('border: 2px solid rgb(0, 0, 0)') || style.includes('border: 2px solid #000000'), 'default style and colour are used');
+            assert.true(style.includes('border: 2px solid #000000'), `default style and colour are used (got ${style})`);
             assert.true(style.includes('border-radius: 4px'));
         });
 

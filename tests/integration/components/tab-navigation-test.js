@@ -168,7 +168,7 @@ module('Integration | Component | tab-navigation', function (hooks) {
             await render(TEMPLATE);
 
             const container = find('.tab-list').parentElement;
-            assert.true(container.className.includes('pills') || find('[role="tablist"]') !== null, 'the requested style is used');
+            assert.dom('[role="tablist"]').exists('the requested style renders a tablist');
         });
     });
 
@@ -499,7 +499,7 @@ module('Integration | Component | tab-navigation', function (hooks) {
     });
 
     // The style and size land on data-attributes, resolved by the component's own getters.
-    module('style and size', function () {
+    module('style and size arguments', function () {
         test('it defaults to the github style at medium size', async function (assert) {
             await render(TEMPLATE);
 

@@ -51,7 +51,7 @@ module('Unit | Service | modals-manager', function (hooks) {
 
             assert.strictEqual(this.manager.options.title, 'Custom', 'the caller wins');
             assert.strictEqual(this.manager.options.size, 'lg');
-            assert.strictEqual(this.manager.options.backdrop, true, 'untouched defaults are preserved');
+            assert.true(this.manager.options.backdrop, 'untouched defaults are preserved');
             assert.strictEqual(this.manager.options.confirmButtonDefaultText, 'Yes');
         });
 
@@ -374,7 +374,7 @@ module('Unit | Service | modals-manager', function (hooks) {
 
             assert.strictEqual(calls.length, 1);
             assert.strictEqual(calls[0], modal.options, 'the callback receives the modal options');
-            assert.strictEqual(calls[0].backdrop, true, 'the options include the merged defaults');
+            assert.true(calls[0].backdrop, 'the options include the merged defaults');
         });
 
         test('done invokes onFinish regardless of the action', async function (assert) {
@@ -683,7 +683,7 @@ module('Unit | Service | modals-manager', function (hooks) {
         });
     });
 
-    module('userSelectOption', function () {
+    module('userSelectOption callbacks', function () {
         test('it offers the prompt with no options and resolves null when declined', async function (assert) {
             const selection = this.manager.userSelectOption('Pick a warehouse');
             await settled();

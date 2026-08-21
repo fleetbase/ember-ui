@@ -325,23 +325,24 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
                 ],
             },
         ]);
+        const syncCalls = [];
         this.set('shouldSyncInitialActiveParent', ({ activePath, routeName, currentURL }) => {
-            if (routeName === 'console.settings.index') {
-                assert.deepEqual(
-                    activePath.map((item) => item.label),
-                    ['Settings', 'General']
-                );
-                assert.strictEqual(currentURL, '/settings');
-                return false;
-            }
+            syncCalls.push({ labels: activePath.map((item) => item.label), routeName, currentURL });
 
-            return true;
+            return routeName !== 'console.settings.index';
         });
 
         await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @shouldSyncInitialActiveParent={{this.shouldSyncInitialActiveParent}} />`);
 
         assert.dom('.next-sidebar-navigator-back').doesNotExist('initial render stays at root when predicate returns false');
         assert.dom('.next-sidebar-navigator-view-in').includesText('Settings');
+
+        // Asserted outside the predicate: inside it, a change to the routeName would have skipped
+        // the branch and quietly asserted nothing.
+        const settingsCall = syncCalls.find((call) => call.routeName === 'console.settings.index');
+        assert.ok(settingsCall, 'the predicate is consulted for the active route');
+        assert.deepEqual(settingsCall.labels, ['Settings', 'General'], 'it receives the full active path');
+        assert.strictEqual(settingsCall.currentURL, '/settings', 'and the current url');
 
         const router = this.owner.lookup('service:router');
         router.currentRouteName = 'console.settings.security';

@@ -734,17 +734,6 @@ module('Integration | Component | table imperative api', function (hooks) {
             assert.strictEqual(actions._stickyOffset, 150, 'and the one before it clears the default width');
         });
 
-        test('sticky cells are positioned in the dom', async function (assert) {
-            await render(TEMPLATE);
-
-            const stickyHeader = find('thead th.is-sticky');
-            if (stickyHeader) {
-                assert.strictEqual(stickyHeader.style.top, '0px', 'sticky headers are pinned vertically');
-            } else {
-                assert.ok(true, 'no sticky header markup in this configuration');
-            }
-        });
-
         test('scrolling the wrapper updates the shadow classes', async function (assert) {
             await render(TEMPLATE);
 

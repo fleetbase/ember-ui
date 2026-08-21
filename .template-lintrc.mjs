@@ -1,8 +1,20 @@
-'use strict';
+import NoUnguardedHandlerArgument from './lint/no-unguarded-handler-argument.mjs';
 
-module.exports = {
+export default {
+    plugins: [
+        {
+            name: 'fleetbase-ember-ui',
+            rules: {
+                'no-unguarded-handler-argument': NoUnguardedHandlerArgument,
+            },
+        },
+    ],
     extends: 'recommended',
     rules: {
+        // `{{on "click" @arg}}` and `{{fn @arg …}}` THROW while rendering when the argument is
+        // absent — they are not no-ops. Thirteen bindings across five components were fixed for
+        // this; the rule keeps them from coming back.
+        'no-unguarded-handler-argument': true,
         'no-invalid-interactive': 'off',
         'no-yield-only': 'off',
         'no-pointer-down-event-binding': 'off',
@@ -18,6 +30,15 @@ module.exports = {
         },
     },
     overrides: [
+        {
+            // Test fixtures always supply the handlers they bind — the template is written
+            // alongside the arguments it needs. The rule exists to protect the addon's shipped
+            // components, where the caller is someone else.
+            files: ['tests/**/*-test.js'],
+            rules: {
+                'no-unguarded-handler-argument': false,
+            },
+        },
         {
             // Modifier tests set inline styles on their fixtures because the
             // element's own style is exactly what the modifier under test reads

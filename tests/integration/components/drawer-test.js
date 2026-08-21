@@ -198,7 +198,7 @@ module('Integration | Component | drawer', function (hooks) {
             loaded[0].minimize();
             await settled();
 
-            assert.true(loaded[0].isMinimized === false, 'the snapshot is not live; callers must re-read via a fresh callback');
+            assert.false(loaded[0].isMinimized, 'the snapshot is not live; callers must re-read via a fresh callback');
             assert.dom(drawer()).hasClass('drawer-is-minimized', 'the drawer itself did update');
         });
 

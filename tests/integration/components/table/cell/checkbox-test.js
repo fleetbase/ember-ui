@@ -33,7 +33,8 @@ module('Integration | Component | table/cell/checkbox', function (hooks) {
         await render(hbs`<Table::Cell::Checkbox @row={{this.row}} />`);
 
         const id = find('input[type="checkbox"]').getAttribute('id');
-        assert.ok(id && id.length > 0, 'an id is still present');
+        assert.ok(id, 'an id is still present');
+        assert.true(id.length > 0, 'and it is not empty');
         assert.notStrictEqual(id, 'undefined', 'the fallback is a real guid, not a stringified undefined');
     });
 

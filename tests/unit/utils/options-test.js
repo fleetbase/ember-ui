@@ -10,7 +10,7 @@ module('Unit | Utility | options', function () {
     test('it returns the boolean true, not a truthy value', function (assert) {
         const result = options();
 
-        assert.strictEqual(result, true);
+        assert.true(result);
         assert.strictEqual(typeof result, 'boolean');
     });
 
@@ -24,6 +24,6 @@ module('Unit | Utility | options', function () {
 
     test('it returns the same value on repeated invocations', function (assert) {
         assert.strictEqual(options(), options(), 'the util is pure and stateless');
-        assert.strictEqual(options.call({ scope: 'other' }), true, 'the receiver does not matter');
+        assert.true(options.call({ scope: 'other' }), 'the receiver does not matter');
     });
 });
