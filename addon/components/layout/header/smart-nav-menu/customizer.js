@@ -34,12 +34,6 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
 
     // ─── Computed ─────────────────────────────────────────────────────────────
 
-    /** Items that are NOT in the working pinned list. */
-    get unpinnedItems() {
-        const pinnedIds = this.workingPinned.map((i) => i.id);
-        return (this.args.allItems ?? []).filter((i) => !pinnedIds.includes(i.id));
-    }
-
     /** True when the user has reached the maximum allowed pinned items. */
     get atPinnedLimit() {
         return this.workingPinned.length >= (this.args.maxVisible ?? 5);
@@ -76,7 +70,7 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
         const idx = this.workingPinned.findIndex((i) => i.id === item.id);
         if (idx >= 0) {
             // Unpin.
-            this.workingPinned.removeAt(idx);
+            this.workingPinned.splice(idx, 1);
             // Trigger reactivity.
             this.workingPinned = A([...this.workingPinned]);
         } else if (!this.atPinnedLimit) {
@@ -101,9 +95,9 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
      */
     @action reorderPinned({ sourceList, sourceIndex, targetList, targetIndex }) {
         if (sourceList === targetList && sourceIndex === targetIndex) return;
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
         this.workingPinned = A([...this.workingPinned]);
     }
 

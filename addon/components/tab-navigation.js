@@ -111,7 +111,12 @@ export default class TabNavigationComponent extends Component {
         this.selectTab(tab);
     }
 
-    @action closeTab(tab) {
+    @action closeTab(tab, event) {
+        // The close button sits inside the tab button, and `{{on}}` supports only
+        // capture/once/passive — the old `stopPropagation=true` was silently ignored, so
+        // closing a tab also selected the tab being removed.
+        event?.stopPropagation();
+
         if (this.args.onClose) {
             this.args.onClose(tab);
         }

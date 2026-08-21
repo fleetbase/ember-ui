@@ -7,10 +7,17 @@ import { isArray } from '@ember/array';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
-    @service hostRouter;
     @service router;
-    @service events;
     @tracked filters = [];
+
+    // Optional host services; undefined when the host app does not register them.
+    get hostRouter() {
+        return getOwner(this).lookup('service:hostRouter');
+    }
+
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
 
     get activeRouter() {
         /* eslint-disable-next-line ember/no-private-routing-service */
@@ -38,6 +45,17 @@ export default class FiltersPickerComponent extends Component {
     willDestroy() {
         super.willDestroy(...arguments);
         this.activeRouter?.off?.('routeDidChange', this._routeHandler);
+    }
+
+    /**
+     * Re-reads the filter state from the URL. Wired to the dropdown's open/close so the picker
+     * reflects the current query params; `#rebuildFilters` is private, and the template used to
+     * bind a `this.updateFilters` that did not exist, leaving both handlers undefined.
+     *
+     * @action
+     */
+    @action updateFilters() {
+        this.#rebuildFilters();
     }
 
     #readUrlValue(param) {

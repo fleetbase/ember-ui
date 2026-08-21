@@ -29,7 +29,6 @@ import '@event-calendar/core/index.css';
  *   @resources={{this.calendarResources}}
  *   @events={{this.calendarEvents}}
  *   @editable={{true}}
- *   @droppable={{true}}
  *   @onEventDrop={{this.handleEventDrop}}
  *   @onEventReceive={{this.handleEventReceive}}
  *   @onEventClick={{this.handleEventClick}}
@@ -159,35 +158,6 @@ export default class EventCalendarComponent extends Component {
     // Public API helpers (callable by parent via @onCalendarReady)
     // -------------------------------------------------------------------------
 
-    /**
-     * Programmatically change the view type.
-     * @param {string} viewName  e.g. 'resourceTimelineWeek'
-     */
-    @action changeView(viewName) {
-        this._setOption('view', viewName);
-    }
-
-    /**
-     * Navigate the calendar to today.
-     */
-    @action today() {
-        this._setOption('date', new Date());
-    }
-
-    /**
-     * Refetch events from the events source.
-     */
-    @action refetchEvents() {
-        this._setOption('events', this.args.events ?? []);
-    }
-
-    /**
-     * Refetch resources from the resources source.
-     */
-    @action refetchResources() {
-        this._setOption('resources', this.args.resources ?? []);
-    }
-
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
@@ -202,7 +172,6 @@ export default class EventCalendarComponent extends Component {
             resources,
             events,
             editable,
-            droppable,
             selectable,
             nowIndicator,
             slotMinTime,
@@ -224,7 +193,9 @@ export default class EventCalendarComponent extends Component {
             resources: resources ?? [],
             events: events ?? [],
             editable: editable !== false,
-            droppable: droppable !== false,
+            // No `droppable` here: @event-calendar/core has no such option (it configures
+            // external drag-and-drop through the Interaction plugin and `editable`), so the
+            // argument was accepted, documented and then silently discarded.
             selectable: selectable ?? false,
             nowIndicator: nowIndicator !== false,
             slotMinTime: slotMinTime ?? '00:00:00',
@@ -278,7 +249,6 @@ export default class EventCalendarComponent extends Component {
             'resources',
             'events',
             'editable',
-            'droppable',
             'selectable',
             'slotMinTime',
             'slotMaxTime',

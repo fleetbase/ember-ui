@@ -76,7 +76,11 @@ export default class MoneyInputComponent extends Component {
         let options = {
             currencySymbol: isNone(currency.symbol) ? '$' : currency.symbol,
             currencySymbolPlacement: currency.symbolPlacement === 'before' ? 'p' : 's',
-            decimalCharacter: isNone(currency.decimalSeperator) ? '.' : currency.decimalSeparator,
+            // Truthiness, not isNone: 16 zero-decimal currencies in get-currency.js carry
+            // `decimalSeparator: ''`, and an empty decimalCharacter makes AutoNumeric build the
+            // broken character class /[^-0123456789\]/ and throw. The rest of this component
+            // already tests the separator with `!currency.decimalSeparator`.
+            decimalCharacter: currency.decimalSeparator || '.',
             decimalPlaces: isNone(currency.precision) ? 2 : currency.precision,
             digitGroupSeparator: isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator,
         };

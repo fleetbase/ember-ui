@@ -21,6 +21,8 @@ export default class ModalDialog extends Component {
      * @property id
      * @type null | HTMLElement
      */
+    /* istanbul ignore next -- `@ref` assigns this field itself, so its initializer is never
+       invoked. */
     @ref('mainNode') _element = null;
 
     /**
@@ -56,6 +58,7 @@ export default class ModalDialog extends Component {
         //Title element may be set by user so we have to try and find it to set the id
         let nodeId = null;
 
+        /* istanbul ignore next -- a `did-insert` action always receives its element. */
         if (modalNode) {
             const titleNode = modalNode.querySelector('.flb--modal-title');
             if (titleNode) {

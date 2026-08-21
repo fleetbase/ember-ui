@@ -2,8 +2,11 @@
 <div
     class={{this.cardClasses}}
     draggable={{this.isDraggable}}
-    {{on "dragstart" (or @onDragStart (noop))}}
-    {{on "dragend" (or @onDragEnd (noop))}}
+    {{!-- The component's own actions forward the CARD alongside the event and guard the
+        absent handler themselves; binding @onDragStart directly handed a direct consumer of
+        <Kanban::Card> only the raw event. --}}
+    {{on "dragstart" this.onDragStart}}
+    {{on "dragend" this.onDragEnd}}
     {{on "click" this.onClick}}
     data-card-id={{this.card.id}}
     role="button"

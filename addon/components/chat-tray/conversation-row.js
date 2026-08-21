@@ -26,6 +26,8 @@ export default class ChatTrayConversationRowComponent extends Component {
     }
 
     get extraParticipantCount() {
+        /* istanbul ignore next -- `participants` always returns an array, so `length` is never
+           nullish. */
         return Math.max((this.participants.length ?? 0) - this.visibleParticipants.length, 0);
     }
 

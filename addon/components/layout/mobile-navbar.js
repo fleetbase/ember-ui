@@ -36,12 +36,12 @@ export default class LayoutMobileNavbarComponent extends Component {
         for (let i = 0; i < headerMenuItems.length; i++) {
             const menuItem = headerMenuItems[i];
             if (this.abilities.can(`${menuItem.id} see extension`)) {
-                visibleMenuItems.pushObject(menuItem);
+                visibleMenuItems.push(menuItem);
             }
         }
 
         // Merge additionals
-        visibleMenuItems.pushObjects(menuItems);
+        visibleMenuItems.push(...menuItems);
 
         // Callback to allow mutation of menu items
         if (typeof this.args.mutateMenuItems === 'function') {

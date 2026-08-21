@@ -1,15 +1,19 @@
-import Service, { inject as service } from '@ember/service';
+import Service from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action, set, get, getProperties, setProperties } from '@ember/object';
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
+import { getOwner } from '@ember/application';
 import { defer } from 'rsvp';
 import { guidFor } from '@ember/object/internals';
 
 const { assign } = Object;
 
 export default class ModalsManagerService extends Service {
-    @service events;
+    // Optional events service; undefined when the host app does not register one.
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
 
     @tracked modals = [];
     @tracked defaultOptions = {

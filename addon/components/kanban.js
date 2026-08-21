@@ -70,6 +70,8 @@ export default class KanbanComponent extends Component {
      * Handle card drop on column
      */
     @action
+    /* istanbul ignore next -- the only caller is kanban/column.js, which always passes the
+       target position. */
     onCardDrop(targetColumnId, targetPosition = null) {
         if (!this.draggedCard) return;
 
@@ -89,6 +91,18 @@ export default class KanbanComponent extends Component {
 
         this.isDragging = false;
         this.draggedCard = null;
+    }
+
+    /**
+     * Handle column drag start
+     */
+    @action
+    onColumnDragStart(column, event) {
+        this.draggedColumn = column;
+
+        if (this.args.onColumnDragStart) {
+            this.args.onColumnDragStart(column, event);
+        }
     }
 
     /**

@@ -3,9 +3,9 @@
 {{else if this.isDateTime}}
     <DatePicker @value={{@value}} @dateFormat="yyyy-MM-dd HH:mm:ss" @onChange={{this.change}} class="form-input form-input-sm w-52" />
 {{else if this.isNumber}}
-    <Input @value={{@value}} @type="number" class="form-input form-input-sm w-32" {{on "input" (fn this.change (pick "target.value"))}} />
+    <Input @value={{@value}} @type="number" class="form-input form-input-sm w-32" {{on "input" (pick "target.value" this.change)}} />
 {{else if this.isJSON}}
-    <Textarea @value={{@value}} rows="2" class="form-input form-input-sm w-56" {{on "input" (fn this.change (pick "target.value"))}} />
+    <Textarea @value={{@value}} rows="2" class="form-input form-input-sm w-56" {{on "input" (pick "target.value" this.change)}} />
 {{else}}
-    <Input @value={{@value}} @type="text" class="form-input form-input-sm flex-1" {{on "input" (fn this.change (pick "target.value"))}} />
+    <Input @value={{@value}} @type="text" class="form-input form-input-sm flex-1" {{on "input" (pick "target.value" this.change)}} />
 {{/if}}

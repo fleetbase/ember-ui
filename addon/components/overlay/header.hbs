@@ -113,7 +113,7 @@
                 class="next-content-overlay-panel-maximize-button {{@maximizeButtonClass}}"
                 {{set-height @maximizeButtonHeight}}
                 {{set-width @maximizeButtonWidth}}
-                {{on "click" @overlay.maximize}}
+                {{on "click" (or @overlay.maximize (noop))}}
             >
                 <FaIcon @icon={{or @minimizeIcon "window-maximize"}} @size={{@iconSize}} @prefix={{or @iconPrefix "fas"}} class={{@iconClass}} />
             </button>
@@ -124,7 +124,7 @@
                 class="next-content-overlay-panel-minimize-button {{@minimizeButtonClass}}"
                 {{set-height @minimizeButtonHeight}}
                 {{set-width @minimizeButtonWidth}}
-                {{on "click" @overlay.minimize}}
+                {{on "click" (or @overlay.minimize (noop))}}
             >
                 <FaIcon @icon={{or @minimizeIcon "window-minimize"}} @size={{@iconSize}} @prefix={{or @iconPrefix "fas"}} class={{@iconClass}} />
             </button>

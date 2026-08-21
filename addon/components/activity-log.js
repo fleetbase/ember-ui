@@ -307,7 +307,7 @@ export default class ActivityLogComponent extends Component {
         const article = this.#indefiniteArticle(typeLabel);
 
         if (event === 'created') {
-            return `${article} new ${typeLabel}${displaySuffix}`;
+            return `a new ${typeLabel}${displaySuffix}`;
         }
 
         return `${article} ${typeLabel}${displaySuffix}`;

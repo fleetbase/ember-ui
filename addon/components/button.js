@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { computed, action } from '@ember/object';
 import { not, equal } from '@ember/object/computed';
 
@@ -13,11 +14,14 @@ export default class ButtonComponent extends Component {
     @service abilities;
 
     /**
-     * Inject events service for event tracking.
+     * Optional events service for event tracking. Resolved via the owner so
+     * host applications that do not register an `events` service still work.
      *
      * @memberof ButtonComponent
      */
-    @service events;
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
 
     /**
      * Determines if the button should be disabled

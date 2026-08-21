@@ -1,26 +1,38 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, fillIn, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | modals/custom-field-group-form', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    const TEMPLATE = hbs`<Modals::CustomFieldGroupForm @options={{this.options}} @onConfirm={{this.onConfirm}} @onDecline={{this.onDecline}} />`;
 
-        await render(hbs`<Modals::CustomFieldGroupForm />`);
+    test('it offers a name field seeded from the group', async function (assert) {
+        this.set('options', { customFieldGroup: { name: 'Delivery details' } });
 
-        assert.dom().hasText('');
+        await render(TEMPLATE);
 
-        // Template block usage:
-        await render(hbs`
-      <Modals::CustomFieldGroupForm>
-        template block text
-      </Modals::CustomFieldGroupForm>
-    `);
+        assert.dom(this.element).containsText('Field Group Name');
+        assert.dom('input').hasValue('Delivery details');
+    });
 
-        assert.dom().hasText('template block text');
+    test('typing writes the name back onto the group record', async function (assert) {
+        const customFieldGroup = { name: '' };
+        this.set('options', { customFieldGroup });
+
+        await render(TEMPLATE);
+        await fillIn('input', 'Pickup details');
+
+        assert.strictEqual(customFieldGroup.name, 'Pickup details');
+    });
+
+    test('it renders for a brand new group', async function (assert) {
+        this.set('options', { customFieldGroup: {} });
+
+        await render(TEMPLATE);
+
+        assert.ok(find('input'), 'an empty field is offered');
+        assert.dom('input').hasValue('');
     });
 });

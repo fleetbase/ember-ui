@@ -37,10 +37,23 @@ const postcssOptions = {
     },
 };
 
+// Only require ember-cli-code-coverage (a devDependency) when coverage is
+// requested, so consuming applications never need it installed.
+function coverageBabelPlugin() {
+    if (process.env.COVERAGE === 'true') {
+        return require('ember-cli-code-coverage').buildBabelPlugin();
+    }
+
+    return [];
+}
+
 module.exports = {
     name,
 
     options: {
+        babel: {
+            plugins: [...coverageBabelPlugin()],
+        },
         autoImport: {
             publicAssetsURL: '/assets',
             alias: {

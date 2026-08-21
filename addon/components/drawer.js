@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { next } from '@ember/runloop';
+import { registerDestructor } from '@ember/destroyable';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 
 /**
@@ -49,16 +50,12 @@ export default class DrawerComponent extends Component {
     @tracked _rendered = false;
 
     /** Context object providing drawer control functions and state. */
-    context = {
-        toggle: this.toggle,
-        open: this.open,
-        close: this.close,
-        toggleMinimize: this.toggleMinimize,
-        minimize: this.minimize,
-        maximize: this.maximize,
-        isOpen: this.isOpen,
-        isMinimized: this.isMinimized,
-    };
+    // A class FIELD would capture `isOpen`/`isMinimized` once at construction, so the hash
+    // handed to the block would report the drawer's initial state forever. A getter keeps the
+    // yielded context and the one passed to callbacks identical and live.
+    get context() {
+        return this.getContext();
+    }
 
     getContext() {
         return {
@@ -79,6 +76,12 @@ export default class DrawerComponent extends Component {
      */
     @action setupComponent(element) {
         this.drawerNode = element;
+        // A drawer destroyed mid-drag would otherwise leave both document listeners attached,
+        // still holding a reference to the torn-down component.
+        registerDestructor(this, () => {
+            document.removeEventListener('mousemove', this.resize);
+            document.removeEventListener('mouseup', this.stopResize);
+        });
         this.height = getWithDefault(this.args, 'height', this.height);
         this.isMinimized = getWithDefault(this.args, 'isMinimized', this.isMinimized);
 
@@ -252,9 +255,14 @@ export default class DrawerComponent extends Component {
         // End resizing
         this.isResizing = false;
 
-        // Remove style changes
+        // Remove style changes. Guard the panel node like `startResize` and `resize` both do:
+        // this runs as a document-level `mouseup` listener, so a throw here escapes every
+        // component boundary.
         document.body.style.removeProperty('cursor');
-        drawerPanelNode.style.userSelect = 'auto';
+
+        if (drawerPanelNode) {
+            drawerPanelNode.style.userSelect = 'auto';
+        }
 
         // Remove the handlers of `mousemove` and `mouseup`
         document.removeEventListener('mousemove', this.resize);

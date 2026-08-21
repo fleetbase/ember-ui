@@ -1,1 +1,7 @@
-<Input @type="tel" @value={{@value}} {{did-insert this.setupIntlTelInput}} class="phone-input" {{on "keyup" this.onInput}} ...attributes />
+{{! intl-tel-input re-parents the <input> into its own `.iti` container. This wrapper is the
+    element Glimmer actually owns and removes, so the re-parenting happens entirely inside a
+    node Glimmer never has to look for — without it, teardown throws
+    `NotFoundError: Failed to execute 'removeChild' on 'Node'`. }}
+<div class="phone-input-wrapper">
+    <Input @type="tel" @value={{@value}} {{did-insert this.setupIntlTelInput}} class="phone-input" {{on "keyup" this.onInput}} ...attributes />
+</div>

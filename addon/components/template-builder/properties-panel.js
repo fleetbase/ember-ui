@@ -223,38 +223,6 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     // ── Query data source helpers ────────────────────────────────────────────
 
-    get queryParams() {
-        return this.element?.query_params ?? [];
-    }
-
-    @action
-    addQueryParam() {
-        if (!this.args.onUpdateElement || !this.element) return;
-        const params = [...this.queryParams, { key: '', value: '' }];
-        this.args.onUpdateElement(this.element.uuid, { query_params: params });
-    }
-
-    @action
-    removeQueryParam(index) {
-        if (!this.args.onUpdateElement || !this.element) return;
-        const params = this.queryParams.filter((_, i) => i !== index);
-        this.args.onUpdateElement(this.element.uuid, { query_params: params });
-    }
-
-    @action
-    updateQueryParamKey(index, event) {
-        if (!this.args.onUpdateElement || !this.element) return;
-        const params = this.queryParams.map((p, i) => (i === index ? { ...p, key: event.target.value } : p));
-        this.args.onUpdateElement(this.element.uuid, { query_params: params });
-    }
-
-    @action
-    updateQueryParamValue(index, event) {
-        if (!this.args.onUpdateElement || !this.element) return;
-        const params = this.queryParams.map((p, i) => (i === index ? { ...p, value: event.target.value } : p));
-        this.args.onUpdateElement(this.element.uuid, { query_params: params });
-    }
-
     @action
     addColumn() {
         if (!this.args.onUpdateElement || !this.element) return;

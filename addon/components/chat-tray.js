@@ -225,11 +225,6 @@ export default class ChatTrayComponent extends Component {
         });
     }
 
-    @action updateChatChannel(chatChannelRecord) {
-        this.chat.deleteChatChannel(chatChannelRecord);
-        this.reloadChannels();
-    }
-
     @action async unlockAudio() {
         this.reloadChannels();
         try {
@@ -282,7 +277,9 @@ export default class ChatTrayComponent extends Component {
         const sender = this.getSenderFromParticipants(chatChannelRecord);
         const isNotSender = sender ? sender.id !== data.sender_uuid : false;
         if (isNotSender) {
-            this.notificationSound.play();
+            // Browsers reject play() when there has been no user gesture yet;
+            // an unhandled rejection here would surface as a global error.
+            this.notificationSound.play().catch(noop);
         }
     }
 
@@ -329,7 +326,7 @@ export default class ChatTrayComponent extends Component {
         const normalized = this.store.normalize('chat-channel', data);
         const channel = this.store.push(normalized);
         if (channel && this.getSenderFromParticipants(channel)) {
-            this.notificationSound.play();
+            this.notificationSound.play().catch(noop);
             this.openChannel(channel);
         }
     }

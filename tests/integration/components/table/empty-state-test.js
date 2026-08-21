@@ -48,10 +48,12 @@ module('Integration | Component | table/empty-state', function (hooks) {
         assert.dom('.next-table-empty-state-title').hasText('Add your first vehicle');
         assert.dom('.next-table-empty-state-description').includesText('Vehicles connect assignments');
         assert.dom('.next-table-empty-state-description').hasStyle({ 'text-align': 'center' });
-        assert.dom('.next-table-empty-state-actions button:last-child').hasClass('btn-md');
+        // Each <Button> renders inside its own wrapper, so `button:last-child` matches both.
+        // Select by the action-specific classes instead.
+        assert.dom('.next-table-empty-state-primary-action').hasClass('btn-md');
 
-        await click('.next-table-empty-state-actions button');
-        await click('.next-table-empty-state-actions button:last-child');
+        await click('.next-table-empty-state-secondary-action');
+        await click('.next-table-empty-state-primary-action');
 
         assert.verifySteps(['refresh', 'create']);
     });

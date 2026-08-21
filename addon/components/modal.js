@@ -289,7 +289,9 @@ export default class Modal extends Component {
      * @readonly
      * @private
      */
-    @usesTransition('_fade') usesTransition;
+    // Must name the ARGUMENT: the decorator reads `this.args[prop]`, and `_fade` is a getter on
+    // the component, so `this.args._fade` was always undefined and `@fade={{false}}` was ignored.
+    @usesTransition('fade') usesTransition;
 
     destinationElement = getDestinationElement(this);
 
@@ -448,6 +450,7 @@ export default class Modal extends Component {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.checkScrollbar();
             this.setScrollbar();
@@ -460,6 +463,7 @@ export default class Modal extends Component {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             modalElement.scrollTop = 0;
             this.adjustDialog();
@@ -511,6 +515,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetAdjustments();
             this.resetScrollbar();
@@ -573,6 +578,14 @@ export default class Modal extends Component {
      * @private
      */
     @action adjustDialog() {
+        // This is bound to a *window* resize listener that stays attached for as
+        // long as the modal is in the DOM, but `modalElement` is a ref to an
+        // element inside a nested conditional and is null while the modal is
+        // closed. Guarding matches how `show()` treats the same ref.
+        if (!this.modalElement) {
+            return;
+        }
+
         let modalIsOverflowing = this.modalElement.scrollHeight > document.documentElement.clientHeight;
         this.paddingLeft = !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : undefined;
         this.paddingRight = this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : undefined;
@@ -623,6 +636,7 @@ export default class Modal extends Component {
         // Only add the body class if this is the first modal
         if (this.modalsManager.modals.length === 1) {
             // special handling for FastBoot, where real `document` is not available
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // a SimpleDOM instance with just a subset of the DOM API!
                 let document = this.document;
@@ -643,6 +657,7 @@ export default class Modal extends Component {
     removeBodyClass() {
         // Only remove the body class if there are no more modals
         if (this.modalsManager.modals.length === 0) {
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // no need for FastBoot support here
                 return;
@@ -673,6 +688,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetScrollbar();
         }

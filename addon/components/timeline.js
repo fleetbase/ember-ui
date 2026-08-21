@@ -48,7 +48,7 @@ export default class TimelineComponent extends Component {
         const styleProperties = Object.keys(style);
 
         for (let i = 0; i < styleProperties.length; i++) {
-            const styleProp = styleProperties.objectAt(i);
+            const styleProp = styleProperties[i];
             const value = style[styleProp];
 
             if (value) {

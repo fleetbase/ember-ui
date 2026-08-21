@@ -79,12 +79,12 @@ export default class FullCalendarComponent extends Component {
 
     createCalendarEventListeners() {
         for (let i = 0; i < this.events.length; i++) {
-            const eventName = this.events.objectAt(i);
+            const eventName = this.events[i];
             const callbackName = `on${classify(eventName)}`;
 
             if (typeof this.args[callbackName] === 'function') {
                 // track for destroy purposes
-                this._listeners.pushObject({
+                this._listeners.push({
                     eventName,
                     callbackName,
                 });
@@ -100,7 +100,7 @@ export default class FullCalendarComponent extends Component {
 
     destroyCalendarEventListeners() {
         for (let i = 0; i < this._listeners.length; i++) {
-            const listener = this._listeners.objectAt(i);
+            const listener = this._listeners[i];
             const { eventName, callbackName } = listener;
 
             // kill listener

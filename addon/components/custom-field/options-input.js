@@ -2,7 +2,6 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import isObject from '@fleetbase/ember-core/utils/is-object';
 
 export default class CustomFieldOptionsInputComponent extends Component {
     @tracked options = {};
@@ -48,7 +47,12 @@ export default class CustomFieldOptionsInputComponent extends Component {
      * Adds a new option to the options object.
      */
     @action addOption() {
-        const index = Object.keys(this.options).length + 1;
+        // Key off the highest existing index rather than the count: removing
+        // leading options leaves gaps, and a count-based key can collide with
+        // a key that is still in use and silently overwrite that option.
+        const indexes = Object.keys(this.options).map(Number);
+        const index = indexes.length === 0 ? 0 : Math.max(...indexes) + 1;
+
         this.trackOptions({
             ...this.options,
             [index]: '',
@@ -83,10 +87,36 @@ export default class CustomFieldOptionsInputComponent extends Component {
      * Updates the primary options object with changes made to the temporary options object.
      */
     @action updateOptions() {
+        // The blur handler also fires when the browser tears down a focused
+        // input — which happens *while* the {{#each-in}} above is syncing after
+        // an earlier commit. Re-assigning `options` there would dirty a tag that
+        // the in-flight render already consumed and throw a backtracking-
+        // rerender assertion, so only commit when something actually changed.
+        if (!this.hasPendingOptionChanges()) {
+            return;
+        }
+
         this.options = {
             ...this._options,
         };
         this.onOptionsChanges();
+    }
+
+    /**
+     * Whether the staged options differ from the committed options.
+     * @returns {boolean} True when there is an edit waiting to be committed.
+     */
+    hasPendingOptionChanges() {
+        const committed = this.options;
+        const staged = this._options;
+        const committedKeys = Object.keys(committed);
+        const stagedKeys = Object.keys(staged);
+
+        if (committedKeys.length !== stagedKeys.length) {
+            return true;
+        }
+
+        return stagedKeys.some((key) => committed[key] !== staged[key]);
     }
 
     /**
@@ -97,27 +127,6 @@ export default class CustomFieldOptionsInputComponent extends Component {
         this.args.customField.set('options', options);
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(options, this.args.customField);
-        }
-    }
-
-    /**
-     * Adds or updates a meta option with the given key and value.
-     * @param {string} key - The key of the meta option to add or update.
-     * @param {string} value - The value of the meta option.
-     */
-    @action addMetaOption(key, value) {
-        if (!isObject(this.args.customField.meta)) {
-            this.args.customField.set('meta', {});
-        }
-
-        const meta = {
-            ...this.args.customField.meta,
-            [key]: value,
-        };
-
-        this.args.customField.meta = meta;
-        if (typeof this.args.onMetaChanged === 'function') {
-            this.args.onMetaChanged(meta, this.args.customField);
         }
     }
 }

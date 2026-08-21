@@ -120,14 +120,14 @@ export default class QueryBuilderSortByComponent extends Component {
     //     this.notifyChange();
     // }
 
-    @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
+    @action reorderSortBy({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.sortByItems = [...this.sortByItems];

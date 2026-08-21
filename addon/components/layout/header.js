@@ -49,13 +49,15 @@ export default class LayoutHeaderComponent extends Component {
             },
         ];
 
-        // List available organizations for session switching
-        const organizations = this.currentUser.organizations;
+        // List available organizations for session switching. Spreading works
+        // for both a plain array and an Ember array, so this does not depend on
+        // the host enabling array prototype extensions.
+        const organizations = [...(this.currentUser.organizations ?? [])];
         if (organizations.length) {
-            menuItems.pushObject({ seperator: true });
+            menuItems.push({ seperator: true });
         }
         for (let i = 0; i < organizations.length; i++) {
-            const organization = organizations.objectAt(i);
+            const organization = organizations[i];
             const organizationMenuItem = {
                 href: 'javascript:;',
                 text: organization.name,
@@ -70,7 +72,7 @@ export default class LayoutHeaderComponent extends Component {
                 organizationMenuItem.action = undefined;
             }
 
-            menuItems.pushObject(organizationMenuItem);
+            menuItems.push(organizationMenuItem);
         }
 
         // Push static menu items
@@ -101,7 +103,7 @@ export default class LayoutHeaderComponent extends Component {
 
         // If registry bridge is booted add to static items
         if (this.hasExtension('@fleetbase/registry-bridge-engine')) {
-            staticMenuItems.pushObject({
+            staticMenuItems.push({
                 id: 'explore-extensions',
                 route: 'console.extensions',
                 text: 'Explore extensions',
@@ -110,27 +112,27 @@ export default class LayoutHeaderComponent extends Component {
         }
 
         // Push static items
-        menuItems.pushObjects(staticMenuItems);
+        menuItems.push(...staticMenuItems);
 
         // Merge provided menu items
-        menuItems.pushObjects(organizationMenuItems);
+        menuItems.push(...organizationMenuItems);
 
         // Push items from universe registry
         const universeOrganizationItems = this.universe.organizationMenuItems;
         if (isArray(universeOrganizationItems) && universeOrganizationItems.length) {
-            menuItems.pushObjects([
+            menuItems.push(
                 {
                     seperator: true,
                 },
                 ...universeOrganizationItems,
                 {
                     seperator: true,
-                },
-            ]);
+                }
+            );
         }
 
         // Push the version
-        menuItems.pushObject({
+        menuItems.push({
             id: 'app-version',
             route: null,
             text: `v${config.version}`,
@@ -143,7 +145,7 @@ export default class LayoutHeaderComponent extends Component {
 
         // Merge admin link
         if (this.currentUser.isAdmin) {
-            menuItems.pushObjects([
+            menuItems.push(
                 {
                     seperator: true,
                 },
@@ -151,12 +153,12 @@ export default class LayoutHeaderComponent extends Component {
                     route: 'console.admin',
                     text: 'Admin',
                     icon: 'toolbox',
-                },
-            ]);
+                }
+            );
         }
 
         // Merge logout link
-        menuItems.pushObjects([
+        menuItems.push(
             {
                 seperator: true,
             },
@@ -165,8 +167,8 @@ export default class LayoutHeaderComponent extends Component {
                 text: 'Logout',
                 action: 'invalidateSession',
                 icon: 'person-running',
-            },
-        ]);
+            }
+        );
 
         // Callback to allow mutation of menu items
         if (typeof this.args.mutateOrganizationMenuItems === 'function') {
@@ -215,7 +217,7 @@ export default class LayoutHeaderComponent extends Component {
 
         // Add developer menu item if booted
         if (this.hasExtension('@fleetbase/dev-engine')) {
-            menuItems.pushObject({
+            menuItems.push({
                 id: 'developers-user-nav-item',
                 wrapperClass: 'developers-user-nav-item',
                 route: 'console.developers',
@@ -250,27 +252,27 @@ export default class LayoutHeaderComponent extends Component {
         ];
 
         // Push support menu items
-        menuItems.pushObjects(supportMenuItems);
+        menuItems.push(...supportMenuItems);
 
         // Push items from universe registry
         const universeUserMenuItems = this.universe.userMenuItems;
         if (isArray(universeUserMenuItems) && universeUserMenuItems.length) {
-            menuItems.pushObjects([
+            menuItems.push(
                 {
                     seperator: true,
                 },
                 ...universeUserMenuItems,
                 {
                     seperator: true,
-                },
-            ]);
+                }
+            );
         }
 
         // Push provided menu items
-        menuItems.pushObjects(userMenuItems);
+        menuItems.push(...userMenuItems);
 
         // Create immutable static menu items
-        menuItems.pushObjects([
+        menuItems.push(
             {
                 component: 'layout/header/dark-mode-toggle',
             },
@@ -282,8 +284,8 @@ export default class LayoutHeaderComponent extends Component {
                 text: 'Logout',
                 action: 'invalidateSession',
                 icon: 'person-running',
-            },
-        ]);
+            }
+        );
 
         // Callback to allow mutation of menu items
         if (typeof this.args.mutateUserMenuItems === 'function') {

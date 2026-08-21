@@ -88,7 +88,6 @@ export default class LayoutSidebarItemComponent extends Component {
         }
 
         const { url, target, route, model, onClick, options = {}, queryParams = {} } = this.args;
-        const hasTransitionOptions = !isEmptyObject(options);
         const hasQueryParams = !isEmptyObject(queryParams);
         const modelHasQueryParams = !isEmptyObject(model) && model.queryParams !== undefined;
         const router = this.getRouter();
@@ -102,6 +101,11 @@ export default class LayoutSidebarItemComponent extends Component {
             options.queryParams = model.queryParams;
             delete model.queryParams;
         }
+
+        // Computed AFTER the merges above: reading it first meant that a caller who passed
+        // @queryParams but no @options got `hasTransitionOptions === false`, and the merged
+        // query params never reached `transitionTo`.
+        const hasTransitionOptions = !isEmptyObject(options);
 
         if (anchor && anchor.attributes?.disabled && anchor.attributes.disabled !== 'disabled="false"') {
             return;

@@ -53,8 +53,10 @@ export default class CountrySelectComponent extends Component {
         const { onChange } = this.args;
         this.selected = country;
 
-        if (country && typeof onChange === 'function') {
-            onChange(country.cca2, country);
+        // Report a cleared selection too — `@allowClear` calls straight through to here with
+        // null, and consumers otherwise keep their previous country applied.
+        if (typeof onChange === 'function') {
+            onChange(country?.cca2 ?? null, country ?? null);
         }
     }
 

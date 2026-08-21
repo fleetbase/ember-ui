@@ -6,11 +6,29 @@ import { isArray } from '@ember/array';
 import { later } from '@ember/runloop';
 import { filter, alias } from '@ember/object/computed';
 
+// Removes every occurrence of the given items from `list`, in place.
+// Native equivalent of Ember's `removeObject(s)` array prototype extension,
+// which is unavailable when the host app disables EXTEND_PROTOTYPES.
+function removeFrom(list, items) {
+    for (const item of items) {
+        let index = list.indexOf(item);
+
+        while (index !== -1) {
+            list.splice(index, 1);
+            index = list.indexOf(item);
+        }
+    }
+
+    return list;
+}
+
 export default class TableComponent extends Component {
     @service tableContext;
     @tracked tableNode;
     @tracked allRowsToggled = false;
     @tracked sortColumns = [];
+    /** Bumped by the imperative row API so `get rows()` invalidates — see the note there. */
+    @tracked rowsRevision = 0;
     @alias('args.columns') columns;
     @filter('args.columns.@each.hidden', (column) => !column.hidden) visibleColumns;
     @filter('args.rows.@each.checked', (row) => row.checked) selectedRows;
@@ -21,11 +39,26 @@ export default class TableComponent extends Component {
         this.initializeSortColumns();
     }
 
-    get rows() {
+    /**
+     * The caller's own row collection, normalised to an array. Mutated in place by the
+     * imperative row API below.
+     */
+    get sourceRows() {
         const rows = this.args.rows ?? [];
         if (isArray(rows)) return rows;
         if (typeof rows?.toArray === 'function') return rows.toArray();
         return Array.from(rows);
+    }
+
+    get rows() {
+        const rows = this.sourceRows;
+
+        // `@rows` is the caller's array and nothing about it is tracked, so `addRow`/`removeRow`
+        // mutating it in place left the table on screen stale. Consuming `rowsRevision` here —
+        // and handing back a fresh array identity once it has moved — is what makes Glimmer
+        // re-render. Row objects themselves are unchanged, so `{{#each}}` still diffs by
+        // identity and no DOM is needlessly torn down.
+        return this.rowsRevision === 0 ? rows : [...rows];
     }
 
     get hasRows() {
@@ -303,12 +336,14 @@ export default class TableComponent extends Component {
             return this.addRows(row);
         }
 
-        this.rows.pushObject(row);
+        this.sourceRows.push(row);
+        this.rowsRevision++;
         return this;
     }
 
     @action addRows(rows = []) {
-        this.rows.pushObjects(rows);
+        this.sourceRows.push(...rows);
+        this.rowsRevision++;
         return this;
     }
 
@@ -317,18 +352,20 @@ export default class TableComponent extends Component {
             return this.removeRows(row);
         }
 
-        this.rows.removeObject(row);
+        removeFrom(this.sourceRows, [row]);
+        this.rowsRevision++;
         return this.resetRowCheckboxes();
     }
 
     @action removeRows(rows = []) {
-        this.rows.removeObjects(rows);
+        removeFrom(this.sourceRows, rows);
+        this.rowsRevision++;
         return this.resetRowCheckboxes();
     }
 
     @action resetRowCheckboxes() {
         for (let i = 0; i < this.rows.length; i++) {
-            const row = this.rows.objectAt(i);
+            const row = this.rows[i];
             set(row, 'checked', row.checked === true);
         }
 
@@ -339,7 +376,7 @@ export default class TableComponent extends Component {
         this.allRowsToggled = !this.allRowsToggled;
 
         for (let i = 0; i < this.rows.length; i++) {
-            const row = this.rows.objectAt(i);
+            const row = this.rows[i];
             set(row, 'checked', this.allRowsToggled);
         }
     }
@@ -348,7 +385,7 @@ export default class TableComponent extends Component {
         this.untoggleSelectAll();
 
         for (let i = 0; i < this.rows.length; i++) {
-            const row = this.rows.objectAt(i);
+            const row = this.rows[i];
             set(row, 'checked', false);
         }
     }
@@ -357,7 +394,7 @@ export default class TableComponent extends Component {
         this.untoggleSelectAll();
 
         for (let i = 0; i < this.selectedRows.length; i++) {
-            const row = this.selectedRows.objectAt(i);
+            const row = this.selectedRows[i];
             set(row, 'checked', false);
         }
     }

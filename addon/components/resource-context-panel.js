@@ -5,7 +5,6 @@ import { task } from 'ember-concurrency';
 import { dasherize } from '@ember/string';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
-import titleize from 'ember-cli-string-helpers/utils/titleize';
 
 /**
  * Component that integrates with the resource-context-panel service
@@ -110,10 +109,6 @@ export default class ResourceContextPanelComponent extends Component {
     getResourceName(resource) {
         let resourceName = resource?.name ?? resource?.displayName ?? resource?.display_name;
         return resourceName ?? getModelName(resource) ?? 'Resource';
-    }
-
-    getResourceType(resource) {
-        return titleize(getModelName(resource)) ?? 'Resource';
     }
 
     /**

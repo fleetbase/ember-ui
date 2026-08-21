@@ -46,7 +46,7 @@ module('Integration | Component | report/find-select', function (hooks) {
     });
 
     test('it calls onChange with selected reports and respects limit', async function (assert) {
-        assert.expect(5);
+        assert.expect(6);
 
         const changes = [];
         this.set('onChange', (reports) => changes.push(reports));
@@ -65,5 +65,68 @@ module('Integration | Component | report/find-select', function (hooks) {
         await click('[data-report-id="report-1"] [data-test-report-remove]');
         assert.strictEqual(changes.length, 2, 'removal emits');
         assert.deepEqual(changes[1], []);
+    });
+    test('a single selected report is accepted without wrapping it in an array', async function (assert) {
+        this.set('selected', { id: 'report-2', title: 'Utilization' });
+
+        await render(hbs`<Report::FindSelect @selected={{this.selected}} />`);
+        await waitUntil(() => this.store.queries.length === 1);
+
+        assert.dom('[data-report-id="report-2"] [data-test-report-select]').isDisabled('it counts as already selected');
+        assert.dom('[data-report-id="report-2"] [data-test-report-remove]').isNotDisabled('and can be removed');
+        assert.dom('[data-report-id="report-1"] [data-test-report-select]').isNotDisabled('the other report is untouched');
+    });
+
+    test('clearing the search queries for everything again', async function (assert) {
+        await render(hbs`<Report::FindSelect />`);
+        await waitUntil(() => this.store.queries.length === 1);
+
+        await fillIn('input', 'revenue');
+        await waitUntil(() => this.store.queries.length === 2, { timeout: 1000 });
+
+        await fillIn('input', '');
+        await waitUntil(() => this.store.queries.length === 3, { timeout: 1000 });
+
+        assert.deepEqual(this.store.queries[2].params, {}, 'an empty term drops the query param rather than searching for ""');
+    });
+
+    test('a report can be selected without an onChange handler', async function (assert) {
+        await render(hbs`<Report::FindSelect />`);
+        await waitUntil(() => this.store.queries.length === 1);
+
+        await click('[data-report-id="report-1"] [data-test-report-select]');
+
+        assert.dom('[data-report-id="report-1"] [data-test-report-select]').isDisabled('the selection is still recorded');
+        assert.dom('[data-report-id="report-1"] [data-test-report-remove]').isNotDisabled();
+    });
+
+    module('a store that cannot answer', function (hooks) {
+        hooks.beforeEach(function () {
+            this.store.query = (modelName, params = {}) => {
+                this.store.queries.push({ modelName, params });
+
+                return Promise.reject(new Error('reports are unavailable'));
+            };
+        });
+
+        test('the failure is reported and the list is emptied', async function (assert) {
+            const errors = [];
+            this.set('onError', (error) => errors.push(error));
+
+            await render(hbs`<Report::FindSelect @onError={{this.onError}} />`);
+            await waitUntil(() => this.store.queries.length === 1);
+
+            assert.strictEqual(errors.length, 1, 'the error is handed to the caller');
+            assert.strictEqual(errors[0].message, 'reports are unavailable');
+            assert.dom('[data-test-report-option]').doesNotExist();
+            assert.dom().includesText('No reports available', 'and the empty state is shown');
+        });
+
+        test('with no onError handler the component still renders its empty state', async function (assert) {
+            await render(hbs`<Report::FindSelect />`);
+            await waitUntil(() => this.store.queries.length === 1);
+
+            assert.dom().includesText('No reports available');
+        });
     });
 });

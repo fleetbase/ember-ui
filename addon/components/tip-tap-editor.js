@@ -320,16 +320,20 @@ export default class TipTapEditorComponent extends Component {
             height: 320,
             width: 480,
             confirm: (modal) => {
-                try {
-                    this.editor.commands.setYoutubeVideo({
-                        src: modal.getOption('url', FALLBACK_YOUTUBE_VID_URL),
-                        width: modal.getOption('width', 320),
-                        height: modal.getOption('height', 480),
-                    });
-                    modal.done();
-                } catch (e) {
-                    this.notifications.error('Youtube video URL is invalid.');
+                // TipTap's Youtube extension RETURNS FALSE for an unusable URL rather than
+                // throwing, so a try/catch could never fire: an invalid URL inserted nothing
+                // and the dialog closed as though it had worked.
+                const inserted = this.editor.commands.setYoutubeVideo({
+                    src: modal.getOption('url', FALLBACK_YOUTUBE_VID_URL),
+                    width: modal.getOption('width', 320),
+                    height: modal.getOption('height', 480),
+                });
+
+                if (inserted === false) {
+                    return this.notifications.error('Youtube video URL is invalid.');
                 }
+
+                modal.done();
             },
         });
     }

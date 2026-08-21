@@ -1,18 +1,21 @@
 import Helper from '@ember/component/helper';
-import { assert } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
+import { assert, runInDebug } from '@ember/debug';
 
-const HAS_NATIVE_PROXY = typeof Proxy === 'function';
 const INVOKE = 'invoke';
 
 const isDropdownActions = function (dd) {
     return Object.keys(dd).includes('uniqueId', 'isOpen', 'disabled', 'actions', 'Trigger', 'Content');
 };
 
+// A `this` value that asserts on any access, so passing an unbound function to
+// this helper fails loudly during development instead of silently reading
+// `undefined`. `runInDebug` is stripped from production builds, leaving `null`.
+// It is used in preference to a build-time `DEBUG` macro because macro
+// substitution does not survive coverage instrumentation.
 const context = (function buildUntouchableThis() {
     let context = null;
 
-    if (DEBUG && HAS_NATIVE_PROXY) {
+    runInDebug(() => {
         let assertOnProperty = (property) => {
             assert(
                 `You accessed \`this.${String(
@@ -41,7 +44,7 @@ const context = (function buildUntouchableThis() {
                 },
             }
         );
-    }
+    });
 
     return context;
 })();

@@ -29,7 +29,12 @@
     @iconOnly={{true}}
 />
 {{#unless @hideColumnsPicker}}
-    <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} @size={{@columnPickerSize}} class={{@columnPickerButtonClass}} />
+    {{!-- "mut" needs a mutable path: with no @columns at all, Ember raises
+        "You can only pass a path to mut" during render and takes the page down. There is
+        also nothing to pick when there are no columns, so guard on both. --}}
+    {{#if @columns}}
+        <VisibleColumnPicker @columns={{@columns}} @onChange={{fn (mut @columns)}} @iconOnly={{true}} @size={{@columnPickerSize}} class={{@columnPickerButtonClass}} />
+    {{/if}}
 {{/unless}}
 {{#if (safe-has @table "selectedRows")}}
     <DropdownButton

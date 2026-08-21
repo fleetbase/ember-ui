@@ -27,7 +27,7 @@ export default class AsideItemScrollerComponent extends Component {
         const grouped = {};
 
         for (let i = 0; i < items.length; i++) {
-            const item = items.objectAt(i);
+            const item = items[i];
             const title = get(item, titleKey);
             const firstLetter = title[0];
 
@@ -39,7 +39,7 @@ export default class AsideItemScrollerComponent extends Component {
                 grouped[firstLetter] = [];
             }
 
-            grouped[firstLetter].pushObject(item);
+            grouped[firstLetter].push(item);
         }
 
         return grouped;
@@ -49,7 +49,7 @@ export default class AsideItemScrollerComponent extends Component {
         const grouped = [];
 
         for (let groupName in this.itemsGroupByTitleLetter) {
-            grouped.pushObject({
+            grouped.push({
                 groupName,
                 options: this.itemsGroupByTitleLetter[groupName],
             });

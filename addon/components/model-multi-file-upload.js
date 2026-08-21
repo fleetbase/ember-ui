@@ -62,7 +62,7 @@ export default class ModelMultiFileUploadComponent extends Component {
         if (this.#hasFileUploadFailed(file)) return;
 
         try {
-            this.uploadQueue.pushObject(file);
+            this.uploadQueue = [...this.uploadQueue, file];
 
             yield this.fetch.uploadFile.perform(
                 file,
@@ -114,7 +114,7 @@ export default class ModelMultiFileUploadComponent extends Component {
     }
 
     #removeQueuedFile(file) {
-        this.uploadQueue.removeObject(file);
+        this.uploadQueue = this.uploadQueue.filter((queued) => queued !== file);
         if (file.queue && typeof file.queue.remove === 'function') {
             file.queue.remove(file);
         }

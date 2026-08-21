@@ -6,7 +6,7 @@
                     type="button"
                     class="outline-none flex-1 rounded-lg bg-white dark:bg-gray-900 border-2 px-4 py-2 flex items-center justify-center
                         {{if (eq @options.action 'join') 'border-blue-500' 'border-transparent'}}"
-                    {{on "click" (fn @options.changeAction "join")}}
+                    {{on "click" (fn (or @options.changeAction (noop)) "join")}}
                 >
                     <div class="mr-2.5">
                         <FaIcon @icon="handshake" @size="xl" class="text-blue-500" />
@@ -19,7 +19,7 @@
                     type="button"
                     class="outline-none flex-1 rounded-lg bg-white dark:bg-gray-900 border-2 px-4 py-2 flex items-center justify-center
                         {{if (eq @options.action 'create') 'border-blue-500' 'border-transparent'}}"
-                    {{on "click" (fn @options.changeAction "create")}}
+                    {{on "click" (fn (or @options.changeAction (noop)) "create")}}
                 >
                     <div class="mr-2.5">
                         <FaIcon @icon="building" @size="xl" class="text-blue-500" />

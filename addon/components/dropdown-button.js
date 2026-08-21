@@ -1,11 +1,16 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { action } from '@ember/object';
 
 export default class DropdownButtonComponent extends Component {
     @service abilities;
-    @service events;
+
+    // Optional events service; undefined when the host app does not register one.
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
     @tracked type = 'default';
     @tracked buttonSize = 'md';
     @tracked buttonComponentArgs = {};
@@ -39,20 +44,26 @@ export default class DropdownButtonComponent extends Component {
     }
 
     @action onRegisterAPI(dropdown) {
-        // Trigger dropdown opened event when dropdown is opened
-        if (dropdown && this.events) {
-            const originalOpen = dropdown.actions.open;
-            dropdown.actions.open = (...args) => {
-                const { eventName, eventArgs } = this.args;
-                if (eventName) {
-                    this.events.trackEvent(eventName, ...(eventArgs || []));
-                }
-                return originalOpen.call(dropdown.actions, ...args);
-            };
-        }
-
         if (typeof this.args.registerAPI === 'function') {
             this.args.registerAPI(dropdown);
+        }
+    }
+
+    /**
+     * Tracking hangs off `@onOpen`, which ember-basic-dropdown fires for EVERY open however it
+     * was reached. The previous approach monkey-patched `dropdown.actions.open`, but the
+     * trigger calls `toggle`, which closes over the original `open` internally — so an
+     * ordinary user click was never tracked, only a programmatic `api.actions.open()`.
+     */
+    @action onOpen() {
+        const { eventName, eventArgs, onOpen } = this.args;
+
+        if (eventName && this.events) {
+            this.events.trackEvent(eventName, ...(eventArgs || []));
+        }
+
+        if (typeof onOpen === 'function') {
+            return onOpen(...arguments);
         }
     }
 
