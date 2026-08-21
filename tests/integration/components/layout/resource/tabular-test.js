@@ -231,6 +231,27 @@ module('Integration | Component | layout/resource/tabular', function (hooks) {
             assert.strictEqual(sorts[0].sortValue, sorts[0].sortString);
         });
 
+        test('cycling a sort back off reports no sort column', async function (assert) {
+            // The legacy single-column fields fall back to null once nothing is sorted.
+            const sorts = [];
+            this.set('onSort', (payload) => sorts.push(payload));
+            this.set('columns', [{ label: 'Name', valuePath: 'name', sortable: true }]);
+
+            await render(hbs`
+                <Layout::Resource::Tabular @title="Drivers" @data={{this.rows}} @columns={{this.columns}} @onSort={{this.onSort}} />
+            `);
+
+            const header = find('th.is-sortable .sort-icon-wrapper');
+            await click(header);
+            await click(header);
+            await click(header);
+
+            const last = sorts.at(-1);
+            assert.deepEqual(last.sortColumns, [], 'nothing is sorted any more');
+            assert.strictEqual(last.sortBy, null, 'so there is no single column to name');
+            assert.strictEqual(last.sortDirection, null);
+        });
+
         test('sorting without a controller or handler does not throw', async function (assert) {
             this.set('columns', [{ label: 'Name', valuePath: 'name', sortable: true }]);
 

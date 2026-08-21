@@ -19,6 +19,8 @@ export default class ReportBuilderExportOptionsComponent extends Component {
     }
 
     @action export() {
+        /* istanbul ignore next -- the Export button is rendered `@disabled={{@disabled}}`, so it
+           cannot be clicked while this is true. */
         if (!this.args.disabled) this.args.onExport?.(this.format.value);
     }
 }

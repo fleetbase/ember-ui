@@ -2,6 +2,8 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { task } from 'ember-concurrency';
+import EmberObject from '@ember/object';
 
 const OVERLAY = '.next-content-overlay';
 const PANEL = '.next-content-overlay-panel';
@@ -177,6 +179,33 @@ module('Integration | Component | layout/resource/panel', function (hooks) {
             await settled();
 
             assert.dom(OVERLAY).doesNotHaveClass('is-open', 'no handler is required');
+        });
+    });
+    // The panel's `authSchema` getter is only reached through the header's save button, which
+    // renders when a save task is supplied and the resource is not a plain object.
+    module('with a save task', function () {
+        function saveTaskHost() {
+            return EmberObject.extend({
+                save: task(function* () {
+                    yield Promise.resolve();
+                }),
+            }).create();
+        }
+
+        test('the header offers a save button governed by the default auth schema', async function (assert) {
+            this.set('host', saveTaskHost());
+
+            await render(hbs`<Layout::Resource::Panel @resource={{this.resource}} @saveTask={{this.host.save}} />`);
+
+            assert.dom('.resource-panel-header button.btn').exists('the save control is rendered');
+        });
+
+        test('an explicit authSchema is used instead of the default', async function (assert) {
+            this.set('host', saveTaskHost());
+
+            await render(hbs`<Layout::Resource::Panel @resource={{this.resource}} @saveTask={{this.host.save}} @authSchema="storefront" />`);
+
+            assert.dom('.resource-panel-header button.btn').exists('the save control still renders under a different schema');
         });
     });
 });

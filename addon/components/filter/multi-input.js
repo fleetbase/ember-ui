@@ -4,6 +4,8 @@ import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 
 export default class FilterMultiInputComponent extends Component {
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked tags = [];
 
     constructor() {

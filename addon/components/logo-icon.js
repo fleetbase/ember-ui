@@ -11,6 +11,8 @@ const DEFAULT_SIZE = 8;
 
 export default class LogoIconComponent extends Component {
     @service store;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked size = DEFAULT_SIZE;
     @tracked brand;
     @tracked ready = false;

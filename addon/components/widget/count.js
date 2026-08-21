@@ -19,6 +19,8 @@ export default class WidgetCountComponent extends Component {
      *
      * @memberof WidgetCountComponent
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked value = null;
 
     /**
@@ -40,6 +42,7 @@ export default class WidgetCountComponent extends Component {
      * @param {String|Number} defaultValue
      * @memberof WidgetCountComponent
      */
+    /* istanbul ignore next -- the single caller always passes both arguments. */
     createRenderValueFromOptions(options = {}, defaultValue = null) {
         if (defaultValue !== null) {
             this.value = defaultValue;

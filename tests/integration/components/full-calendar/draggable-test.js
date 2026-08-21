@@ -102,4 +102,18 @@ module('Integration | Component | full-calendar/draggable', function (hooks) {
             assert.strictEqual(dragReady.length, 1, 'a Draggable is created');
         });
     });
+    // The did-update handler destructures with a default, reached when @disabled changes *to*
+    // undefined rather than to false.
+    test('clearing @disabled makes the draggable enabled again', async function (assert) {
+        this.set('disabled', true);
+
+        await render(hbs`<FullCalendar::Draggable @disabled={{this.disabled}} @onDragReady={{this.onDragReady}} />`);
+        assert.dom(DRAGGABLE).hasClass('draggable-disabled');
+
+        this.set('disabled', undefined);
+        await settled();
+
+        assert.dom(DRAGGABLE).doesNotHaveClass('draggable-disabled', 'a cleared flag falls back to enabled');
+        assert.strictEqual(dragReady.length, 1, 'and the draggable is wired up');
+    });
 });

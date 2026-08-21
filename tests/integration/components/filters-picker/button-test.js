@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, find } from '@ember/test-helpers';
+import { render, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const BUTTON = 'button';
@@ -109,5 +109,18 @@ module('Integration | Component | filters-picker/button', function (hooks) {
             this.set('buttonComponentArgs', { iconOnly: false });
             assert.dom(BUTTON).containsText('Narrow down', 'the label comes back');
         });
+    });
+    // The did-update handler destructures with a default, which only applies when the argument
+    // changes *to* undefined — a caller clearing its filter state.
+    test('clearing @buttonComponentArgs drops the active-filter badge', async function (assert) {
+        this.set('buttonComponentArgs', { activeFilters: ['status', 'type'] });
+
+        await render(TEMPLATE);
+        assert.dom(BADGE).hasText('2', 'the badge counts the active filters');
+
+        this.set('buttonComponentArgs', undefined);
+        await settled();
+
+        assert.dom(BADGE).doesNotExist('a cleared argument falls back to an empty object');
     });
 });

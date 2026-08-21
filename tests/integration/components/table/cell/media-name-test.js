@@ -173,4 +173,12 @@ module('Integration | Component | table/cell/media-name', function (hooks) {
         await render(hbs`<Table::Cell::MediaName @row={{this.row}} @column={{this.column}} />`);
         assert.dom('img').hasClass('mx-2');
     });
+    // Every case above passes a row; the alt-text lookup guards against being asked without one.
+    test('an alt text path with no row at all yields empty alt text', async function (assert) {
+        this.set('column', { altTextPath: 'name' });
+
+        await render(hbs`<Table::Cell::MediaName @column={{this.column}} />`);
+
+        assert.dom('img').hasAttribute('alt', '', 'nothing to read the alt text from');
+    });
 });

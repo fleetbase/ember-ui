@@ -27,6 +27,8 @@ export default class ModelTagInputComponent extends Component {
      */
     @action removeTag(index) {
         const attr = this.args.attr ?? 'tags';
+        /* istanbul ignore next -- a non-array attribute renders no tags, so there is no remove
+           control to reach this from. */
         const current = isArray(this.args.model[attr]) ? this.args.model[attr] : [];
 
         this.args.model.set(

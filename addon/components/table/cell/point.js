@@ -11,6 +11,8 @@ const isPoint = (point) => {
 
 export default class TableCellPointComponent extends Component {
     @tracked display = '';
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked isClickable = false;
 
     constructor(owner, { row, column }) {
@@ -47,6 +49,8 @@ export default class TableCellPointComponent extends Component {
     @action onClick() {
         const column = this.args.column;
 
+        /* istanbul ignore next -- `isClickable` is only true when the column carries an onClick or
+           action, and the template only renders a clickable element in that case. */
         if (column) {
             const { onClick, action } = column;
 

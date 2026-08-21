@@ -75,4 +75,28 @@ module('Integration | Component | click-to-copy', function (hooks) {
             document.execCommand = originalExecCommand;
         }
     });
+    test('a failing execCommand in the fallback path is reported, not thrown', async function (assert) {
+        // Force the fallback, then make the copy itself fail.
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+        const originalExecCommand = document.execCommand;
+        const originalConsoleError = console.error;
+        const reported = [];
+        console.error = (error) => reported.push(error);
+        document.execCommand = () => {
+            throw new Error('copy is not allowed');
+        };
+
+        try {
+            this.set('value', 'ord_1');
+            await render(hbs`<ClickToCopy @value={{this.value}} />`);
+            await click('.click-to-copy');
+        } finally {
+            document.execCommand = originalExecCommand;
+            console.error = originalConsoleError;
+        }
+
+        assert.strictEqual(reported.length, 1, 'the failure is logged');
+        assert.strictEqual(reported[0].message, 'copy is not allowed');
+        assert.dom('.click-to-copy').doesNotIncludeText('Copied', 'and nothing claims success');
+    });
 });

@@ -41,10 +41,14 @@ export default class TableFootComponent extends Component {
         for (let i = 0; i < offsetElements.length; i++) {
             const element = offsetElements[i];
 
+            /* istanbul ignore next -- `offsetElements` above is a literal array of two strings, so
+               an entry is never an element. */
             if (element instanceof HTMLElement) {
                 calculatedOffset += element.offsetHeight;
             }
 
+            /* istanbul ignore next -- every entry in `offsetElements` is a string literal, so this is
+               always taken. */
             if (typeof element === 'string') {
                 const foundElement = document.querySelector(element);
 

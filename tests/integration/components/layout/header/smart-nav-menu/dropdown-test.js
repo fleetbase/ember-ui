@@ -230,4 +230,12 @@ module('Integration | Component | layout/header/smart-nav-menu/dropdown', functi
             assert.strictEqual(cardTitles().length, 3, 'but the cards are all still offered');
         });
     });
+    test('an item with no title at all is still searchable by its other fields', async function (assert) {
+        this.set('items', [{ id: 'untitled', description: 'Dispatch and fulfillment', onClick: () => {} }]);
+
+        await render(TEMPLATE);
+        await fillIn(SEARCH, 'dispatch');
+
+        assert.strictEqual(findAll('.snm-dropdown-card').length, 1, 'the description matched despite the missing title');
+    });
 });
