@@ -161,6 +161,21 @@ an earlier hard-coded truncation, superseded by `pageItems` and the `truncate-pa
 in place beside the one that actually runs.
 Blocks the gate while it exists.
 
+## 11. `addon/components/filters-picker.js` — the `onColumn` hook has no caller that supplies it
+
+**Status:** NEEDS DECISION
+**Found:** `if (typeof onColumn === 'function')` reads `[0,86]` — the guard ran 86 times and the
+callback never once.
+**Evidence:** `onColumn` is a parameter of the private `#rebuildFilters(onColumn)`. All three call
+sites — the constructor (line 38), the route handler (line 41) and `refresh` (line 58) — invoke it
+as `#rebuildFilters()` with no argument, so the parameter is always undefined. No consumer package
+references `onColumn` either.
+**Impact:** none. It is a per-column hook that nothing can subscribe to.
+**Fix:** delete the parameter and its guard — the cheapest of the dead-code items, since removing it
+touches one private method and no public surface. Alternatively supply it from a real caller if the
+per-column callback was intended to be exposed.
+Blocks the gate while it exists.
+
 ---
 
 ## Settled — not defects, recorded so they are not "fixed" again
