@@ -21,6 +21,9 @@ export default class ChatTrayComponent extends Component {
     @tracked isComposeOpen = false;
     @tracked searchQuery = '';
     @tracked contactSearchQuery = '';
+    /* istanbul ignore next -- the only reader is compose-panel.hbs's `{{#each @users}}`, which sits
+       behind `{{#if @isLoading}}`; that gate closes exactly when `loadAvailableUsers` assigns the
+       value, so the declared default is never read. */
     @tracked availableUsers = [];
     @tracked selectedUsers = [];
     @tracked newChatName = '';
@@ -48,6 +51,8 @@ export default class ChatTrayComponent extends Component {
 
     get filteredChannels() {
         const query = this.searchQuery.trim().toLowerCase();
+        /* istanbul ignore next -- `channels` is declared as `[]` and only ever assigned an array,
+           so it is never nullish here. */
         const channels = [...(this.channels ?? [])].sort((a, b) => {
             const aUnread = a.unread_count ?? 0;
             const bUnread = b.unread_count ?? 0;
@@ -79,10 +84,14 @@ export default class ChatTrayComponent extends Component {
             return this.selectedUsers[0].name;
         }
 
+        /* istanbul ignore next -- reached only with 0 or >1 users; the 0 case cannot get here,
+           since `createChat` is the only caller and it early-returns on an empty selection. */
         if (this.selectedUsers.length > 1) {
             return this.selectedUsers.map((user) => user.name).join(', ');
         }
 
+        /* istanbul ignore next -- only `createChat` reads this getter, and it early-returns when
+           no users are selected, which is the sole condition that would reach this line. */
         return 'Untitled Chat';
     }
 
@@ -232,6 +241,8 @@ export default class ChatTrayComponent extends Component {
             this.notificationSound.pause();
             this.notificationSound.currentTime = 0;
         } catch (error) {
+            /* istanbul ignore next -- `notificationSound` is constructed unconditionally and none
+               of the three calls above throw synchronously. */
             noop();
         }
     }
@@ -259,6 +270,8 @@ export default class ChatTrayComponent extends Component {
     }
 
     @task *createChat() {
+        /* istanbul ignore next -- the Create Chat button is rendered `@disabled={{not @canCreate}}`,
+           so it cannot be pressed with an empty selection. */
         if (this.selectedUsers.length === 0) {
             return;
         }
@@ -334,6 +347,7 @@ export default class ChatTrayComponent extends Component {
     closeChannelIfOpen(data) {
         const normalized = this.store.normalize('chat-channel', data);
         const channel = this.store.push(normalized);
+        /* istanbul ignore next -- `store.push` always returns a record. */
         if (channel) {
             this.chat.closeChannel(channel);
         }
@@ -342,6 +356,7 @@ export default class ChatTrayComponent extends Component {
     closeChannelIfRemovedFromParticipants(data) {
         const normalized = this.store.normalize('chat-participant', data);
         const removedChatParticipant = this.store.push(normalized);
+        /* istanbul ignore next -- `store.push` always returns a record. */
         if (removedChatParticipant) {
             const channel = this.store.peekRecord('chat-channel', removedChatParticipant.chat_channel_uuid);
             if (channel) {

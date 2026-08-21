@@ -84,6 +84,22 @@ or the racing lines proven irrelevant, before the 100% gate can be trusted.
 it means the panel silently cannot forward a toggle.
 **Fix:** define the action, or drop the wiring.
 
+## 6. `addon/components/chat-tray.js` — `getUnreadCount` is a second, unwired implementation
+
+**Status:** NEEDS DECISION
+**Found:** the whole task reported as never invoked while covering chat-tray.
+**Evidence:** `grep -rn getUnreadCount addon/` returns only the declaration — nothing performs it. The
+unread badge is NOT broken: `chat-tray.js:294` (`countUnread`) already sets `this.unreadCount` by
+summing `unread_count` across the loaded channels, and `chat-tray.hbs:11` renders from that.
+**Impact:** none today. The two implementations differ, though: `countUnread` sums only the channels
+currently loaded, while `getUnreadCount` fetches `chat-channels/unread-count`, which is presumably
+authoritative across channels that are not loaded or are paginated away. If channel loading is ever
+paginated, the badge under-reports.
+**Fix:** decide which is authoritative. Either delete the task, or perform it on insert and let the
+server value win. Not a bug fix either way — it is a choice about where the number comes from.
+Blocks the 100% gate while it exists: dead code cannot be covered, and excluding it would hide the
+question rather than answer it.
+
 ---
 
 ## Settled — not defects, recorded so they are not "fixed" again
