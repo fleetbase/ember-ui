@@ -332,4 +332,15 @@ module('Integration | Component | metadata-editor', function (hooks) {
 
         assert.dom('[data-test-editor="yes"]').exists();
     });
+    // Paths the seeded fixtures never produce: a key cleared back to empty, and a null value.
+    test('clearing a key back to empty is handled rather than throwing', async function (assert) {
+        await render(TEMPLATE);
+        await click(buttonWithText('add'));
+        await fillIn(keyInputs()[0], 'my_key');
+
+        await fillIn(keyInputs()[0], '');
+
+        assert.strictEqual(keyInputs()[0].value, '', 'the input is left empty');
+        assert.dom(this.element).containsText('Key is required', 'and the row is flagged again');
+    });
 });

@@ -322,6 +322,14 @@ module('Integration | Component | chat-window', function (hooks) {
             const confirmation = modalsManager.modals.find((modal) => modal.options?.title);
             assert.true(/leave this chat/i.test(confirmation.options.title), confirmation.options.title);
             assert.true(/not be able to access this chat/i.test(confirmation.options.body));
+
+            // Only confirming reaches the `isRemovingSelf` close; asserting the copy stops short.
+            await confirmation.options.confirm({ startLoading() {}, stopLoading() {}, done() {} });
+
+            assert.ok(
+                this.chat.calls.find((call) => call.method === 'closeChannel'),
+                'leaving the chat closes the window'
+            );
         });
 
         test('confirming the removal removes the participant', async function (assert) {
@@ -395,6 +403,43 @@ module('Integration | Component | chat-window', function (hooks) {
                 ['Name required to save changes.'],
                 'the user is warned that a name is required'
             );
+        });
+    });
+    // Paths the happy-path fixtures never take.
+    module('less-travelled paths', function () {
+        function removeButtonFor(context, name) {
+            const bubble = Array.from(context.element.querySelectorAll('.chat-window-participant-bubble-container')).find((container) => container.querySelector(`[alt="${name}"]`) !== null);
+
+            return bubble?.querySelector('.chat-window-remove-participant');
+        }
+
+        test('shift+enter inserts a newline instead of sending', async function (assert) {
+            await render(hbs`<ChatWindow @channel={{this.channel}} />`);
+
+            await fillIn('.chat-window-input', 'Line one');
+            await triggerKeyEvent('.chat-window-input', 'keypress', 13, { shiftKey: true });
+
+            assert.notOk(
+                this.chat.calls.find((call) => call.method === 'sendMessage'),
+                'nothing is sent'
+            );
+            assert.dom('.chat-window-input').hasValue('Line one', 'and the draft is kept');
+        });
+
+        test('a failure loading available users is reported and does not throw', async function (assert) {
+            const warnings = [];
+            const originalWarn = console.warn;
+            console.warn = (...args) => warnings.push(args[0]);
+            this.owner.lookup('service:store').query = () => Promise.reject(new Error('unavailable'));
+
+            try {
+                await render(hbs`<ChatWindow @channel={{this.channel}} />`);
+                await click(this.element.querySelector('.chat-window-controls .ember-basic-dropdown-trigger'));
+            } finally {
+                console.warn = originalWarn;
+            }
+
+            assert.strictEqual(warnings[0], 'Error loading available users:', 'the failure is reported');
         });
     });
 });
