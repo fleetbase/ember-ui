@@ -145,8 +145,12 @@ module('Integration | Component | coordinates-input', function (hooks) {
         const geocoded = [];
         let component;
 
+        // The stub resolves `responses[path] ?? []`, so priming it with null yields a TRUTHY empty
+        // array: `if (place)` was taken, `place.location.coordinates` threw, and the catch swallowed
+        // it — so this passed for the opposite reason to the one it claims. Override `get` instead.
         const fetch = this.owner.lookup('service:fetch');
-        fetch.responses['geocoder/query'] = null;
+        const originalGet = fetch.get;
+        fetch.get = () => Promise.resolve(null);
 
         this.set('onInit', (instance) => {
             component = instance;
@@ -156,8 +160,10 @@ module('Integration | Component | coordinates-input', function (hooks) {
         await render(hbs`<CoordinatesInput @onInit={{this.onInit}} @onGeocode={{this.onGeocode}} />`);
 
         component.lookupQuery = 'Nowhere';
-        await component.reverseLookup.perform();
+        const place = await component.reverseLookup.perform();
+        fetch.get = originalGet;
 
+        assert.strictEqual(place, null, 'the empty result is returned as-is, not coerced');
         assert.deepEqual(geocoded, [], 'onGeocode is not called for an empty result');
     });
 
@@ -451,5 +457,24 @@ module('Integration | Component | coordinates-input', function (hooks) {
             assert.strictEqual(component.mapTheme, 'light');
             assert.true(component.tileSourceUrl.includes('light_all'));
         });
+    });
+    test('a successful lookup with no @onGeocode handler still moves the coordinates', async function (assert) {
+        let component;
+        const changes = [];
+        const fetch = this.owner.lookup('service:fetch');
+        fetch.responses['geocoder/query'] = { location: { type: 'Point', coordinates: [103.85, 1.29] } };
+
+        this.set('onInit', (instance) => {
+            component = instance;
+        });
+        this.set('onChange', (coordinates) => changes.push(coordinates));
+
+        await render(hbs`<CoordinatesInput @onInit={{this.onInit}} @onChange={{this.onChange}} />`);
+
+        component.lookupQuery = 'Singapore';
+        await component.reverseLookup.perform();
+        await settled();
+
+        assert.deepEqual(changes, [{ latitude: 1.29, longitude: 103.85 }], 'the coordinates move with nothing listening for the place');
     });
 });
