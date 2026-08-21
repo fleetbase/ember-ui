@@ -684,6 +684,29 @@ module('Integration | Component | table imperative api', function (hooks) {
             assert.strictEqual(notes._stickyOffset, 0);
         });
 
+        test('scrolling away from an edge drops the at-natural-position marker', async function (assert) {
+            // The scroll handler adds the marker while a sticky column sits at its natural edge and
+            // removes it once scrolled away. Only the at-rest state had coverage.
+            await render(TEMPLATE);
+
+            const wrapper = find('.next-table-wrapper');
+            const left = wrapper.querySelector('.sticky-left');
+            assert.ok(left, 'a left sticky cell is rendered');
+            assert.dom(left).hasClass('at-natural-position', 'it starts at the edge');
+
+            Object.defineProperty(wrapper, 'scrollWidth', { value: 1000, configurable: true });
+            Object.defineProperty(wrapper, 'clientWidth', { value: 300, configurable: true });
+            Object.defineProperty(wrapper, 'scrollLeft', { value: 200, configurable: true });
+            wrapper.dispatchEvent(new Event('scroll'));
+            await settled();
+
+            assert.dom(left).doesNotHaveClass('at-natural-position', 'scrolled away, the marker is dropped');
+
+            const right = wrapper.querySelector('.sticky-right');
+            assert.ok(right, 'a right sticky cell is rendered');
+            assert.dom(right).doesNotHaveClass('at-natural-position', 'and the right side is not at its end either');
+        });
+
         test('a sticky checkbox column shifts the first left offset', async function (assert) {
             this.set('checkboxSticky', true);
 
