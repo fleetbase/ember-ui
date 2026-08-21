@@ -115,12 +115,16 @@ export default class DocsPanelService extends Service {
         try {
             const owner = getOwner(this);
 
+            /* istanbul ignore next -- the theme service is registered in this addon, so
+               `hasRegistration` never reports false here. */
             if (owner?.hasRegistration?.('service:theme') === false) {
                 return 'light';
             }
 
             themeService = owner?.lookup?.('service:theme');
         } catch {
+            /* istanbul ignore next -- neither `getOwner` nor `lookup` throws for a registered
+               service, so this fallback is defensive only. */
             themeService = null;
         }
 
