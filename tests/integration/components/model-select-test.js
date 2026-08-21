@@ -5,6 +5,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 import { A } from '@ember/array';
 import { selectChoose, selectSearch, getDropdownItems } from 'ember-power-select/test-support';
+import { clickTrigger } from 'ember-power-select/test-support/helpers';
 
 const DRIVERS = [
     { id: 'drv_1', name: 'Alex Driver' },
@@ -421,6 +422,118 @@ module('Integration | Component | model-select', function (hooks) {
             await click(TRIGGER);
 
             assert.ok(find('.fleetbase-model-select'), 'no handler is required');
+        });
+    });
+    // Infinite scroll never worked: `@infiniteModel` was handed a `model` field that was declared
+    // and never assigned, and the `<InfinityLoader>` it fed came from ember-infinity, which was
+    // not a dependency. Paging is native now.
+    module('infinite scroll', function () {
+        function page(n, size) {
+            return A(Array.from({ length: size }, (_, i) => ({ id: `drv_${n}_${i}`, name: `Driver ${n}-${i}` })));
+        }
+
+        // Dispatch only. Assigning scrollTop fires its own native scroll event, so doing both
+        // would trigger the loader twice per call.
+        async function scrollToBottom() {
+            find('.ember-basic-dropdown-content').dispatchEvent(new Event('scroll'));
+            await settled();
+        }
+
+        test('a full first page is followed by a second when the list is scrolled to the end', async function (assert) {
+            respondWith = (modelName, query) => page(query.page, 25);
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @pageSize={{25}} />`);
+            await clickTrigger();
+
+            assert.strictEqual(queries.length, 1, 'the first page is requested on open');
+            assert.strictEqual(queries[0].query.page, 1);
+            assert.strictEqual(queries[0].query.limit, 25, 'with the configured page size');
+
+            await scrollToBottom();
+
+            assert.strictEqual(queries.length, 2, 'reaching the bottom asks for the next page');
+            assert.strictEqual(queries[1].query.page, 2, 'and it is the page after');
+            assert.strictEqual(findAll('.ember-power-select-option').length, 50, 'the results are appended, not replaced');
+        });
+
+        test('a short page means there is nothing more to ask for', async function (assert) {
+            respondWith = () => page(1, 3);
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @pageSize={{25}} />`);
+            await clickTrigger();
+            await scrollToBottom();
+
+            assert.strictEqual(queries.length, 1, 'a page that did not fill is the last one');
+        });
+
+        test('the reported total decides when to stop', async function (assert) {
+            respondWith = (modelName, query) => {
+                const records = page(query.page, 25);
+                records.meta = { total: 30 };
+                return records;
+            };
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @pageSize={{25}} />`);
+            await clickTrigger();
+            await scrollToBottom();
+
+            assert.strictEqual(queries.length, 2, '25 of 30 loaded, so one more page is fetched');
+
+            await scrollToBottom();
+
+            assert.strictEqual(queries.length, 2, 'and once past the total, no further requests');
+        });
+
+        test('@infiniteScroll={{false}} never asks for another page', async function (assert) {
+            respondWith = (modelName, query) => page(query.page, 25);
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @infiniteScroll={{false}} @pageSize={{25}} />`);
+            await clickTrigger();
+            await scrollToBottom();
+
+            assert.strictEqual(queries.length, 1, 'paging is off');
+        });
+
+        test('a new search starts again from page one', async function (assert) {
+            respondWith = (modelName, query) => page(query.page, 25);
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @pageSize={{25}} />`);
+            await clickTrigger();
+            await scrollToBottom();
+            assert.strictEqual(queries[1].query.page, 2);
+
+            await selectSearch(TRIGGER, 'hauler');
+
+            const latest = queries[queries.length - 1];
+            assert.strictEqual(latest.query.page, 1, 'the new term is requested from the first page');
+            assert.strictEqual(latest.query.query, 'hauler', 'carrying the search term');
+
+            await scrollToBottom();
+
+            const afterScroll = queries[queries.length - 1];
+            assert.strictEqual(afterScroll.query.page, 2, 'and the next page keeps that term');
+            assert.strictEqual(afterScroll.query.query, 'hauler');
+        });
+
+        test('scrolling while a page is already in flight does not stack requests', async function (assert) {
+            let release;
+            respondWith = (modelName, query) => {
+                if (query.page === 1) return page(1, 25);
+                return new Promise((resolve) => (release = () => resolve(page(2, 25))));
+            };
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @pageSize={{25}} />`);
+            await clickTrigger();
+
+            const content = find('.ember-basic-dropdown-content');
+            content.dispatchEvent(new Event('scroll'));
+            content.dispatchEvent(new Event('scroll'));
+            content.dispatchEvent(new Event('scroll'));
+
+            assert.strictEqual(queries.length, 2, 'the task drops the overlapping scrolls');
+
+            release();
+            await settled();
         });
     });
 });

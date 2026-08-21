@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, findAll, find } from '@ember/test-helpers';
+import { render, click, findAll, find, settled, waitFor } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 import { A } from '@ember/array';
@@ -63,26 +63,25 @@ module('Integration | Component | model-select/options', function (hooks) {
         );
     });
 
-    // DEFECT (see DEFECTS.md #105): showLoader is `infiniteScroll && infiniteModel && !select.loading`,
-    // and <ModelSelect> passes `infiniteModel=this.model` — a @tracked property that is declared but
-    // NEVER assigned anywhere in model-select.js. infiniteModel is therefore always undefined, so the
-    // InfinityLoader branch of this component is unreachable and ModelSelect's infinite scroll is inert.
-    test('the infinity loader never renders, even with infinite scroll on', async function (assert) {
+    // #105 used to live here: this component rendered ember-infinity's <InfinityLoader> against an
+    // @infiniteModel that was never assigned (and ember-infinity was not a dependency), so the loader
+    // was unreachable and paging was inert. Paging is native now, so these assert the real thing.
+    test('nothing is loading when the list first opens', async function (assert) {
         await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" />`);
         await click(TRIGGER);
 
         const items = findAll('ul[role="listbox"] > li');
         assert.strictEqual(items.length, 1, 'only the options list item is rendered');
-        assert.notOk(find('ul[role="listbox"] .fleetbase-loader'), 'no loader is rendered despite infiniteScroll defaulting to true');
+        assert.dom('.ember-model-select__loading-more').doesNotExist('no spinner while the list sits idle');
     });
 
-    test('no infinity loader is rendered when infinite scroll is off', async function (assert) {
+    test('no loading row is rendered when infinite scroll is off', async function (assert) {
         await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @infiniteScroll={{false}} />`);
         await click(TRIGGER);
 
         const items = findAll('ul[role="listbox"] > li');
         assert.strictEqual(items.length, 1, 'only the options list item is rendered');
-        assert.notOk(find('ul[role="listbox"] .fleetbase-loader'), 'no loader is rendered');
+        assert.dom('.ember-model-select__loading-more').doesNotExist();
     });
 
     test('an empty result still renders the listbox', async function (assert) {
@@ -107,5 +106,109 @@ module('Integration | Component | model-select/options', function (hooks) {
         assert.strictEqual(changes.length, 1);
         assert.strictEqual(changes[0].id, 'drv_2');
         assert.notOk(find('ul[role="listbox"]'), 'the list closed itself');
+    });
+    // The list is scrolled by ember-basic-dropdown's content element, which is what the component
+    // attaches its listener to. These drive that element directly.
+    module('scrolling the dropdown', function (hooks) {
+        let pages;
+
+        // A short page tells <ModelSelect> there is nothing more to fetch, which would make every
+        // assertion below unfailable. These serve a full page so paging stays live.
+        const FULL_PAGE = Array.from({ length: 25 }, (unused, index) => ({ id: `drv_${index}`, name: `Driver ${index}` }));
+
+        hooks.beforeEach(function () {
+            pages = [];
+            respondWith = (modelName, query) => {
+                pages.push(query.page);
+                return A(FULL_PAGE.slice());
+            };
+        });
+
+        function scrollContent({ top, clientHeight, scrollHeight }) {
+            const content = find('.ember-basic-dropdown-content');
+            Object.defineProperty(content, 'scrollTop', { value: top, configurable: true });
+            Object.defineProperty(content, 'clientHeight', { value: clientHeight, configurable: true });
+            Object.defineProperty(content, 'scrollHeight', { value: scrollHeight, configurable: true });
+            content.dispatchEvent(new Event('scroll'));
+            return settled();
+        }
+
+        test('a scroll short of the bottom asks for nothing', async function (assert) {
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" />`);
+            await click(TRIGGER);
+            const afterOpen = pages.length;
+
+            await scrollContent({ top: 0, clientHeight: 100, scrollHeight: 1000 });
+
+            assert.strictEqual(pages.length, afterOpen, 'still 900px from the end, so no further page is fetched');
+            assert.strictEqual(pages.at(-1), 1, 'only the first page has been asked for');
+        });
+
+        test('a scroll within the threshold of the bottom fetches the next page', async function (assert) {
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" />`);
+            await click(TRIGGER);
+            const afterOpen = pages.length;
+
+            await scrollContent({ top: 880, clientHeight: 100, scrollHeight: 1000 });
+
+            assert.strictEqual(pages.length, afterOpen + 1, '20px from the end is close enough');
+            assert.strictEqual(pages.at(-1), 2, 'and it is the second page that is asked for');
+        });
+
+        test('reaching the bottom of a complete list asks for nothing', async function (assert) {
+            // A short first page means the server has already sent everything, so hitting the end
+            // of it must not start a second request.
+            respondWith = (modelName, query) => {
+                pages.push(query.page);
+                return A(DRIVERS.slice());
+            };
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" />`);
+            await click(TRIGGER);
+            const afterOpen = pages.length;
+
+            await scrollContent({ top: 900, clientHeight: 100, scrollHeight: 1000 });
+
+            assert.strictEqual(pages.length, afterOpen, 'the list is already complete');
+        });
+
+        test('the spinner shows while the next page is in flight, then goes away', async function (assert) {
+            // Hold the second page open so the loading state can be observed rather than raced past.
+            let releaseSecondPage;
+            respondWith = (modelName, query) => {
+                pages.push(query.page);
+
+                if (query.page === 1) {
+                    return A(FULL_PAGE.slice());
+                }
+
+                return new Promise((resolve) => {
+                    releaseSecondPage = () => resolve(A(DRIVERS.slice()));
+                });
+            };
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" />`);
+            await click(TRIGGER);
+            assert.dom('.ember-model-select__loading-more').doesNotExist('nothing in flight yet');
+
+            const scrolled = scrollContent({ top: 880, clientHeight: 100, scrollHeight: 1000 });
+            await waitFor('.ember-model-select__loading-more');
+            assert.dom('.ember-model-select__loading-more .ember-model-select__spinner').exists('the spinner marks the page being fetched');
+
+            releaseSecondPage();
+            await scrolled;
+
+            assert.dom('.ember-model-select__loading-more').doesNotExist('and it goes once the page has landed');
+        });
+
+        test('with infinite scroll off, reaching the bottom fetches nothing', async function (assert) {
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @infiniteScroll={{false}} />`);
+            await click(TRIGGER);
+            const afterOpen = pages.length;
+
+            await scrollContent({ top: 900, clientHeight: 100, scrollHeight: 1000 });
+
+            assert.strictEqual(pages.length, afterOpen, 'paging is off entirely');
+        });
     });
 });
