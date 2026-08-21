@@ -450,6 +450,7 @@ export default class Modal extends Component {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.checkScrollbar();
             this.setScrollbar();
@@ -462,6 +463,7 @@ export default class Modal extends Component {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             modalElement.scrollTop = 0;
             this.adjustDialog();
@@ -513,6 +515,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetAdjustments();
             this.resetScrollbar();
@@ -633,6 +636,7 @@ export default class Modal extends Component {
         // Only add the body class if this is the first modal
         if (this.modalsManager.modals.length === 1) {
             // special handling for FastBoot, where real `document` is not available
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // a SimpleDOM instance with just a subset of the DOM API!
                 let document = this.document;
@@ -653,6 +657,7 @@ export default class Modal extends Component {
     removeBodyClass() {
         // Only remove the body class if there are no more modals
         if (this.modalsManager.modals.length === 0) {
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // no need for FastBoot support here
                 return;
@@ -683,6 +688,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetScrollbar();
         }
