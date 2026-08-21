@@ -206,9 +206,6 @@ importers:
       ember-power-select:
         specifier: 8.6.2
         version: 8.6.2(2cb75f378d1c2bf43351a1c26ad79dd4)
-      ember-radio-button:
-        specifier: 3.0.0-beta.1
-        version: 3.0.0-beta.1(clean-css@5.3.3)(postcss@8.5.14)
       ember-ref-bucket:
         specifier: ^4.1.0
         version: 4.1.0(@babel/core@7.29.0)
@@ -4254,10 +4251,6 @@ packages:
       '@ember/test-helpers': '>=3.0.3'
       ember-source: '>=4.0.0'
       qunit: ^2.13.0
-
-  ember-radio-button@3.0.0-beta.1:
-    resolution: {integrity: sha512-KcSCXQHNosYRFB2t5GDpXQaHzu3A/UwoKgxVQ2XwV9n4xico7HqWReyt7s3OAMxRYmfZTxeQw7F5THawNd3SYA==}
-    engines: {node: 12.* || 14.* || >= 16}
 
   ember-ref-bucket@4.1.0:
     resolution: {integrity: sha512-oEUU2mDtuYuMM039U9YEqrrOCVHH6rQfvbFOmh3WxOVEgubmLVyKEpGgU4P/6j0B/JxTqqTwM3ULTQyDto8dKg==}
@@ -14251,27 +14244,6 @@ snapshots:
       - '@babel/core'
       - '@glint/template'
       - supports-color
-
-  ember-radio-button@3.0.0-beta.1(clean-css@5.3.3)(postcss@8.5.14):
-    dependencies:
-      ember-cli-babel: 7.26.11
-      ember-cli-htmlbars: 5.7.2
-      webpack: 5.106.2(clean-css@5.3.3)(postcss@8.5.14)
-    transitivePeerDependencies:
-      - '@minify-html/node'
-      - '@swc/core'
-      - '@swc/css'
-      - '@swc/html'
-      - clean-css
-      - cssnano
-      - csso
-      - esbuild
-      - html-minifier-terser
-      - lightningcss
-      - postcss
-      - supports-color
-      - uglify-js
-      - webpack-cli
 
   ember-ref-bucket@4.1.0(@babel/core@7.29.0):
     dependencies:
