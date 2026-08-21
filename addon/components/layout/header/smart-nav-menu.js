@@ -547,14 +547,4 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         this._distributeFromAllItems();
         later(this, this._recalculate, 50);
     }
-    /**
-     * Reorder handler for drag-sort within the customiser.
-     * Kept here so the customiser sub-component stays stateless.
-     */
-    @action reorderPinned({ sourceList, sourceIndex, targetList, targetIndex }) {
-        if (sourceList === targetList && sourceIndex === targetIndex) return;
-        const item = sourceList[sourceIndex];
-        sourceList.splice(sourceIndex, 1);
-        targetList.splice(targetIndex, 0, item);
-    }
 }

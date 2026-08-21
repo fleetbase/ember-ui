@@ -362,9 +362,9 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
     }
 
     module('the available columns', function () {
-        // DEFECT (see DEFECTS.md #93): the component exposes `conditionsMessage` and
-        // `canAddConditions` getters with their own wording, but the template hard-codes its
-        // own empty-state copy and never reads either getter.
+        // The template hard-codes its own empty-state copy. The component used to carry
+        // `conditionsMessage` and `canAddConditions` getters with competing wording that nothing
+        // read; both were deleted (DEFECTS.md #93).
         test('with no columns at all it explains what to do first', async function (assert) {
             this.setProperties({ columns: undefined, allSelectedColumns: undefined });
 

@@ -73,18 +73,38 @@ function checkCoverage({ summaryPath, sourceRoot, projectRoot }) {
         return { ok: false, failures };
     }
 
-    for (const metric of METRICS) {
-        if (!isFullyCovered(total[metric])) {
-            failures.push(`global ${metric} coverage is ${total[metric].pct}% (${total[metric].covered}/${total[metric].total}) — must be 100%`);
-        }
-    }
-
     const reported = new Map();
     for (const [key, entry] of Object.entries(summary)) {
         if (key === 'total') {
             continue;
         }
-        reported.set(normalize(key, projectRoot), entry);
+
+        const relative = normalize(key, projectRoot);
+
+        // Only gate on THIS package's own source. A pnpm workspace link (e.g. @fleetbase/ember-core)
+        // is instrumented by the same build and lands in the report as `../ember-core/...`; holding
+        // a sibling package to this package's threshold buries the real signal in hundreds of
+        // foreign failures.
+        if (relative.startsWith('../')) {
+            continue;
+        }
+
+        reported.set(relative, entry);
+    }
+
+    // Global totals recomputed from first-party entries only. `summary.total` is istanbul's,
+    // which sums every instrumented file including workspace-linked siblings.
+    for (const metric of METRICS) {
+        let covered = 0;
+        let count = 0;
+        for (const entry of reported.values()) {
+            covered += entry[metric].covered;
+            count += entry[metric].total;
+        }
+        const pct = count === 0 ? 100 : Math.round((covered / count) * 10000) / 100;
+        if (covered !== count) {
+            failures.push(`global ${metric} coverage is ${pct}% (${covered}/${count}) — must be 100%`);
+        }
     }
 
     for (const [file, entry] of reported) {

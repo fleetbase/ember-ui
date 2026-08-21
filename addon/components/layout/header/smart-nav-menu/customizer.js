@@ -34,12 +34,6 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
 
     // ─── Computed ─────────────────────────────────────────────────────────────
 
-    /** Items that are NOT in the working pinned list. */
-    get unpinnedItems() {
-        const pinnedIds = this.workingPinned.map((i) => i.id);
-        return (this.args.allItems ?? []).filter((i) => !pinnedIds.includes(i.id));
-    }
-
     /** True when the user has reached the maximum allowed pinned items. */
     get atPinnedLimit() {
         return this.workingPinned.length >= (this.args.maxVisible ?? 5);

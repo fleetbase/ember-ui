@@ -68,10 +68,11 @@ withFixture((root) => {
     assert.strictEqual(result.ok, true, `expected pass, got failures: ${result.failures.join('; ')}`);
 });
 
-// 2. Global totals below 100% → fails and names each low metric.
+// 2. Global totals are RECOMPUTED from first-party files, so a partial file drives the global
+//    failure and istanbul's own `total` (which counts workspace siblings too) is ignored.
 withFixture((root) => {
-    const result = runCase(root, { total: partialEntry(), 'addon/utils/covered.js': fullEntry() });
-    assert.strictEqual(result.ok, false, 'expected partial global coverage to fail');
+    const result = runCase(root, { total: fullEntry(), 'addon/utils/covered.js': partialEntry() });
+    assert.strictEqual(result.ok, false, 'expected a partial first-party file to fail the global check');
     assert.ok(
         result.failures.some((failure) => failure.includes('global statements coverage is 50%')),
         `expected a global statements failure, got: ${result.failures.join('; ')}`
@@ -141,4 +142,16 @@ withFixture((root) => {
     assert.strictEqual(result.ok, false, 'a partial file still fails alongside empty ones');
 });
 
-console.log('check-coverage self-test passed (9 cases).');
+// 10. A workspace-linked sibling package (`../ember-core/...`) is instrumented by the same
+//     build. It must not be gated, and must not pollute the recomputed global total.
+withFixture((root) => {
+    const result = runCase(root, {
+        total: partialEntry(),
+        'addon/utils/covered.js': fullEntry(),
+        '../ember-core/addon/abilities/dynamic.js': partialEntry(),
+    });
+    assert.strictEqual(result.ok, true, 'a partial sibling package neither fails the gate nor drags the global total down');
+    assert.strictEqual(result.failures.filter((f) => f.includes('ember-core')).length, 0, 'and it is never named in the failures');
+});
+
+console.log('check-coverage self-test passed (10 cases).');

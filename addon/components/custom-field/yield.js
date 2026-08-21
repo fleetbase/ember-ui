@@ -49,7 +49,6 @@ export default class CustomFieldYieldComponent extends Component {
     }
 
     @task *loadCustomFields() {
-        // const subject = yield this.resolveSubject();
         const owner = yield this.resolveOwner();
 
         try {
@@ -66,10 +65,6 @@ export default class CustomFieldYieldComponent extends Component {
         }
     }
 
-    @action toggleGroupEdit(group) {
-        group.isEditing = !group.isEditing;
-    }
-
     @action cancelEditing(group) {
         group.isEditing = false;
     }
@@ -82,15 +77,6 @@ export default class CustomFieldYieldComponent extends Component {
         if (typeof this.args.onChange === 'function') {
             this.args.onChange();
         }
-    }
-
-    async resolveSubject() {
-        let subject = this.args.subject;
-        if (isThenable(subject)) {
-            subject = await subject;
-        }
-
-        return subject;
     }
 
     async resolveOwner() {

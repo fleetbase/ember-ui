@@ -158,35 +158,6 @@ export default class EventCalendarComponent extends Component {
     // Public API helpers (callable by parent via @onCalendarReady)
     // -------------------------------------------------------------------------
 
-    /**
-     * Programmatically change the view type.
-     * @param {string} viewName  e.g. 'resourceTimelineWeek'
-     */
-    @action changeView(viewName) {
-        this._setOption('view', viewName);
-    }
-
-    /**
-     * Navigate the calendar to today.
-     */
-    @action today() {
-        this._setOption('date', new Date());
-    }
-
-    /**
-     * Refetch events from the events source.
-     */
-    @action refetchEvents() {
-        this._setOption('events', this.args.events ?? []);
-    }
-
-    /**
-     * Refetch resources from the resources source.
-     */
-    @action refetchResources() {
-        this._setOption('resources', this.args.resources ?? []);
-    }
-
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

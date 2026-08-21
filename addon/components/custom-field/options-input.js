@@ -2,7 +2,6 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import isObject from '@fleetbase/ember-core/utils/is-object';
 
 export default class CustomFieldOptionsInputComponent extends Component {
     @tracked options = {};
@@ -128,27 +127,6 @@ export default class CustomFieldOptionsInputComponent extends Component {
         this.args.customField.set('options', options);
         if (typeof this.args.onChange === 'function') {
             this.args.onChange(options, this.args.customField);
-        }
-    }
-
-    /**
-     * Adds or updates a meta option with the given key and value.
-     * @param {string} key - The key of the meta option to add or update.
-     * @param {string} value - The value of the meta option.
-     */
-    @action addMetaOption(key, value) {
-        if (!isObject(this.args.customField.meta)) {
-            this.args.customField.set('meta', {});
-        }
-
-        const meta = {
-            ...this.args.customField.meta,
-            [key]: value,
-        };
-
-        this.args.customField.meta = meta;
-        if (typeof this.args.onMetaChanged === 'function') {
-            this.args.onMetaChanged(meta, this.args.customField);
         }
     }
 }
