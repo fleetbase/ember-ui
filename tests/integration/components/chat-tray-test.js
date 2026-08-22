@@ -310,6 +310,46 @@ module('Integration | Component | chat-tray', function (hooks) {
             assert.dom('[aria-label="Open chat inbox"]').exists('the tray survives every event');
         });
 
+        test('an incoming message from someone else plays the notification sound', async function (assert) {
+            // `playSoundForIncomingMessage` compares the current user's participant record against
+            // the message sender, so the sound only plays for messages the user did not send.
+            const originalPlay = window.HTMLMediaElement.prototype.play;
+            const plays = [];
+            window.HTMLMediaElement.prototype.play = function () {
+                plays.push(true);
+                return Promise.resolve();
+            };
+
+            try {
+                await render(hbs`<ChatTray />`);
+                socketCallback(this)({ event: 'chat_message.created', data: { sender_uuid: 'participant-2' } });
+                await settled();
+            } finally {
+                window.HTMLMediaElement.prototype.play = originalPlay;
+            }
+
+            assert.strictEqual(plays.length, 1, 'the sound plays for a message from another participant');
+        });
+
+        test('a message the current user sent does not play the sound', async function (assert) {
+            const originalPlay = window.HTMLMediaElement.prototype.play;
+            const plays = [];
+            window.HTMLMediaElement.prototype.play = function () {
+                plays.push(true);
+                return Promise.resolve();
+            };
+
+            try {
+                await render(hbs`<ChatTray />`);
+                socketCallback(this)({ event: 'chat_message.created', data: { sender_uuid: 'participant-1' } });
+                await settled();
+            } finally {
+                window.HTMLMediaElement.prototype.play = originalPlay;
+            }
+
+            assert.strictEqual(plays.length, 0, 'no sound for your own message');
+        });
+
         test('an unrecognised event is ignored', async function (assert) {
             await render(hbs`<ChatTray />`);
 
@@ -869,5 +909,143 @@ module('Integration | Component | chat-tray channel lifecycle', function (hooks)
         assert.deepEqual(pushed, []);
         assert.deepEqual(closedChannels, []);
         assert.deepEqual(openedChannels, []);
+    });
+    // Two gaps the existing fixtures cannot reach: the sort comparator only evaluates its final
+    // `?? 0` fallback when the SECOND channel it is handed has neither timestamp, and the search
+    // only reaches its `?? []` participant fallbacks for a channel with no participants key at all.
+    module('channels missing fields entirely', function () {
+        function serveChannels(context, channels) {
+            const chat = context.owner.lookup('service:chat');
+            chat.loadChannels = {
+                isIdle: true,
+                perform: ({ withChannels } = {}) => {
+                    if (typeof withChannels === 'function') {
+                        withChannels(channels);
+                    }
+                    return Promise.resolve(channels);
+                },
+            };
+        }
+
+        test('two conversations with no timestamps at all still sort', async function (assert) {
+            serveChannels(this, [
+                { id: 'a', public_id: 'chat_a', title: 'No dates one', name: 'No dates one', participants: [] },
+                { id: 'b', public_id: 'chat_b', title: 'No dates two', name: 'No dates two', participants: [] },
+            ]);
+
+            await render(hbs`<ChatTray />`);
+            await click('[aria-label="Open chat inbox"]');
+
+            assert.strictEqual(findAll('.chat-inbox-conversation-row').length, 2, 'both render rather than throwing on a missing date');
+        });
+
+        test('the tray renders its own defaults while channels are still loading', async function (assert) {
+            // Every other fixture calls `withChannels` synchronously, so the component's declared
+            // defaults are overwritten before anything reads them. In production the load is async
+            // and the template renders against those defaults first.
+            const chat = this.owner.lookup('service:chat');
+            let release;
+            chat.loadChannels = {
+                isIdle: true,
+                perform: ({ withChannels } = {}) =>
+                    new Promise((resolve) => {
+                        release = () => {
+                            if (typeof withChannels === 'function') {
+                                withChannels([]);
+                            }
+                            resolve([]);
+                        };
+                    }),
+            };
+
+            await render(hbs`<ChatTray />`);
+            await click('[aria-label="Open chat inbox"]');
+
+            assert.dom('.chat-tray-unread-notifications-badge').doesNotExist('no unread badge before a count arrives');
+            assert.strictEqual(findAll('.chat-inbox-conversation-row').length, 0, 'and no conversations yet');
+
+            // The contact list reads `availableUsers` before its own fetch resolves, too.
+            const fetch = this.owner.lookup('service:fetch');
+            const originalGet = fetch.get.bind(fetch);
+            let releaseUsers;
+            fetch.get = (path, ...rest) => {
+                if (path === 'chat-channels/available-participants') {
+                    return new Promise((resolve) => {
+                        releaseUsers = () => resolve([]);
+                    });
+                }
+                return originalGet(path, ...rest);
+            };
+
+            await click('.chat-inbox-panel-actions .btn-primary');
+
+            assert.strictEqual(findAll('.chat-compose-contact-name').length, 0, 'no contacts before the fetch resolves');
+
+            releaseUsers();
+            release();
+            await settled();
+            fetch.get = originalGet;
+
+            assert.dom('.chat-inbox-panel').exists('the inbox survives the load resolving');
+        });
+
+        test('a conversation with no participants key can still be searched', async function (assert) {
+            serveChannels(this, [{ id: 'a', public_id: 'chat_a', title: 'Dispatch Team', name: 'Dispatch Team' }]);
+
+            await render(hbs`<ChatTray />`);
+            await click('[aria-label="Open chat inbox"]');
+            await fillIn('.chat-inbox-search input', 'dispatch');
+
+            assert.strictEqual(findAll('.chat-inbox-conversation-row').length, 1, 'matched on its title with no participants to read');
+
+            await fillIn('.chat-inbox-search input', 'nobody');
+
+            assert.strictEqual(findAll('.chat-inbox-conversation-row').length, 0, 'and a miss still filters it out');
+        });
+    });
+    module('paths the happy-path fixtures do not reach', function () {
+        function userChannelCallback() {
+            // This module's socket stub records into `listened`, not `socket.calls`.
+            return listened.find((entry) => String(entry.name).startsWith('user.'))?.handler;
+        }
+
+        test('a participant-removed event reloads and closes the channel', async function (assert) {
+            // The suite's other socket test fires `chat.removed_participant`; the switch matches
+            // `chat.participant_removed`, so that arm was never entered.
+            await render(hbs`<ChatTray />`);
+            const callback = userChannelCallback();
+            assert.ok(callback, 'the user channel is subscribed to');
+
+            callback({ event: 'chat.participant_removed', data: { id: 'participant-2', chat_channel_uuid: 'chat-1' } });
+            await settled();
+
+            assert.dom('[aria-label="Open chat inbox"]').exists('the tray survives the removal');
+        });
+
+        test('a failure loading teammates leaves an empty list rather than throwing', async function (assert) {
+            const fetch = this.owner.lookup('service:fetch');
+            const originalGet = fetch.get.bind(fetch);
+            const warnings = [];
+            const originalWarn = console.warn;
+            console.warn = (...args) => warnings.push(args[0]);
+            fetch.get = (path, ...rest) => {
+                if (path === 'chat-channels/available-participants') {
+                    return Promise.reject(new Error('participants are unavailable'));
+                }
+                return originalGet(path, ...rest);
+            };
+
+            try {
+                await render(hbs`<ChatTray />`);
+                await click('[aria-label="Open chat inbox"]');
+                await click('.chat-inbox-panel-actions .btn-primary');
+            } finally {
+                console.warn = originalWarn;
+                fetch.get = originalGet;
+            }
+
+            assert.strictEqual(warnings[0], 'Error loading chat participants:', 'the failure is reported');
+            assert.dom('.chat-compose-panel').exists('and the compose panel still opens');
+        });
     });
 });
