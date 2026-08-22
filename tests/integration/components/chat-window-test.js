@@ -407,12 +407,6 @@ module('Integration | Component | chat-window', function (hooks) {
     });
     // Paths the happy-path fixtures never take.
     module('less-travelled paths', function () {
-        function removeButtonFor(context, name) {
-            const bubble = Array.from(context.element.querySelectorAll('.chat-window-participant-bubble-container')).find((container) => container.querySelector(`[alt="${name}"]`) !== null);
-
-            return bubble?.querySelector('.chat-window-remove-participant');
-        }
-
         test('shift+enter inserts a newline instead of sending', async function (assert) {
             await render(hbs`<ChatWindow @channel={{this.channel}} />`);
 
