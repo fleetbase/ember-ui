@@ -71,4 +71,22 @@ module('Integration | Component | country-select', function (hooks) {
 
         assert.dom('.ember-power-select-trigger[aria-disabled="true"]').exists();
     });
+    test('a failed lookup leaves an empty list rather than throwing', async function (assert) {
+        this.fetch.get = () => Promise.reject(new Error('lookup unavailable'));
+
+        await render(hbs`<CountrySelect />`);
+        await clickTrigger();
+
+        // power-select renders its empty message AS an option, so assert on the message.
+        assert.dom('.ember-power-select-option').hasText('No results found', 'no countries are offered');
+        assert.dom('.ember-power-select-trigger').exists('and the select still renders');
+    });
+
+    test('selecting a country with no @onChange handler still updates the selection', async function (assert) {
+        // Every other case supplies the handler, so its guard had never been skipped.
+        await render(hbs`<CountrySelect />`);
+        await selectChoose('.fleetbase-power-select', 'Singapore');
+
+        assert.dom('.ember-power-select-trigger').includesText('Singapore', 'the selection is applied without a listener');
+    });
 });

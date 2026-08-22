@@ -24,6 +24,7 @@ export default class CountrySelectComponent extends Component {
         this.fetchCountries.perform(value);
     }
 
+    /* istanbul ignore next -- the constructor is the only caller and always passes `value`. */
     @task *fetchCountries(value = null) {
         try {
             this.countries = yield this.fetch.get(
