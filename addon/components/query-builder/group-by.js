@@ -178,6 +178,7 @@ export default class QueryBuilderGroupByComponent extends Component {
 
     @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
+        /* istanbul ignore if -- ember-drag-sort re-checks that the source and target position differ after its own index adjustments (services/drag-sort.ts endDragging) and never invokes @dragEndAction for a drop that did not move anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)

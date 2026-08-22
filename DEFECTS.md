@@ -189,6 +189,26 @@ iso2 and select it — minus the `@onChange` notification.
 beside the one the template actually uses.
 Blocks the gate while it exists.
 
+## 13. `addon/components/query-builder/conditions.js` — a multi-value condition kept only the last value picked
+
+**Status:** FIXED (this branch)
+**Found:** writing the first real test for the `is one of` editor. Selecting `active` then `pending`
+reported `['pending']`, not `['active', 'pending']`.
+**Evidence:** `updateConditionValue` mutated `cond.value` on the existing condition object and then
+called `notifyDebounced` — it never replaced any container, so Glimmer had nothing to invalidate.
+`PowerSelectMultiple`'s `@selected={{condition.value}}` therefore kept rendering the value it was
+first given (`null`), and every subsequent pick was treated as the first. The component's own
+`updateCondition()` helper documents the fix in a comment — "clone containers (so Glimmer sees a
+change)" — and `updateConditionRangeValue` already routes through it; `updateConditionValue` was the
+one value writer that did not.
+**Impact:** user-visible. Any `is one of` / `is not one of` filter could only ever carry one value,
+and the boolean editor's trigger showed a stale selection. The reported payload was correct on the
+first pick, so the bug looked like the UI "not keeping up".
+**Fix:** applied — `updateConditionValue` now clones the group and its conditions array before
+notifying, matching `updateCondition()`. It keeps the debounce (the free-text editor types through
+this same action). Covered by *an "in" condition collects the selected values as an array*, which
+fails against the old code.
+
 ---
 
 ## Tests that pass for a reason other than the one they name

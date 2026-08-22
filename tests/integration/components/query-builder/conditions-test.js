@@ -1,8 +1,9 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn, findAll, find } from '@ember/test-helpers';
+import { render, click, fillIn, findAll, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { selectChoose, getDropdownItems } from 'ember-power-select/test-support';
+import { sort } from 'ember-drag-sort/utils/trigger';
 
 const COLUMNS = [
     { name: 'status', label: 'Status', type: 'string', table: 'orders', full: 'orders.status' },
@@ -796,5 +797,180 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
 
             assert.strictEqual(grouped[0].conditions[0].value, null, 'the previous value is not carried over');
         });
+    });
+    // Both reorder handlers are wired to ember-drag-sort's @dragEndAction. The addon ships a
+    // documented `sort` helper that drives dragstart/dragover/dragend through the @dragHandle,
+    // so these need no extra harness. There is deliberately no "dropped back where it started"
+    // test: the addon re-checks source !== target after its own index adjustments and simply
+    // never calls the action, so such a test would assert nothing about this component.
+    // has to be produced by dropping ABOVE the next item, which the addon resolves back to the
+    // source index.
+    module('reordering by drag', function () {
+        const outerList = () => find('.condition-group-container > .drag-sort-list');
+        const innerList = () => find('.condition-group-content > .drag-sort-list');
+
+        test('dragging a condition down past its neighbour reorders the group', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonWithText('Add condition'));
+            await click(buttonWithText('Add condition'));
+
+            const before = changes[changes.length - 1].flat;
+            before[0].field = 'status';
+            before[1].field = 'total';
+            const reports = changes.length;
+
+            await sort(innerList(), 0, 1, false, '.drag-handle');
+
+            assert.strictEqual(changes.length, reports + 1, 'the reorder is reported');
+            const after = changes[changes.length - 1].flat;
+            assert.deepEqual(
+                after.map((condition) => condition.field),
+                ['total', 'status'],
+                'the two conditions swapped places'
+            );
+        });
+
+        test('dragging a group down past its neighbour reorders the groups', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonWithText('Add condition'));
+            await click(buttonWithText('Add inner group'));
+            assert.strictEqual(groups().length, 2, 'two groups to reorder');
+            assert.dom(groups()[1]).hasClass('nested-group', 'the nested group starts second');
+
+            const reports = changes.length;
+
+            await sort(outerList(), 0, 1, false, '.drag-handle');
+
+            assert.strictEqual(changes.length, reports + 1, 'the reorder is reported');
+            assert.dom(groups()[0]).hasClass('nested-group', 'the nested group is now first');
+        });
+    });
+    module('reacting to the available columns changing', function () {
+        test('every condition is dropped when the columns go away', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonWithText('Add condition'));
+            assert.strictEqual(groups().length, 1);
+
+            this.set('allSelectedColumns', []);
+            await settled();
+
+            assert.strictEqual(groups().length, 0, 'the group is gone');
+            assert.true(summary().includes('No conditions'));
+            assert.deepEqual(changes[changes.length - 1].flat, [], 'the empty state is reported');
+        });
+
+        test('losing the columns reports nothing when there was nothing to drop', async function (assert) {
+            await render(TEMPLATE);
+            const reports = changes.length;
+
+            this.set('allSelectedColumns', []);
+            await settled();
+
+            assert.strictEqual(changes.length, reports, 'no change is reported');
+        });
+
+        test('a condition on a column that is no longer selected is pruned', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonWithText('Add condition'));
+            await selectChoose('.condition-field', 'Status');
+            await click(buttonWithText('Add condition'));
+            await selectChoose(findAll('.condition-field')[1], 'Total');
+
+            this.set('allSelectedColumns', [COLUMNS[1]]);
+            await settled();
+
+            const remaining = changes[changes.length - 1].flat;
+            assert.deepEqual(
+                remaining.map((condition) => condition.field.full),
+                ['orders.total'],
+                'only the condition on the still-selected column survives'
+            );
+        });
+
+        test('an incomplete condition survives the columns changing', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonWithText('Add condition'));
+
+            this.set('allSelectedColumns', [COLUMNS[1]]);
+            await settled();
+
+            assert.strictEqual(groups().length, 1, 'the group is still there');
+            assert.strictEqual(changes[changes.length - 1].flat.length, 1, 'the blank condition is kept');
+        });
+    });
+
+    test('an "in" condition collects the selected values as an array', async function (assert) {
+        await render(TEMPLATE);
+        await click(buttonWithText('Add condition'));
+        await selectChoose('.condition-field', 'Status');
+        await selectChoose('.condition-operator', 'is one of');
+        await selectChoose('.condition-value', 'active');
+        await selectChoose('.condition-value', 'pending');
+
+        const [condition] = changes[changes.length - 1].flat;
+        assert.deepEqual(
+            condition.value.map((option) => option.value),
+            ['active', 'pending'],
+            'both selections are reported'
+        );
+    });
+    test('a boolean condition reports the chosen option as-is', async function (assert) {
+        this.set('allSelectedColumns', [...COLUMNS, { name: 'is_paid', label: 'Is Paid', type: 'boolean', table: 'orders', full: 'orders.is_paid' }]);
+        await render(TEMPLATE);
+        await click(buttonWithText('Add condition'));
+        await selectChoose('.condition-field', 'Is Paid');
+        await selectChoose('.condition-operator', 'equals');
+        await selectChoose('.condition-value', 'True');
+
+        const [condition] = changes[changes.length - 1].flat;
+        assert.true(condition.value.value, 'the option object is stored, not an event');
+    });
+
+    test('a column with no label, table or full name is filled in from the table', async function (assert) {
+        this.set('table', { name: 'orders' });
+        this.set('allSelectedColumns', [{ name: 'reference_code' }]);
+        await render(hbs`
+            <QueryBuilder::Conditions
+                @table={{this.table}}
+                @columns={{this.allSelectedColumns}}
+                @allSelectedColumns={{this.allSelectedColumns}}
+                @onChange={{this.onChange}}
+            />
+        `);
+        await click(buttonWithText('Add condition'));
+
+        const options = await getDropdownItems('.condition-field');
+        assert.deepEqual(options, ['reference_code'], 'the column name stands in for the missing label');
+
+        await selectChoose('.condition-field', 'reference_code');
+        const [condition] = changes[changes.length - 1].flat;
+        assert.strictEqual(condition.field.full, 'orders.reference_code', 'the full name is built from the table');
+    });
+    // `buttonWithText` finds the first match in the DOM, which becomes the group's own
+    // "Add condition" button as soon as a group exists. The panel-level button is the one in
+    // `.condition-actions`, and it is the only way to reach addCondition() with a group already
+    // present.
+    test('the panel-level add button appends to the existing root group', async function (assert) {
+        await render(TEMPLATE);
+        const panelAdd = () => find('.condition-actions button');
+
+        await click(panelAdd());
+        await click(panelAdd());
+
+        assert.strictEqual(groups().length, 1, 'no second group is created');
+        assert.strictEqual(changes[changes.length - 1].flat.length, 2, 'both conditions live in the root group');
+    });
+
+    test('a nested group left empty by a column change is removed', async function (assert) {
+        await render(TEMPLATE);
+        await click(buttonWithText('Add inner group'));
+        await selectChoose('.condition-field', 'Status');
+        assert.strictEqual(groups().length, 1);
+
+        this.set('allSelectedColumns', [COLUMNS[1]]);
+        await settled();
+
+        assert.strictEqual(groups().length, 0, 'the nested group goes with its last condition');
+        assert.deepEqual(changes[changes.length - 1].flat, [], 'nothing is left to report');
     });
 });
