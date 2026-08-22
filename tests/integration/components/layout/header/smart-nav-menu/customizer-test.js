@@ -283,4 +283,30 @@ module('Integration | Component | layout/header/smart-nav-menu/customizer', func
 
         assert.deepEqual(pinnedTitles(), [], 'there is nothing to restore and nothing breaks');
     });
+    test('at the limit, unpinned items cannot be clicked at all', async function (assert) {
+        // The template renders `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`,
+        // so togglePin's `!atPinnedLimit` guard is unreachable from the UI — the control is shut
+        // before the guard is consulted.
+        this.setProperties({ maxVisible: 2, pinnedIds: ['fleet-ops', 'storefront'] });
+
+        await render(TEMPLATE);
+
+        assert.strictEqual(pinnedTitles().length, 2, 'starts at the limit');
+        assert.dom(allItem('Developers')).isDisabled('an unpinned item is not offered');
+        assert.dom(allItem('Developers')).hasClass('is-disabled');
+        assert.dom(allItem('Fleet Ops')).isNotDisabled('a pinned item can still be unpinned');
+    });
+
+    test('unpinning at the limit makes room again', async function (assert) {
+        this.setProperties({ maxVisible: 2, pinnedIds: ['fleet-ops', 'storefront'] });
+
+        await render(TEMPLATE);
+        await click(allItem('Fleet Ops'));
+
+        assert.strictEqual(pinnedTitles().length, 1, 'unpinning always works');
+
+        await click(allItem('Developers'));
+
+        assert.strictEqual(pinnedTitles().length, 2, 'and the freed slot can be filled');
+    });
 });
