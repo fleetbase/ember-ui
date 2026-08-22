@@ -154,6 +154,26 @@ module('Integration | Component | tip-tap-editor', function (hooks) {
             assert.false(editor.isEditable);
         });
 
+        test('focus and blur are forwarded to their handlers', async function (assert) {
+            // TEMPLATE already wires @onFocus and @onBlur; no test had ever set them, so both
+            // guards had only ever been skipped.
+            const events = [];
+            this.set('onFocus', () => events.push('focus'));
+            this.set('onBlur', () => events.push('blur'));
+
+            await renderEditor();
+
+            editor.commands.focus();
+            await settled();
+            editor.commands.blur();
+            await settled();
+
+            // Not an exact sequence: focus state is shared with the rest of the suite, so the
+            // editor can be focused more than once. What matters is that both guards fire.
+            assert.true(events.includes('focus'), 'the focus handler is forwarded');
+            assert.true(events.includes('blur'), 'the blur handler is forwarded');
+        });
+
         test('it renders without any callbacks', async function (assert) {
             await renderEditor(hbs`<TipTapEditor @value="<p>Bare</p>" />`);
 
