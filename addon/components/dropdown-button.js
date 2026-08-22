@@ -11,14 +11,20 @@ export default class DropdownButtonComponent extends Component {
     get events() {
         return getOwner(this).lookup('service:events');
     }
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked type = 'default';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked buttonSize = 'md';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked buttonComponentArgs = {};
     @tracked _onInsertFired = false;
     @tracked _onTriggerInsertFired = false;
     @tracked _onButtonInsertFired = false;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked disabled = false;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked visible = true;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked permissionRequired = false;
     @tracked doesntHavePermissions = false;
 

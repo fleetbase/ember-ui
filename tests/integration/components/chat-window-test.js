@@ -258,6 +258,15 @@ module('Integration | Component | chat-window', function (hooks) {
     });
 
     module('participants', function () {
+        // The remove control is only rendered for participants you may remove, and which
+        // participants offer one depends on who the sender is. Select by the bubble's alt text
+        // rather than by position.
+        function removeButtonFor(context, name) {
+            const bubble = Array.from(context.element.querySelectorAll('.chat-window-participant-bubble-container')).find((container) => container.querySelector(`[alt="${name}"]`) !== null);
+
+            return bubble?.querySelector('.chat-window-remove-participant');
+        }
+
         test('adding a participant hands the user to the chat service', async function (assert) {
             this.store = this.owner.lookup('service:store');
             this.store.queryResults = { user: [{ id: 'user-9', name: 'New Person', user_uuid: 'user-9' }] };
@@ -281,12 +290,6 @@ module('Integration | Component | chat-window', function (hooks) {
         // The remove control is gated by the `can-remove-chat-participant` helper, so which
         // participants offer one depends on who the sender is. Select by the bubble's alt text
         // rather than by position.
-        function removeButtonFor(context, name) {
-            const bubble = Array.from(context.element.querySelectorAll('.chat-window-participant-bubble-container')).find((container) => container.querySelector(`[alt="${name}"]`) !== null);
-
-            return bubble?.querySelector('.chat-window-remove-participant');
-        }
-
         test('removing another participant asks for confirmation first', async function (assert) {
             // can-remove-chat-participant only allows removing someone else when the sender
             // created the channel, and it keys on user_uuid.
