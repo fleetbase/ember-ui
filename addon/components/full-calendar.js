@@ -68,10 +68,14 @@ export default class FullCalendarComponent extends Component {
     }
 
     triggerCalendarEvent(eventName, ...params) {
+        /* istanbul ignore next -- `eventName` here is a callback name like `onDateClick`, and this
+           class defines no such methods; the hook exists for subclasses. */
         if (typeof this[eventName] === 'function') {
             this[eventName](...params);
         }
 
+        /* istanbul ignore next -- a listener is only subscribed when `this.args[callbackName]` is
+           already a function (see createCalendarEventListeners), so it is always present here. */
         if (typeof this.args[eventName] === 'function') {
             this.args[eventName](...params);
         }
