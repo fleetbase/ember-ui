@@ -120,6 +120,20 @@ heading everywhere a caller omits the argument, a visible change — or delete t
 that the heading is opt-in. Product call.
 Blocks the gate while it exists: an uncalled getter cannot be covered.
 
+## 8. `addon/components/countdown.js` — `restartCountdown` is never called
+
+**Status:** NEEDS DECISION
+**Found:** the whole method reported as never invoked.
+**Evidence:** `grep -rn restartCountdown addon/` returns only the declaration and its docblock. It
+is not an `@action`, not referenced by `countdown.hbs`, and not called from anywhere in the class.
+**Impact:** none today — the countdown starts from the constructor and ticks correctly. But there is
+no way to restart one without re-rendering the component, which is presumably what the method was
+written for.
+**Fix:** either delete it, or expose it (as an `@action`, or via a `@onRestart`-style yield) so
+consumers can restart a countdown in place. Same family as #6 and the dead getters #2/#3/#7: code
+written for an intent the wiring never delivered.
+Blocks the gate while it exists — an uncalled method cannot be covered.
+
 ---
 
 ## Settled — not defects, recorded so they are not "fixed" again

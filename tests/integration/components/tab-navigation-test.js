@@ -569,4 +569,29 @@ module('Integration | Component | tab-navigation', function (hooks) {
             assert.true(link.getAttribute('href').includes('/console/notifications'));
         });
     });
+    // The overflow calculation has an empty-list path, and argsDidChange defaults a missing
+    // @tabs to an empty list. Neither is reached while a populated array is always supplied.
+    test('an empty tab list renders and recalculates without error', async function (assert) {
+        this.set('tabs', []);
+
+        await render(TEMPLATE);
+
+        assert.dom('[role="tablist"]').exists('the tab strip still renders');
+        assert.strictEqual(findAll('[role="tab"]').length, 0, 'with no tabs in it');
+    });
+
+    test('tabs appearing after an empty start select the first one', async function (assert) {
+        this.set('tabs', []);
+
+        await render(TEMPLATE);
+
+        this.set('tabs', [
+            { id: 'details', label: 'Details' },
+            { id: 'files', label: 'Files' },
+        ]);
+        await settled();
+
+        assert.strictEqual(findAll('[role="tab"]').length, 2, 'the new tabs render');
+        assert.dom('[role="tab"][aria-selected="true"]').hasText('Details', 'and the first becomes active');
+    });
 });

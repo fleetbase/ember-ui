@@ -68,12 +68,19 @@ module('Integration | Component | table/empty-state', function (hooks) {
                 @description="Create the first record."
                 @filteredTitle="No records match your search"
                 @filteredDescription="Adjust search or filters."
+                @note="Records appear here once created."
+                @filteredNote="Try a broader search."
+                @icon="inbox"
+                @filteredIcon="magnifying-glass"
             />
         `);
 
         assert.dom('.next-table-empty-state').includesText('No records match your search');
         assert.dom('.next-table-empty-state').includesText('Adjust search or filters.');
         assert.dom('.next-table-empty-state').doesNotIncludeText('Create the first record.');
+        assert.dom('.next-table-empty-state').includesText('Try a broader search.', 'the filtered note replaces the default');
+        assert.dom('.next-table-empty-state').doesNotIncludeText('Records appear here once created.');
+        assert.dom('.next-table-empty-state svg').hasClass('fa-magnifying-glass', 'and the filtered icon replaces the default');
     });
 
     test('it renders the compact variant', async function (assert) {
@@ -119,5 +126,27 @@ module('Integration | Component | table/empty-state', function (hooks) {
             title: 'Vehicles guide',
             source: 'fleet-ops-empty-vehicles',
         });
+    });
+    test('a context flagged as filtered uses the filtered copy without a search term', async function (assert) {
+        this.set('context', { isFiltered: true });
+
+        await render(hbs`
+            <Table::EmptyState @context={{this.context}} @title="No records" @filteredTitle="Nothing matches those filters" />
+        `);
+
+        assert.dom('.next-table-empty-state').includesText('Nothing matches those filters');
+    });
+
+    test('the docs link falls back to its own defaults', async function (assert) {
+        // Every other docs case passes explicit text, title and source.
+        await render(hbs`<Table::EmptyState @title="Add your first vehicle" @docsSlug="fleet-ops/vehicles" />`);
+
+        assert.dom('.next-table-empty-state-docs-action').hasText('Read guide', 'the default link text');
+
+        await click('.next-table-empty-state-docs-action');
+
+        const docsPanel = this.owner.lookup('service:docs-panel');
+        assert.strictEqual(docsPanel.lastTarget, 'fleet-ops/vehicles');
+        assert.deepEqual(docsPanel.lastOptions, { title: 'Add your first vehicle', source: 'table-empty-state' }, 'title falls back to the empty-state title, source to the component name');
     });
 });
