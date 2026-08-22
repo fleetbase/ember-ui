@@ -170,6 +170,8 @@ export default class PaginationComponent extends Component {
      *
      * @void
      */
+    /* istanbul ignore next -- every call site in pagination.hbs passes an explicit step
+       (`(fn this.incrementPage 1)` or `-1`), so the default never applies. */
     @action incrementPage(step = 1) {
         const currentPage = Number(this.currentPage);
         const totalPages = Number(this.totalPages);

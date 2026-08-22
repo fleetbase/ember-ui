@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, settled, find } from '@ember/test-helpers';
+import { click, find, render, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 function overlay() {
@@ -420,5 +420,28 @@ module('Integration | Component | overlay', function (hooks) {
         assert.strictEqual(panel().style.width, '', 'the width clamp does not fire on a vertical drag');
 
         mouse('mouseup', document, { clientY: -5000 });
+    });
+    // Every case above supplies the handlers. All three call sites guard them, and none of
+    // those guards had been skipped.
+    test('opening, closing and toggling with no handlers at all', async function (assert) {
+        await render(hbs`
+            <Overlay @isOpen={{false}} as |overlay|>
+                <button type="button" data-test-open {{on "click" overlay.open}}>open</button>
+                <button type="button" data-test-close {{on "click" overlay.close}}>close</button>
+                <button type="button" data-test-toggle {{on "click" overlay.toggle}}>toggle</button>
+            </Overlay>
+        `);
+
+        await click('[data-test-open]');
+        assert.true(overlay().classList.contains('is-open'), 'it opens with nothing listening');
+
+        await click('[data-test-close]');
+        assert.false(overlay().classList.contains('is-open'), 'and closes');
+
+        await click('[data-test-toggle]');
+        assert.true(overlay().classList.contains('is-open'), 'toggle opens it again');
+
+        await click('[data-test-toggle]');
+        assert.false(overlay().classList.contains('is-open'), 'and toggles it shut');
     });
 });
