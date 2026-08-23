@@ -872,4 +872,180 @@ module('Integration | Component | template-builder/properties-panel', function (
             assert.deepEqual(updates, [], 'nothing is written onto the element');
         });
     });
+    // Every table editing action opens with the same guard, and the only way to reach the other
+    // side of it is to render the panel with a selection but no @onUpdateElement — the controls
+    // are all present and clickable, they just have nowhere to report to.
+    module('the table editors without an update handler', function () {
+        function buttonWithText(text) {
+            return findAll('button').find((button) => button.textContent.trim() === text);
+        }
+
+        test('every table control is inert when no handler is supplied', async function (assert) {
+            this.set(
+                'selectedElement',
+                element('table', {
+                    columns: [{ label: 'Name', key: 'name' }],
+                    rows: [{ name: 'Ada' }],
+                })
+            );
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} />`);
+
+            await openSection('Columns');
+            await click(buttonWithText('Add column'));
+            await fillIn('input[placeholder="Column label"]', 'Renamed');
+            await fillIn('input[placeholder="data.key"]', 'renamed_key');
+            await click(find('button[title="Remove column"]'));
+
+            await openSection('Data');
+            await click(buttonWithText('Variable'));
+            await click(buttonWithText('Manual'));
+            await click(buttonWithText('Add row'));
+            await click(find('button[title="Remove row"]'));
+            const cell = findAll('input[placeholder="name"]')[0];
+            if (cell) {
+                await fillIn(cell, 'Grace');
+            }
+
+            assert.deepEqual(updates, [], 'not one of them reported a change');
+        });
+    });
+    // The remaining guards all sit in front of an optional callback. Each of these renders the
+    // panel with the control present but the callback missing, which is the only way to reach
+    // the other side of the guard.
+    module('the element editors without their handlers', function () {
+        test('text and numeric edits are inert without an onUpdateElement handler', async function (assert) {
+            this.set('selectedElement', element('text', { content: 'Hello' }));
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} />`);
+            await openSection('Position');
+            await fillIn(labelled('X'), '42');
+            await openSection('Content');
+            await fillIn('textarea', 'Goodbye');
+
+            assert.deepEqual(updates, [], 'neither edit is reported');
+        });
+
+        test('canvas settings are inert without an onUpdateTemplate handler', async function (assert) {
+            this.set('template', { width: 210, height: 297, unit: 'mm' });
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @template={{this.template}} />`);
+            const select = find('select');
+            if (select) {
+                await fillIn(select, select.options[select.options.length - 1].value);
+            }
+
+            assert.deepEqual(templateUpdates, [], 'nothing is reported to the template');
+        });
+
+        test('the variable buttons are inert without an onOpenVariablePicker handler', async function (assert) {
+            this.set('selectedElement', element('text', { content: 'Hello' }));
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} @onUpdateElement={{this.onUpdateElement}} />`);
+            await openSection('Content');
+            await click(findAll('button').find((button) => button.textContent.includes('Insert variable')));
+
+            assert.deepEqual(updates, [], 'no picker is opened and nothing is written');
+        });
+
+        test('a variable chosen from the picker is dropped when there is no update handler', async function (assert) {
+            let opened = null;
+            this.set('selectedElement', element('text', { content: 'Hello ' }));
+            this.set('onOpenVariablePicker', (targetProp, callback) => {
+                opened = targetProp;
+                callback('{{order.id}}');
+            });
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} @onOpenVariablePicker={{this.onOpenVariablePicker}} />`);
+            await openSection('Content');
+            await click(findAll('button').find((button) => button.textContent.includes('Insert variable')));
+
+            assert.strictEqual(opened, 'content', 'the picker is still asked to open');
+            assert.deepEqual(updates, [], 'but the chosen variable has nowhere to go');
+        });
+
+        test('an uploaded image url is dropped when there is no update handler', async function (assert) {
+            this.set('selectedElement', element('image', { src: '' }));
+
+            await render(hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} />`);
+            await openSection('Image');
+            await selectFiles('input[type="file"]', new File(['binary'], 'logo.png', { type: 'image/png' }));
+
+            const fetch = this.owner.lookup('service:fetch');
+            assert.ok(
+                fetch.calls.find((call) => call.method === 'uploadFile.perform'),
+                'the upload still happens'
+            );
+            assert.deepEqual(updates, [], 'the returned url has nowhere to go');
+        });
+    });
+    module('the line and shape editors', function () {
+        test('a line element offers its stroke styles', async function (assert) {
+            this.set('selectedElement', element('line', { line_style: 'dashed', line_width: 2 }));
+
+            await render(TEMPLATE);
+            await openSection('Line');
+
+            const styles = findAll('select option').map((option) => option.textContent.trim());
+            assert.true(styles.includes('Solid'), 'solid is offered');
+            assert.true(styles.includes('Dashed'));
+            assert.true(styles.includes('Dotted'));
+        });
+
+        test('a shape element offers rectangle and circle', async function (assert) {
+            this.set('selectedElement', element('shape', { shape: 'circle' }));
+
+            await render(TEMPLATE);
+            await openSection('Shape');
+
+            const shapes = findAll('select option').map((option) => option.textContent.trim());
+            assert.true(shapes.includes('Rectangle'));
+            assert.true(shapes.includes('Circle'));
+        });
+    });
+
+    module('the remaining table-editing edge cases', function () {
+        test('renaming a key on a row that never had it seeds an empty cell', async function (assert) {
+            this.set(
+                'selectedElement',
+                element('table', {
+                    columns: [{ label: 'Name', key: 'name' }],
+                    rows: [{ other: 'unrelated' }],
+                })
+            );
+
+            await render(TEMPLATE);
+            await openSection('Columns');
+            await fillIn('input[placeholder="data.key"]', 'full_name');
+
+            assert.deepEqual(lastChanges().rows, [{ other: 'unrelated', full_name: '' }], 'the row gains the new key rather than undefined');
+        });
+
+        test('editing one row leaves the others untouched', async function (assert) {
+            this.set(
+                'selectedElement',
+                element('table', {
+                    columns: [{ label: 'Name', key: 'name' }],
+                    rows: [{ name: 'Ada' }, { name: 'Grace' }],
+                })
+            );
+
+            await render(TEMPLATE);
+            await openSection('Data');
+            await fillIn(findAll('input[placeholder="name"]')[1], 'Hopper');
+
+            assert.deepEqual(lastChanges().rows, [{ name: 'Ada' }, { name: 'Hopper' }], 'only the edited row changes');
+        });
+
+        test('inserting a variable into an empty property starts from nothing', async function (assert) {
+            this.set('selectedElement', element('text'));
+            this.set('onOpenVariablePicker', (targetProp, callback) => callback('{{order.id}}'));
+
+            await render(TEMPLATE);
+            await openSection('Content');
+            await click(findAll('button').find((button) => button.textContent.includes('Insert variable')));
+
+            assert.deepEqual(lastChanges(), { content: '{{order.id}}' }, 'the variable is the whole value');
+        });
+    });
 });
