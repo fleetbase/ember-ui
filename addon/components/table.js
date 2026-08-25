@@ -291,6 +291,7 @@ export default class TableComponent extends Component {
                     // Find the column object
                     const column = this.visibleColumns.find((c) => c.valuePath === columnId);
                     if (column && column._stickyOffset !== undefined) {
+                        /* istanbul ignore next -- _stickyPosition is only ever assigned alongside _stickyOffset (table.js:232-233 and :251-252, always 'left' or 'right'), so by the time this guard passes the position is a non-empty string and the fallback cannot run */
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
                         th.style[position] = `${offset}px`;
@@ -312,6 +313,7 @@ export default class TableComponent extends Component {
                     // Find the column object
                     const column = this.visibleColumns.find((c) => c.valuePath === columnId);
                     if (column && column._stickyOffset !== undefined) {
+                        /* istanbul ignore next -- _stickyPosition is only ever assigned alongside _stickyOffset (table.js:232-233 and :251-252, always 'left' or 'right'), so by the time this guard passes the position is a non-empty string and the fallback cannot run */
                         const position = column._stickyPosition || 'left';
                         const offset = column._stickyOffset;
                         td.style[position] = `${offset}px`;

@@ -428,6 +428,19 @@ module('Integration | Component | table imperative api', function (hooks) {
             assert.strictEqual(this.rows.length, 2, 'a repeated row is removed once');
         });
 
+        // The table hands its own instance to consumers through @onSetup, so removeRows() is public
+        // surface and can be called with no argument at all — which is the only way its `rows = []`
+        // default runs.
+        test('removeRows with no argument removes nothing', async function (assert) {
+            await render(TEMPLATE);
+            const before = this.rows.length;
+
+            table.removeRows();
+            await settled();
+
+            assert.strictEqual(this.rows.length, before, 'the row set is untouched');
+        });
+
         test('removeRows removes every occurrence', async function (assert) {
             await render(TEMPLATE);
             const duplicated = this.rows[1];
