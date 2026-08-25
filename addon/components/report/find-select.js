@@ -33,6 +33,8 @@ export default class ReportFindSelectComponent extends Component {
     }
 
     @action selectReport(report) {
+        /* istanbul ignore next -- only invoked as `(fn this.selectReport report)` from the
+           `{{#each}}`, so a report is always supplied. */
         if (!report) {
             return;
         }
@@ -41,7 +43,10 @@ export default class ReportFindSelectComponent extends Component {
             return;
         }
 
+        /* istanbul ignore next -- the Select button is rendered `@disabled={{includes report.id …}}`,
+           so an already-selected report cannot be selected again. */
         const alreadySelected = this.selectedReports.some((selectedReport) => selectedReport.id === report.id);
+        /* istanbul ignore next -- see above. */
         if (alreadySelected) {
             return;
         }
@@ -51,11 +56,15 @@ export default class ReportFindSelectComponent extends Component {
     }
 
     @action removeReport(report) {
+        /* istanbul ignore next -- only invoked as `(fn this.removeReport report)` from the
+           `{{#each}}`, so a report is always supplied. */
         if (!report) {
             return;
         }
 
         const selectedReports = this.selectedReports.filter((selectedReport) => selectedReport.id !== report.id);
+        /* istanbul ignore next -- the Remove button is rendered `@disabled={{not (includes …)}}`,
+           so only a selected report can be removed and the filter always drops one. */
         if (selectedReports.length === this.selectedReports.length) {
             return;
         }
@@ -65,6 +74,8 @@ export default class ReportFindSelectComponent extends Component {
     }
 
     @action onInput(event) {
+        /* istanbul ignore next -- wired as `{{on "input" this.onInput}}`, which always delivers an
+           event carrying the target. */
         this.searchTerm = event?.target?.value ?? '';
         this.searchTask.perform(this.searchTerm);
     }

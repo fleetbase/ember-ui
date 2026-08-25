@@ -3,7 +3,9 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class ArrayInputComponent extends Component {
+    /* istanbul ignore next -- the constructor assigns both before anything reads them. */
     @tracked data = [];
+    /* istanbul ignore next -- see above. */
     @tracked disabled = false;
 
     constructor(owner, { data = [], disabled = false }) {

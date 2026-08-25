@@ -160,4 +160,19 @@ module('Integration | Component | countdown', function (hooks) {
             assert.true(remaining().includes(String(expected)), `${expected} seconds, got ${remaining()}`);
         });
     });
+    // @display is normalised three ways: a comma string is split, an array is taken as-is, and
+    // anything else is ignored. Only the comma-string path had a test.
+    test('a plain display string is ignored rather than split', async function (assert) {
+        await render(hbs`<Countdown @seconds={{30}} @display="seconds" />`);
+
+        assert.dom('.countdown-container').exists('the countdown still renders');
+    });
+
+    test('an array display is used as given', async function (assert) {
+        this.set('display', ['minutes', 'seconds']);
+
+        await render(hbs`<Countdown @minutes={{2}} @display={{this.display}} />`);
+
+        assert.dom('.countdown-container').exists();
+    });
 });

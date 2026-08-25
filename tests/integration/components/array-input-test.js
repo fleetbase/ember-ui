@@ -81,4 +81,45 @@ module('Integration | Component | array-input', function (hooks) {
         assert.dom('input[aria-label="Data Input"]').isDisabled();
         assert.dom('.array-input .text-red-500').isDisabled();
     });
+    // Every case above supplies @onDataChanged; the component has to work without one, and its
+    // change handlers ignore an empty value.
+    module('with no onDataChanged handler', function () {
+        test('adding, editing and removing all work', async function (assert) {
+            this.set('data', ['alpha']);
+
+            await render(hbs`<ArrayInput @data={{this.data}} />`);
+
+            await click('button.btn-default, button');
+            assert.dom('input[aria-label="Data Input"]').exists({ count: 2 }, 'a row is added without a handler to report to');
+
+            const inputs = this.element.querySelectorAll('input[aria-label="Data Input"]');
+            await fillIn(inputs[1], 'beta');
+            assert.strictEqual(inputs[1].value, 'beta', 'the value is editable');
+
+            await click(this.element.querySelector('button[type="button"]'));
+            assert.dom('.array-input').exists('and removal does not throw');
+        });
+    });
+
+    test('an empty value is ignored rather than written into the array', async function (assert) {
+        const changes = [];
+        this.set('data', ['alpha']);
+        this.set('onDataChanged', (data) => changes.push([...data]));
+
+        await render(hbs`<ArrayInput @data={{this.data}} @onDataChanged={{this.onDataChanged}} />`);
+
+        const input = this.element.querySelector('input[aria-label="Data Input"]');
+        // Clearing the field is what produces an empty value on the change event.
+        await fillIn(input, '');
+
+        assert.deepEqual(changes, [], 'a change carrying no value reports nothing');
+    });
+    test('it renders with no @data at all', async function (assert) {
+        // The constructor defaults both arguments; every other case supplies them.
+        await render(hbs`<ArrayInput />`);
+
+        assert.dom('.array-input').exists('the component renders empty');
+        assert.dom('input[aria-label="Data Input"]').doesNotExist('with no rows');
+        assert.dom('.array-input').doesNotHaveClass('disabled', 'and enabled by default');
+    });
 });
