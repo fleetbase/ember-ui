@@ -266,7 +266,7 @@ rather than assumed — CI would hit the same wall on a Node 18 image.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 
-**Status:** OPEN — NEEDS DECISION (the fix is not a one-liner; see below)
+**Status:** FIXED (PR #161)
 **Note on numbering:** commit `8410e7e` refers to this as "#13". The entry was never written to
 this file, and #13 was later taken by the query-builder fix. This is the entry that commit means.
 **Found:** five of full-calendar's remaining coverage gaps are the whole body of
@@ -278,15 +278,28 @@ nothing ever unregisters them.
 **Impact:** real, and it costs users. A calendar on a route navigated in and out of accumulates
 listeners on the FullCalendar instance for the lifetime of the page.
 **Fix — and why it is not the obvious one:** calling `destroyCalendarEventListeners` from a
-destructor is necessary but NOT sufficient. The method does:
+destructor is necessary but NOT sufficient. The method did:
 
     this.calendar.off(eventName, this.triggerCalendarEvent.bind(this, callbackName));
 
 `.bind()` returns a NEW function every time, so the reference passed to `.off()` can never equal the
 one `.on()` was given, and FullCalendar removes nothing. Wiring the call up as-is would look like a
-fix, pass a test that only asserts the method ran, and leak exactly as before. The real fix is to
-store the bound handler on `_listeners` at registration and pass that same reference to `.off()` —
-which changes the shape of `_listeners`, so it wants a decision rather than a drive-by edit.
+fix, pass a test that only asserts the method ran, and leak exactly as before.
+
+**Applied:** `createCalendarEventListeners` now binds once, stores the resulting function on the
+`_listeners` entry, and hands that same reference to both `.on()` and `.off()`; `willDestroy` calls
+`destroyCalendarEventListeners`, which also empties `_listeners`. Covered by *a destroyed calendar
+stops firing its callbacks* and *every subscribed event is unsubscribed, not just the first*, which
+assert the observable behaviour — trigger the event after teardown and require no callback — rather
+than that the method ran. Both were confirmed to FAIL against the `.bind()` mismatch with
+`willDestroy` already wired, which is the version that looks fixed and is not.
+full-calendar.js is now at 100% statements, branches, functions and lines.
+
+**Still open, and deliberately out of scope here:** the component never calls
+`this.calendar.destroy()`, so the FullCalendar instance and the document-level handlers it installs
+outlive the component. That is a separate and probably larger leak than the one above — the
+integration tests work around it with an `afterEach` that destroys the captured calendar. Fixing it
+changes what a consumer's `@onInit` reference points at after teardown, so it needs its own decision.
 
 ---
 
