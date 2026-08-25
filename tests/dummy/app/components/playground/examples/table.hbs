@@ -1,0 +1,16 @@
+{{! Table example adapter: a deterministic five-row fixture with fixed pagination meta. }}
+<Table
+    @columns={{this.columns}}
+    @rows={{this.rows}}
+    @selectable={{@values.selectable}}
+    @canSelectAll={{@values.canSelectAll}}
+    @sortable={{@values.sortable}}
+    @resizable={{@values.resizable}}
+    @pagination={{@values.pagination}}
+    @page={{@values.page}}
+    @paginationMeta={{this.meta}}
+    @isFiltered={{@values.isFiltered}}
+    @onSort={{fn (or @onEvent (noop)) "onSort"}}
+    @onRowClick={{fn (or @onEvent (noop)) "onRowClick"}}
+    @onPageChange={{fn (or @onEvent (noop)) "onPageChange"}}
+/>

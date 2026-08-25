@@ -1,1 +1,450 @@
-/* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
+/*
+ * Playground chrome only.
+ *
+ * Deliberately plain CSS scoped to `pg-` classes: the components under test bring the addon's own
+ * styles, and the playground must not restyle them or the preview would stop being representative.
+ */
+
+:root {
+    --pg-bg: #ffffff;
+    --pg-surface: #f8fafc;
+    --pg-border: #e2e8f0;
+    --pg-text: #0f172a;
+    --pg-muted: #64748b;
+    --pg-accent: #2563eb;
+    --pg-danger: #b91c1c;
+}
+
+[data-theme='dark'] {
+    --pg-bg: #0b1220;
+    --pg-surface: #111a2b;
+    --pg-border: #1e293b;
+    --pg-text: #e2e8f0;
+    --pg-muted: #94a3b8;
+    --pg-accent: #60a5fa;
+    --pg-danger: #fca5a5;
+}
+
+body {
+    margin: 0;
+    background: var(--pg-bg);
+    color: var(--pg-text);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------- app shell */
+
+.pg-app__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--pg-border);
+    background: var(--pg-surface);
+}
+
+.pg-app__brand {
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--pg-text);
+}
+
+.pg-app__brand-sub {
+    color: var(--pg-muted);
+    font-weight: 500;
+}
+
+.pg-app__doclink,
+.pg-detail__breadcrumb a {
+    color: var(--pg-accent);
+}
+
+.pg-app__main {
+    padding: 1.25rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------------------------------------------------------------- catalog */
+
+.pg-catalog__lede {
+    color: var(--pg-muted);
+    max-width: 60ch;
+}
+
+.pg-catalog__filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+
+.pg-catalog__count {
+    color: var(--pg-muted);
+    margin: 0 0 0.5rem;
+}
+
+.pg-catalog__group-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pg-muted);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.pg-catalog__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.pg-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border: 1px solid var(--pg-border);
+    border-radius: 8px;
+    background: var(--pg-surface);
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+
+.pg-card:hover,
+.pg-card:focus-visible {
+    border-color: var(--pg-accent);
+}
+
+.pg-card__name {
+    font-weight: 600;
+}
+
+.pg-card__description {
+    color: var(--pg-muted);
+    font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------- detail */
+
+.pg-detail__breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    color: var(--pg-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.pg-detail__title {
+    margin: 0 0 0.25rem;
+}
+
+.pg-detail__description {
+    color: var(--pg-muted);
+    max-width: 70ch;
+    margin-top: 0;
+}
+
+.pg-meta {
+    display: grid;
+    gap: 0.25rem;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+}
+
+.pg-meta__row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pg-meta__row dt {
+    color: var(--pg-muted);
+    min-width: 8rem;
+}
+
+.pg-meta__row dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.pg-detail__notes {
+    padding: 0.6rem 0.75rem;
+    border-left: 3px solid var(--pg-accent);
+    background: var(--pg-surface);
+    color: var(--pg-muted);
+    margin: 0.75rem 0;
+}
+
+/* ---------------------------------------------------------------- host */
+
+.pg-host {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    align-items: start;
+    background: var(--pg-bg);
+    color: var(--pg-text);
+}
+
+.pg-host--embedded {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.75rem;
+}
+
+@media (max-width: 900px) {
+    .pg-host {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.pg-preview {
+    grid-column: 1;
+    border: 1px solid var(--pg-border);
+    border-radius: 8px;
+    background: var(--pg-bg);
+    min-height: 140px;
+}
+
+.pg-host--embedded .pg-preview {
+    grid-column: auto;
+}
+
+.pg-preview__surface {
+    padding: 1.25rem;
+    overflow: auto;
+}
+
+.pg-controls,
+.pg-events {
+    border: 1px solid var(--pg-border);
+    border-radius: 8px;
+    background: var(--pg-surface);
+    padding: 0.75rem;
+}
+
+.pg-controls__header,
+.pg-events__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.pg-controls__title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pg-muted);
+    margin: 0;
+}
+
+.pg-controls__actions {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.pg-btn {
+    display: inline-block;
+    border: 1px solid var(--pg-border);
+    border-radius: 6px;
+    background: var(--pg-bg);
+    color: var(--pg-text);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.pg-btn:hover {
+    border-color: var(--pg-accent);
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.pg-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.6rem;
+}
+
+.pg-control__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pg-control__help {
+    display: block;
+    font-weight: 400;
+    color: var(--pg-muted);
+    font-size: 0.75rem;
+}
+
+.pg-control__input {
+    border: 1px solid var(--pg-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.45rem;
+    background: var(--pg-bg);
+    color: var(--pg-text);
+    font: inherit;
+    font-size: 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pg-control__checkbox {
+    width: 1rem;
+    height: 1rem;
+}
+
+.pg-control__textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.pg-control__input[aria-invalid='true'] {
+    border-color: var(--pg-danger);
+}
+
+.pg-control__error {
+    color: var(--pg-danger);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.pg-warnings {
+    grid-column: 1 / -1;
+    border: 1px solid var(--pg-border);
+    border-left: 3px solid var(--pg-danger);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    background: var(--pg-surface);
+}
+
+.pg-warning {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--pg-muted);
+}
+
+/* ---------------------------------------------------------------- events */
+
+.pg-events {
+    grid-column: 2;
+}
+
+.pg-host--embedded .pg-events {
+    grid-column: auto;
+}
+
+.pg-events__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 260px;
+    overflow: auto;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.pg-event {
+    border: 1px solid var(--pg-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.45rem;
+    background: var(--pg-bg);
+    font-size: 0.8rem;
+}
+
+.pg-event__seq {
+    color: var(--pg-muted);
+    margin-right: 0.35rem;
+}
+
+.pg-event__name {
+    font-weight: 600;
+}
+
+.pg-event__at {
+    color: var(--pg-muted);
+    float: right;
+}
+
+.pg-event__args {
+    list-style: none;
+    margin: 0.2rem 0 0;
+    padding: 0;
+}
+
+.pg-event__arg code {
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+}
+
+.pg-event__fields {
+    display: block;
+    color: var(--pg-muted);
+    font-size: 0.72rem;
+}
+
+.pg-event__field::after {
+    content: ' · ';
+}
+
+.pg-event__field:last-child::after {
+    content: '';
+}
+
+.pg-events__empty {
+    color: var(--pg-muted);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+/* ---------------------------------------------------------------- snippets */
+
+.pg-snippets {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.pg-snippet__code {
+    border: 1px solid var(--pg-border);
+    border-radius: 6px;
+    background: var(--pg-surface);
+    padding: 0.6rem;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 0 0 0.5rem;
+}
+
+.pg-snippet__note {
+    color: var(--pg-muted);
+    font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------- embed + misc */
+
+.pg-embed {
+    padding: 0;
+    background: var(--pg-bg);
+}
+
+.pg-notfound {
+    max-width: 60ch;
+}
+
+.pg-notfound__body {
+    color: var(--pg-muted);
+}

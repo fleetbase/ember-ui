@@ -1,0 +1,64 @@
+<section class="pg-catalog" data-test-catalog>
+    <header class="pg-catalog__header">
+        <h1 class="pg-catalog__title">Documented components</h1>
+        <p class="pg-catalog__lede">
+            Interactive pages for the {{@entries.length}} components documented at
+            <a href="https://fleetbase.io/docs/ui">fleetbase.io/docs/ui</a>. The complete reference
+            prose lives there; this is where you can change arguments and watch the real component react.
+        </p>
+    </header>
+
+    <div class="pg-catalog__filters">
+        <div class="pg-control">
+            <label class="pg-control__label" for="pg-catalog-search">Search</label>
+            <input
+                id="pg-catalog-search"
+                type="search"
+                class="pg-control__input"
+                value={{@query}}
+                placeholder="Search by name or slug"
+                data-test-catalog-search
+                {{on "input" this.onSearch}}
+            />
+        </div>
+
+        <div class="pg-control">
+            <label class="pg-control__label" for="pg-catalog-category">Category</label>
+            <select id="pg-catalog-category" class="pg-control__input" data-test-catalog-category {{on "change" this.onCategory}}>
+                <option value="" selected={{eq this.activeCategory ""}}>All categories</option>
+                {{#each this.categories as |name|}}
+                    <option value={{name}} selected={{eq name this.activeCategory}}>{{name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+
+    <p class="pg-catalog__count" data-test-catalog-count>{{this.matchCount}} of {{@entries.length}} components</p>
+
+    {{#if this.groups}}
+        {{#each this.groups key="name" as |group|}}
+            <section class="pg-catalog__group" data-test-catalog-group={{group.name}}>
+                <h2 class="pg-catalog__group-title">{{group.name}}</h2>
+                <ul class="pg-catalog__list">
+                    {{#each group.entries key="slug" as |entry|}}
+                        <li class="pg-catalog__item">
+                            <LinkTo
+                                @route="component"
+                                @model={{entry.slug}}
+                                class="pg-card"
+                                data-test-catalog-link={{entry.slug}}
+                            >
+                                <span class="pg-card__name">{{entry.name}}</span>
+                                <span class="pg-card__description">{{entry.description}}</span>
+                            </LinkTo>
+                        </li>
+                    {{/each}}
+                </ul>
+            </section>
+        {{/each}}
+    {{else}}
+        <p class="pg-catalog__empty" data-test-catalog-empty>
+            No documented component matches that search.
+        </p>
+    {{/if}}
+</section>

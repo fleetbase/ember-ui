@@ -1,0 +1,70 @@
+{{page-title @model.name}}
+
+<article class="pg-detail" data-test-component-page={{@model.slug}}>
+    <nav class="pg-detail__breadcrumb" aria-label="Breadcrumb">
+        <LinkTo @route="components" data-test-back>All components</LinkTo>
+        <span aria-hidden="true">/</span>
+        <span>{{@model.category}}</span>
+    </nav>
+
+    <header class="pg-detail__header">
+        <h1 class="pg-detail__title" data-test-component-title>{{@model.name}}</h1>
+        <p class="pg-detail__description">{{@model.description}}</p>
+
+        <dl class="pg-meta">
+            <div class="pg-meta__row">
+                <dt>Component</dt>
+                <dd><code data-test-component-identifier>&lt;{{@model.component}} /&gt;</code></dd>
+            </div>
+            <div class="pg-meta__row">
+                <dt>Source</dt>
+                <dd><code data-test-source-path>{{@model.sourcePath}}</code></dd>
+            </div>
+            <div class="pg-meta__row">
+                <dt>Tests</dt>
+                <dd>
+                    {{#each @model.testPaths as |path|}}
+                        <code data-test-test-path>{{path}}</code>
+                    {{/each}}
+                </dd>
+            </div>
+            <div class="pg-meta__row">
+                <dt>Documentation</dt>
+                <dd>
+                    <a href={{@model.docsUrl}} rel="noopener" data-test-docs-link>{{@model.docsUrl}}</a>
+                </dd>
+            </div>
+        </dl>
+
+        {{#if @model.notes}}
+            <p class="pg-detail__notes" data-test-notes>{{@model.notes}}</p>
+        {{/if}}
+    </header>
+
+    <Playground::Host @entry={{@model}} @state={{this.state}} @embedded={{false}} as |api|>
+        <section class="pg-snippets" aria-label="Usage">
+            <div class="pg-snippet">
+                <h2 class="pg-controls__title">Usage</h2>
+                <pre class="pg-snippet__code" data-test-usage-example>{{api.usageExample}}</pre>
+                <p class="pg-snippet__note">
+                    The complete argument reference is on
+                    <a href={{@model.docsUrl}} rel="noopener">the documentation page</a>.
+                </p>
+            </div>
+
+            <div class="pg-snippet">
+                <h2 class="pg-controls__title">Embed</h2>
+                <pre class="pg-snippet__code" data-test-embed-url>{{api.embedUrl}}</pre>
+                <LinkTo
+                    @route="embed"
+                    @model={{@model.slug}}
+                    @query={{hash state=api.encodedState}}
+                    class="pg-btn"
+                    data-test-open-embed
+                >
+                    Open the embed view
+                </LinkTo>
+            </div>
+        </section>
+    </Playground::Host>
+</article>

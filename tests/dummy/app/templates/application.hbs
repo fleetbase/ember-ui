@@ -1,7 +1,29 @@
-{{page-title "Dummy"}}
+{{page-title "Fleetbase UI Playground"}}
 
-{{! The following component displays Ember's default welcome message. }}
-<WelcomePage />
-{{! Feel free to remove this! }}
+{{#if this.isEmbedded}}
+    {{outlet}}
+{{else}}
+    <div class="pg-app">
+        <header class="pg-app__header">
+            <LinkTo @route="components" class="pg-app__brand" data-test-brand>
+                Fleetbase UI <span class="pg-app__brand-sub">Playground</span>
+            </LinkTo>
+            <nav class="pg-app__nav" aria-label="Playground">
+                <a href="https://fleetbase.io/docs/ui" class="pg-app__doclink" data-test-docs-root>
+                    Official documentation
+                </a>
+            </nav>
+        </header>
 
-{{outlet}}
+        <main class="pg-app__main">
+            {{outlet}}
+        </main>
+    </div>
+{{/if}}
+
+{{!
+    The modal stack lives outside the route layout: `modalsManager.show()` pushes onto it, and this
+    is what renders it. Needed by both the full pages and the embed view, so it sits outside the
+    chrome conditional.
+}}
+<ModalsContainer />

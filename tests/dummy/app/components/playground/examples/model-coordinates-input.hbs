@@ -1,0 +1,11 @@
+{{! ModelCoordinatesInput example adapter: a local fixture stands in for the record. }}
+<ModelCoordinatesInput
+    @model={{this.model}}
+    @locationProperty={{@values.locationProperty}}
+    @disabled={{@values.disabled}}
+    @autocomplete={{@values.autocomplete}}
+    @onChange={{fn (or @onEvent (noop)) "onChange"}}
+    @onGeocode={{fn (or @onEvent (noop)) "onGeocode"}}
+    @onReverseGeocode={{fn (or @onEvent (noop)) "onReverseGeocode"}}
+    @onUpdatedFromMap={{fn (or @onEvent (noop)) "onUpdatedFromMap"}}
+/>
