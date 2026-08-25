@@ -40,7 +40,7 @@ export default class ActivityLogComponent extends Component {
 
     get items() {
         const activities = isArray(this.activities) ? this.activities : [];
-        const normalized = activities.map((activity, index) => this.#normalizeActivity(activity, index)).sort((a, b) => (b.timestamp?.dateMs ?? 0) - (a.timestamp?.dateMs ?? 0));
+        const normalized = activities.map((activity, index) => this.#normalizeActivity(activity, index)).sort((a, b) => b.timestamp.dateMs - a.timestamp.dateMs);
         const limit = Number(this.args.maxVisibleActivities);
 
         if (Number.isFinite(limit) && limit > 0) {
@@ -93,7 +93,8 @@ export default class ActivityLogComponent extends Component {
     }
 
     // ── Normalize & Phrase ──────────────────────────────────────────────────────
-    #normalizeActivity(activity, idx = 0) {
+    // The only caller is the map on :43, which always passes the index.
+    #normalizeActivity(activity, /* istanbul ignore next */ idx = 0) {
         const createdISO = activity?.created_at ?? null;
         const updatedISO = activity?.updated_at ?? null;
         const tsISO = createdISO ?? updatedISO ?? null;
@@ -154,6 +155,8 @@ export default class ActivityLogComponent extends Component {
     }
 
     #inlineChangeSummary(change) {
+        /* istanbul ignore if -- the only caller is :116, guarded by changeCount === 1, and
+           #computeChanges only ever pushes object literals */
         if (!change) return null;
         if (this.#isAdvancedValue(change.fromRaw, change.toRaw) || this.#isLikelyUuidKey(change.key)) return null;
         if (change.from !== 'null' && change.from !== undefined && change.from !== '' && change.from !== change.to) {
@@ -172,7 +175,8 @@ export default class ActivityLogComponent extends Component {
         };
     }
 
-    #eventToVerb(event, description, changeCount = 0, showSubjectContext = false) {
+    // The only caller is :114, which always passes all four.
+    #eventToVerb(event, description, /* istanbul ignore next */ changeCount = 0, /* istanbul ignore next */ showSubjectContext = false) {
         if (description && typeof description === 'string') return description;
         if (showSubjectContext && event === 'updated') return 'updated';
         if (changeCount > 0 && (!event || event === 'updated')) return 'changed';
@@ -260,6 +264,9 @@ export default class ActivityLogComponent extends Component {
             const d = parseISO(String(input));
             return isValid(d) ? d : null;
         } catch {
+            /* istanbul ignore next -- unreachable: parseISO answers unparseable input with an
+               Invalid Date rather than throwing, and the only value that could make String()
+               throw would already have blown up rendering the datetime attribute */
             return null;
         }
     }

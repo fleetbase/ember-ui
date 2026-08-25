@@ -741,12 +741,55 @@ module('Integration | Component | activity-log', function (hooks) {
             assert.dom('.activity-log-item').exists({ count: 1 }, 'an unsplittable subject type does not break the row');
         });
 
-        test('activities that are not an array are treated as none', async function (assert) {
-            this.set('notAnArray', 'nope');
+        // The component has no @activities argument — everything comes from the store — so the
+        // non-array has to arrive the way a real one would, out of the query result's toArray().
+        test('a query result that does not yield an array is treated as none', async function (assert) {
+            this.owner.unregister('service:store');
+            this.owner.register(
+                'service:store',
+                class extends Service {
+                    query() {
+                        return Promise.resolve({ toArray: () => 'nope' });
+                    }
+                }
+            );
 
-            await render(hbs`<ActivityLog @showControls={{false}} @activities={{this.notAnArray}} />`);
+            await render(hbs`<ActivityLog @showControls={{false}} />`);
 
             assert.dom('.activity-log-empty').exists('a non-array is normalised to an empty feed');
+            assert.dom('.activity-log-item').doesNotExist();
+        });
+
+        test('an undated activity sorts against another without throwing', async function (assert) {
+            this.activities.push(activity({ created_at: null, updated_at: null, causer: { name: 'Ada' } }), activity({ created_at: null, updated_at: null, causer: { name: 'Grace' } }));
+
+            await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+            assert.dom('.activity-log-item').exists({ count: 2 }, 'both undated rows survive the sort');
+        });
+
+        test('an actor with a blank name falls back to the placeholder initial', async function (assert) {
+            this.activities.push(activity({ causer: { name: '' } }));
+
+            await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+            assert.dom('.activity-log-marker span').hasText('S', 'an empty name is not null, so it survives ?? and only the || catches it');
+        });
+
+        test('an attribute cleared to null is still reported as a change', async function (assert) {
+            this.activities.push(
+                activity({
+                    properties: {
+                        old: { note: 'a previous note' },
+                        attributes: { note: null },
+                    },
+                })
+            );
+
+            await render(hbs`<ActivityLog @showControls={{false}} />`);
+
+            assert.dom('.activity-log-item').exists({ count: 1 });
+            assert.dom('.activity-log-sentence').includesText('note', 'clearing a value counts as changing it');
         });
     });
 
