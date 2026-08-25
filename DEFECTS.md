@@ -277,7 +277,7 @@ documented as such.
 
 ## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
 
-**Status:** DEFERRED — a later update, by decision
+**Status:** DEFERRED — a later update, by decision. Kickoff brief in Appendix D.
 **Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
 **Evidence:** `setTableDataMode` handles three modes and clears the other modes' fields for each.
 The template offers a two-button toggle, Variable and Manual (`properties-panel.hbs:258` and `:266`);
@@ -545,3 +545,71 @@ its 21 partial branches.
 tier of small utils and services — including two still carrying generated "it works" stubs — behind
 a handful of large components. The per-file percentage view surfaced them and produced the largest
 single-iteration branch gain of the effort.
+
+## Appendix D — kickoff brief for #15, the table's `query` data mode
+
+Written at the end of the sweep session so the next one does not have to rediscover the terrain.
+Everything below was verified against the source on 2026-08-25.
+
+### What exists today
+
+**The mode switch.** `properties-panel.js:199` `setTableDataMode(mode)` handles `manual`, `variable`
+and `query`, clearing the other modes' fields for each. The template
+(`properties-panel.hbs:251-268`) offers a **two**-button toggle, Variable and Manual. Nothing calls
+it with `'query'`, so that branch reports `[0,0]`.
+
+**The fields the query branch manages** — `query_endpoint`, `query_params`, `query_response_path` —
+appear in exactly four places across every package in the monorepo, and all four are the *clearing*
+assignments in the `manual` and `variable` branches. Nothing writes a value to them and nothing
+reads them.
+
+**A working query system already ships, by a different route.** `TemplateBuilder::QueryForm` builds
+a saved query — `{ uuid, label, variable_name, description, model_type, conditions, sort, limit,
+with }` — and hands it to the parent via `@onSave`; it makes no API calls itself.
+`TemplateBuilder::QueriesPanel` does the CRUD and notifies through `@onQueriesChange`.
+`template-builder.js:453` `handleQueriesChange` keeps `this.queries` current, `:157`
+`enrichedContextSchemas` exposes each saved query as a variable under a `__queries__` namespace, and
+`:141` includes `queries` in the save payload so the backend can upsert them with the template.
+
+So a query-backed table is built **today** by choosing Variable mode and pointing Data Variable at a
+query variable. That is why Variable mode's clearing branch bothers to null the query fields.
+
+### The fact that shapes the whole design
+
+**Nothing in this addon resolves a data source at render time.** `element-renderer.js:329-334` reads
+`element.columns` and `element.rows` directly — the manual arm and nothing else. A variable-mode
+table renders no rows in the canvas either. The builder stores *intent*; something downstream (the
+backend renderer, or the consuming app) resolves it.
+
+Decide early whether `query` mode is also store-only intent, or whether the panel is expected to
+fetch and preview. Those are very different pieces of work, and the second one is the one that needs
+an auth story.
+
+### What has to be settled before writing code
+
+1. **Endpoint contract.** What does `query_endpoint` hold — a bare path, a full url, a named
+   endpoint? Who validates it?
+2. **Auth.** If the panel fetches, it goes through the `fetch` service and inherits its
+   session handling. If it does not fetch, this question disappears — another reason to settle the
+   point above first.
+3. **`query_params` shape.** `[{ key, value }]` matching the existing param editors, or a plain
+   object? The clearing branch seeds `[]`, which implies an array.
+4. **`query_response_path`.** Dotted path into the response (`data.results`)? What happens when it
+   does not resolve?
+5. **Loading and error states** in the panel, if it fetches.
+6. **Reconciliation with `__queries__`.** This is the one that matters most. Saved queries already
+   solve "get rows from the server into a table". Adding a per-element endpoint creates a second
+   mechanism that does the same job with less structure — no `variable_name`, no reuse across
+   elements, no participation in the save payload. Either make `query` mode meaningfully different
+   (arbitrary external endpoints the query builder cannot express?) or drop it and delete the three
+   fields. Do not build a parallel path by default.
+
+### Ground rules for that session
+
+- The panel is a shared component: adding a third toggle button changes UI for every consumer.
+- Tests before merge, and one that fails against the current code — that is the campaign's standard.
+- The `query` branch stays uncovered rather than suppressed. An `istanbul ignore` here has to sit on
+  the opening `if`, and `ignore else` there also swallows the `variable` branch, which real tests
+  cover. So the coverage gate will keep pointing at this until it is built or deleted — which is the
+  intended behaviour, not an obstacle to work around.
+- Read `Appendix B` first if you plan to chase the coverage number afterwards.
