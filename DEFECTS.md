@@ -301,7 +301,7 @@ tests cover.
 
 ## 16. Coverage collection itself is unreliable, which the 100% gate cannot tolerate
 
-**Status:** PARTIALLY FIXED (PR #163) — detection landed, the cause has not
+**Status:** FIXED — cause found and fixed; the freshness gate stays as a backstop
 **Found:** repeatedly, while verifying single files.
 **Evidence:** three distinct failure modes, all observed in one session:
 1. A run reports `# tests 77 / # pass 77 / # fail 0` and leaves `coverage/coverage-final.json`
@@ -348,7 +348,34 @@ this campaign's work gets checked.
 make collection reliable (it was the first thing tried, and the 7-of-9 figure above is *with* it),
 and the Node 18 ESM failure is unrelated to this and cannot affect CI, which pins Node 22.
 
-### Two hypotheses tried and ruled out
+### RESOLVED — the cause, and the fix
+
+**Cause.** `sendCoverage()` POSTs the coverage payload to `/write-coverage` from `QUnit.done`. For
+this addon that payload is **~1.9 MB across 401 instrumented files**, because a per-file 100% gate
+requires `forceModulesToBeLoaded()` to evaluate everything so untested files stay in the
+denominator. In CI mode testem tears the browser down as soon as QUnit reports the run finished,
+truncating the upload mid-body; `raw-body` aborts and nothing is written at all.
+
+It is size- and timing-dependent, which is exactly why it looked like flakiness: after 139 tests
+testem has almost nothing to serialize and kills the browser in milliseconds, while after 5,130
+tests emitting the results buys the upload enough time to land.
+
+**This is a known upstream bug, not something peculiar to this repo.**
+- https://github.com/ember-cli-code-coverage/ember-cli-code-coverage/issues/420 — identical
+  `BadRequestError: request aborted` at `raw-body/index.js:245`, reported August 2024, coverage
+  written only under `ember test -s`.
+- https://github.com/ember-cli-code-coverage/ember-cli-code-coverage/issues/421 — same silent
+  failure after upgrading past 1.0.3.
+- https://github.com/testem/testem/issues/1577 — the testem side.
+
+**Fix (`tests/test-helper.js`).** `Testem.afterTests` hands testem a callback it *waits for*, so the
+upload completes before teardown. It does not fire under `--server`, hence the branch on
+`config.APP.isRunningWithServerArgs`. Measured: 2 of 2 fast filtered runs produced an artifact with
+no abort, against a 2-of-9 baseline; the full suite is unchanged at 5130 pass / 0 fail.
+
+Our measurements were added to upstream #420.
+
+### Three hypotheses tried and ruled out, kept so nobody retries them
 
 **The `parallel` option — ruled out by reading the source, not by running it.**
 `ember-cli-code-coverage/lib/attach-middleware.js` `reportCoverage()` does this when
@@ -447,6 +474,24 @@ full-calendar.js is now at 100% statements, branches, functions and lines.
 outlive the component. That is a separate and probably larger leak than the one above — the
 integration tests work around it with an `afterEach` that destroys the captured calendar. Fixing it
 changes what a consumer's `@onInit` reference points at after teardown, so it needs its own decision.
+
+## 18. Coverage branch totals still vary by ±1 between identical runs
+
+**Status:** OPEN — same class of blocker as #4 was, and the last one known
+**Found:** verifying the #16 fix. Three full runs, all 5130 tests passing, all with identical
+statement totals (8366/8702) and an identical `layout/sidebar.js` (203/215) — but **branches differ**:
+
+    run 1: 5826 / 6255   93.14%
+    run 2: 5826 / 6255   93.14%
+    run 3: 5825 / 6255   93.12%
+
+**Impact:** a hard 100% gate flaps on this with no code change, exactly as #4 did before it was
+fixed. It is smaller than #4 (±1 branch rather than ±2 statements) and is not in `sidebar.js`,
+whose statement count is now stable.
+**Fix:** unknown — the culprit has not been located. Finding it is the same exercise that worked for
+#4: capture `coverage-final.json` from two runs that disagree and diff the per-file branch counts to
+name the file, then read the site. Do NOT reason about the mechanism first; #4 cost two wrong
+diagnoses that way, and the artifact named the answer in one step.
 
 ---
 
