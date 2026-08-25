@@ -253,6 +253,31 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      *     the first `maxVisible` items from the universe registry are shown in
      *     the bar by default, and the rest go to overflow.
      */
+    /**
+     * Resolve saved pinned IDs to items, in the user's saved order, dropping any ID that no longer
+     * matches an item — an extension the user pinned and later removed, for instance.
+     *
+     * Both `_distributeFromAllItems` and `_recalculate` need this, and each used to carry its own
+     * copy of the loop. Beyond the ordinary duplication hazard, that gave the stale-ID branch two
+     * homes: one reached deterministically on render and one reached only if a ResizeObserver
+     * happened to fire while a stale ID was present. The second made the suite's branch total vary
+     * between identical runs, which a 100% gate cannot tolerate. See DEFECTS.md #18.
+     *
+     * @param {Array<string>} pinnedIds
+     * @param {Array<object>} allItems
+     * @returns {Array<object>}
+     */
+    _pinnedItems(pinnedIds, allItems) {
+        const pinned = [];
+
+        for (const id of pinnedIds) {
+            const item = allItems.find((i) => i.id === id);
+            if (item) pinned.push(item);
+        }
+
+        return pinned;
+    }
+
     _distributeFromAllItems() {
         const { pinnedIds, allItems, maxVisible } = this;
 
@@ -263,13 +288,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
             return;
         }
 
-        // User has an explicit pinned list.
-        // Build the pinned array in the user's saved order (skip stale IDs).
-        const pinned = [];
-        for (const id of pinnedIds) {
-            const item = allItems.find((i) => i.id === id);
-            if (item) pinned.push(item);
-        }
+        // User has an explicit pinned list, in their saved order and without stale IDs.
+        const pinned = this._pinnedItems(pinnedIds, allItems);
 
         // Respect the hard cap (in case maxVisible was reduced after saving).
         const barItems = pinned.slice(0, maxVisible);
@@ -336,12 +356,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
         if (pinnedIds && pinnedIds.length > 0) {
             // Only pinned items can appear in the bar.
-            const pinned = [];
-            for (const id of pinnedIds) {
-                const item = allItems.find((i) => i.id === id);
-                if (item) pinned.push(item);
-            }
-            barCandidates = pinned.slice(0, maxVisible);
+            barCandidates = this._pinnedItems(pinnedIds, allItems).slice(0, maxVisible);
             const barIds = new Set(barCandidates.map((i) => i.id));
             alwaysOverflow = allItems.filter((i) => !barIds.has(i.id));
         } else {
