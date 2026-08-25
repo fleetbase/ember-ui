@@ -116,6 +116,73 @@ module('Integration | Component | widget/report', function (hooks) {
         assert.verifySteps(['save']);
     });
 
+    test('dismissing the selector without a pick leaves nothing to save', async function (assert) {
+        this.set('widget', { options: {} });
+
+        await render(hbs`<Widget::Report @widget={{this.widget}} />`);
+        await click('[data-test-widget-report-select]');
+
+        const modalOptions = this.modalsManager.shown[0].options;
+        assert.deepEqual(modalOptions.selected, [], 'nothing is preselected while there is no report');
+
+        // Dismissing the picker calls back with no argument at all.
+        modalOptions.onChange();
+        await settled();
+        assert.dom().includesText('No report', 'the widget stays in its empty state');
+
+        modalOptions.onChange([]);
+        await settled();
+        assert.dom().includesText('No report', 'and an empty selection reads the same way');
+
+        await modalOptions.confirm({ startLoading() {}, done() {} });
+        assert.deepEqual(this.widget.options, {}, 'with no report id there is nothing to write');
+    });
+
+    test('a widget with no options and no ember-data methods is still updated', async function (assert) {
+        const widget = {};
+        this.set('widget', widget);
+
+        await render(hbs`<Widget::Report @widget={{this.widget}} />`);
+        await click('[data-test-widget-report-select]');
+
+        const modalOptions = this.modalsManager.shown[0].options;
+        modalOptions.onChange([{ id: 'report-3', title: 'Idle Time' }]);
+        await modalOptions.confirm({ startLoading() {}, done() {} });
+        await settled();
+
+        assert.deepEqual(widget.options, { reportId: 'report-3' }, 'the options object is created and assigned directly');
+        assert.deepEqual(this.notifications.errors, [], 'and a widget that cannot save is not an error');
+    });
+
+    test('a save that fails is reported and the modal is left open', async function (assert) {
+        const error = new Error('Could not save');
+        const widget = {
+            options: {},
+            async save() {
+                throw error;
+            },
+        };
+        this.set('widget', widget);
+
+        await render(hbs`<Widget::Report @widget={{this.widget}} />`);
+        await click('[data-test-widget-report-select]');
+
+        const modalOptions = this.modalsManager.shown[0].options;
+        modalOptions.onChange([{ id: 'report-4', title: 'Fuel' }]);
+
+        let didClose = false;
+        await modalOptions.confirm({
+            startLoading() {},
+            done() {
+                didClose = true;
+            },
+        });
+        await settled();
+
+        assert.strictEqual(this.notifications.errors[0], error, 'the failure is reported');
+        assert.false(didClose, 'and the modal stays open so the choice is not lost');
+    });
+
     test('it reports load errors and returns to the empty state', async function (assert) {
         const error = new Error('Missing report');
         this.store.findRecordError = error;

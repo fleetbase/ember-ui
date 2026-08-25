@@ -17,7 +17,16 @@ export default class WidgetReportComponent extends Component {
         this.loadReport.perform();
     }
 
+    /**
+     * The current report, in the shape the picker wants for its preselection.
+     *
+     * Note that it can only ever be empty today: the "Select Report" button lives in the empty
+     * state of report.hbs, so `selectReport` is unreachable once a report has loaded, and the
+     * widget offers no way to change its report. See NEED_INFO.
+     */
     get selectedReports() {
+        /* istanbul ignore next -- see above: whenever the control that opens the picker is
+           rendered, this.report is null */
         return this.report ? [this.report] : [];
     }
 

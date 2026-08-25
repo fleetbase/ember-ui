@@ -3,9 +3,13 @@ import { tracked } from '@glimmer/tracking';
 import { action, get } from '@ember/object';
 
 export default class ComboBoxComponent extends Component {
+    // The constructor assigns options and selected before anything reads them, so their
+    // initializers never produce the value that survives.
+    /* istanbul ignore next */
     @tracked options = [];
     @tracked pending = [];
     @tracked unpending = [];
+    /* istanbul ignore next */
     @tracked selected = [];
 
     constructor() {
@@ -29,7 +33,8 @@ export default class ComboBoxComponent extends Component {
         });
     }
 
-    filterSelected(selected = [], options = []) {
+    // The only caller passes this.options, which the line above it has just assigned an array to.
+    filterSelected(selected = [], /* istanbul ignore next */ options = []) {
         const { comparator } = this.args;
 
         return selected.filter((selection) => {

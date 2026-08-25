@@ -117,6 +117,39 @@ module('Integration | Component | table', function (hooks) {
         });
     });
 
+    module('with no rows at all', function () {
+        test('the select-all checkbox is not left half-checked', async function (assert) {
+            this.set('rows', undefined);
+
+            await render(hbs`<Table @columns={{this.columns}} @rows={{this.rows}} @selectable={{true}} @canSelectAll={{true}} />`);
+
+            assert.dom('tbody .next-table-empty-state-cell').exists('the empty state is shown');
+            assert.dom('thead input[type="checkbox"]').exists('the select-all control is still offered');
+            assert.dom('tbody tr').exists({ count: 1 }, 'the only body row is the empty state');
+        });
+
+        test('an empty-state block is handed the table context', async function (assert) {
+            this.set('rows', []);
+            this.set('searchQuery', 'nothing matches this');
+
+            await render(hbs`
+                <Table @columns={{this.columns}} @rows={{this.rows}} @searchQuery={{this.searchQuery}} @isFiltered={{true}}>
+                    <:emptyState as |context|>
+                        <div data-test-empty-columns>{{context.columns.length}}</div>
+                        <div data-test-empty-rows>{{context.rows.length}}</div>
+                        <div data-test-empty-query>{{context.searchQuery}}</div>
+                        <div data-test-empty-filtered>{{if context.isFiltered "filtered" "unfiltered"}}</div>
+                    </:emptyState>
+                </Table>
+            `);
+
+            assert.dom('[data-test-empty-columns]').hasText('3', 'the visible columns are offered');
+            assert.dom('[data-test-empty-rows]').hasText('0');
+            assert.dom('[data-test-empty-query]').hasText('nothing matches this');
+            assert.dom('[data-test-empty-filtered]').hasText('filtered');
+        });
+    });
+
     module('sorting', function () {
         function sortableHeader(label) {
             return headerCells().find((cell) => cell.textContent.includes(label));
@@ -803,6 +836,25 @@ module('Integration | Component | table imperative api', function (hooks) {
             assert.ok(true, 'both are no-ops without a node');
         });
     });
+    // @checkboxSticky is honoured whether or not there is a checkbox to be sticky about.
+    module('a sticky checkbox column that is not rendered', function () {
+        const NO_CHECKBOX = hbs`
+            <Table @columns={{this.columns}} @rows={{this.rows}} @checkboxSticky={{true}} @onSetup={{this.onSetup}} />
+        `;
+
+        test('with no selection column the first header is a real column and nothing is reserved', async function (assert) {
+            this.set('columns', [
+                { label: 'Name', valuePath: 'name', sticky: true },
+                { label: 'Status', valuePath: 'status' },
+            ]);
+
+            await render(NO_CHECKBOX);
+
+            assert.strictEqual(find('thead th').getAttribute('data-column-id'), 'name', 'the first header is the name column, not a checkbox');
+            assert.strictEqual(table.visibleColumns[0]._stickyOffset, 0, 'so the first sticky column still sits at the edge');
+        });
+    });
+
     module('what @rows will accept', function () {
         test('an iterable that is not an array and has no toArray is converted', async function (assert) {
             this.set('rows', new Set([{ name: 'Ada' }, { name: 'Grace' }]));

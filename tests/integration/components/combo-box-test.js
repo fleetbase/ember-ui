@@ -117,18 +117,35 @@ module('Integration | Component | combo-box', function (hooks) {
     });
     // toggleSelection moves a selection in and out of `unpending`. Clicking once marks it; clicking
     // the same selection again takes the other arm and unmarks it — which no test had exercised.
+    // Scoped to the selected list on purpose: `.combo-box-option` matches both lists, and the
+    // options list is rendered first, so an unscoped index lands on an option and exercises
+    // toggleOption rather than toggleSelection.
+    test('clicking an option twice unmarks it again', async function (assert) {
+        this.set('options', ['Apple']);
+        this.set('selected', ['Durian', 'Elderberry']);
+
+        await render(hbs`<ComboBox @options={{this.options}} @selected={{this.selected}} />`);
+
+        const first = document.querySelector('.options-list .combo-box-option');
+        await click(first);
+        assert.dom(first).hasClass('selected', 'the first click marks it');
+
+        await click(first);
+        assert.dom(first).doesNotHaveClass('selected', 'the second click unmarks it');
+    });
+
     test('clicking a selection twice unmarks it again', async function (assert) {
         this.set('options', ['Apple']);
         this.set('selected', ['Durian', 'Elderberry']);
 
         await render(hbs`<ComboBox @options={{this.options}} @selected={{this.selected}} />`);
 
-        const first = document.querySelectorAll('.combo-box-option')[0];
+        const first = document.querySelector('.selected-list .combo-box-option');
         await click(first);
-        assert.dom(first).hasClass('selected', 'the first click marks it');
+        assert.dom(first).hasClass('selected', 'the first click marks it for removal');
 
         await click(first);
-        assert.dom(first).doesNotHaveClass('selected', 'the second click unmarks it');
+        assert.dom(first).doesNotHaveClass('selected', 'the second click takes the mark off again');
     });
 
     test('marking one selection leaves the others alone', async function (assert) {
@@ -137,10 +154,17 @@ module('Integration | Component | combo-box', function (hooks) {
 
         await render(hbs`<ComboBox @options={{this.options}} @selected={{this.selected}} />`);
 
-        const chosen = document.querySelectorAll('.combo-box-option');
+        const chosen = document.querySelectorAll('.selected-list .combo-box-option');
         await click(chosen[0]);
 
         assert.dom(chosen[0]).hasClass('selected');
         assert.dom(chosen[1]).doesNotHaveClass('selected', 'its neighbour is untouched');
+    });
+
+    test('it renders with neither list supplied', async function (assert) {
+        await render(hbs`<ComboBox />`);
+
+        assert.dom('.ui-combo-box').exists('the component stands up with no arguments at all');
+        assert.dom('.combo-box-option').doesNotExist('and both lists are empty');
     });
 });

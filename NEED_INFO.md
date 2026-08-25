@@ -45,3 +45,22 @@ replies via `this.comment.reload()` instead, and the thread-level reload only ev
 
 **Decision needed:** is it part of the published API that host apps call from their own block-form
 templates (keep it, and the ignore stands), or is it leftover (drop it, and the ignore goes with it)?
+
+## #3 — `widget/report` can never change its report once one is chosen
+
+**Evidence:** `report.hbs` renders the "Select Report" button inside the `{{else}}` arm — the empty
+state. Once `this.report` is set, that arm is not rendered, and `selectReport` has no other caller:
+it is a plain `@action`, not yielded, not registered through any API, and the dashboard does not
+reach into the component. So `selectedReports`, which exists solely to preselect the current report
+in the picker, can only ever return `[]`.
+
+**Why it is not mine to decide:** the fix is a visible change to a published widget — a "Change
+report" control has to go somewhere in the loaded state, and this addon has no established
+reconfigure affordance to copy (`widget/count` and `widget/query-params` have none).
+
+**Options:**
+1. **Add a control to the loaded state.** Matches what `selectedReports` was clearly written for.
+2. **Leave it as configure-once** and delete `selectedReports`.
+
+**Meanwhile:** the getter is kept and its dead branch carries an `istanbul ignore` naming this
+entry. If option 1 is taken, that ignore should come out with it — the branch becomes reachable.

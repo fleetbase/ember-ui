@@ -66,6 +66,7 @@ export default class TableComponent extends Component {
     }
 
     get allRowsSelected() {
+        /* istanbul ignore next -- `rows` is a getter that always returns an array */
         return this.selectedRows.length === (this.rows?.length ?? 0);
     }
 
@@ -73,13 +74,17 @@ export default class TableComponent extends Component {
         const selectableColumnCount = this.args.selectable ? 1 : 0;
         const expandColumnCount = this.args.canExpand ? 1 : 0;
 
+        /* istanbul ignore next -- visibleColumns is an @filter macro, which always yields an array */
         return (this.visibleColumns?.length ?? 0) + selectableColumnCount + expandColumnCount;
     }
 
     get emptyStateContext() {
+        /* istanbul ignore next -- `rows` is a getter that always returns an array */
+        const rows = this.rows ?? [];
+
         return {
             columns: this.visibleColumns,
-            rows: this.rows ?? [],
+            rows,
             pagination: this.args.pagination,
             paginationMeta: this.args.paginationMeta,
             searchQuery: this.args.searchQuery,
@@ -221,6 +226,8 @@ export default class TableComponent extends Component {
 
             if (checkboxTh && !checkboxTh.hasAttribute('data-column-id')) {
                 // This is the checkbox column - get its actual width
+                /* istanbul ignore next -- this line is only reached once the checkbox header has
+                   been rendered into the laid-out table, so it always measures non-zero */
                 const width = checkboxTh.offsetWidth || this.args.selectAllColumnWidth || 40;
                 leftOffset += width;
             }
@@ -290,6 +297,9 @@ export default class TableComponent extends Component {
                 } else {
                     // Find the column object
                     const column = this.visibleColumns.find((c) => c.valuePath === columnId);
+                    /* istanbul ignore else -- a cell only carries is-sticky because its column is
+                       sticky, and calculateStickyOffsets — which runs first — gives every sticky
+                       column an _stickyOffset */
                     if (column && column._stickyOffset !== undefined) {
                         /* istanbul ignore next -- _stickyPosition is only ever assigned alongside _stickyOffset (table.js:232-233 and :251-252, always 'left' or 'right'), so by the time this guard passes the position is a non-empty string and the fallback cannot run */
                         const position = column._stickyPosition || 'left';
@@ -312,6 +322,9 @@ export default class TableComponent extends Component {
                 } else {
                     // Find the column object
                     const column = this.visibleColumns.find((c) => c.valuePath === columnId);
+                    /* istanbul ignore else -- a cell only carries is-sticky because its column is
+                       sticky, and calculateStickyOffsets — which runs first — gives every sticky
+                       column an _stickyOffset */
                     if (column && column._stickyOffset !== undefined) {
                         /* istanbul ignore next -- _stickyPosition is only ever assigned alongside _stickyOffset (table.js:232-233 and :251-252, always 'left' or 'right'), so by the time this guard passes the position is a non-empty string and the fallback cannot run */
                         const position = column._stickyPosition || 'left';
