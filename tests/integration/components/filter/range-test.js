@@ -206,6 +206,34 @@ module('Integration | Component | filter/range', function (hooks) {
             assert.dom(MAX_NUMBER).hasValue('100');
         });
 
+        test('an unparseable upper half falls back to the filter maximum', async function (assert) {
+            this.set('value', '20,abc');
+
+            await render(TEMPLATE);
+
+            assert.dom(MIN_NUMBER).hasValue('20');
+            assert.dom(MAX_NUMBER).hasValue('100', 'the filter maximum is used');
+        });
+
+        // Every use in range.hbs defends with `or @filter.min 0`, so the component has to stand up
+        // without a @filter of its own too.
+        test('it renders, changes and clears with no @filter at all', async function (assert) {
+            await render(hbs`<Filter::Range @value={{this.value}} />`);
+
+            assert.dom(MIN_NUMBER).hasValue('0', 'the bounds fall back to nought and a hundred');
+            assert.dom(MAX_NUMBER).hasValue('100');
+
+            await fillIn(MIN_NUMBER, '30');
+            await fillIn(MAX_NUMBER, '70');
+
+            assert.dom(MIN_NUMBER).hasValue('30', 'both changes land with nothing to report them to');
+            assert.dom(MAX_NUMBER).hasValue('70');
+
+            await click('.clear-button');
+
+            assert.dom(MIN_NUMBER).hasValue('0', 'and clearing returns to the default bounds');
+        });
+
         test('it clears happily without an onClear handler', async function (assert) {
             this.set('value', '20,80');
 

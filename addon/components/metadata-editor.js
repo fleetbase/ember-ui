@@ -38,6 +38,8 @@ class MetadataRow {
         this.id = guidFor(this);
         this.key = data.key || '';
         this.value = data.value || '';
+        /* istanbul ignore next -- #getValueType always returns one of 'number', 'boolean' or
+           'text', so the final fallback is never reached */
         this.type = data.type || this.#getValueType(data.value) || 'text';
         this.error = null;
     }

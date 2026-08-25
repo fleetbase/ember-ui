@@ -28,6 +28,29 @@ module('Integration | Component | aside-item-scroller', function (hooks) {
         assert.deepEqual(names, ['Alpha', 'Avocado', 'Bravo']);
     });
 
+    // An item whose title key resolves to nothing used to take the whole list down with it —
+    // the guard sat one line below the dereference. See DEFECTS #29.
+    test('an item with no title is skipped rather than fatal', async function (assert) {
+        this.set('items', [{ name: 'Alpha' }, { name: undefined }, { name: 'Bravo' }]);
+
+        await render(hbs`
+            <AsideItemScroller @items={{this.items}} @titleKey="name" as |item|>
+                <span data-test-item>{{item.name}}</span>
+            </AsideItemScroller>
+        `);
+
+        const letters = [...this.element.querySelectorAll('[role="menu"] h3')].map((el) => el.textContent.trim());
+        assert.deepEqual(letters, ['A', 'B'], 'the titled items are still grouped');
+        assert.dom('[role="menu"] [data-test-item]').exists({ count: 2 }, 'and the untitled one is simply left out');
+    });
+
+    test('a create button with no handler behind it is inert', async function (assert) {
+        await render(hbs`<AsideItemScroller @items={{this.items}} @titleKey="name" @resource="driver" @title="Drivers" />`);
+
+        assert.dom('[role="menu"] h2').hasText('Drivers');
+        assert.dom('[role="menu"] .btn-wrapper button').doesNotExist('no create button without a handler');
+    });
+
     test('it lists grouped items in the mobile dropdown', async function (assert) {
         await render(hbs`
             <AsideItemScroller @items={{this.items}} @titleKey="name" as |item|>

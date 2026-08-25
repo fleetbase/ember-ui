@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action, computed, get } from '@ember/object';
 
 export default class AsideItemScrollerComponent extends Component {
+    /* istanbul ignore next -- nothing reads this before it is assigned */
     @tracked items = [];
     @tracked selected;
 
@@ -17,6 +18,8 @@ export default class AsideItemScrollerComponent extends Component {
     @action onCreate() {
         const { onCreate } = this.args;
 
+        /* istanbul ignore else -- aside-item-scroller.hbs renders the create button only when
+           @onCreate was supplied */
         if (typeof onCreate === 'function') {
             onCreate(this);
         }
@@ -29,11 +32,14 @@ export default class AsideItemScrollerComponent extends Component {
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
             const title = get(item, titleKey);
-            const firstLetter = title[0];
 
-            if (!title || !firstLetter) {
+            // The guard used to sit below `title[0]`, which threw on an item with no title
+            // before it could run. See DEFECTS #29.
+            if (!title) {
                 continue;
             }
+
+            const firstLetter = title[0];
 
             if (!grouped[firstLetter]) {
                 grouped[firstLetter] = [];

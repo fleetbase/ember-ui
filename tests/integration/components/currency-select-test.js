@@ -52,6 +52,16 @@ module('Integration | Component | currency-select', function (hooks) {
         assert.dom('.ember-power-select-trigger').containsText('EUR');
     });
 
+    test('selecting a currency with no callbacks at all is harmless', async function (assert) {
+        await render(hbs`<CurrencySelect />`);
+
+        await clickTrigger();
+        await typeInSearch('EUR');
+        await selectChoose('.ember-power-select-trigger', 'EUR');
+
+        assert.dom('.ember-power-select-trigger').containsText('EUR', 'the selection still lands');
+    });
+
     test('it yields the currency in block form for custom option rendering', async function (assert) {
         await render(hbs`
             <CurrencySelect as |currency|>

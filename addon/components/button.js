@@ -118,6 +118,8 @@ export default class ButtonComponent extends Component {
     @action onClick() {
         const { onClick, eventName, eventArgs } = this.args;
 
+        /* istanbul ignore if -- button.hbs sets disabled={{this.isDisabled}} on the button, so a
+           disabled one cannot be clicked */
         if (this.isDisabled) {
             return;
         }

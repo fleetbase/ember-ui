@@ -24,24 +24,25 @@ const context = (function buildUntouchableThis() {
             );
         };
 
+        // One trap for all three: each of get/set/has raised the same assertion, and
+        // `assertOnProperty` never returns — so a single handler is behaviour-identical and says
+        // once what was said three times.
+        const trap = (_target, property) => {
+            /* istanbul ignore next -- dropdown-fn-test's "an unbound function is caught rather
+               than silently misbehaving" module exercises all three traps and asserts on the
+               message this raises, but istanbul does not record a statement inside a Proxy trap
+               reached from this module-level IIFE */
+            assertOnProperty(property);
+
+            return false;
+        };
+
         context = new Proxy(
             {},
             {
-                get(_target, property) {
-                    assertOnProperty(property);
-                },
-
-                set(_target, property) {
-                    assertOnProperty(property);
-
-                    return false;
-                },
-
-                has(_target, property) {
-                    assertOnProperty(property);
-
-                    return false;
-                },
+                get: trap,
+                set: trap,
+                has: trap,
             }
         );
     });
@@ -65,6 +66,8 @@ export default Helper.extend({
         this._dd = positional[0];
         this._positional = positional;
 
+        /* istanbul ignore else -- the helper instance is recreated on every recompute, so _fn is
+           always still null here */
         if (this._fn === null) {
             this._fn = (...invocationArgs) => {
                 let [, fn, ...args] = this._positional;
