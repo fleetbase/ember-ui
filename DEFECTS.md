@@ -224,7 +224,7 @@ string, and the `: event` fallback in `updateProp` exists to serve a call shape 
 `updateNumericProp` and `updateTemplateProp` should stay is a separate call — it is currently
 unreachable from this template and is documented as such.
 
-## 15. `addon/components/template-builder/properties-panel.js:213` — the table's `query` data mode has no control
+## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
 
 **Status:** NEEDS DECISION
 **Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
@@ -263,6 +263,30 @@ and (1) is worse than a red build because it fails silently in the direction of 
 whatever is on disk: stamp the run and compare, or delete the folder before the run and fail if
 nothing is written. (3) needs an `engines` field and an `.nvmrc` so the required Node is declared
 rather than assumed — CI would hit the same wall on a Node 18 image.
+
+## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
+
+**Status:** OPEN — NEEDS DECISION (the fix is not a one-liner; see below)
+**Note on numbering:** commit `8410e7e` refers to this as "#13". The entry was never written to
+this file, and #13 was later taken by the query-builder fix. This is the entry that commit means.
+**Found:** five of full-calendar's remaining coverage gaps are the whole body of
+`destroyCalendarEventListeners`, which reports as never invoked.
+**Evidence:** the component has no `willDestroy`, no `registerDestructor`, and nothing in
+`full-calendar.hbs` invokes it. `createCalendarEventListeners` pushes an entry onto `this._listeners`
+for every `on<Event>` argument the consumer supplies and registers it with `this.calendar.on(...)`;
+nothing ever unregisters them.
+**Impact:** real, and it costs users. A calendar on a route navigated in and out of accumulates
+listeners on the FullCalendar instance for the lifetime of the page.
+**Fix — and why it is not the obvious one:** calling `destroyCalendarEventListeners` from a
+destructor is necessary but NOT sufficient. The method does:
+
+    this.calendar.off(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+
+`.bind()` returns a NEW function every time, so the reference passed to `.off()` can never equal the
+one `.on()` was given, and FullCalendar removes nothing. Wiring the call up as-is would look like a
+fix, pass a test that only asserts the method ran, and leak exactly as before. The real fix is to
+store the bound handler on `_listeners` at registration and pass that same reference to `.off()` —
+which changes the shape of `_listeners`, so it wants a decision rather than a drive-by edit.
 
 ---
 
