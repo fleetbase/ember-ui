@@ -17,6 +17,12 @@ module.exports = function (environment) {
         APP: {
             // Here you can pass flags/options to your application instance
             // when it is created
+
+            // Whether the suite was launched with `ember test --server` / `-s`.
+            // tests/test-helper.js needs this to choose how coverage is posted: testem's
+            // afterTests hook is the reliable path in CI mode but does not fire in server mode.
+            // See https://github.com/ember-cli-code-coverage/ember-cli-code-coverage/issues/420
+            isRunningWithServerArgs: process.argv.includes('--server') || process.argv.includes('-s'),
         },
     };
 
