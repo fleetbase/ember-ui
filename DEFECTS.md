@@ -259,10 +259,18 @@ three fields it manages. Not a call to make from the coverage side.
    passed. Use a pinned Node 22 for every run.
 **Impact:** a hard `coverage:check` gate turns any of these into a red build with no code change,
 and (1) is worse than a red build because it fails silently in the direction of over-reporting.
-**Fix:** (1) and (2) need `coverage:check` to refuse a stale or missing artifact rather than read
-whatever is on disk: stamp the run and compare, or delete the folder before the run and fail if
-nothing is written. (3) needs an `engines` field and an `.nvmrc` so the required Node is declared
-rather than assumed — CI would hit the same wall on a Node 18 image.
+**What CI already does, and where it falls short.** `.github/workflows/ci.yml` pins
+`NODE_VERSION: 22.x`, so (3) cannot bite CI — it is a local-development trap only, and an `engines`
+field plus an `.nvmrc` would declare the requirement rather than leave it to whichever Node a shell
+happens to resolve. The workflow also runs `test -s coverage/lcov.info` after the gate, which
+catches the crudest form of (2). But that check looks at `lcov.info`, not `coverage-final.json`, and
+it tests only for existence — a stale artifact left by a previous run passes it.
+
+**Fix:** (1) and (2) need `coverage:check` to refuse an artifact it cannot prove is fresh, rather
+than reading whatever is on disk. Either stamp the run and require the artifact to be newer, or
+delete `coverage/` before the run and fail loudly if nothing is written. Locally, `rm -rf coverage`
+before a run has produced a complete set every time, where deleting only `coverage-final.json`
+has not.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 
