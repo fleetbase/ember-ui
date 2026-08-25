@@ -238,6 +238,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     handleChatFeedScroll() {
+        /* istanbul ignore else -- the element is registered by {{did-insert}} before any scroll can be handled, so it is always present here */
         if (this.channelFeedContainerElement) {
             this.channelFeedContainerElement.scrollTop = this.channelFeedContainerElement.scrollHeight;
             later(
@@ -251,6 +252,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     handleChatClosed() {
+        /* istanbul ignore else -- the element is registered by {{did-insert}} before the window can be closed, so it is always present here */
         if (this.chatWindowElement) {
             this.positionWindow(this.chatWindowElement);
         }

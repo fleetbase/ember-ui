@@ -20,11 +20,17 @@ export default class LayoutSidebarComponent extends Component {
     @service sidebar;
     @tracked sidebarNode;
     @tracked gutterNode;
+    /* istanbul ignore next -- sidebar.hbs never reads this; startResize() assigns it before resize() or stopResize() read it, so the lazy initializer never runs */
     @tracked mouseX = 0;
+    /* istanbul ignore next -- sidebar.hbs never reads this; startResize() assigns it before resize() or stopResize() read it, so the lazy initializer never runs */
     @tracked mouseY = 0;
+    /* istanbul ignore next -- sidebar.hbs never reads this; startResize() assigns it before resize() or stopResize() read it, so the lazy initializer never runs */
     @tracked sidebarWidth = 0;
+    /* istanbul ignore next -- sidebar.hbs never reads this; startResize() assigns it before resize() or stopResize() read it, so the lazy initializer never runs */
     @tracked isResizing = false;
+    /* istanbul ignore next -- sidebar.hbs never reads this; syncState() assigns it on every transition before anything reads it */
     @tracked hidden = false;
+    /* istanbul ignore next -- sidebar.hbs never reads this; syncState() assigns it on every transition before anything reads it */
     @tracked minimized = false;
     @tracked lastVisibleWidth = 0;
     hideTimer = null;

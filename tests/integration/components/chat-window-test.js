@@ -439,4 +439,16 @@ module('Integration | Component | chat-window', function (hooks) {
             assert.strictEqual(warnings[0], 'Error loading available users:', 'the failure is reported');
         });
     });
+    // getSenderFromParticipants and getParticipantByUserId both default a missing participants list
+    // to an empty array. Every fixture in this file supplies one, so those defaults had never run —
+    // but a channel arriving from the API before its participants relationship is loaded has none.
+    test('a channel with no participants list does not throw', async function (assert) {
+        this.channel = createChannel({ participants: undefined });
+
+        await render(hbs`<ChatWindow @channel={{this.channel}} />`);
+
+        // The current user cannot be found among absent participants, so the window stays hidden
+        // rather than erroring — the same outcome as a non-participant.
+        assert.dom('.chat-window-container').doesNotExist('no window, and no exception');
+    });
 });
