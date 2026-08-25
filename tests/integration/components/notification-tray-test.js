@@ -3,6 +3,7 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled, triggerEvent, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
+import Evented from '@ember/object/evented';
 
 const CURRENT_USER = { id: 'usr_1', companyId: 'cmp_1' };
 
@@ -264,6 +265,46 @@ module('Integration | Component | notification-tray', function (hooks) {
         });
     });
 
+    // On a phone the dropdown is a full-width sheet under the trigger rather than a floating
+    // panel, and it is never rendered in place.
+    module('on a mobile viewport', function (hooks) {
+        hooks.beforeEach(function () {
+            this.owner.unregister('service:media');
+            this.owner.register(
+                'service:media',
+                class extends Service.extend(Evented) {
+                    isMobile = true;
+                }
+            );
+        });
+
+        test('the dropdown is laid out as a full-width sheet', async function (assert) {
+            stored = [notificationFixture('n1')];
+
+            await render(hbs`<NotificationTray @renderInPlace={{true}} />`);
+            await click('.ember-basic-dropdown-trigger');
+
+            const content = document.querySelector('.ember-basic-dropdown-content');
+            assert.ok(content, 'the dropdown opened');
+            assert.dom(content).hasClass('is-mobile', 'it is marked as the mobile layout');
+            assert.strictEqual(content.style.width, '100%', 'and stretched across the viewport');
+        });
+
+        test('@renderInPlace is refused on mobile', async function (assert) {
+            await render(hbs`<NotificationTray @renderInPlace={{true}} />`);
+
+            assert.dom('.ember-basic-dropdown-trigger').exists('the tray still renders');
+            assert.strictEqual(document.querySelector('.ember-basic-dropdown-content'), null, 'and nothing is rendered in place before it opens');
+        });
+    });
+
+    test('an explicit @renderInPlace is honoured on a desktop viewport', async function (assert) {
+        await render(hbs`<NotificationTray @renderInPlace={{true}} />`);
+        await click('.ember-basic-dropdown-trigger');
+
+        assert.ok(document.querySelector('.ember-basic-dropdown-content'), 'the dropdown opens');
+    });
+
     module('universe events', function () {
         test('deleted notifications are removed from the tray', async function (assert) {
             const first = notificationFixture('n1');
@@ -273,6 +314,20 @@ module('Integration | Component | notification-tray', function (hooks) {
             assert.dom(badge()).hasText('2');
 
             fireUniverse('notifications.deleted', [first]);
+            await settled();
+
+            assert.dom(badge()).hasText('1');
+        });
+
+        test('a single deleted notification is removed too', async function (assert) {
+            const first = notificationFixture('n1');
+            stored = [first, notificationFixture('n2')];
+
+            await render(TEMPLATE);
+            assert.dom(badge()).hasText('2');
+
+            // The event carries one record rather than a list.
+            fireUniverse('notifications.deleted', first);
             await settled();
 
             assert.dom(badge()).hasText('1');

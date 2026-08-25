@@ -28,6 +28,30 @@ exactly there.
 
 # Open
 
+## 27. `addon/components/array-input.hbs` — typing writes the keyboard event into the array
+
+**Status:** FIXED
+**Found:** `onChange` and `onPaste` were the only two functions in array-input.js with no coverage,
+which meant nothing in the suite had ever fired a keyup or a paste on a row.
+**Evidence:** the row input bound three handlers, and one of them was wired to the wrong method:
+
+    {{on "change" (fn this.onChange index)}}   → onChange reads event.target.value
+    {{on "paste"  (fn this.onPaste index)}}    → onPaste reads event.target.value
+    {{on "keyup"  (fn this.inputDatum index)}} → inputDatum(index, input) stores `input` as-is
+
+`inputDatum`'s second parameter is the *value*, not an event. Bound to keyup it received the
+KeyboardEvent, so `this.data[index] = event`. Confirmed with a probe: after one keyup, the first
+element of the array reported to `@onDataChanged` had `typeof === 'object'`.
+
+**Impact:** every keystroke in an array row reported an array with a KeyboardEvent in it to
+`@onDataChanged`. The field's own `change` event overwrites it with the real value on blur, so the
+damage is limited to consumers that act on the value as it is typed — and to anything that
+serialises what it is handed.
+
+**Fix — applied:** keyup now goes through `onChange`, the same handler the change event uses, which
+reads `event.target.value`. Covered by a test asserting the typed value rather than the event, plus
+tests for paste (with and without a value) and for editing with no handler at all.
+
 ## 26. `addon/components/layout/sidebar/navigator.js` — a search result with children cannot be opened
 
 **Status:** OPEN — logged, not changed; the fix is a design decision (see below)

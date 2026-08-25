@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn } from '@ember/test-helpers';
+import { render, click, fillIn, triggerEvent, triggerKeyEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | array-input', function (hooks) {
@@ -114,6 +114,59 @@ module('Integration | Component | array-input', function (hooks) {
 
         assert.deepEqual(changes, [], 'a change carrying no value reports nothing');
     });
+    // Typing reports on every keyup, before the field fires its change event.
+    test('typing into a row reports the typed value', async function (assert) {
+        const changes = [];
+        this.set('data', ['alpha']);
+        this.set('onDataChanged', (data) => changes.push([...data]));
+
+        await render(hbs`<ArrayInput @data={{this.data}} @onDataChanged={{this.onDataChanged}} />`);
+
+        const input = this.element.querySelector('input[aria-label="Data Input"]');
+        input.value = 'alpham';
+        await triggerKeyEvent(input, 'keyup', 'KeyM');
+
+        assert.deepEqual(changes[changes.length - 1], ['alpham'], 'the value is written, not the event');
+    });
+
+    test('pasting into a row writes the pasted value', async function (assert) {
+        const changes = [];
+        this.set('data', ['alpha']);
+        this.set('onDataChanged', (data) => changes.push([...data]));
+
+        await render(hbs`<ArrayInput @data={{this.data}} @onDataChanged={{this.onDataChanged}} />`);
+
+        const input = this.element.querySelector('input[aria-label="Data Input"]');
+        input.value = 'pasted';
+        await triggerEvent(input, 'paste');
+
+        assert.deepEqual(changes[changes.length - 1], ['pasted']);
+    });
+
+    test('pasting nothing into an empty row writes nothing', async function (assert) {
+        const changes = [];
+        this.set('data', ['']);
+        this.set('onDataChanged', (data) => changes.push([...data]));
+
+        await render(hbs`<ArrayInput @data={{this.data}} @onDataChanged={{this.onDataChanged}} />`);
+        await triggerEvent(this.element.querySelector('input[aria-label="Data Input"]'), 'paste');
+
+        assert.deepEqual(changes, [], 'nothing is reported');
+    });
+
+    test('editing, adding and removing with no @onDataChanged handler are all harmless', async function (assert) {
+        this.set('data', ['alpha']);
+
+        await render(hbs`<ArrayInput @data={{this.data}} />`);
+        await fillIn('input[aria-label="Data Input"]', 'gamma');
+
+        assert.dom('input[aria-label="Data Input"]').hasValue('gamma', 'the edit still lands');
+
+        await click('button.text-red-500');
+
+        assert.dom('input[aria-label="Data Input"]').doesNotExist('and the row is still removed');
+    });
+
     test('it renders with no @data at all', async function (assert) {
         // The constructor defaults both arguments; every other case supplies them.
         await render(hbs`<ArrayInput />`);

@@ -254,6 +254,29 @@ module('Integration | Component | fetch-select', function (hooks) {
             assert.dom(trigger()).containsText('Alex Driver');
         });
 
+        // The selection is resolved during construction, before the first fetch finishes. Opening
+        // the select afterwards fetches again, this time with a selection already in hand.
+        test('reopening with a resolved selection re-resolves it against the new options', async function (assert) {
+            this.set('optionValue', 'id');
+            this.set('selected', 'drv_2');
+
+            await render(TEMPLATE);
+            await click(trigger());
+
+            assert.true(requests.length > 1, 'opening fetches again');
+            assert.dom(trigger()).containsText('Blair Hauler', 'and the selection survives the reload');
+        });
+
+        test('reopening with a preselected object keeps that object', async function (assert) {
+            this.set('selected', DRIVERS[0]);
+
+            await render(TEMPLATE);
+            await click(trigger());
+
+            assert.strictEqual(requests.length, 1, 'the open is the first fetch');
+            assert.dom(trigger()).containsText('Alex Driver', 'and the object selection is kept');
+        });
+
         test('it works without an onChange handler', async function (assert) {
             await render(hbs`<FetchSelect @endpoint="drivers" @optionLabel="name" />`);
             await click(trigger());

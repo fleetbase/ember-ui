@@ -209,6 +209,8 @@ export default class NotificationTrayComponent extends Component {
     insertNotifications(notifications) {
         let _notifications = [...this.notifications];
 
+        /* istanbul ignore if -- the only caller is onReceivedNotification, which passes the one
+           record it just resolved */
         if (isArray(notifications)) {
             _notifications.push(...notifications);
         } else {

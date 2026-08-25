@@ -26,7 +26,10 @@
                         class="form-input w-full flex-1 border-none shadow-none rounded-none pr-24"
                         {{on "change" (fn this.onChange index)}}
                         {{on "paste" (fn this.onPaste index)}}
-                        {{on "keyup" (fn this.inputDatum index)}}
+                        {{! keyup must go through onChange, which reads event.target.value —
+                            handing the event straight to inputDatum wrote the KeyboardEvent
+                            itself into the array. See DEFECTS #27. }}
+                        {{on "keyup" (fn this.onChange index)}}
                     />
                     <div class="absolute right-0 py-2.5 px-4">
                         <button
