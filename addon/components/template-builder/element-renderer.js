@@ -334,6 +334,24 @@ export default class TemplateBuilderElementRendererComponent extends Component {
         return this.args.element?.rows ?? [];
     }
 
+    /**
+     * Caption drawn under the placeholder grid of a table that has no rows of its
+     * own. Nothing here resolves a data source — the builder stores intent and
+     * something downstream renders it — so without this a variable- or
+     * query-backed table looks exactly like an empty one on the canvas. Only read
+     * from the table arm of the template, where `isTable` proves the element.
+     */
+    get tableSourceCaption() {
+        const el = this.args.element;
+        if (el.data_source_mode === 'variable') {
+            return el.data_source ? `Rows from ${el.data_source}` : 'Rows from a variable';
+        }
+        if (el.data_source_mode === 'query') {
+            return el.query_endpoint ? `Rows from ${el.query_endpoint}` : 'Rows from a query';
+        }
+        return null;
+    }
+
     get tableBorderStyle() {
         const color = this.args.element?.border_color;
         return color ? `border-color: ${color}` : '';

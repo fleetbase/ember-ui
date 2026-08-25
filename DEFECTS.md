@@ -277,8 +277,8 @@ documented as such.
 
 ## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
 
-**Status:** DEFERRED — a later update, by decision
-**Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
+**Status:** FIXED (PR #164)
+**Found:** `else if (mode === 'query')` reported `[0,0]` — never evaluated either way.
 **Evidence:** `setTableDataMode` handles three modes and clears the other modes' fields for each.
 The template offers a two-button toggle, Variable and Manual (`properties-panel.hbs:258` and `:266`);
 nothing anywhere calls it with `'query'`. `data_source_mode` appears in exactly three places in the
@@ -288,16 +288,43 @@ by this action and read by nothing.
 **Impact:** none at runtime. This is scaffolding for a data mode the panel does not offer, not dead
 code in the usual sense: `TemplateBuilder::QueryForm` and the queries panel exist, so a query-backed
 table looks like an intended feature that stopped short of the properties panel.
-**Fix:** finish it. Confirmed as intended behaviour — fetch from a url with params — and deferred to
-its own session rather than half-built here. What it needs before anyone starts: an endpoint
-contract, an auth story, loading and error states, a defined shape for `query_response_path`, and
-something on the render side that consumes a query-backed table (nothing does today). It also has to
-be reconciled with the `__queries__` variable route, which already solves the same problem by
-exposing saved queries as variables — otherwise the panel ends up with two competing mechanisms.
+**Fix:** finished, not deleted — the mode was confirmed as intended behaviour, fetch from a url with
+params. The panel now has a three-button toggle and a query-mode form; `element-renderer` labels a
+query- or variable-backed table on the canvas; and the six questions this was blocked on are
+answered below.
 
-Until then the branch stays uncovered rather than suppressed: an `istanbul ignore` here would have
-to sit on the opening `if`, and `ignore else` there also swallows the `variable` branch, which real
-tests cover.
+**Applied — the decisions, so they are not rediscovered:**
+
+- **Reconciliation with `__queries__`, the one that mattered.** They stay two mechanisms with a
+  stated boundary, and Variable mode remains the usual answer. A saved `TemplateQuery` is a
+  structured query over a registered `model_type`, reusable across elements and saved with the
+  template; it is reached through **Variable** mode, under `__queries__`, and that mode's hint now
+  names the namespace so the structured route is the one found first. Query mode is one API path
+  bound to one element, and exists for what the query builder cannot express — aggregates, reports,
+  and extension endpoints with no model behind them. The boundary is written into
+  `properties-panel.js` above the query helpers.
+- **Endpoint contract.** A path relative to the Fleetbase API (`int/v1/orders`); leading slashes are
+  stripped. Absolute and protocol-relative URLs are **rejected**, as typed and again before any
+  request fires: the `fetch` service attaches the session to everything it sends, so a third-party
+  host would be handed those credentials.
+- **Auth.** The injected `fetch` service. Nothing new was introduced.
+- **`query_params` shape.** `[{ key, value }]`, matching the `[]` the clearing arms already seeded.
+  Values may hold `{variable}` tokens, resolved downstream at render.
+- **`query_response_path`.** A dotted path into the response body; blank means the body is itself the
+  array. Every way it can fail to resolve is reported by name — a missing segment, a segment that
+  runs into a primitive, and a path that lands on something other than an array.
+- **Fetching.** The mode stores intent, like variable mode — nothing in this addon resolves a data
+  source at render time. The one exception is the explicit **Test query** button, which fetches once
+  so the endpoint, params and path can be checked before saving. It never writes the fetched rows
+  onto the element; it reports the row count and keys, and offers to turn those keys into columns.
+  Params still holding an unresolved token are left out of that request and named.
+- **Loading and error states.** In-flight reporting on the button, request and response-path failures
+  both surfaced, and results keyed to the element they ran against so selecting another table does
+  not show it the previous one's results.
+
+The `istanbul ignore` problem the deferral noted is gone rather than suppressed: the final arm is now
+a plain `else`, so there is no third condition carrying a permanently-unreachable false path, and the
+`variable` branch real tests cover is untouched.
 
 ## 16. Coverage collection itself is unreliable, which the 100% gate cannot tolerate
 

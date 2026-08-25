@@ -1,8 +1,9 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn, findAll, find } from '@ember/test-helpers';
+import { render, click, fillIn, findAll, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { selectFiles } from 'ember-file-upload/test-support';
+import Service from '@ember/service';
 
 function element(type, overrides = {}) {
     return { uuid: 'el-1', type, x: 10, y: 20, width: 100, height: 50, ...overrides };
@@ -548,6 +549,613 @@ module('Integration | Component | template-builder/properties-panel', function (
             await click(buttonWithText('Manual'));
 
             assert.dom(this.element).containsText('Define columns first.');
+        });
+    });
+
+    // Query mode fetches an arbitrary Fleetbase API path. It is deliberately a
+    // different mechanism from the saved queries the queries panel manages —
+    // those are reached through Variable mode, under `__queries__`.
+    module('table query mode', function (hooks) {
+        let requests;
+        let respond;
+
+        function queryElement(overrides = {}) {
+            return element('table', {
+                columns: [],
+                rows: [],
+                data_source_mode: 'query',
+                query_endpoint: 'int/v1/orders',
+                ...overrides,
+            });
+        }
+
+        hooks.beforeEach(function () {
+            requests = [];
+            respond = () => [];
+
+            this.owner.unregister('service:fetch');
+            this.owner.register(
+                'service:fetch',
+                class extends Service {
+                    get(path, params, options) {
+                        requests.push({ path, params, options });
+                        return Promise.resolve(respond(path, params));
+                    }
+                }
+            );
+        });
+
+        async function renderQueryMode(context, overrides = {}) {
+            context.set('selectedElement', queryElement(overrides));
+            await render(TEMPLATE);
+            await openSection('Data Source');
+        }
+
+        function testButton() {
+            return find('.tb-query-test');
+        }
+
+        module('the mode toggle', function () {
+            test('the data source toggle offers a query mode', async function (assert) {
+                await renderQueryMode(this);
+
+                assert.ok(buttonWithText('Query'), 'a query mode is offered alongside variable and manual');
+            });
+
+            test('switching to query clears the data variable and seeds the params array', async function (assert) {
+                this.set('selectedElement', element('table', { columns: [], rows: [], data_source_mode: 'variable', data_source: '{order.items}' }));
+                await render(TEMPLATE);
+                await openSection('Data Source');
+                await click(buttonWithText('Query'));
+
+                assert.deepEqual(lastChanges(), {
+                    data_source_mode: 'query',
+                    data_source: null,
+                    query_params: [],
+                });
+            });
+
+            test('switching to query leaves params that are already there alone', async function (assert) {
+                this.set('selectedElement', element('table', { columns: [], rows: [], data_source_mode: 'manual', query_params: [{ key: 'status', value: 'completed' }] }));
+                await render(TEMPLATE);
+                await openSection('Data Source');
+                await click(buttonWithText('Query'));
+
+                assert.deepEqual(lastChanges(), { data_source_mode: 'query', data_source: null }, 'no query_params key, so the existing ones survive');
+            });
+
+            test('query mode is what the panel shows for a query-backed table', async function (assert) {
+                await renderQueryMode(this);
+
+                assert.ok(find('.tb-query-endpoint'), 'the endpoint field is shown');
+                assert.notOk(inputsByPlaceholder('{order.items}').length, 'the variable field is not');
+            });
+        });
+
+        module('the endpoint field', function () {
+            test('an endpoint can be typed', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: '' });
+                await fillIn('.tb-query-endpoint', 'int/v1/reports/revenue');
+
+                assert.deepEqual(lastChanges(), { query_endpoint: 'int/v1/reports/revenue' });
+            });
+
+            test('a relative path is accepted without complaint', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: 'int/v1/orders' });
+
+                assert.notOk(find('.tb-query-endpoint-error'), 'no error is shown');
+                assert.dom(this.element).containsText('A path on the Fleetbase API');
+            });
+
+            test('a full URL is rejected, because the request would carry the session', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: 'https://evil.example.com/orders' });
+
+                assert.dom('.tb-query-endpoint-error').containsText('not a full URL');
+                assert.dom('.tb-query-endpoint-error').containsText('session credentials');
+            });
+
+            test('a protocol-relative URL is rejected too', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: '//evil.example.com/orders' });
+
+                assert.dom('.tb-query-endpoint-error').exists('a leading // is still another host');
+            });
+
+            test('an empty endpoint is not reported as an error until it is tested', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: '   ' });
+
+                assert.notOk(find('.tb-query-endpoint-error'), 'nothing to correct yet');
+            });
+        });
+
+        module('query parameters', function () {
+            test('an element with no params says so', async function (assert) {
+                await renderQueryMode(this);
+
+                assert.dom(this.element).containsText('No parameters.');
+            });
+
+            test('a parameter can be added', async function (assert) {
+                await renderQueryMode(this);
+                await click(buttonWithText('Add parameter'));
+
+                assert.deepEqual(lastChanges(), { query_params: [{ key: '', value: '' }] });
+            });
+
+            test('a parameter is appended to the ones already there', async function (assert) {
+                await renderQueryMode(this, { query_params: [{ key: 'status', value: 'completed' }] });
+                await click(buttonWithText('Add parameter'));
+
+                assert.deepEqual(lastChanges(), {
+                    query_params: [
+                        { key: 'status', value: 'completed' },
+                        { key: '', value: '' },
+                    ],
+                });
+            });
+
+            test('a parameter key can be edited', async function (assert) {
+                await renderQueryMode(this, { query_params: [{ key: 'status', value: 'completed' }] });
+                await fillIn(findAll('.tb-query-param-key')[0], 'state');
+
+                assert.deepEqual(lastChanges(), { query_params: [{ key: 'state', value: 'completed' }] });
+            });
+
+            test('a parameter value can be edited', async function (assert) {
+                await renderQueryMode(this, { query_params: [{ key: 'status', value: 'completed' }] });
+                await fillIn(findAll('.tb-query-param-value')[0], '{order.status}');
+
+                assert.deepEqual(lastChanges(), { query_params: [{ key: 'status', value: '{order.status}' }] });
+            });
+
+            test('editing one parameter leaves the others alone', async function (assert) {
+                await renderQueryMode(this, {
+                    query_params: [
+                        { key: 'status', value: 'completed' },
+                        { key: 'limit', value: '10' },
+                    ],
+                });
+                await fillIn(findAll('.tb-query-param-value')[1], '25');
+
+                assert.deepEqual(lastChanges(), {
+                    query_params: [
+                        { key: 'status', value: 'completed' },
+                        { key: 'limit', value: '25' },
+                    ],
+                });
+            });
+
+            test('a parameter can be removed', async function (assert) {
+                await renderQueryMode(this, {
+                    query_params: [
+                        { key: 'status', value: 'completed' },
+                        { key: 'limit', value: '10' },
+                    ],
+                });
+                await click(buttonsByTitle('Remove parameter')[0]);
+
+                assert.deepEqual(lastChanges(), { query_params: [{ key: 'limit', value: '10' }] });
+            });
+        });
+
+        module('the response path field', function () {
+            test('a response path can be typed', async function (assert) {
+                await renderQueryMode(this);
+                await fillIn('.tb-query-response-path', 'data.results');
+
+                assert.deepEqual(lastChanges(), { query_response_path: 'data.results' });
+            });
+        });
+
+        module('testing the query', function () {
+            test('a successful test reports the row count', async function (assert) {
+                respond = () => [{ id: 1 }, { id: 2 }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 2 rows.');
+            });
+
+            test('a single row is reported in the singular', async function (assert) {
+                respond = () => [{ id: 1 }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 1 row.');
+            });
+
+            test('the endpoint is sent to the fetch service with its leading slash stripped', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: '  /int/v1/orders  ' });
+                await click(testButton());
+
+                assert.strictEqual(requests.length, 1, 'exactly one request is made');
+                assert.strictEqual(requests[0].path, 'int/v1/orders');
+            });
+
+            test('named parameters are sent as the query string', async function (assert) {
+                await renderQueryMode(this, {
+                    query_params: [
+                        { key: ' status ', value: 'completed' },
+                        { key: 'limit', value: '10' },
+                    ],
+                });
+                await click(testButton());
+
+                assert.deepEqual(requests[0].params, { status: 'completed', limit: '10' });
+            });
+
+            test('a parameter with no key is not sent', async function (assert) {
+                await renderQueryMode(this, {
+                    query_params: [{ key: '', value: 'blank' }, { value: 'keyless' }, { key: '   ', value: 'whitespace' }, { key: 'limit', value: '10' }],
+                });
+                await click(testButton());
+
+                assert.deepEqual(requests[0].params, { limit: '10' });
+            });
+
+            test('a parameter with no value at all is sent as an empty string', async function (assert) {
+                await renderQueryMode(this, { query_params: [{ key: 'status' }] });
+                await click(testButton());
+
+                assert.deepEqual(requests[0].params, { status: '' });
+            });
+
+            test('a parameter still holding a variable token is left out and named', async function (assert) {
+                await renderQueryMode(this, {
+                    query_params: [
+                        { key: 'order', value: '{order.uuid}' },
+                        { key: 'limit', value: '10' },
+                    ],
+                });
+                await click(testButton());
+
+                assert.deepEqual(requests[0].params, { limit: '10' }, 'the token cannot be resolved here, so it is not sent');
+                assert.dom('.tb-query-test-skipped').containsText('order');
+            });
+
+            test('a test with nothing skipped says nothing about skipping', async function (assert) {
+                await renderQueryMode(this, { query_params: [{ key: 'limit', value: '10' }] });
+                await click(testButton());
+
+                assert.notOk(find('.tb-query-test-skipped'));
+            });
+
+            test('testing an empty endpoint asks for one rather than firing a request', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: '' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('Enter an API endpoint');
+                assert.strictEqual(requests.length, 0, 'no request is made');
+            });
+
+            test('testing an element that has never had an endpoint asks for one too', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: undefined });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('Enter an API endpoint');
+                assert.strictEqual(requests.length, 0);
+            });
+
+            test('testing a full URL refuses rather than firing a request', async function (assert) {
+                await renderQueryMode(this, { query_endpoint: 'https://evil.example.com/orders' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('not a full URL');
+                assert.strictEqual(requests.length, 0, 'the session is never sent to another host');
+            });
+
+            test('the button reports that a test is in flight', async function (assert) {
+                let release;
+                respond = () => new Promise((resolve) => (release = resolve));
+
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test').containsText('Testing');
+                assert.dom('.tb-query-test').isDisabled();
+
+                release([{ id: 1 }]);
+                await settled();
+
+                assert.dom('.tb-query-test').containsText('Test query', 'and stops when it lands');
+                assert.dom('.tb-query-test').isNotDisabled();
+            });
+
+            test('a rejected request is reported with its message', async function (assert) {
+                respond = () => Promise.reject(new Error('403 Forbidden'));
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('The request failed: 403 Forbidden');
+                assert.dom('.tb-query-test').isNotDisabled('the in-flight state is cleared');
+            });
+
+            test('a rejection with no message still reports a failure', async function (assert) {
+                respond = () => Promise.reject(new Error(''));
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').hasText('The request failed.');
+            });
+
+            test('a rejection that is not an error at all still reports a failure', async function (assert) {
+                respond = () => Promise.reject();
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').hasText('The request failed.');
+            });
+
+            test('a later test replaces the earlier error', async function (assert) {
+                respond = () => Promise.reject(new Error('boom'));
+                await renderQueryMode(this);
+                await click(testButton());
+                assert.dom('.tb-query-test-error').exists();
+
+                respond = () => [{ id: 1 }];
+                await click(testButton());
+
+                assert.notOk(find('.tb-query-test-error'), 'the stale error is gone');
+                assert.dom('.tb-query-test-result').containsText('Returned 1 row.');
+            });
+        });
+
+        module('resolving the response path', function () {
+            test('a dotted path is walked into the response', async function (assert) {
+                respond = () => ({ data: { results: [{ id: 1 }, { id: 2 }, { id: 3 }] } });
+                await renderQueryMode(this, { query_response_path: 'data.results' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 3 rows.');
+            });
+
+            test('surrounding whitespace in the path is ignored', async function (assert) {
+                respond = () => ({ data: { results: [{ id: 1 }] } });
+                await renderQueryMode(this, { query_response_path: '  data . results  ' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 1 row.');
+            });
+
+            test('a missing segment is named', async function (assert) {
+                respond = () => ({ data: {} });
+                await renderQueryMode(this, { query_response_path: 'data.results' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('no "results" under "data"');
+            });
+
+            test('a missing first segment says it is missing from the response', async function (assert) {
+                respond = () => ({ other: [] });
+                await renderQueryMode(this, { query_response_path: 'data' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('no "data" in the response');
+            });
+
+            test('a path that runs into a primitive says where it stopped', async function (assert) {
+                respond = () => ({ data: 'nope' });
+                await renderQueryMode(this, { query_response_path: 'data.results' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('"data" is a string, not an object');
+            });
+
+            test('a path against a null response body says so', async function (assert) {
+                respond = () => null;
+                await renderQueryMode(this, { query_response_path: 'data' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('the response body is null, not an object');
+            });
+
+            test('a path against an empty response body says so', async function (assert) {
+                respond = () => undefined;
+                await renderQueryMode(this, { query_response_path: 'data' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('the response body is nothing, not an object');
+            });
+
+            test('a path that lands on something other than an array is named', async function (assert) {
+                respond = () => ({ data: { count: 4 } });
+                await renderQueryMode(this, { query_response_path: 'data' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('Expected an array of rows at "data", got an object.');
+            });
+
+            test('a response that is not an array, with no path, is named too', async function (assert) {
+                respond = () => ({ count: 4 });
+                await renderQueryMode(this, { query_response_path: '' });
+                await click(testButton());
+
+                assert.dom('.tb-query-test-error').containsText('Expected an array of rows in the response, got an object.');
+            });
+
+            test('an element with no response path at all treats the body as the rows', async function (assert) {
+                respond = () => [{ id: 1 }, { id: 2 }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 2 rows.');
+            });
+        });
+
+        module('discovered columns', function () {
+            test('the keys of the returned rows are listed', async function (assert) {
+                respond = () => [{ id: 1, name: 'Widget' }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-keys').containsText('id, name');
+            });
+
+            test('keys are the union across rows, in the order first seen', async function (assert) {
+                respond = () => [{ id: 1 }, { id: 2, name: 'Widget' }, { name: 'Gadget', qty: 3 }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-keys').containsText('id, name, qty');
+            });
+
+            test('rows that are not plain objects contribute no keys', async function (assert) {
+                respond = () => ['a string', null, ['nested'], { id: 1 }];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-keys').hasText('Keys: id');
+            });
+
+            test('only the first twenty rows are scanned for keys', async function (assert) {
+                const rows = Array.from({ length: 21 }, (_, index) => (index === 20 ? { late: true } : { id: index }));
+                respond = () => rows;
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 21 rows.');
+                assert.dom('.tb-query-test-keys').hasText('Keys: id', 'the twenty-first row is past the scan limit');
+            });
+
+            test('rows with no keys at all offer nothing to apply', async function (assert) {
+                respond = () => [{}, {}];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 2 rows.');
+                assert.notOk(find('.tb-query-apply-columns'), 'there is nothing to turn into a column');
+            });
+
+            test('an empty result offers nothing to apply', async function (assert) {
+                respond = () => [];
+                await renderQueryMode(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 0 rows.');
+                assert.notOk(find('.tb-query-apply-columns'));
+            });
+
+            test('the discovered keys can be applied as the table columns', async function (assert) {
+                respond = () => [{ id: 1, total_amount: 20, createdAt: 'today' }];
+                await renderQueryMode(this);
+                await click(testButton());
+                await click('.tb-query-apply-columns');
+
+                assert.deepEqual(lastChanges(), {
+                    columns: [
+                        { label: 'Id', key: 'id' },
+                        { label: 'Total Amount', key: 'total_amount' },
+                        { label: 'Created At', key: 'createdAt' },
+                    ],
+                });
+            });
+
+            test('applying columns replaces the ones already defined', async function (assert) {
+                respond = () => [{ id: 1 }];
+                await renderQueryMode(this, { columns: [{ label: 'Old', key: 'old' }] });
+                await click(testButton());
+                await click('.tb-query-apply-columns');
+
+                assert.deepEqual(lastChanges(), { columns: [{ label: 'Id', key: 'id' }] });
+            });
+        });
+
+        module('test results and the selection', function () {
+            test('switching data mode discards the results', async function (assert) {
+                respond = () => [{ id: 1 }];
+                await renderQueryMode(this);
+                await click(testButton());
+                assert.dom('.tb-query-test-result').exists();
+
+                await click(buttonWithText('Query'));
+
+                assert.notOk(find('.tb-query-test-result'), 'the results belonged to the previous configuration');
+            });
+
+            test("one element's results are not shown against another", async function (assert) {
+                respond = () => [{ id: 1 }];
+                await renderQueryMode(this);
+                await click(testButton());
+                assert.dom('.tb-query-test-result').exists();
+
+                this.set('selectedElement', { ...queryElement(), uuid: 'el-2' });
+                await settled();
+
+                assert.notOk(find('.tb-query-test-result'), 'the second table has not been tested');
+            });
+
+            test("one element's error is not shown against another", async function (assert) {
+                respond = () => Promise.reject(new Error('boom'));
+                await renderQueryMode(this);
+                await click(testButton());
+                assert.dom('.tb-query-test-error').exists();
+
+                this.set('selectedElement', { ...queryElement(), uuid: 'el-2' });
+                await settled();
+
+                assert.notOk(find('.tb-query-test-error'));
+            });
+        });
+
+        module('without an update handler', function () {
+            const UNWIRED = hbs`<TemplateBuilder::PropertiesPanel @selectedElement={{this.selectedElement}} />`;
+
+            async function renderUnwired(context, overrides = {}) {
+                context.set('selectedElement', queryElement(overrides));
+                await render(UNWIRED);
+                await openSection('Data Source');
+            }
+
+            test('switching mode is inert', async function (assert) {
+                await renderUnwired(this);
+                await click(buttonWithText('Manual'));
+
+                assert.deepEqual(updates, []);
+            });
+
+            test('adding a parameter is inert', async function (assert) {
+                await renderUnwired(this);
+                await click(buttonWithText('Add parameter'));
+
+                assert.deepEqual(updates, []);
+            });
+
+            test('editing a parameter is inert', async function (assert) {
+                await renderUnwired(this, { query_params: [{ key: 'status', value: 'completed' }] });
+                await fillIn(findAll('.tb-query-param-key')[0], 'state');
+
+                assert.deepEqual(updates, []);
+            });
+
+            test('removing a parameter is inert', async function (assert) {
+                await renderUnwired(this, { query_params: [{ key: 'status', value: 'completed' }] });
+                await click(buttonsByTitle('Remove parameter')[0]);
+
+                assert.deepEqual(updates, []);
+            });
+
+            test('applying discovered columns is inert', async function (assert) {
+                respond = () => [{ id: 1 }];
+                await renderUnwired(this);
+                await click(testButton());
+
+                assert.dom('.tb-query-test-result').containsText('Returned 1 row.', 'the query can still be tested');
+
+                await click('.tb-query-apply-columns');
+
+                assert.deepEqual(updates, []);
+            });
+
+            test('testing with nothing selected does nothing at all', async function (assert) {
+                this.set('selectedElement', queryElement());
+                await render(UNWIRED);
+                await openSection('Data Source');
+
+                this.set('selectedElement', null);
+                await settled();
+
+                assert.notOk(find('.tb-query-test'), 'there is no panel to test from');
+                assert.strictEqual(requests.length, 0);
+            });
         });
     });
 

@@ -307,6 +307,70 @@ module('Integration | Component | template-builder/element-renderer', function (
             assert.dom('.tb-element').containsText('No columns defined');
         });
 
+        // Nothing here resolves a data source — the builder stores intent and
+        // something downstream renders it — so the caption is what tells a
+        // variable- or query-backed table apart from an empty one.
+        test('a manual table shows no source caption', async function (assert) {
+            this.set('templateElement', element({ type: 'table', columns: [{ label: 'Item' }] }));
+
+            await render(TEMPLATE);
+
+            assert.strictEqual(findAll('tbody tr').length, 3, 'only the placeholder rows');
+            assert.dom('.tb-table-source-caption').doesNotExist();
+        });
+
+        test('a variable-backed table names its variable', async function (assert) {
+            this.set('templateElement', element({ type: 'table', columns: [{ label: 'Item' }], data_source_mode: 'variable', data_source: '{order.items}' }));
+
+            await render(TEMPLATE);
+
+            assert.dom('.tb-table-source-caption').hasText('Rows from {order.items}');
+        });
+
+        test('a variable-backed table with no variable yet still says where its rows come from', async function (assert) {
+            this.set('templateElement', element({ type: 'table', columns: [{ label: 'Item' }], data_source_mode: 'variable' }));
+
+            await render(TEMPLATE);
+
+            assert.dom('.tb-table-source-caption').hasText('Rows from a variable');
+        });
+
+        test('a query-backed table names its endpoint', async function (assert) {
+            this.set('templateElement', element({ type: 'table', columns: [{ label: 'Item' }], data_source_mode: 'query', query_endpoint: 'int/v1/orders' }));
+
+            await render(TEMPLATE);
+
+            assert.dom('.tb-table-source-caption').hasText('Rows from int/v1/orders');
+            assert.dom('.tb-table-source-caption').hasAttribute('colspan', '1');
+        });
+
+        test('a query-backed table with no endpoint yet still says where its rows come from', async function (assert) {
+            this.set('templateElement', element({ type: 'table', columns: [{ label: 'Item' }, { label: 'Qty' }], data_source_mode: 'query' }));
+
+            await render(TEMPLATE);
+
+            assert.dom('.tb-table-source-caption').hasText('Rows from a query');
+            assert.dom('.tb-table-source-caption').hasAttribute('colspan', '2', 'the caption spans every column');
+        });
+
+        test('a query-backed table with rows of its own renders them instead of the caption', async function (assert) {
+            this.set(
+                'templateElement',
+                element({
+                    type: 'table',
+                    columns: [{ label: 'Item', key: 'name' }],
+                    rows: [{ name: 'Widget' }],
+                    data_source_mode: 'query',
+                    query_endpoint: 'int/v1/orders',
+                })
+            );
+
+            await render(TEMPLATE);
+
+            assert.dom('.tb-table-source-caption').doesNotExist();
+            assert.dom('tbody td').hasText('Widget');
+        });
+
         test('header, cell and border styling is applied', async function (assert) {
             this.set(
                 'templateElement',
