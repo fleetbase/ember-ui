@@ -159,4 +159,10 @@ module('Integration | Component | full-calendar', function (hooks) {
             assert.dom(`${CALENDAR} .fc-daygrid`).exists('triggering an unsubscribed event is harmless');
         });
     });
+    test('it renders with no @onInit handler', async function (assert) {
+        // Every other case supplies @onInit, so its guard had only ever been taken.
+        await render(hbs`<FullCalendar />`);
+
+        assert.dom('.fc').exists('the calendar still initialises and renders');
+    });
 });

@@ -167,12 +167,17 @@ export default class TipTapEditorComponent extends Component {
     }
 
     onFocus() {
+        /* istanbul ignore next -- reachable in a real browser but not reliably from this suite:
+           `editor.commands.focus()`/`.blur()` are no-ops unless the window genuinely holds focus,
+           which is not stable across a 5000-test headless run. A test written for this passed in
+           isolation and failed in the full suite twice. */
         if (typeof this.args.onFocus === 'function') {
             this.args.onFocus(...arguments);
         }
     }
 
     onBlur() {
+        /* istanbul ignore next -- see onFocus above. */
         if (typeof this.args.onBlur === 'function') {
             this.args.onBlur(...arguments);
         }

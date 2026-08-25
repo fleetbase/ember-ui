@@ -189,6 +189,105 @@ iso2 and select it — minus the `@onChange` notification.
 beside the one the template actually uses.
 Blocks the gate while it exists.
 
+## 13. `addon/components/query-builder/conditions.js` — a multi-value condition kept only the last value picked
+
+**Status:** FIXED (this branch)
+**Found:** writing the first real test for the `is one of` editor. Selecting `active` then `pending`
+reported `['pending']`, not `['active', 'pending']`.
+**Evidence:** `updateConditionValue` mutated `cond.value` on the existing condition object and then
+called `notifyDebounced` — it never replaced any container, so Glimmer had nothing to invalidate.
+`PowerSelectMultiple`'s `@selected={{condition.value}}` therefore kept rendering the value it was
+first given (`null`), and every subsequent pick was treated as the first. The component's own
+`updateCondition()` helper documents the fix in a comment — "clone containers (so Glimmer sees a
+change)" — and `updateConditionRangeValue` already routes through it; `updateConditionValue` was the
+one value writer that did not.
+**Impact:** user-visible. Any `is one of` / `is not one of` filter could only ever carry one value,
+and the boolean editor's trigger showed a stale selection. The reported payload was correct on the
+first pick, so the bug looked like the UI "not keeping up".
+**Fix:** applied — `updateConditionValue` now clones the group and its conditions array before
+notifying, matching `updateCondition()`. It keeps the debounce (the free-text editor types through
+this same action). Covered by *an "in" condition collects the selected values as an array*, which
+fails against the old code.
+
+## 14. `addon/components/template-builder/properties-panel.hbs:73` — `value="target.value"` on `{{fn}}` does nothing
+
+**Status:** NEEDS DECISION (cosmetic; no behaviour change either way)
+**Found:** chasing the uncovered `event?.target ? event.target.value : event` branch in `updateProp`.
+The only call site that looks like it passes a raw value is this one.
+**Evidence:** `{{on "input" (fn this.updateProp "content" value="target.value")}}`. `value=` is an
+option of the classic `{{action}}` helper, which unwraps the event for you. `{{fn}}` has no such
+option — it treats `value` as an ordinary named argument and ignores it, so `updateProp` still
+receives the DOM event and takes the `event.target.value` path like every other caller.
+**Impact:** none today. It is misleading rather than broken: it reads as if the handler receives a
+string, and the `: event` fallback in `updateProp` exists to serve a call shape that never occurs.
+**Fix:** drop the `value=` argument. Whether the `: event` fallback in `updateProp`,
+`updateNumericProp` and `updateTemplateProp` should stay is a separate call — it is currently
+unreachable from this template and is documented as such.
+
+## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
+
+**Status:** NEEDS DECISION
+**Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
+**Evidence:** `setTableDataMode` handles three modes and clears the other modes' fields for each.
+The template offers a two-button toggle, Variable and Manual (`properties-panel.hbs:258` and `:266`);
+nothing anywhere calls it with `'query'`. `data_source_mode` appears in exactly three places in the
+whole monorepo, all of them in this one file, so no consumer sets it either. The element fields the
+branch manages — `query_endpoint`, `query_params`, `query_response_path` — are likewise written only
+by this action and read by nothing.
+**Impact:** none at runtime. This is scaffolding for a data mode the panel does not offer, not dead
+code in the usual sense: `TemplateBuilder::QueryForm` and the queries panel exist, so a query-backed
+table looks like an intended feature that stopped short of the properties panel.
+**Fix:** either finish it (a third toggle button and the query fields) or remove the branch and the
+three fields it manages. Not a call to make from the coverage side.
+
+## 16. Coverage collection itself is unreliable, which the 100% gate cannot tolerate
+
+**Status:** OPEN — blocks the gate, alongside #4
+**Found:** repeatedly, while verifying single files.
+**Evidence:** three distinct failure modes, all observed in one session:
+1. A run reports `# tests 77 / # pass 77 / # fail 0` and leaves `coverage/coverage-final.json`
+   untouched — the *previous* run's artifact stays in place. Reading it credited a handler with 0
+   hits long after the test reaching it worked, and would just as easily credit coverage that never
+   happened.
+2. A run writes `coverage-summary.json` and the HTML report but no `coverage-final.json`.
+3. NOT A REPO DEFECT — recorded so it is not mistaken for one. `pnpm exec ember test` sometimes
+   builds successfully and then dies before launching a browser with
+   `require() of ES Module .../execa@9.6.1/index.js from .../testem@3.20.0/...`. The cause is the
+   Node version, not the dependency pair: `/usr/local/bin/node` is v18.15.0, which cannot
+   `require()` an ESM module at all, while nvm's v22.22.2 (which does) is only on PATH in shells
+   that source the profile. Runs that picked up Node 18 died here; runs that picked up Node 22
+   passed. Use a pinned Node 22 for every run.
+**Impact:** a hard `coverage:check` gate turns any of these into a red build with no code change,
+and (1) is worse than a red build because it fails silently in the direction of over-reporting.
+**Fix:** (1) and (2) need `coverage:check` to refuse a stale or missing artifact rather than read
+whatever is on disk: stamp the run and compare, or delete the folder before the run and fail if
+nothing is written. (3) needs an `engines` field and an `.nvmrc` so the required Node is declared
+rather than assumed — CI would hit the same wall on a Node 18 image.
+
+## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
+
+**Status:** OPEN — NEEDS DECISION (the fix is not a one-liner; see below)
+**Note on numbering:** commit `8410e7e` refers to this as "#13". The entry was never written to
+this file, and #13 was later taken by the query-builder fix. This is the entry that commit means.
+**Found:** five of full-calendar's remaining coverage gaps are the whole body of
+`destroyCalendarEventListeners`, which reports as never invoked.
+**Evidence:** the component has no `willDestroy`, no `registerDestructor`, and nothing in
+`full-calendar.hbs` invokes it. `createCalendarEventListeners` pushes an entry onto `this._listeners`
+for every `on<Event>` argument the consumer supplies and registers it with `this.calendar.on(...)`;
+nothing ever unregisters them.
+**Impact:** real, and it costs users. A calendar on a route navigated in and out of accumulates
+listeners on the FullCalendar instance for the lifetime of the page.
+**Fix — and why it is not the obvious one:** calling `destroyCalendarEventListeners` from a
+destructor is necessary but NOT sufficient. The method does:
+
+    this.calendar.off(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+
+`.bind()` returns a NEW function every time, so the reference passed to `.off()` can never equal the
+one `.on()` was given, and FullCalendar removes nothing. Wiring the call up as-is would look like a
+fix, pass a test that only asserts the method ran, and leak exactly as before. The real fix is to
+store the bound handler on `_listeners` at registration and pass that same reference to `.off()` —
+which changes the shape of `_listeners`, so it wants a decision rather than a drive-by edit.
+
 ---
 
 ## Tests that pass for a reason other than the one they name

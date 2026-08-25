@@ -459,4 +459,192 @@ module('Integration | Component | template-builder/element-renderer', function (
 
         assert.dom('.tb-element').doesNotExist('the interact.js instance is torn down without error');
     });
+    // interact.js listens for real pointer events on the document, so the drag, resize and tap
+    // handlers can be driven the same way a browser would drive them. Nothing here is simulated
+    // at the component level — these dispatch PointerEvents and let interact.js do its own
+    // gesture detection.
+    module('pointer interaction', function () {
+        function pointer(type, x, y, target) {
+            (target ?? document).dispatchEvent(
+                new PointerEvent(type, {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                    pointerId: 1,
+                    pointerType: 'mouse',
+                    isPrimary: true,
+                    button: 0,
+                    buttons: type === 'pointerup' ? 0 : 1,
+                    clientX: x,
+                    clientY: y,
+                })
+            );
+        }
+
+        async function drag(target, from, to) {
+            pointer('pointerdown', from.x, from.y, target);
+            pointer('pointermove', from.x + (to.x - from.x) / 2, from.y + (to.y - from.y) / 2);
+            pointer('pointermove', to.x, to.y);
+            pointer('pointerup', to.x, to.y);
+            await settled();
+        }
+
+        function corner(node) {
+            const box = node.getBoundingClientRect();
+            return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+        }
+
+        test('a tap selects the element', async function (assert) {
+            const selected = [];
+            this.set('onSelect', (el) => selected.push(el));
+            await render(TEMPLATE);
+
+            const at = corner(wrapper());
+            pointer('pointerdown', at.x, at.y, wrapper());
+            pointer('pointerup', at.x, at.y, wrapper());
+            await settled();
+
+            assert.deepEqual(
+                selected.map((el) => el.uuid),
+                ['el_1'],
+                'the element data model is handed back'
+            );
+        });
+
+        test('a tap on an element with no onSelect is harmless', async function (assert) {
+            await render(TEMPLATE);
+
+            const at = corner(wrapper());
+            pointer('pointerdown', at.x, at.y, wrapper());
+            pointer('pointerup', at.x, at.y, wrapper());
+            await settled();
+
+            assert.dom('.tb-element').exists('the element is still there');
+        });
+
+        test('dragging moves the element and reports the new position', async function (assert) {
+            const moves = [];
+            this.set('onMove', (uuid, position) => moves.push({ uuid, position }));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 40, y: from.y + 30 });
+
+            assert.strictEqual(moves.length, 1, 'the move is reported once, at the end of the drag');
+            assert.deepEqual(moves[0], { uuid: 'el_1', position: { x: 50, y: 50 } }, 'the deltas are added to the starting position');
+            assert.strictEqual(wrapper().style.transform, 'translate(50px, 50px)', 'and the transform followed the pointer');
+        });
+
+        test('dragging without an onMove handler still moves the element', async function (assert) {
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 40, y: from.y + 30 });
+
+            assert.strictEqual(wrapper().style.transform, 'translate(50px, 50px)', 'the transform is applied regardless');
+        });
+
+        test('zoom scales the pointer deltas down to template pixels', async function (assert) {
+            const moves = [];
+            this.set('zoom', 2);
+            this.set('onMove', (uuid, position) => moves.push(position));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 40, y: from.y + 30 });
+
+            assert.deepEqual(moves[0], { x: 30, y: 35 }, 'a 40x30 pointer move is a 20x15 move at 2x zoom');
+        });
+
+        test('an element cannot be dragged off the top-left of the canvas', async function (assert) {
+            const moves = [];
+            this.set('canvasWidth', 800);
+            this.set('canvasHeight', 600);
+            this.set('onMove', (uuid, position) => moves.push(position));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x - 500, y: from.y - 500 });
+
+            assert.deepEqual(moves[0], { x: 0, y: 0 }, 'it stops at the origin');
+        });
+
+        test('an element cannot be dragged off the bottom-right of the canvas', async function (assert) {
+            const moves = [];
+            this.set('canvasWidth', 800);
+            this.set('canvasHeight', 600);
+            this.set('onMove', (uuid, position) => moves.push(position));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 5000, y: from.y + 5000 });
+
+            assert.deepEqual(moves[0], { x: 600, y: 560 }, 'it stops with its own width and height inside the canvas');
+        });
+
+        test('an element with no size of its own is clamped by its rendered default box', async function (assert) {
+            const moves = [];
+            this.set('templateElement', { uuid: 'el_1', type: 'text' });
+            this.set('canvasWidth', 800);
+            this.set('canvasHeight', 600);
+            this.set('onMove', (uuid, position) => moves.push(position));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 5000, y: from.y + 5000 });
+
+            assert.deepEqual(moves[0], { x: 700, y: 570 }, 'the default 100x30 box is what gets clamped');
+        });
+
+        test('dragging a rotated element keeps its rotation', async function (assert) {
+            this.set('templateElement', element({ rotation: 45 }));
+            await render(TEMPLATE);
+
+            const from = corner(wrapper());
+            await drag(wrapper(), from, { x: from.x + 40, y: from.y + 30 });
+
+            assert.strictEqual(wrapper().style.transform, 'translate(50px, 50px) rotate(45deg)', 'the rotation survives the move');
+        });
+
+        test('dragging a resize handle resizes the element and reports it', async function (assert) {
+            const resizes = [];
+            this.set('isSelected', true);
+            this.set('onResize', (uuid, box) => resizes.push({ uuid, box }));
+            await render(TEMPLATE);
+
+            const handle = find('.tb-handle-se');
+            const at = corner(handle);
+            await drag(handle, at, { x: at.x + 50, y: at.y + 20 });
+
+            assert.strictEqual(resizes.length, 1, 'the resize is reported once');
+            assert.strictEqual(resizes[0].uuid, 'el_1');
+            assert.strictEqual(resizes[0].box.width, 150, 'the width grew by the pointer delta');
+            assert.strictEqual(resizes[0].box.height, 40, 'and so did the height');
+        });
+
+        test('an element cannot be resized below its minimum', async function (assert) {
+            const resizes = [];
+            this.set('isSelected', true);
+            this.set('onResize', (uuid, box) => resizes.push(box));
+            await render(TEMPLATE);
+
+            const handle = find('.tb-handle-se');
+            const at = corner(handle);
+            await drag(handle, at, { x: at.x - 500, y: at.y - 500 });
+
+            assert.strictEqual(resizes[0].width, 20, 'the width floor is 20');
+            assert.strictEqual(resizes[0].height, 10, 'and the height floor is 10');
+        });
+
+        test('resizing without an onResize handler still resizes the element', async function (assert) {
+            this.set('isSelected', true);
+            await render(TEMPLATE);
+
+            const handle = find('.tb-handle-se');
+            const at = corner(handle);
+            await drag(handle, at, { x: at.x + 50, y: at.y + 20 });
+
+            assert.strictEqual(wrapper().style.width, '150px', 'the element took the new width');
+        });
+    });
 });

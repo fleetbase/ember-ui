@@ -1,7 +1,8 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, find, findAll } from '@ember/test-helpers';
+import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import trigger from 'ember-drag-sort/utils/trigger';
 
 const ITEMS = [
     { id: 'fleet-ops', title: 'Fleet Ops', icon: 'truck' },
@@ -282,5 +283,61 @@ module('Integration | Component | layout/header/smart-nav-menu/customizer', func
         await click(reset);
 
         assert.deepEqual(pinnedTitles(), [], 'there is nothing to restore and nothing breaks');
+    });
+    test('at the limit, unpinned items cannot be clicked at all', async function (assert) {
+        // The template renders `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`,
+        // so togglePin's `!atPinnedLimit` guard is unreachable from the UI — the control is shut
+        // before the guard is consulted.
+        this.setProperties({ maxVisible: 2, pinnedIds: ['fleet-ops', 'storefront'] });
+
+        await render(TEMPLATE);
+
+        assert.strictEqual(pinnedTitles().length, 2, 'starts at the limit');
+        assert.dom(allItem('Developers')).isDisabled('an unpinned item is not offered');
+        assert.dom(allItem('Developers')).hasClass('is-disabled');
+        assert.dom(allItem('Fleet Ops')).isNotDisabled('a pinned item can still be unpinned');
+    });
+
+    test('unpinning at the limit makes room again', async function (assert) {
+        this.setProperties({ maxVisible: 2, pinnedIds: ['fleet-ops', 'storefront'] });
+
+        await render(TEMPLATE);
+        await click(allItem('Fleet Ops'));
+
+        assert.strictEqual(pinnedTitles().length, 1, 'unpinning always works');
+
+        await click(allItem('Developers'));
+
+        assert.strictEqual(pinnedTitles().length, 2, 'and the freed slot can be filled');
+    });
+    // ember-drag-sort ships a documented `trigger` helper (addon/utils/trigger.js), so the
+    // reorder path is testable without any new harness: dragstart on the item, dragover on the
+    // target, dragend on the item.
+    test('dragging a pinned item reorders the list', async function (assert) {
+        this.set('pinnedIds', ['fleet-ops', 'storefront', 'iam']);
+
+        await render(TEMPLATE);
+        assert.deepEqual(pinnedTitles(), ['Fleet Ops', 'Storefront', 'IAM'], 'starting order');
+
+        const items = findAll('.snm-customizer-drag-list .snm-customizer-pinned-item');
+        await trigger(items[0], 'dragstart');
+        await trigger(items[2], 'dragover', false);
+        await trigger(items[0], 'dragend');
+        await settled();
+
+        assert.deepEqual(pinnedTitles(), ['Storefront', 'IAM', 'Fleet Ops'], 'the dragged item moved to the end');
+    });
+
+    test('a drag that ends where it started leaves the order alone', async function (assert) {
+        this.set('pinnedIds', ['fleet-ops', 'storefront', 'iam']);
+
+        await render(TEMPLATE);
+
+        const items = findAll('.snm-customizer-drag-list .snm-customizer-pinned-item');
+        await trigger(items[0], 'dragstart');
+        await trigger(items[0], 'dragend');
+        await settled();
+
+        assert.deepEqual(pinnedTitles(), ['Fleet Ops', 'Storefront', 'IAM'], 'the order is unchanged');
     });
 });

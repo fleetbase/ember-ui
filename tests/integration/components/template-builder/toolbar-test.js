@@ -176,4 +176,18 @@ module('Integration | Component | template-builder/toolbar', function (hooks) {
         assert.dom('.tb-toolbar').hasAttribute('data-test-toolbar', 'yes');
         assert.dom('.tb-toolbar').hasClass('extra');
     });
+    // Every toolbar action guards its optional callback. The buttons are all enabled here —
+    // undo/redo need @canUndo/@canRedo and the rotate pair needs a @selectedElement — but no
+    // callback is supplied, which is the only way to reach the other side of those guards.
+    test('every control is inert when its callback is not supplied', async function (assert) {
+        this.set('selectedElement', { uuid: 'el_1' });
+        await render(hbs`<TemplateBuilder::Toolbar @canUndo={{true}} @canRedo={{true}} @selectedElement={{this.selectedElement}} />`);
+
+        for (const title of ['Zoom out', 'Reset zoom', 'Zoom in', 'Rotate left 90°', 'Rotate right 90°', 'Undo', 'Redo', 'Preview template']) {
+            await click(buttonByTitle(title));
+        }
+        await click(findAll('button').find((button) => button.textContent.trim().toLowerCase().includes('save')));
+
+        assert.ok(buttonByTitle('Zoom in'), 'the toolbar survives a click on every unwired control');
+    });
 });
