@@ -26,25 +26,35 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     @service('template-builder') templateBuilderService;
 
     // ── Scalar form fields ──────────────────────────────────────────────────
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked label = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked variableName = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked description = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked modelType = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked limit = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked withRelations = [];
 
     // ── Array fields — kept as separate tracked properties so that mutating
     //   a single item does NOT cause the entire form to re-render and destroy
     //   focused input elements. ────────────────────────────────────────────
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked conditions = [];
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked sort = [];
 
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked errorMessage = null;
 
     /**
      * Track whether the user has manually edited the variable_name field.
      * While false, variable_name is auto-derived from label on every keystroke.
      */
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked _variableNameManuallyEdited = false;
 
     // -------------------------------------------------------------------------

@@ -531,4 +531,27 @@ module('Integration | Component | template-builder/query-form', function (hooks)
 
         assert.dom('.tb-query-form, form').exists('the form survives having nowhere to report to');
     });
+    // updateDescription and the _syncForm fallbacks: a description typed into the form, and a
+    // stored query that omits the optional fields entirely.
+    test('the description is carried into the saved query', async function (assert) {
+        await render(TEMPLATE);
+        await fillValidForm(this);
+        await fillIn(descriptionInput(), 'Orders from the last week');
+        await click(saveButton());
+
+        assert.strictEqual(saved[saved.length - 1].description, 'Orders from the last week', 'the typed description is saved');
+    });
+
+    test('a stored query missing its optional fields loads as empty strings', async function (assert) {
+        // Every field here is absent rather than empty — the `?? \'\'` fallbacks in _syncForm only
+        // run for a query that omits them, which a form-built query never does.
+        this.set('query', { uuid: 'q_1', model_type: 'order' });
+
+        await render(TEMPLATE);
+
+        assert.dom(labelInput()).hasValue('', 'the label falls back to empty');
+        assert.dom(descriptionInput()).hasValue('', 'and so does the description');
+        assert.dom(limitInput()).hasValue('', 'and the limit');
+        assert.dom(withInput()).hasValue('', 'and the relations list');
+    });
 });
