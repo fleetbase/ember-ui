@@ -432,4 +432,63 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             assert.dom(this.element).containsText('Select columns', 'and explains why it cannot group');
         });
     });
+    // validateGroupByItems is wired to {{did-update}} on the selected columns. The existing tests
+    // render with an empty column list, which never fires it — the branch only runs when the
+    // columns CHANGE after a grouping already exists. Same shape as query-builder/conditions.
+    module('reacting to the selected columns changing', function () {
+        async function addGrouping(label) {
+            await selectChoose(GROUP_BY_SELECT, label);
+            await selectChoose(FN_SELECT, 'Count');
+            await click(addButton());
+        }
+
+        test('every grouping is dropped when the columns go away', async function (assert) {
+            await render(TEMPLATE);
+            await addGrouping('Status');
+            assert.strictEqual(groupSortItems().length, 1, 'a grouping exists');
+
+            this.set('selectedColumns', []);
+            await settled();
+
+            assert.strictEqual(groupSortItems().length, 0, 'the grouping is gone');
+            assert.deepEqual(changes[changes.length - 1], [], 'the empty state is reported');
+        });
+
+        test('losing the columns reports nothing when nothing was grouped', async function (assert) {
+            await render(TEMPLATE);
+            const reports = changes.length;
+
+            this.set('selectedColumns', []);
+            await settled();
+
+            assert.strictEqual(changes.length, reports, 'no change is reported');
+        });
+
+        test('a grouping on a column that is no longer selected is pruned', async function (assert) {
+            await render(TEMPLATE);
+            await addGrouping('Status');
+            await addGrouping('Created At');
+            assert.strictEqual(groupSortItems().length, 2);
+
+            this.set('selectedColumns', [COLUMNS[2]]);
+            await settled();
+
+            const remaining = changes[changes.length - 1];
+            assert.strictEqual(remaining.length, 1, 'only the still-selected grouping survives');
+            assert.strictEqual(remaining[0].groupBy.label, 'Created At');
+        });
+
+        test('a grouping whose column is still selected is left alone', async function (assert) {
+            await render(TEMPLATE);
+            await addGrouping('Status');
+            const reports = changes.length;
+
+            // Narrow the list but keep the grouped column in it.
+            this.set('selectedColumns', [COLUMNS[0], COLUMNS[1]]);
+            await settled();
+
+            assert.strictEqual(changes.length, reports, 'nothing is reported when nothing was pruned');
+            assert.strictEqual(groupSortItems().length, 1, 'and the grouping survives');
+        });
+    });
 });

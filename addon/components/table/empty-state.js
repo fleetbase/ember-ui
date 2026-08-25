@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import window from 'ember-window-mock';
 
 export default class TableEmptyStateComponent extends Component {
     @service docsPanel;

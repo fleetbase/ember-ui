@@ -11,6 +11,7 @@ import deprecateSubclassing from '@fleetbase/ember-ui/utils/deprecate-subclassin
 import arg from '../utils/decorators/arg';
 import { tracked } from '@glimmer/tracking';
 import { ref } from 'ember-ref-bucket';
+import window from 'ember-window-mock';
 
 function nextRunloop() {
     return new Promise((resolve) => next(resolve));

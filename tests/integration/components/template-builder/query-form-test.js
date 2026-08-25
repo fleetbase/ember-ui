@@ -524,4 +524,11 @@ module('Integration | Component | template-builder/query-form', function (hooks)
             assert.deepEqual(saved[0].sort, []);
         });
     });
+    // The Cancel button renders unconditionally, so it can be pressed with no @onClose supplied.
+    test('cancelling with no @onClose handler is harmless', async function (assert) {
+        await render(hbs`<TemplateBuilder::QueryForm @isOpen={{true}} @resourceTypes={{this.resourceTypes}} />`);
+        await click(buttonWithText('Cancel'));
+
+        assert.dom('.tb-query-form, form').exists('the form survives having nowhere to report to');
+    });
 });

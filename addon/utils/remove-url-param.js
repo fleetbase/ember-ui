@@ -1,3 +1,4 @@
+import window from 'ember-window-mock';
 export default function removeUrlParam(key, callback) {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.delete(key);

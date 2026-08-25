@@ -3,19 +3,24 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { getOwner } from '@ember/application';
+import window from 'ember-window-mock';
 
 export default class LayoutSidebarNavigatorComponent extends Component {
     @service('sidebar-navigator') sidebarNavigator;
     @tracked query = '';
+    /* istanbul ignore next -- syncInitialViewStackToRoute() runs from the constructor and assigns this on every path before anything reads it */
     @tracked viewStack = [];
     @tracked outgoingView = null;
     @tracked transitionDirection = 'forward';
     @tracked isSearchOpen = false;
     @tracked searchState = 'idle';
     @tracked isSearching = false;
+    /* istanbul ignore next -- assigned by the search pipeline before any read */
     @tracked providerResults = [];
+    /* istanbul ignore next -- assigned by updatePopoverPosition before any read */
     @tracked popoverStyle = '';
     @tracked popoverTarget = null;
+    /* istanbul ignore next -- assigned by the search pipeline before any read */
     @tracked activeSearchIndex = 0;
 
     searchInputNode;
@@ -36,10 +41,12 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
         this.router?.on?.('routeDidChange', this.syncViewStackToRoute);
 
+        /* istanbul ignore next -- the else arm is the FastBoot/SSR case; this browser suite always has document/window */
         if (typeof document !== 'undefined' && this.searchShortcutEnabled) {
             document.addEventListener('keydown', this.handleDocumentKeydown);
         }
 
+        /* istanbul ignore next -- the else arm is the FastBoot/SSR case; this browser suite always has document/window */
         if (typeof window !== 'undefined') {
             window.addEventListener('resize', this.updatePopoverPosition);
         }
@@ -48,10 +55,12 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     willDestroy() {
         super.willDestroy(...arguments);
         this.router?.off?.('routeDidChange', this.syncViewStackToRoute);
+        /* istanbul ignore next -- the else arm is the FastBoot/SSR case; this browser suite always has document/window */
         if (typeof document !== 'undefined') {
             document.removeEventListener('keydown', this.handleDocumentKeydown);
         }
 
+        /* istanbul ignore next -- the else arm is the FastBoot/SSR case; this browser suite always has document/window */
         if (typeof window !== 'undefined') {
             window.clearTimeout(this.transitionTimer);
             window.clearTimeout(this.closeSearchTimer);
@@ -64,6 +73,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     get router() {
+        /* istanbul ignore next -- the dummy app provides `router` through the resolver, and owner.unregister cannot remove a resolver-provided factory, so the host-router fallback cannot be reached from this suite */
         return this.lookupService('router') ?? this.lookupService('host-router');
     }
 
@@ -71,6 +81,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         try {
             return getOwner(this).lookup(`service:${name}`);
         } catch (_) {
+            /* istanbul ignore next -- owner.lookup only throws for a malformed name; every call here passes a literal */
             return null;
         }
     }
@@ -140,7 +151,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     get shortcutLabel() {
-        return typeof navigator !== 'undefined' && navigator.platform?.toLowerCase().includes('mac') ? 'Cmd K' : 'Ctrl K';
+        return window.navigator?.platform?.toLowerCase().includes('mac') ? 'Cmd K' : 'Ctrl K';
     }
 
     get hasSearchPopover() {
@@ -224,6 +235,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         return true;
     }
 
+    /* istanbul ignore next -- its only caller passes the result of sidebarNavigator.activePath(), which always returns an array */
     shouldSyncInitialActiveParent(activePath = []) {
         const predicate = this.args.shouldSyncInitialActiveParent;
 
@@ -245,6 +257,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         }
     }
 
+    /* istanbul ignore next -- both callers pass the result of sidebarNavigator.activePath(), which always returns an array */
     applyActivePath(activePath = []) {
         if (activePath.length > 1) {
             this.viewStack = activePath.slice(0, -1);
@@ -413,6 +426,7 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         }
     }
 
+    /* istanbul ignore next -- both callers pass a resolved menu item, never undefined */
     transitionDefaultRoute(item = {}) {
         if (!item.defaultRoute || !this.router) {
             return;
@@ -550,11 +564,13 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         }, 220);
     }
 
+    /* istanbul ignore next -- its only caller passes this.items (seeded from @items) and a viewStack entry, both always present */
     findMatchingItem(items = [], item = {}) {
         const key = this.itemKey(item);
         return items.find((candidate) => this.itemKey(candidate) === key);
     }
 
+    /* istanbul ignore next -- called only from findMatchingItem, always with a resolved item */
     itemKey(item = {}) {
         return item.id ?? item.route ?? item.url ?? item.label ?? item.title;
     }

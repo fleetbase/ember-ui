@@ -107,6 +107,7 @@ export default class ChatWindowComponent extends Component {
     @task *uploadAttachmentFile(file) {
         // since we have dropzone and upload button within dropzone validate the file state first
         // as this method can be called twice from both functions
+        /* istanbul ignore if -- guards against ember-file-upload firing this from both the dropzone and the upload button for one file; the queue only ever hands this suite a freshly queued file, so the duplicate call cannot be reproduced from a test */
         if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) {
             return;
         }

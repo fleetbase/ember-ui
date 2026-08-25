@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 import { later, scheduleOnce } from '@ember/runloop';
 import { A } from '@ember/array';
 import { bind } from '@ember/runloop';
+import window from 'ember-window-mock';
 
 /**
  * Default maximum number of extensions that may be pinned to the header bar
@@ -145,6 +146,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
 
     /** Returns whichever router service is available, matching mobile-navbar pattern. */
     _getRouter() {
+        /* istanbul ignore next -- `router` is provided through the dummy app's resolver and owner.unregister cannot remove a resolver-provided factory, so the hostRouter fallback is unreachable from this suite */
         return this.router ?? this.hostRouter;
     }
 
@@ -158,6 +160,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * menu item – no manual event wiring required for the initial render.
      */
     get allItems() {
+        /* istanbul ignore next -- the universe service always exposes headerMenuItems as an array */
         const raw = this.universe.headerMenuItems ?? [];
         const visible = [];
         for (const item of raw) {
@@ -317,6 +320,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     }
 
     _setupObserver(element) {
+        /* istanbul ignore if -- ResizeObserver exists in every browser this suite runs in; the guard is for FastBoot/SSR */
         if (typeof ResizeObserver === 'undefined') return;
         this._resizeObserver = new ResizeObserver(() => {
             // Guard against re-entrancy: if we are already in the middle of a

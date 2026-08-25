@@ -302,6 +302,31 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
         assert.strictEqual(menuServiceHandlers.length, 0, 'the listener is removed on destroy');
     });
 
+    // _onMenuItemRegistered redistributes only for the 'header' registry. Registrations for any
+    // other registry — the sidebar's, for instance — must be ignored, or every unrelated menu
+    // registration in the app would trigger a re-layout of the header bar.
+    test('a registration for another registry is ignored', async function (assert) {
+        headerMenuItems = [item('a')];
+
+        await render(hbs`<Layout::Header::SmartNavMenu />`);
+        const [, handler] = menuServiceHandlers[0];
+
+        headerMenuItems = [item('a'), item('b')];
+        handler({ id: 'b' }, 'sidebar');
+        await settled();
+
+        assert.deepEqual(
+            barItems().map((node) => node.textContent.trim()),
+            ['a'],
+            'the header bar is untouched'
+        );
+
+        handler({ id: 'b' }, 'header');
+        await settled();
+
+        assert.strictEqual(barItems().length, 2, 'but a header registration does redistribute');
+    });
+
     test('it forwards splattributes', async function (assert) {
         await render(hbs`<Layout::Header::SmartNavMenu data-test-nav="yes" />`);
 

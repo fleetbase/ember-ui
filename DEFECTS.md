@@ -30,7 +30,7 @@ exactly there.
 
 ## 20. `addon/components/attach/popover.js` — document listeners are added and never removed
 
-**Status:** OPEN — NEEDS DECISION (same shape as the former #17, which was fixed)
+**Status:** FIXED — `willDestroy()` now calls `removeEventListeners()`
 **Found:** chasing the uncovered body of `removeEventListeners()` while closing coverage gaps.
 **Evidence:** the component registers listeners on `document`, not just on its target:
 
@@ -48,13 +48,15 @@ handler and — when `hideOn` includes `escapekey`, which is the default — a `
 `document` for the lifetime of the page. A route that renders many popovers accumulates them, and
 each surviving handler still runs `hideOnClickOut` against a destroyed component.
 
-**Fix:** call `removeEventListeners()` from a destructor. Unlike the full-calendar leak, the method
-itself is already correct — it stores each handler on `hideListenersOnDocumentByEvent` /
+**Fix — applied:** `removeEventListeners()` is called from `willDestroy()`. Unlike the full-calendar
+leak, the method itself was already correct — it stores each handler on `hideListenersOnDocumentByEvent` /
 `hideListenersOnTargetByEvent` and passes the stored reference to `removeEventListener`, so the
 references match. This is the wiring, not the logic.
 
-Worth checking while there: `this.useCapture` must be the same value at add and remove time, or the
-removal silently no-ops the way `.bind()` did in the former #17.
+`this.useCapture` is the same tracked value at add and remove time — the component reads it once
+into `lastUseCaptureArgumentValue` and never re-registers — so the removal matches. Covered by two
+tests that dispatch the click and escape events a leaked handler would answer, after the component
+is gone, rather than asserting the method ran.
 
 ## 18. Coverage branch totals still vary by ±1 between identical runs
 

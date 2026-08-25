@@ -161,6 +161,7 @@ export default class TableComponent extends Component {
     @action setupScrollListener() {
         // Find the scrollable wrapper
         const wrapper = this.tableNode?.closest('.next-table-wrapper');
+        /* istanbul ignore if -- the wrapper is the element this modifier is installed on, so it is always present when the handler runs */
         if (!wrapper) return;
 
         // Add scroll event listener to toggle shadow visibility

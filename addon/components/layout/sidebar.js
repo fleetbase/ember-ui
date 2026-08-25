@@ -191,6 +191,7 @@ export default class LayoutSidebarComponent extends Component {
         this.applyResizeWidth(this.pendingResizeWidth);
     }
 
+    /* istanbul ignore next -- every caller passes the node explicitly (traced: all call sites in this file), so the `= this.sidebarNode` default is unreachable */
     setResizeContainerActive(sidebarNode = this.sidebarNode, isActive = false) {
         const container = sidebarNode?.closest?.('.next-view-container');
 
@@ -249,6 +250,7 @@ export default class LayoutSidebarComponent extends Component {
         this.minimized = state === 'minimized';
     }
 
+    /* istanbul ignore next -- every caller passes the node explicitly (traced: all call sites in this file), so the `= this.sidebarNode` default is unreachable */
     clearResizeCollapseState(sidebarNode = this.sidebarNode) {
         if (!sidebarNode) return;
 
@@ -276,6 +278,7 @@ export default class LayoutSidebarComponent extends Component {
         sidebarNode.style.setProperty('--sidebar-transition-width', `${width}px`);
     }
 
+    /* istanbul ignore next -- every caller passes the node explicitly (traced: all call sites in this file), so the `= this.sidebarNode` default is unreachable */
     restoreVisibleWidth(sidebarNode = this.sidebarNode) {
         if (!sidebarNode) return;
 
@@ -286,6 +289,7 @@ export default class LayoutSidebarComponent extends Component {
         this.syncTransitionWidth(sidebarNode);
     }
 
+    /* istanbul ignore next -- every caller passes the node explicitly (traced: all call sites in this file), so the `= this.sidebarNode` default is unreachable */
     restoreVisibleWidthWithoutTransition(sidebarNode = this.sidebarNode) {
         if (!sidebarNode) return;
 

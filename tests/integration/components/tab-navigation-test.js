@@ -594,4 +594,14 @@ module('Integration | Component | tab-navigation', function (hooks) {
         assert.strictEqual(findAll('[role="tab"]').length, 2, 'the new tabs render');
         assert.dom('[role="tab"][aria-selected="true"]').hasText('Details', 'and the first becomes active');
     });
+    // recalculateOverflow() short-circuits when there are no tabs to lay out. Every other test
+    // supplies at least one, so that arm had never run.
+    test('an empty tab list lays out nothing', async function (assert) {
+        this.set('tabs', []);
+
+        await render(TEMPLATE);
+
+        assert.strictEqual(findAll(`${VISIBLE} [role="tab"]`).length, 0, 'no tabs are rendered');
+        assert.dom('.tab-body').exists('but the panel body still renders');
+    });
 });

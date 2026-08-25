@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 import { isBlank } from '@ember/utils';
 import isMenuItemActive from '../../../utils/is-menu-item-active';
 import isEmptyObject from '../../../utils/is-empty-object';
+import window from 'ember-window-mock';
 
 export default class LayoutSidebarItemComponent extends Component {
     @service router;

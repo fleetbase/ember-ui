@@ -3,6 +3,8 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { click, fillIn, render, settled, triggerEvent, triggerKeyEvent, waitFor, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
+import { setupWindowMock } from 'ember-window-mock/test-support';
+import window from 'ember-window-mock';
 
 class AbilitiesStub extends Service {
     denied = new Set();
@@ -23,6 +25,7 @@ class AbilitiesStub extends Service {
 
 module('Integration | Component | layout/sidebar/navigator', function (hooks) {
     setupRenderingTest(hooks);
+    setupWindowMock(hooks);
 
     hooks.beforeEach(function () {
         this.owner.register('service:abilities', AbilitiesStub);
@@ -1298,6 +1301,130 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
 
             assert.dom('.next-sidebar-navigator-back').includesText('Settings', 'a broken predicate does not block the sync');
             assert.dom('.next-sidebar-navigator-view-in .next-sidebar-navigator-item').includesText('General');
+        });
+    });
+    // transitionItem() has four shapes: an onClick handler, a url opened in a target window, a url
+    // assigned to location, and a route transition. Only the onClick shape had a test, so the
+    // other three had never run.
+    module('activating a search result that is not an onClick item', function () {
+        async function searchAndOpen(query) {
+            await fillIn('.next-sidebar-navigator-search input', query);
+            await waitFor('.next-sidebar-navigator-search-popover');
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
+        }
+
+        test('an item with a target opens a new window rather than navigating', async function (assert) {
+            const opened = [];
+            window.open = (url, target) => opened.push({ url, target });
+
+            this.set('items', [{ id: 'docs', title: 'Documentation', url: 'https://example.test/docs', target: '_blank' }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await searchAndOpen('Documentation');
+
+            assert.deepEqual(opened, [{ url: 'https://example.test/docs', target: '_blank' }], 'the target is honoured');
+        });
+
+        test('an item with a plain url navigates to it', async function (assert) {
+            this.set('items', [{ id: 'changelog', title: 'Changelog', url: 'https://example.test/changelog' }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await searchAndOpen('Changelog');
+
+            assert.strictEqual(window.location.href, 'https://example.test/changelog', 'the url is assigned to location');
+        });
+
+        test('an item with a route transitions through the router', async function (assert) {
+            const transitions = [];
+            this.owner.register(
+                'service:router',
+                class extends Service {
+                    transitionTo(...args) {
+                        transitions.push(args);
+                    }
+                }
+            );
+
+            this.set('items', [{ id: 'orders', title: 'Orders', route: 'console.orders' }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await searchAndOpen('Orders');
+
+            assert.deepEqual(transitions, [['console.orders']], 'the route is handed to the router');
+        });
+
+        test('an item with a route and query params carries them through', async function (assert) {
+            const transitions = [];
+            this.owner.register(
+                'service:router',
+                class extends Service {
+                    transitionTo(...args) {
+                        transitions.push(args);
+                    }
+                }
+            );
+
+            this.set('items', [{ id: 'orders', title: 'Orders', route: 'console.orders', queryParams: { status: 'open' } }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await searchAndOpen('Orders');
+
+            assert.deepEqual(transitions, [['console.orders', { queryParams: { status: 'open' } }]], 'the query params ride along');
+        });
+    });
+    // shortcutLabel picks its wording from navigator.platform. Without a test that overrides the
+    // platform, the arm that runs depends on the machine — Cmd K on a developer's Mac, Ctrl K on a
+    // Linux CI box — so the file's branch coverage would differ between them and a 100% gate could
+    // pass in one place and fail in the other.
+    module('the keyboard shortcut label', function () {
+        test('a mac reports the command key', async function (assert) {
+            window.navigator = { platform: 'MacIntel' };
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+            assert.dom('.next-sidebar-navigator-search').includesText('Cmd K', 'the mac wording');
+        });
+
+        test('anything else reports the control key', async function (assert) {
+            window.navigator = { platform: 'Linux x86_64' };
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+            assert.dom('.next-sidebar-navigator-search').includesText('Ctrl K', 'the non-mac wording');
+        });
+    });
+    // Remaining second-state paths: the collaborators and shapes the existing tests never produce.
+    module('shapes the happy path never produces', function () {
+        test('closing the search when no popover is open is a no-op', async function (assert) {
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+
+            // Escape with the panel already closed takes closeSearch()'s early return.
+            await triggerKeyEvent('.next-sidebar-navigator', 'keydown', 'Escape');
+
+            assert.notOk(document.querySelector('.next-sidebar-navigator-search-popover'), 'still closed, and nothing threw');
+        });
+
+        test('a leaf item with no children stacks nothing', async function (assert) {
+            this.set('items', [{ id: 'solo', title: 'Solo', onClick: () => this.set('selected', 'solo') }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await click('.next-sidebar-navigator-item');
+
+            assert.strictEqual(this.selected, 'solo', 'the leaf activates directly');
+        });
+
+        // Reaching transitionItem()'s final else by giving an item nothing to act on. Unregistering
+        // the router would reach it too, but the router is resolver-provided and removing it breaks
+        // Ember's own routing internals (`Cannot read properties of undefined (reading 'hasRoute')`).
+        test('an item with nothing to navigate to is inert', async function (assert) {
+            this.set('items', [{ id: 'label-only', title: 'Label Only' }]);
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'Label Only');
+            await waitFor('.next-sidebar-navigator-search-popover');
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
+
+            assert.dom('.next-sidebar-navigator').exists('the navigator survives an item with no destination');
         });
     });
 });

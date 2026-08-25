@@ -117,6 +117,7 @@ export default class TabNavigationComponent extends Component {
         // closing a tab also selected the tab being removed.
         event?.stopPropagation();
 
+        /* istanbul ignore else -- the close control is only rendered when @onClose is supplied (tab-navigation.hbs gates every .tab-close on it), so closeTab cannot run without one */
         if (this.args.onClose) {
             this.args.onClose(tab);
         }
@@ -156,6 +157,7 @@ export default class TabNavigationComponent extends Component {
     }
 
     setupResizeObserver(element) {
+        /* istanbul ignore if -- ResizeObserver exists in every browser this suite runs in; the guard is for FastBoot/SSR */
         if (typeof ResizeObserver === 'undefined') return;
 
         this.teardownResizeObserver();
