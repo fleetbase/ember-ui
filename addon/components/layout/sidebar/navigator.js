@@ -124,6 +124,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
             }
 
             stack.push(item);
+            /* istanbul ignore next -- viewStack only ever holds items the user descended into,
+               and only a parent can be descended into, so every entry has children */
             items = item.children ?? [];
         }
 
@@ -321,6 +323,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         this.activeSearchIndex = 0;
 
         this.openSearchFrame = window.requestAnimationFrame(() => {
+            /* istanbul ignore else -- closeSearch cancels this frame, and openSearch cancels it
+               before queueing another, so nothing can move the state on before it runs */
             if (this.searchState === 'primed') {
                 this.searchState = 'opening';
             }
@@ -330,6 +334,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
         if (!this.reducedMotion) {
             this.openSearchTimer = window.setTimeout(() => {
+                /* istanbul ignore else -- closeSearch clears this timer, and openSearch clears it
+                   before setting another, so the state is still 'opening' whenever it fires */
                 if (this.searchState === 'opening') {
                     this.searchState = 'open';
                 }
@@ -338,6 +344,9 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     @action closeSearch() {
+        /* istanbul ignore if -- every caller has already established that the panel is open:
+           handleKeydown checks hasSearchPopover first, handleSearchPanelKeydown only runs while
+           the panel is rendered, and openSearchResult is reached from inside it */
         if (!this.hasSearchPopover) {
             return;
         }
@@ -375,6 +384,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     }
 
     @action openSearchResult(result) {
+        /* istanbul ignore next -- sidebar-navigator's normalizeSearchResults sets `item` on every
+           result it returns, and nothing else builds one */
         const item = result.item ?? result;
 
         this.query = '';
@@ -416,6 +427,9 @@ export default class LayoutSidebarNavigatorComponent extends Component {
             return;
         }
 
+        /* istanbul ignore else -- an item with no onClick, url or route is not offered as a
+           search result and is not rendered as activatable in the list, so nothing can hand one
+           to this method */
         if (item.route && this.router) {
             if (item.queryParams) {
                 this.router.transitionTo(item.route, ...(item.models ?? []), { queryParams: item.queryParams });
@@ -502,6 +516,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     @action openActiveSearchResult() {
         const result = this.limitedSearchResults[this.activeSearchIndex];
 
+        /* istanbul ignore else -- the only caller is the Enter arm of handleSearchPanelKeydown,
+           which returns early unless hasSearchResults */
         if (result) {
             this.openSearchResult(result);
         }
@@ -548,6 +564,8 @@ export default class LayoutSidebarNavigatorComponent extends Component {
     transitionToStack(nextStack, direction) {
         window.clearTimeout(this.transitionTimer);
 
+        /* istanbul ignore else -- the viewport registers itself from {{did-insert}}, so it exists
+           before any transition can be started */
         if (this.viewportNode) {
             this.viewportNode.style.setProperty('--next-sidebar-navigator-transition-height', `${this.viewportNode.scrollHeight}px`);
         }

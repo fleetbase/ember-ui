@@ -28,6 +28,32 @@ exactly there.
 
 # Open
 
+## 26. `addon/components/layout/sidebar/navigator.js` — a search result with children cannot be opened
+
+**Status:** OPEN — logged, not changed; the fix is a design decision (see below)
+**Found:** covering the `result.path ?? [...this.currentStack, item]` fallback, which only a search
+provider's result can reach — provider results carry no path through the item tree.
+**Evidence:** `openSearchResult()` descends into a result that has children:
+
+    :386  this.transitionToStack(result.path ?? [...this.currentStack, item], 'forward');
+
+`currentStack` (`:114-131`) is not stored — it is rebuilt every time by walking `viewStack` and
+matching each entry against `this.items` with `findMatchingItem`, breaking at the first entry it
+cannot find. A provider result is not in `@items`, so the entry appended by that fallback is
+dropped on the very next read and the navigator falls back to its root.
+
+**Impact:** a `@searchProvider` that returns a result with `children` looks like it can be opened
+and then does nothing visible — the panel closes and the navigator returns to the top level. A
+provider returning leaf results (the common case, and what every existing test uses) is unaffected.
+
+**Fix — not applied.** Two shapes are plausible and they are not equivalent: keep provider results
+out of the stack entirely and require a provider to supply `path` for anything navigable, or let
+`currentStack` hold items that are not in `@items` — which changes what "the current stack" means
+and affects the transition and breadcrumb code that reads it. That is a design call.
+
+Covered by a test that pins the current behaviour rather than the intended one, and names this
+entry so the two move together.
+
 ## 25. `addon/components/kanban/card.hbs` — `@onCardUpdate` and `@onCardDelete` could never fire
 
 **Status:** FIXED — the card's actions are handed to a custom card template

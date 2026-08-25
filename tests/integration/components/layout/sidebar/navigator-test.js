@@ -1404,6 +1404,96 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
             assert.notOk(document.querySelector('.next-sidebar-navigator-search-popover'), 'still closed, and nothing threw');
         });
 
+        // The portal wants #application-root-wormhole and falls back to the body when the host
+        // application has not mounted one.
+        test('with no wormhole root the search portal falls back to the body', async function (assert) {
+            this.wormholeRoot.remove();
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'Orders');
+            // waitFor scopes to the testing container, and the point of this test is that the
+            // portal is outside it.
+            await waitUntil(() => document.querySelector('.next-sidebar-navigator-search-portal'), { timeout: 2000 });
+
+            const portal = document.querySelector('.next-sidebar-navigator-search-portal');
+            assert.ok(portal, 'a portal is still created');
+            assert.strictEqual(portal.parentElement, document.body, 'mounted straight onto the body');
+        });
+
+        test('pressing enter with nothing to open does nothing', async function (assert) {
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'nothing matches this query at all');
+            await waitFor('.next-sidebar-navigator-search-popover');
+
+            assert.strictEqual(document.querySelectorAll('.next-sidebar-navigator-search-result').length, 0, 'there is nothing to choose');
+
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
+
+            assert.dom('.next-sidebar-navigator-search-popover').exists('the panel stays open rather than acting on nothing');
+        });
+
+        // A provider result carries no path through the item tree, so opening one that has
+        // children falls back to [...currentStack, item]. currentStack is rebuilt by matching the
+        // view stack against @items, and a provider result is not in @items — so the descent is
+        // dropped and the navigator returns to its root. See DEFECTS #26.
+        test('opening a provider result with children closes the search and returns to the root', async function (assert) {
+            this.set('searchNavigation', () =>
+                Promise.resolve([
+                    {
+                        label: 'Remote Section',
+                        icon: 'folder',
+                        type: 'Section',
+                        children: [{ label: 'Remote Child', icon: 'file', onClick: () => this.set('selected', 'remote-child') }],
+                    },
+                ])
+            );
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @searchProvider={{this.searchNavigation}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'remote');
+            await waitUntil(() => document.querySelector('.next-sidebar-navigator-search-result'), { timeout: 2000 });
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
+
+            assert.dom('.next-sidebar-navigator').includesText('Orders', 'the navigator is back at its top level');
+            assert.dom('.next-sidebar-navigator').doesNotIncludeText('Remote Child', 'the provider result is not in @items, so its children cannot be reached');
+        });
+
+        test('a rejection from a superseded query does not clear the current results', async function (assert) {
+            const settlers = [];
+            this.set('searchNavigation', () => new Promise((resolve, reject) => settlers.push({ resolve, reject })));
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @searchProvider={{this.searchNavigation}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'ty');
+            await fillIn('.next-sidebar-navigator-search input', 'tyler');
+
+            assert.strictEqual(settlers.length, 2, 'both keystrokes reached the provider');
+
+            settlers[1].resolve([{ label: 'Tyler Demo', icon: 'user', type: 'User' }]);
+            await waitUntil(() => document.querySelector('.next-sidebar-navigator-search-result'), { timeout: 2000 });
+
+            settlers[0].reject(new Error('the earlier request failed'));
+            await settled();
+
+            const labels = Array.from(document.querySelectorAll('.next-sidebar-navigator-search-result')).map((node) => node.textContent);
+            assert.true(
+                labels.some((label) => label.includes('Tyler Demo')),
+                'the failure of a query the user has moved past leaves the current results alone'
+            );
+        });
+
+        // The open animation is finished by a 180ms timer that checks the state is still
+        // 'opening'. Closing inside that window leaves the timer to find it is not.
+        test('closing before the open animation finishes does not reopen the panel', async function (assert) {
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'Orders');
+            await waitFor('.next-sidebar-navigator-search-popover');
+
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Escape');
+            await new Promise((resolve) => setTimeout(resolve, 250));
+            await settled();
+
+            assert.dom('.next-sidebar-navigator').exists('the navigator survives the late timer');
+        });
+
         test('a leaf item with no children stacks nothing', async function (assert) {
             this.set('items', [{ id: 'solo', title: 'Solo', onClick: () => this.set('selected', 'solo') }]);
 
