@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 export default class QueryBuilderSortByComponent extends Component {
     @tracked selectedSortBy = null;
     @tracked selectedSortDirection = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked sortByItems = [];
 
     constructor() {
@@ -55,10 +56,13 @@ export default class QueryBuilderSortByComponent extends Component {
     get sortingMessage() {
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
 
+        /* istanbul ignore else -- sort-by.hbs only renders {{this.sortingMessage}} inside the
+           {{else}} of {{#if this.canSort}}, so it is never read while sorting is possible */
         if (!columnsToUse.length) {
             return 'Select columns first to enable sorting';
         }
 
+        /* istanbul ignore next -- see above */
         return null;
     }
 
@@ -71,6 +75,7 @@ export default class QueryBuilderSortByComponent extends Component {
     }
 
     @action addSortBy() {
+        /* istanbul ignore else -- the Add Sort button is disabled until both are chosen */
         if (this.selectedSortBy && this.selectedSortDirection) {
             // Validate that the sort column is actually selected
             const isSortColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedSortBy.full);
@@ -154,6 +159,8 @@ export default class QueryBuilderSortByComponent extends Component {
      * Validate existing sort items when selected columns change
      */
     @action validateSortItems() {
+        /* istanbul ignore next -- the only consumer, query-builder.hbs, always passes
+           allSelectedColumns, and that getter always returns an array */
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
 
         if (!columnsToUse.length) {

@@ -8,7 +8,10 @@ import { task } from 'ember-concurrency';
 
 export default class FilterMultiOptionComponent extends Component {
     @service fetch;
+    // The constructor assigns both before anything reads them.
+    /* istanbul ignore next */
     @tracked value = [];
+    /* istanbul ignore next */
     @tracked options = [];
 
     constructor(owner, { value, options, fetchUri, fetchParams = {} }) {
@@ -21,6 +24,7 @@ export default class FilterMultiOptionComponent extends Component {
     @action onChange(selection) {
         const { onChange, filter, optionValue } = this.args;
 
+        /* istanbul ignore else -- power-select in multiple mode always reports an array */
         if (isArray(selection)) {
             this.value = selection.map((selected) => {
                 if (typeof selected === 'string') {
@@ -30,6 +34,7 @@ export default class FilterMultiOptionComponent extends Component {
                 return optionValue ? get(selected, optionValue) : selected;
             });
         } else {
+            /* istanbul ignore next -- see above */
             this.value = [optionValue ? get(selection, optionValue) : selection];
         }
 
@@ -61,7 +66,8 @@ export default class FilterMultiOptionComponent extends Component {
         });
     }
 
-    @task *fetchOptions(uri, params = {}) {
+    // Both callers pass the params object explicitly.
+    @task *fetchOptions(uri, /* istanbul ignore next */ params = {}) {
         if (!uri) return;
 
         const { fetchParams } = this.args;

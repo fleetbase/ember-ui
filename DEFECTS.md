@@ -28,6 +28,27 @@ exactly there.
 
 # Open
 
+## 28. `addon/components/model-select.js` — one unusable record empties the whole dropdown
+
+**Status:** FIXED
+**Found:** writing a test for the `catch { return null; }` inside the custom-search-endpoint
+mapper. The test did not fail on its assertion — it failed inside ember-power-select:
+
+    TypeError: Cannot read properties of null (reading 'disabled')
+        at walk (ember-power-select/utils/group-utils.js)
+
+**Evidence:** `fetchPage()`'s custom-endpoint branch maps each result through
+`this.store.push(this.store.normalize(...))` and returns `null` for any the store refuses. Those
+nulls stayed in the array, which was resolved to power-select as the option list. Power-select's
+option walker dereferences every entry, so a single un-normalisable record throws while the
+dropdown renders — taking every other result with it.
+
+**Impact:** a search against a `@customSearchEndpoint` that returns one malformed record shows an
+error instead of the records that were fine.
+
+**Fix — applied:** `resolve(records.filter(Boolean))`. The `catch` already meant "drop this one";
+now it does.
+
 ## 27. `addon/components/array-input.hbs` — typing writes the keyboard event into the array
 
 **Status:** FIXED

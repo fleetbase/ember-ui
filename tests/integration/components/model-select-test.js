@@ -325,6 +325,33 @@ module('Integration | Component | model-select', function (hooks) {
             assert.strictEqual(fetches[fetches.length - 1].query.query, 'casey');
         });
 
+        // A record the store refuses to normalise is dropped rather than taking the whole page
+        // down with it.
+        test('a result the store cannot normalise is dropped', async function (assert) {
+            this.set('customSearchEndpoint', 'drivers/search');
+            this.owner.unregister('service:store');
+            this.owner.register(
+                'service:store',
+                class extends Service {
+                    query() {
+                        return Promise.resolve([]);
+                    }
+                    normalize() {
+                        throw new Error('no serializer for driver');
+                    }
+                    push(record) {
+                        return record;
+                    }
+                }
+            );
+
+            await render(TEMPLATE);
+            await click(TRIGGER);
+
+            const options = await getDropdownItems('.fleetbase-model-select');
+            assert.deepEqual(options, ['Type to search'], 'the unusable record is dropped rather than left as a hole in the list');
+        });
+
         test('a failing endpoint yields no options rather than an error', async function (assert) {
             this.set('customSearchEndpoint', 'drivers/search');
             this.owner.unregister('service:fetch');
@@ -546,6 +573,18 @@ module('Integration | Component | model-select', function (hooks) {
             await selectChoose('.fleetbase-model-select', 'Add "Casey"...');
 
             assert.dom(TRIGGER).exists('the select survives having nothing to report to');
+        });
+
+        test('clearing the selection reports it to @onClear', async function (assert) {
+            const cleared = [];
+            this.set('onClear', (select) => cleared.push(select));
+            this.set('selectedModel', { id: 'drv_1', name: 'Alex Driver' });
+
+            await render(hbs`<ModelSelect @modelName="driver" @optionLabel="name" @selectedModel={{this.selectedModel}} @allowClear={{true}} @onClear={{this.onClear}} />`);
+            await click('.ember-power-select-clear-btn');
+
+            assert.strictEqual(cleared.length, 1, 'the clear is reported');
+            assert.strictEqual(typeof cleared[0]?.actions?.close, 'function', 'and the select api comes with it');
         });
 
         test('clearing the selection reports a null id', async function (assert) {

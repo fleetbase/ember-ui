@@ -38,9 +38,11 @@ export default class DrawerComponent extends Component {
     @tracked isMinimized = false;
 
     /** Current X position of the mouse. */
+    /* istanbul ignore next -- assigned by the resize flow before anything reads it */
     @tracked mouseX = 0;
 
     /** Current Y position of the mouse. */
+    /* istanbul ignore next -- assigned by the resize flow before anything reads it */
     @tracked mouseY = 0;
 
     /** Height of the drawer. */
@@ -211,6 +213,8 @@ export default class DrawerComponent extends Component {
         const onResize = getWithDefault(this.args, 'onResize', null);
         const { drawerPanelNode, drawerNode, isResizable } = this;
 
+        /* istanbul ignore if -- this runs as a mousemove listener that startResize only attaches
+           after the identical guard there has passed */
         if (disableResize === true || !isResizable || !drawerPanelNode) {
             return;
         }
@@ -260,6 +264,8 @@ export default class DrawerComponent extends Component {
         // component boundary.
         document.body.style.removeProperty('cursor');
 
+        /* istanbul ignore else -- this runs as a mouseup listener that startResize only attaches
+           after establishing the panel node */
         if (drawerPanelNode) {
             drawerPanelNode.style.userSelect = 'auto';
         }

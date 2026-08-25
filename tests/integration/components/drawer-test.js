@@ -224,6 +224,26 @@ module('Integration | Component | drawer', function (hooks) {
 
             assert.dom('.next-drawer').exists();
         });
+
+        test('opening and toggling with no callbacks are both harmless', async function (assert) {
+            await render(hbs`<Drawer @onLoad={{this.onLoad}} />`);
+            const context = loaded[0];
+
+            context.close();
+            await settled();
+            assert.dom('.next-drawer').doesNotHaveClass('drawer-is-open', 'it closes');
+
+            context.open();
+            await settled();
+            assert.dom('.next-drawer').hasClass('drawer-is-open', 'and opens again with nothing to report to');
+
+            // No options object at all — the context method passes on whatever the caller gives
+            // it, and the double-click handler gives it an event.
+            context.toggleMinimize();
+            await settled();
+
+            assert.dom('.next-drawer').hasClass('drawer-is-minimized', 'and minimising needs no callback either');
+        });
     });
 
     module('resizing', function () {

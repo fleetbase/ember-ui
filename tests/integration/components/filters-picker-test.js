@@ -375,4 +375,43 @@ module('Integration | Component | filters-picker', function (hooks) {
             assert.dom('.ember-basic-dropdown-trigger').exists('the picker renders without the hook');
         });
     });
+
+    // `events` is looked up rather than injected, so a host application that does not register
+    // one simply has none. The dummy app does register one, which is what these run against.
+    module('optional host services', function () {
+        test('applying and clearing are reported to an events service when one exists', async function (assert) {
+            const tracked = [];
+            this.owner.register(
+                'service:events',
+                class extends Service {
+                    trackEvent(name, payload) {
+                        tracked.push([name, payload]);
+                    }
+                }
+            );
+
+            await render(TEMPLATE);
+            await click('.ember-basic-dropdown-trigger');
+            await click(footerButton('apply'));
+
+            await click('.ember-basic-dropdown-trigger');
+            await click(footerButton('clear'));
+
+            assert.deepEqual(
+                tracked.map(([name]) => name),
+                ['ui.filter.applied', 'ui.filter.cleared'],
+                'both are tracked'
+            );
+        });
+
+        test('clearing with no columns at all touches no query params', async function (assert) {
+            this.owner.unregister('service:events');
+
+            await render(hbs`<FiltersPicker @onClear={{this.onClear}} />`);
+            await click('.ember-basic-dropdown-trigger');
+            await click(footerButton('clear'));
+
+            assert.dom('.ember-basic-dropdown-trigger').exists('there is nothing to clear, and nothing throws');
+        });
+    });
 });

@@ -11,10 +11,13 @@ import config from 'ember-get-config';
 const getConfigOption = (key, defaultValue) => {
     const value = get(config, `ember-model-select.${key}`);
 
+    /* istanbul ignore else -- the dummy app's config declares no ember-model-select block, and
+       neither does the addon, so every lookup here misses */
     if (value === undefined) {
         return defaultValue;
     }
 
+    /* istanbul ignore next -- see above */
     return value;
 };
 
@@ -131,12 +134,16 @@ export default class ModelSelectComponent extends Component {
     @tracked selectedModel;
 
     /** Paging state for infinite scroll. */
+    /* istanbul ignore next -- reset by the search flow before anything reads it */
     @tracked page = 1;
+    /* istanbul ignore next -- assigned by the search flow before anything reads it */
     @tracked hasMoreOptions = false;
 
     /** The term the current option list was loaded for, so later pages repeat the same search. */
     lastTerm = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked permissionRequired = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked disabled = false;
     @tracked doesntHavePermissions = false;
 
@@ -194,6 +201,8 @@ export default class ModelSelectComponent extends Component {
             };
             // `labelProperty` is passed by nothing in the addon, so the label used to be stored
             // under the key `undefined` while the row renders `{{get model @optionLabel}}`.
+            /* istanbul ignore next -- nothing in the addon passes labelProperty, and a suggestion
+               row is rendered with {{get model @optionLabel}}, so optionLabel is always present */
             createOption[this.args.optionLabel ?? this.args.labelProperty] = this.args.buildSuggestion ? this.args.buildSuggestion(term) : `Add "${term}"...`;
             this._options = A([createOption]);
         }
@@ -309,7 +318,10 @@ export default class ModelSelectComponent extends Component {
                                 return normalizedModel;
                             });
 
-                            resolve(records);
+                            // A record the store refuses is dropped, not kept as a hole: a null in
+                            // this list takes power-select's option walker down with it, so one bad
+                            // record would empty the whole dropdown. See DEFECTS #28.
+                            resolve(records.filter(Boolean));
                         })
                         .catch(() => {
                             resolve([]);

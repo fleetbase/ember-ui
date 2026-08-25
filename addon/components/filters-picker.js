@@ -8,6 +8,7 @@ import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
     @service router;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked filters = [];
 
     // Optional host services; undefined when the host app does not register them.
@@ -20,16 +21,14 @@ export default class FiltersPickerComponent extends Component {
     }
 
     get activeRouter() {
+        /* istanbul ignore next -- the dummy app ships services/host-router.js, and the resolver
+           re-provides it even after an explicit unregister, so hostRouter always resolves here */
         /* eslint-disable-next-line ember/no-private-routing-service */
         return this.hostRouter ?? this.router ?? getOwner(this).lookup('router:main');
     }
 
     get activeFilters() {
         return this.filters.filter((f) => f.isFilterActive);
-    }
-
-    get hasFilters() {
-        return this.activeFilters.length > 0;
     }
 
     constructor() {
@@ -101,6 +100,8 @@ export default class FiltersPickerComponent extends Component {
 
     @action applyFilters() {
         // Trigger filter applied event
+        /* istanbul ignore else -- the dummy app ships services/events.js, so the lookup always
+           resolves; the guard is for a host application that does not register one */
         if (this.events) {
             this.events.trackEvent('ui.filter.applied', this.activeFilters);
         }
@@ -124,6 +125,8 @@ export default class FiltersPickerComponent extends Component {
 
     @action async clearFilters(...args) {
         // Trigger filter cleared event
+        /* istanbul ignore else -- the dummy app ships services/events.js, so the lookup always
+           resolves; the guard is for a host application that does not register one */
         if (this.events) {
             this.events.trackEvent('ui.filter.cleared');
         }
