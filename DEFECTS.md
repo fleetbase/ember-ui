@@ -348,9 +348,42 @@ this campaign's work gets checked.
 make collection reliable (it was the first thing tried, and the 7-of-9 figure above is *with* it),
 and the Node 18 ESM failure is unrelated to this and cannot affect CI, which pins Node 22.
 
-**Next step, unstarted:** the addon's `parallel` option writes per-browser JSON to disk instead of
-POSTing. Flipping it and running the fast filter ten times would either fix the cause or rule it
-out in about twenty minutes.
+### Two hypotheses tried and ruled out
+
+**The `parallel` option — ruled out by reading the source, not by running it.**
+`ember-cli-code-coverage/lib/attach-middleware.js` `reportCoverage()` does this when
+`config.parallel` is set:
+
+    config.coverageFolder = config.coverageFolder + '_' + crypto.randomBytes(4).toString('hex');
+
+It renames the output folder and forces the `json` reporter, requiring a separate `ember
+coverage-merge` step. It does not change how coverage travels from the browser to disk — same POST,
+same race — so it would break the current setup without touching the cause.
+
+**Moving `forceModulesToBeLoaded()` off the teardown path — tried, and it did not help.**
+`tests/test-helper.js` calls it inside the `QUnit.done` hook, before `await sendCoverage()`. The
+theory was that on a filtered run almost nothing is loaded yet, so force-loading is a large
+synchronous burst that delays the POST past the window testem leaves before killing the browser —
+and that full runs escape it because they have already loaded nearly everything. That explains the
+direction of the correlation, which no other theory here does.
+
+Moving it to `QUnit.begin` produced **0 artifacts in 3 runs** (the run was interrupted before the
+planned 6). The suite still passed at 139, so the move is harmless, but there is no evidence it
+helps and it was reverted rather than committed unproven. Note 0-of-3 does not *disprove* it either
+— against a ~22% baseline, three misses in a row happens about half the time — so if anyone wants to
+retry it, do so with at least ten runs.
+
+**What is still worth checking, in order:**
+1. Whether the POST reaches the middleware at all on a failing run. Log inside the `/write-coverage`
+   handler and watch a failing run — that splits "never sent" from "sent, server died first",
+   which are different fixes.
+2. `navigator.sendBeacon` instead of `fetch` for the coverage payload. It is designed for exactly
+   this — delivery during page teardown — though the server still has to survive long enough to
+   write, so it may only move the race.
+3. QUnit 2.25 *does* await promises returned from `done` callbacks (`runLoggingCallbacks` builds a
+   serial promise chain), so "QUnit does not wait" is not the explanation. Registration order might
+   still matter: testem's own `done` handler may run earlier in that chain and signal completion
+   before ours has posted.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 
