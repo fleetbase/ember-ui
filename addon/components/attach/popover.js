@@ -8,18 +8,15 @@ import { cancel, debounce, later, run } from '@ember/runloop';
 export default class AttachPopoverComponent extends Component {
     @tracked animation = 'fill';
     @tracked arrow = false;
-    @tracked flip = null;
     @tracked hideDelay = 0;
     @tracked hideDuration = 300;
     @tracked hideOn = 'mouseleave blur escapekey';
     @tracked interactive = false;
     @tracked isShown = false;
     @tracked lazyRender = false;
-    @tracked modifiers = null;
     @tracked placement = 'top';
     @tracked parentNode;
     @tracked floatingContainer = '.ember-application';
-    @tracked floatingOptions = null;
     @tracked floatingTarget = null;
     @tracked renderInPlace = false;
     @tracked currentTarget = null;
@@ -137,14 +134,19 @@ export default class AttachPopoverComponent extends Component {
         }
     }
 
-    @action debouncedHideIfMouseOutsideTargetOrAttachment(event) {
-        debounce(this, this.hideIfMouseOutsideTargetOrAttachment, event, 10);
-    }
-
     @action hide() {
         const { floatingElement } = this;
 
         if (!floatingElement) {
+            // With @lazyRender the attachment is not in the DOM until it is first shown, and the
+            // hide listeners are attached from setup. Retrying until it appears would spin
+            // requestAnimationFrame for the life of the page, because nothing is going to render
+            // it. There is also nothing to hide, so say so and stop.
+            if (!this.mustRender || this.isDestroyed || this.isDestroying) {
+                this.isHidden = true;
+                return;
+            }
+
             this.animationTimeout = requestAnimationFrame(() => {
                 this.animationTimeout = this.hide();
             });
@@ -162,6 +164,8 @@ export default class AttachPopoverComponent extends Component {
             const hideDuration = parseInt(this.hideDuration);
 
             run(() => {
+                /* istanbul ignore if -- run() calls this synchronously, and the identical check
+                   at the top of this frame callback has just passed */
                 if (this.isDestroyed || this.isDestroying) {
                     return;
                 }
@@ -188,6 +192,9 @@ export default class AttachPopoverComponent extends Component {
     @action hideIfMouseOutsideTargetOrAttachment(event) {
         const target = this.currentTarget;
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!target) {
             return;
         }
@@ -229,6 +236,9 @@ export default class AttachPopoverComponent extends Component {
             this.hideAfterDelay();
         }
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!this.currentTarget) {
             return;
         }
@@ -288,6 +298,9 @@ export default class AttachPopoverComponent extends Component {
         const target = this.currentTarget;
 
         // Target or component was destroyed
+        /* istanbul ignore if -- neither half can be true here: the target is currentTarget, which
+           is never falsy after setup, and both callers run either during setup or from a listener
+           on that target, which willDestroy removes */
         if (!target || this.isDestroyed || this.isDestroying) {
             return;
         }
@@ -367,6 +380,9 @@ export default class AttachPopoverComponent extends Component {
         const { currentTarget } = this;
         cancelAnimationFrame(this.animationTimeout);
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!currentTarget) {
             return;
         }
@@ -410,6 +426,8 @@ export default class AttachPopoverComponent extends Component {
                 }
 
                 run(() => {
+                    /* istanbul ignore if -- run() calls this synchronously, and the identical
+                       check at the top of this frame callback has just passed */
                     if (this.isDestroyed || this.isDestroying || !this.currentTarget) {
                         return;
                     }
@@ -444,10 +462,13 @@ export default class AttachPopoverComponent extends Component {
                 () => {
                     this.animationTimeout = requestAnimationFrame(() => {
                         if (!this.isDestroyed && !this.isDestroying) {
+                            /* istanbul ignore next -- a delay only ever accompanies isVisible
+                               false: the two callers are (false, hideDuration) and (true, 0) */
                             this.floatingElement.style.display = isVisible ? '' : 'none';
 
                             // Prevent jank by making the attachment invisible until positioned.
                             // The visibility style will be toggled by this.startShowAnimation()
+                            /* istanbul ignore next -- same: isVisible is false whenever delay is set */
                             this.floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
                             if (onChange) {
@@ -474,6 +495,9 @@ export default class AttachPopoverComponent extends Component {
     @action addListenersForShowEvents() {
         const { currentTarget } = this;
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!currentTarget) {
             return;
         }

@@ -28,6 +28,61 @@ exactly there.
 
 # Open
 
+## 23. `addon/components/attach/popover.js` — `@flip`, `@modifiers` and `@floatingOptions` are inert
+
+**Status:** FIXED — the three fields are removed
+**Found:** their `@tracked` initializers were the only statements in the class body never executed,
+which in this codebase means the field is never read.
+**Evidence:** `flip`, `modifiers` and `floatingOptions` were declared `@tracked`, assigned by
+`setDefaultOptions()` like every other argument, and then read by nothing — not the component, not
+`popover.hbs`, not `Floating`. They are Popper-era options that did not survive the move to
+floating-ui; the positioning arguments this component actually forwards are `@offset` and
+`@shiftOptions`.
+
+**Impact:** small but real — a consumer passing `@flip={{false}}` gets silence, not an error.
+Removing the fields does not change behaviour either way (`setDefaultOptions` still sets a plain
+property), but it stops the class advertising three options it cannot honour.
+
+Also removed: `debouncedHideIfMouseOutsideTargetOrAttachment`, an `@action` with no caller anywhere
+in the addon, the template, or the tests. The TODO above `hideOnMouseLeaveTarget` explains why the
+mousemove listener uses the undebounced handler directly.
+
+## 22. `addon/components/attach/popover.js` — `hide()` spins requestAnimationFrame forever
+
+**Status:** FIXED
+**Found:** chasing the uncovered `!floatingElement` retry in `hide()`. The matching retry in
+`setIsVisibleAfterDelay()` was covered, which was the tell: the two have the same shape but only one
+of them is ever preceded by something that will render the element.
+**Evidence:** with `@lazyRender={{true}}` the attachment is not in the DOM until it is first shown:
+
+    popover.hbs:2  {{#if (and this.currentTarget (or (not this.lazyRender) this.mustRender))}}
+
+The hide listeners, however, are attached during setup, from `initializeAttacher()`. So a
+`mouseleave` on a lazily-rendered popover that has never been shown reaches `hide()` with
+`mustRender` still false and no `floatingElement`. `hide()` answers that by scheduling itself on the
+next frame — and nothing in that path ever sets `mustRender`, so the next frame finds exactly the
+same state. `setIsVisibleAfterDelay()`'s identical retry is safe only because its caller, `show()`,
+sets `mustRender = true` first.
+
+**Impact:** an unbounded `requestAnimationFrame` loop for the lifetime of the page, started by
+nothing more than moving the mouse across a lazily-rendered popover's target. It survives the
+component's own destruction: the queued callback re-enters `hide()` on a torn-down component and
+schedules another frame.
+
+**Fix — applied:** `hide()` bails when there is nothing to hide and nothing on its way, marking
+itself hidden:
+
+    if (!this.mustRender || this.isDestroyed || this.isDestroying) {
+        this.isHidden = true;
+        return;
+    }
+
+The retry is kept for the case it was written for — a hide landing in the window between
+`mustRender` becoming true and the element being rendered — and that window now has a test too.
+The regression test counts frames rather than asserting on the DOM: it holds
+`window.requestAnimationFrame`, triggers the hide, and asserts no frame was queued. Verified to
+fail (5 frames instead of 0) with the guard removed.
+
 ## 21. `addon/components/query-builder.js` — the `columns` getter's work is thrown away
 
 **Status:** OPEN — logged, not changed; the fix is a behaviour decision (see below)
