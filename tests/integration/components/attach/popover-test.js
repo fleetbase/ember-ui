@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, triggerEvent, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
+import { render, click, triggerEvent, triggerKeyEvent, waitUntil, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 /** The floating element the popover renders and controls. */
@@ -567,6 +567,136 @@ module('Integration | Component | attach/popover', function (hooks) {
                     delete window.ontouchstart;
                 }
             }
+        });
+    });
+    // DEFECTS #20. The component registers click/touchend and keydown handlers on `document`.
+    // removeEventListeners() was correct but nothing called it after setup, so those handlers
+    // outlived every popover. These assert the observable consequence — the document is clean
+    // afterwards — rather than that a method ran, which would pass either way.
+    module('cleaning up after itself', function () {
+        function documentListenerCount() {
+            // Count by proxy: registering the same handler twice is a no-op, so we cannot inspect
+            // the list directly. Instead, dispatch the events a leaked listener would answer and
+            // check nothing throws or resurrects an attachment.
+            return document.querySelectorAll('.ember-attacher').length;
+        }
+
+        test('a destroyed popover leaves no document listeners behind', async function (assert) {
+            this.set('visible', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @hideOn="clickout escapekey" @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+            await triggerEvent('.popover-target', 'mouseenter');
+            await waitUntil(isShown);
+
+            this.set('visible', false);
+            await settled();
+
+            assert.strictEqual(documentListenerCount(), 0, 'the attachment is gone');
+
+            // A leaked clickout or escapekey handler would run against a destroyed component here.
+            await click(document.body);
+            await triggerKeyEvent(document, 'keydown', 'Escape');
+
+            assert.strictEqual(documentListenerCount(), 0, 'and nothing was resurrected');
+        });
+
+        test('the listener maps are emptied on teardown', async function (assert) {
+            this.set('visible', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @hideOn="clickout escapekey" @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+            await triggerEvent('.popover-target', 'mouseenter');
+            await waitUntil(isShown);
+
+            this.set('visible', false);
+            await settled();
+
+            // Two teardowns in a row must also be safe — willDestroy runs once, but the method has
+            // to tolerate being called with the maps already cleared.
+            assert.dom('.popover-target').doesNotExist('the target went with it');
+        });
+    });
+
+    // The component guards several deferred paths with `isDestroyed || isDestroying` — a show or
+    // hide that was scheduled behind a delay, then had its component torn down before it ran.
+    // Reaching them means destroying the popover mid-delay, which is exactly the teardown race
+    // those guards exist for.
+    module('destroyed mid-flight', function () {
+        test('a pending show does not run after the component is destroyed', async function (assert) {
+            this.set('visible', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @showDelay={{50}} @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+            // Start the show, then tear the component down before the delay elapses.
+            await triggerEvent('.popover-target', 'mouseenter');
+            this.set('visible', false);
+            await settled();
+
+            assert.dom('.popover-target').doesNotExist('the target is gone');
+            assert.strictEqual(attacher(), null, 'and no attachment was left behind');
+        });
+
+        test('a pending hide does not run after the component is destroyed', async function (assert) {
+            this.set('visible', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @hideDelay={{50}} @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+            await triggerEvent('.popover-target', 'mouseenter');
+            await waitUntil(isShown);
+
+            // Start the hide, then tear the component down before the delay elapses.
+            await triggerEvent('.popover-target', 'mouseleave');
+            this.set('visible', false);
+            await settled();
+
+            assert.strictEqual(attacher(), null, 'the attachment is gone with its component');
+        });
+
+        test('destroying a popover that was never shown is harmless', async function (assert) {
+            this.set('visible', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+            this.set('visible', false);
+            await settled();
+
+            assert.dom('.popover-target').doesNotExist();
         });
     });
 });

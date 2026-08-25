@@ -242,6 +242,26 @@ export default class AttachPopoverComponent extends Component {
         }
     }
 
+    /**
+     * Tear the listeners down when the component goes away.
+     *
+     * `removeEventListeners()` was already correct, but its only caller was the first line of
+     * `initializeAttacher()`, which runs once from `{{did-insert}}` — at which point the listener
+     * maps are still empty, so it removed nothing and its loops were dead code. Nothing else ever
+     * called it, so every popover that was rendered and destroyed left its `click`/`touchend` and
+     * (by default) `keydown` handlers on `document` for the lifetime of the page, still firing
+     * `hideOnClickOut` against a destroyed component. DEFECTS.md #20.
+     *
+     * `useCapture` has to match between add and remove or the removal silently no-ops, so this
+     * uses the same tracked value the listeners were registered with — the component only reads it
+     * once, into `lastUseCaptureArgumentValue`, and never re-registers behind our back.
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+
+        this.removeEventListeners();
+    }
+
     @action removeEventListeners() {
         const { currentTarget } = this;
 
