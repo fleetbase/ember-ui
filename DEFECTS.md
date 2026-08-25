@@ -277,7 +277,7 @@ documented as such.
 
 ## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
 
-**Status:** DEFERRED — a later update, by decision
+**Status:** DEFERRED — a later update, by decision. Kickoff brief in Appendix D.
 **Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
 **Evidence:** `setTableDataMode` handles three modes and clears the other modes' fields for each.
 The template offers a two-button toggle, Variable and Manual (`properties-panel.hbs:258` and `:266`);
@@ -301,7 +301,7 @@ tests cover.
 
 ## 16. Coverage collection itself is unreliable, which the 100% gate cannot tolerate
 
-**Status:** PARTIALLY FIXED (PR #163) — detection landed, the cause has not
+**Status:** FIXED — cause found and fixed; the freshness gate stays as a backstop
 **Found:** repeatedly, while verifying single files.
 **Evidence:** three distinct failure modes, all observed in one session:
 1. A run reports `# tests 77 / # pass 77 / # fail 0` and leaves `coverage/coverage-final.json`
@@ -348,9 +348,95 @@ this campaign's work gets checked.
 make collection reliable (it was the first thing tried, and the 7-of-9 figure above is *with* it),
 and the Node 18 ESM failure is unrelated to this and cannot affect CI, which pins Node 22.
 
-**Next step, unstarted:** the addon's `parallel` option writes per-browser JSON to disk instead of
-POSTing. Flipping it and running the fast filter ten times would either fix the cause or rule it
-out in about twenty minutes.
+### RESOLVED — the cause, and the fix
+
+**Cause.** `sendCoverage()` POSTs the coverage payload to `/write-coverage` from `QUnit.done`. For
+this addon that payload is **~1.9 MB across 401 instrumented files**, because a per-file 100% gate
+requires `forceModulesToBeLoaded()` to evaluate everything so untested files stay in the
+denominator. In CI mode testem tears the browser down as soon as QUnit reports the run finished,
+truncating the upload mid-body; `raw-body` aborts and nothing is written at all.
+
+It is size- and timing-dependent, which is exactly why it looked like flakiness: after 139 tests
+testem has almost nothing to serialize and kills the browser in milliseconds, while after 5,130
+tests emitting the results buys the upload enough time to land.
+
+**This is a known upstream bug, not something peculiar to this repo.**
+- https://github.com/ember-cli-code-coverage/ember-cli-code-coverage/issues/420 — identical
+  `BadRequestError: request aborted` at `raw-body/index.js:245`, reported August 2024, coverage
+  written only under `ember test -s`.
+- https://github.com/ember-cli-code-coverage/ember-cli-code-coverage/issues/421 — same silent
+  failure after upgrading past 1.0.3.
+- https://github.com/testem/testem/issues/1577 — the testem side.
+
+**Fix (`tests/test-helper.js`).** `Testem.afterTests` hands testem a callback it *waits for*, so the
+upload completes before teardown. It does not fire under `--server`, hence the branch on
+`config.APP.isRunningWithServerArgs`. Measured: 2 of 2 fast filtered runs produced an artifact with
+no abort, against a 2-of-9 baseline; the full suite is unchanged at 5130 pass / 0 fail.
+
+Our measurements were added to upstream #420.
+
+### Three hypotheses tried and ruled out, kept so nobody retries them
+
+**The `parallel` option — ruled out by reading the source, not by running it.**
+`ember-cli-code-coverage/lib/attach-middleware.js` `reportCoverage()` does this when
+`config.parallel` is set:
+
+    config.coverageFolder = config.coverageFolder + '_' + crypto.randomBytes(4).toString('hex');
+
+It renames the output folder and forces the `json` reporter, requiring a separate `ember
+coverage-merge` step. It does not change how coverage travels from the browser to disk — same POST,
+same race — so it would break the current setup without touching the cause.
+
+**Moving `forceModulesToBeLoaded()` off the teardown path — tried, and it did not help.**
+`tests/test-helper.js` calls it inside the `QUnit.done` hook, before `await sendCoverage()`. The
+theory was that on a filtered run almost nothing is loaded yet, so force-loading is a large
+synchronous burst that delays the POST past the window testem leaves before killing the browser —
+and that full runs escape it because they have already loaded nearly everything. That explains the
+direction of the correlation, which no other theory here does.
+
+Moving it to `QUnit.begin` produced **0 artifacts in 3 runs** (the run was interrupted before the
+planned 6). The suite still passed at 139, so the move is harmless, but there is no evidence it
+helps and it was reverted rather than committed unproven. Note 0-of-3 does not *disprove* it either
+— against a ~22% baseline, three misses in a row happens about half the time — so if anyone wants to
+retry it, do so with at least ten runs.
+
+### Measured: the POST never reaches the server
+
+Instrumented `coverageHandler` in `ember-cli-code-coverage/lib/attach-middleware.js` with four log
+points and ran the fast filter three times (`--port=7399`, to avoid colliding with another session):
+
+    run 1: 139 pass, NO-ARTIFACT   zero probe lines
+    run 2: 139 pass, ARTIFACT      all four probe lines
+    run 3: 139 pass, NO-ARTIFACT   zero probe lines
+
+**On a failing run the middleware is never entered.** That eliminates every server-side
+explanation — it is not "sent, and the write died" — and locates the fault in the browser, between
+`fetch('/write-coverage')` being called and the request completing. It also explains why moving
+`forceModulesToBeLoaded()` changed nothing: the problem is not delay *before* the POST.
+
+### The surviving explanation, and why it fits the run-length asymmetry
+
+QUnit 2.25 runs `done` callbacks as a **serial promise chain in registration order**
+(`runLoggingCallbacks`). Testem's adapter registers its handler before the app's `tests/test-helper.js`
+does, so testem learns the run has ended — and begins closing the browser — while `sendCoverage()`
+is still in flight.
+
+After a 139-test run testem has almost nothing to serialize, so the browser dies within
+milliseconds and the fetch is aborted. After a 5130-test run, emitting thousands of results buys the
+fetch enough time to land. That is the asymmetry that made this look like random flakiness, and it
+is the first explanation consistent with every observation.
+
+**Fix candidates, in order of promise:**
+1. `navigator.sendBeacon('/write-coverage', blob)` in place of `fetch`. It exists precisely for
+   delivery during page teardown and is not cancelled when the page goes away. The response cannot
+   be read, but the only thing the response feeds is an on-screen coverage badge. Can be done in
+   `tests/test-helper.js` without patching the addon.
+2. Register the coverage `done` handler before testem's, if the test page's load order allows it.
+3. Keep a `keepalive: true` flag on the existing fetch — the same underlying mechanism as
+   sendBeacon, and a one-word change worth trying first.
+
+Whichever is chosen, verify it the same way: ten fast filtered runs, counting artifacts against the
+~22% baseline.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 
@@ -388,6 +474,24 @@ full-calendar.js is now at 100% statements, branches, functions and lines.
 outlive the component. That is a separate and probably larger leak than the one above — the
 integration tests work around it with an `afterEach` that destroys the captured calendar. Fixing it
 changes what a consumer's `@onInit` reference points at after teardown, so it needs its own decision.
+
+## 18. Coverage branch totals still vary by ±1 between identical runs
+
+**Status:** OPEN — same class of blocker as #4 was, and the last one known
+**Found:** verifying the #16 fix. Three full runs, all 5130 tests passing, all with identical
+statement totals (8366/8702) and an identical `layout/sidebar.js` (203/215) — but **branches differ**:
+
+    run 1: 5826 / 6255   93.14%
+    run 2: 5826 / 6255   93.14%
+    run 3: 5825 / 6255   93.12%
+
+**Impact:** a hard 100% gate flaps on this with no code change, exactly as #4 did before it was
+fixed. It is smaller than #4 (±1 branch rather than ±2 statements) and is not in `sidebar.js`,
+whose statement count is now stable.
+**Fix:** unknown — the culprit has not been located. Finding it is the same exercise that worked for
+#4: capture `coverage-final.json` from two runs that disagree and diff the per-file branch counts to
+name the file, then read the site. Do NOT reason about the mechanism first; #4 cost two wrong
+diagnoses that way, and the artifact named the answer in one step.
 
 ---
 
@@ -545,3 +649,71 @@ its 21 partial branches.
 tier of small utils and services — including two still carrying generated "it works" stubs — behind
 a handful of large components. The per-file percentage view surfaced them and produced the largest
 single-iteration branch gain of the effort.
+
+## Appendix D — kickoff brief for #15, the table's `query` data mode
+
+Written at the end of the sweep session so the next one does not have to rediscover the terrain.
+Everything below was verified against the source on 2026-08-25.
+
+### What exists today
+
+**The mode switch.** `properties-panel.js:199` `setTableDataMode(mode)` handles `manual`, `variable`
+and `query`, clearing the other modes' fields for each. The template
+(`properties-panel.hbs:251-268`) offers a **two**-button toggle, Variable and Manual. Nothing calls
+it with `'query'`, so that branch reports `[0,0]`.
+
+**The fields the query branch manages** — `query_endpoint`, `query_params`, `query_response_path` —
+appear in exactly four places across every package in the monorepo, and all four are the *clearing*
+assignments in the `manual` and `variable` branches. Nothing writes a value to them and nothing
+reads them.
+
+**A working query system already ships, by a different route.** `TemplateBuilder::QueryForm` builds
+a saved query — `{ uuid, label, variable_name, description, model_type, conditions, sort, limit,
+with }` — and hands it to the parent via `@onSave`; it makes no API calls itself.
+`TemplateBuilder::QueriesPanel` does the CRUD and notifies through `@onQueriesChange`.
+`template-builder.js:453` `handleQueriesChange` keeps `this.queries` current, `:157`
+`enrichedContextSchemas` exposes each saved query as a variable under a `__queries__` namespace, and
+`:141` includes `queries` in the save payload so the backend can upsert them with the template.
+
+So a query-backed table is built **today** by choosing Variable mode and pointing Data Variable at a
+query variable. That is why Variable mode's clearing branch bothers to null the query fields.
+
+### The fact that shapes the whole design
+
+**Nothing in this addon resolves a data source at render time.** `element-renderer.js:329-334` reads
+`element.columns` and `element.rows` directly — the manual arm and nothing else. A variable-mode
+table renders no rows in the canvas either. The builder stores *intent*; something downstream (the
+backend renderer, or the consuming app) resolves it.
+
+Decide early whether `query` mode is also store-only intent, or whether the panel is expected to
+fetch and preview. Those are very different pieces of work, and the second one is the one that needs
+an auth story.
+
+### What has to be settled before writing code
+
+1. **Endpoint contract.** What does `query_endpoint` hold — a bare path, a full url, a named
+   endpoint? Who validates it?
+2. **Auth.** If the panel fetches, it goes through the `fetch` service and inherits its
+   session handling. If it does not fetch, this question disappears — another reason to settle the
+   point above first.
+3. **`query_params` shape.** `[{ key, value }]` matching the existing param editors, or a plain
+   object? The clearing branch seeds `[]`, which implies an array.
+4. **`query_response_path`.** Dotted path into the response (`data.results`)? What happens when it
+   does not resolve?
+5. **Loading and error states** in the panel, if it fetches.
+6. **Reconciliation with `__queries__`.** This is the one that matters most. Saved queries already
+   solve "get rows from the server into a table". Adding a per-element endpoint creates a second
+   mechanism that does the same job with less structure — no `variable_name`, no reuse across
+   elements, no participation in the save payload. Either make `query` mode meaningfully different
+   (arbitrary external endpoints the query builder cannot express?) or drop it and delete the three
+   fields. Do not build a parallel path by default.
+
+### Ground rules for that session
+
+- The panel is a shared component: adding a third toggle button changes UI for every consumer.
+- Tests before merge, and one that fails against the current code — that is the campaign's standard.
+- The `query` branch stays uncovered rather than suppressed. An `istanbul ignore` here has to sit on
+  the opening `if`, and `ignore else` there also swallows the `variable` branch, which real tests
+  cover. So the coverage gate will keep pointing at this until it is built or deleted — which is the
+  intended behaviour, not an obstacle to work around.
+- Read `Appendix B` first if you plan to chase the coverage number afterwards.
