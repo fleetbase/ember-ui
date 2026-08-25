@@ -51,6 +51,10 @@ export default class LayoutResourcePanelComponent extends Component {
         return contextComponentCallback(this, 'onOpen', { resource: this.resource, panel: this.context });
     }
 
+    @action onToggle() {
+        return contextComponentCallback(this, 'onToggle', { resource: this.resource, panel: this.context });
+    }
+
     @action onClose() {
         return contextComponentCallback(this, 'onClose', { resource: this.resource, panel: this.context });
     }

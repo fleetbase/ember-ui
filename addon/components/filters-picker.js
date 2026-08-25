@@ -71,7 +71,7 @@ export default class FiltersPickerComponent extends Component {
         return raw === '' ? undefined : raw;
     }
 
-    #rebuildFilters(onColumn) {
+    #rebuildFilters() {
         const cols = this.args.columns ?? [];
 
         this.filters = cols
@@ -89,8 +89,8 @@ export default class FiltersPickerComponent extends Component {
                     isFilterActive: active,
                 };
 
-                if (typeof onColumn === 'function') {
-                    onColumn(filterCol, index, value);
+                if (typeof this.args.onColumn === 'function') {
+                    this.args.onColumn(filterCol, index, value);
                 }
 
                 return filterCol;

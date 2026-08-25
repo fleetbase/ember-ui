@@ -85,14 +85,16 @@ module('Integration | Component | report-builder/condition-value', function (hoo
             assert.dom('.fleetbase-date-picker').hasClass('w-52');
         });
 
-        test('a boolean column currently falls through to a text field', async function (assert) {
+        // The component always exposed an `isBoolean` getter; the template had no boolean branch,
+        // so a boolean column was edited as free text. It gets a radio group now. (DEFECTS #3)
+        test('a boolean column is edited with a radio group', async function (assert) {
             this.set('column', { type: 'boolean' });
 
             await render(TEMPLATE);
 
-            // The component exposes an `isBoolean` getter, but the template has no boolean
-            // branch, so a boolean condition is edited as free text.
-            assert.dom('input[type="text"]').exists();
+            assert.dom('input[type="text"]').doesNotExist('no free-text field for a boolean');
+            assert.strictEqual(findAll('input[type="radio"]').length, 2, 'exactly True and False are offered');
+            assert.dom('.report-builder-boolean-value').hasText('True False');
         });
     });
 
@@ -173,6 +175,91 @@ module('Integration | Component | report-builder/condition-value', function (hoo
             await fillIn('input[type="text"]', 'pending');
 
             assert.dom('input[type="text"]').exists('the editor survives');
+        });
+    });
+    // The boolean editor added for DEFECTS #3. A saved report round-trips through JSON and query
+    // params, so the value can come back as a string or a number rather than a boolean.
+    module('the boolean editor', function () {
+        function radios() {
+            return findAll('.report-builder-boolean-value input[type="radio"]');
+        }
+
+        test('neither option is selected until one is chosen', async function (assert) {
+            this.set('column', { type: 'boolean' });
+
+            await render(TEMPLATE);
+
+            assert.false(radios()[0].checked, 'True is not preselected');
+            assert.false(radios()[1].checked, 'and neither is False');
+        });
+
+        test('choosing True reports a real boolean', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            await render(TEMPLATE);
+
+            await click(radios()[0]);
+
+            assert.deepEqual(changes[changes.length - 1], { value: true }, 'true, not the string "true"');
+        });
+
+        test('choosing False reports false rather than clearing the value', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            await render(TEMPLATE);
+
+            await click(radios()[1]);
+
+            assert.deepEqual(changes[changes.length - 1], { value: false });
+        });
+
+        test('an existing boolean value is reflected in the selection', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            this.set('value', true);
+
+            await render(TEMPLATE);
+
+            assert.true(radios()[0].checked, 'True is selected');
+            assert.false(radios()[1].checked);
+        });
+
+        test('a value that round-tripped as a string still selects the right option', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            this.set('value', 'false');
+
+            await render(TEMPLATE);
+
+            assert.false(radios()[0].checked);
+            assert.true(radios()[1].checked, "the string 'false' selects False, not neither");
+        });
+
+        test('a value that round-tripped as a number still selects the right option', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            this.set('value', 1);
+
+            await render(TEMPLATE);
+
+            assert.true(radios()[0].checked, '1 selects True');
+        });
+
+        test('an unrecognised value selects neither option', async function (assert) {
+            this.set('column', { type: 'boolean' });
+            this.set('value', 'maybe');
+
+            await render(TEMPLATE);
+
+            assert.false(radios()[0].checked);
+            assert.false(radios()[1].checked);
+        });
+
+        test('two boolean editors do not share a radio group', async function (assert) {
+            this.set('column', { type: 'boolean' });
+
+            await render(hbs`
+                <ReportBuilder::ConditionValue @column={{this.column}} @onChange={{this.onChange}} />
+                <ReportBuilder::ConditionValue @column={{this.column}} @onChange={{this.onChange}} />
+            `);
+
+            const names = findAll('.report-builder-boolean-value input[type="radio"]').map((input) => input.name);
+            assert.strictEqual(new Set(names).size, 2, 'each editor gets its own group name');
         });
     });
 });

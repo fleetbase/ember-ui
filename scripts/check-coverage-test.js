@@ -6,7 +6,8 @@
  *   node scripts/check-coverage-test.js
  *
  * Verifies the gate passes on a fully-covered summary and fails on partial
- * coverage, missing files, and a missing summary.
+ * coverage, missing files, a missing summary, and — the DEFECTS.md #16 cases —
+ * artifacts that are stale, absent, or unstamped.
  */
 
 const assert = require('assert');
@@ -14,7 +15,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const { checkCoverage, isFullyCovered } = require('./check-coverage');
+const { checkCoverage, checkArtifactFreshness, isFullyCovered } = require('./check-coverage');
+const { stampRun, isSafeCoverageDir } = require('./stamp-coverage-run');
 
 function emptyMetric() {
     // How istanbul reports a file with no executable code: 0/0 with pct 0.
@@ -154,4 +156,123 @@ withFixture((root) => {
     assert.strictEqual(result.failures.filter((f) => f.includes('ember-core')).length, 0, 'and it is never named in the failures');
 });
 
-console.log('check-coverage self-test passed (10 cases).');
+// ---------------------------------------------------------------------------
+// Artifact freshness (DEFECTS.md #16)
+// ---------------------------------------------------------------------------
+
+function writeArtifacts(root, mtimeMs) {
+    const coverageDir = path.join(root, 'coverage');
+    fs.mkdirSync(coverageDir, { recursive: true });
+
+    const paths = [path.join(coverageDir, 'coverage-summary.json'), path.join(coverageDir, 'coverage-final.json')];
+    for (const artifact of paths) {
+        fs.writeFileSync(artifact, '{}');
+        if (typeof mtimeMs === 'number') {
+            const seconds = mtimeMs / 1000;
+            fs.utimesSync(artifact, seconds, seconds);
+        }
+    }
+
+    return paths;
+}
+
+// 11. Artifacts written after the run started → fresh, no complaints.
+withFixture((root) => {
+    const stampPath = path.join(root, '.coverage-run-stamp.json');
+    const startedAt = Date.now() - 60000;
+    fs.writeFileSync(stampPath, JSON.stringify({ startedAt }));
+    const artifactPaths = writeArtifacts(root, Date.now());
+
+    const failures = checkArtifactFreshness({ stampPath, artifactPaths, projectRoot: root });
+    assert.deepStrictEqual(failures, [], `expected fresh artifacts to pass, got: ${failures.join('; ')}`);
+});
+
+// 12. THE DANGEROUS CASE: the suite runs green but leaves the previous artifact in place, so the
+//     report predates the run. Reading it would report the last run's numbers as this run's.
+withFixture((root) => {
+    const stampPath = path.join(root, '.coverage-run-stamp.json');
+    fs.writeFileSync(stampPath, JSON.stringify({ startedAt: Date.now() }));
+    const artifactPaths = writeArtifacts(root, Date.now() - 3600000);
+
+    const failures = checkArtifactFreshness({ stampPath, artifactPaths, projectRoot: root });
+    assert.strictEqual(failures.length, 2, `expected both artifacts to be reported stale, got: ${failures.join('; ')}`);
+    assert.ok(
+        failures.every((failure) => failure.includes('stale artifact from an earlier run')),
+        `expected staleness wording, got: ${failures.join('; ')}`
+    );
+});
+
+// 13. The suite reports results but writes no coverage-final.json at all.
+withFixture((root) => {
+    const stampPath = path.join(root, '.coverage-run-stamp.json');
+    fs.writeFileSync(stampPath, JSON.stringify({ startedAt: Date.now() - 60000 }));
+    const [summaryPath] = writeArtifacts(root, Date.now());
+    fs.rmSync(path.join(root, 'coverage', 'coverage-final.json'));
+
+    const failures = checkArtifactFreshness({
+        stampPath,
+        artifactPaths: [summaryPath, path.join(root, 'coverage', 'coverage-final.json')],
+        projectRoot: root,
+    });
+    assert.strictEqual(failures.length, 1, `expected exactly one failure, got: ${failures.join('; ')}`);
+    assert.ok(failures[0].includes('produced no coverage artifact'), `unexpected failure: ${failures[0]}`);
+});
+
+// 14. No stamp at all — the gate refuses to read whatever happens to be on disk.
+withFixture((root) => {
+    const artifactPaths = writeArtifacts(root, Date.now());
+    const failures = checkArtifactFreshness({
+        stampPath: path.join(root, '.coverage-run-stamp.json'),
+        artifactPaths,
+        projectRoot: root,
+    });
+    assert.strictEqual(failures.length, 1, `expected one failure, got: ${failures.join('; ')}`);
+    assert.ok(failures[0].includes('no coverage run stamp'), `unexpected failure: ${failures[0]}`);
+});
+
+// 15. A corrupt or shapeless stamp is treated as no stamp, not as permission.
+withFixture((root) => {
+    const stampPath = path.join(root, '.coverage-run-stamp.json');
+    const artifactPaths = writeArtifacts(root, Date.now());
+
+    fs.writeFileSync(stampPath, 'not json');
+    let failures = checkArtifactFreshness({ stampPath, artifactPaths, projectRoot: root });
+    assert.strictEqual(failures.length, 1);
+    assert.ok(failures[0].includes('unreadable'), `unexpected failure: ${failures[0]}`);
+
+    fs.writeFileSync(stampPath, JSON.stringify({ startedAt: 'yesterday' }));
+    failures = checkArtifactFreshness({ stampPath, artifactPaths, projectRoot: root });
+    assert.strictEqual(failures.length, 1);
+    assert.ok(failures[0].includes('no numeric "startedAt"'), `unexpected failure: ${failures[0]}`);
+});
+
+// 16. stampRun clears the previous coverage directory and records the start time.
+withFixture((root) => {
+    const coverageDir = path.join(root, 'coverage');
+    fs.mkdirSync(coverageDir, { recursive: true });
+    fs.writeFileSync(path.join(coverageDir, 'coverage-final.json'), '{"stale":true}');
+
+    const stampPath = path.join(root, '.coverage-run-stamp.json');
+    const result = stampRun({ coverageDir, stampPath, projectRoot: root, now: 1234 });
+
+    assert.strictEqual(result.removed, true, 'the previous coverage directory is removed');
+    assert.strictEqual(fs.existsSync(coverageDir), false, 'and it is really gone');
+    assert.deepStrictEqual(JSON.parse(fs.readFileSync(stampPath, 'utf8')), { startedAt: 1234 });
+});
+
+// 17. stampRun refuses to delete anything that is not this project's coverage directory.
+withFixture((root) => {
+    const notCoverage = path.join(root, 'addon');
+    assert.throws(
+        () => stampRun({ coverageDir: notCoverage, stampPath: path.join(root, '.stamp.json'), projectRoot: root, now: 1 }),
+        /refusing to remove/,
+        'a non-coverage directory must not be removed'
+    );
+    assert.strictEqual(fs.existsSync(notCoverage), true, 'and it survives');
+
+    assert.strictEqual(isSafeCoverageDir(path.join(root, 'coverage'), root), true);
+    assert.strictEqual(isSafeCoverageDir(path.join(root, 'addon'), root), false);
+    assert.strictEqual(isSafeCoverageDir(path.join(root, 'nested', 'coverage'), root), false, 'only directly inside the project root');
+});
+
+console.log('check-coverage self-test passed (17 cases).');

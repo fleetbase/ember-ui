@@ -64,16 +64,6 @@ export default class TableCellDropdownComponent extends Component {
         return undefined;
     }
 
-    @action onDropdownItemClick(columnAction, row, dd) {
-        if (typeof dd?.actions?.close === 'function') {
-            dd.actions.close();
-        }
-
-        if (typeof columnAction?.fn === 'function') {
-            columnAction.fn(row);
-        }
-    }
-
     @action calculatePosition(trigger, content) {
         if (typeof this.args.column?.calculatePosition === 'function') {
             return this.args.column.calculatePosition(trigger, content);

@@ -671,4 +671,58 @@ module('Integration | Component | layout/sidebar', function (hooks) {
             assert.strictEqual(sidebar.style.transition, originalTransition, 'the restore puts the caller’s transition back');
         });
     });
+    // DEFECTS #4. scheduleResizeFrame() defers through requestAnimationFrame, and both
+    // flushResizeFrame() and teardown() cancel a frame that is still pending. Whether anything
+    // IS pending at that moment depended on whether the browser happened to paint first, so those
+    // two cancel branches were covered on some runs and not others — a ±2 statement wobble in the
+    // suite total with no code change. Dispatching synchronously, with no await in between, gives
+    // the browser no opportunity to paint and makes a pending frame a certainty.
+    module('cancelling a resize frame that is still pending', function () {
+        test('releasing the gutter cancels the frame the last move scheduled', async function (assert) {
+            await render(hbs`<Layout::Sidebar @collapseBelowWidth={{160}} @minResizeWidth={{200}} />`);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.next-sidebar-content + .gutter');
+            sidebar.style.width = '260px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 260 });
+
+            // No await between these two: the frame scheduled by the move is guaranteed to still
+            // be pending when mouseup runs, so stopResize() takes its cancel path.
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
+            dispatchMouseup(300);
+            await settled();
+
+            assert.strictEqual(sidebar.style.width, '300px', 'the pending width is still applied, by the flush rather than the frame');
+        });
+
+        test('tearing the sidebar down cancels a frame that never ran', async function (assert) {
+            this.set('showSidebar', true);
+            await render(hbs`
+                {{#if this.showSidebar}}
+                    <Layout::Sidebar @collapseBelowWidth={{160}} @minResizeWidth={{200}} />
+                {{/if}}
+            `);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.next-sidebar-content + .gutter');
+            sidebar.style.width = '240px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 240 });
+
+            // Schedule a frame and destroy the component before it can run.
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 280, bubbles: true }));
+            this.set('showSidebar', false);
+            await settled();
+
+            assert.dom('nav.next-sidebar').doesNotExist('the sidebar is gone');
+
+            // A frame that outlived teardown would apply a width to a detached node; the cancel in
+            // teardown() is what stops that.
+            await waitForResizeFrame();
+            assert.dom('nav.next-sidebar').doesNotExist('and nothing resurrects it');
+        });
+    });
 });

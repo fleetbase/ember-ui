@@ -68,4 +68,35 @@ module('Integration | Component | chat-window/attachment', function (hooks) {
 
         assert.strictEqual(downloads, 1, 'clicking the attachment triggers a download');
     });
+    // DEFECTS #1. getExtension() returns null for a filename with no dot, and getWithDefault
+    // asserts on a null key rather than falling back — so the component threw during render and
+    // an attachment named README could not be displayed at all.
+    test('a filename with no extension renders rather than throwing', async function (assert) {
+        this.set('record', {
+            filename: 'README',
+            url: '/uploads/README',
+            isImage: false,
+            download: () => {},
+        });
+
+        await render(hbs`<ChatWindow::Attachment @record={{this.record}} />`);
+
+        assert.dom('.chat-attachment-file-preview').exists('the attachment renders');
+        // FontAwesome 6 renders the `file-alt` alias under its canonical name, `file-lines`.
+        assert.dom('.chat-attachment-file-preview .file-icon svg').hasClass('fa-file-lines', 'and falls back to the generic file icon');
+        assert.dom('.chat-attachment-file-preview-filename').hasText('README');
+    });
+
+    test('a dotfile with no extension also renders', async function (assert) {
+        this.set('record', {
+            filename: 'Dockerfile',
+            url: '/uploads/Dockerfile',
+            isImage: false,
+            download: () => {},
+        });
+
+        await render(hbs`<ChatWindow::Attachment @record={{this.record}} />`);
+
+        assert.dom('.chat-attachment-file-preview-filename').hasText('Dockerfile');
+    });
 });

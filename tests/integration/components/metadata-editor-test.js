@@ -93,15 +93,32 @@ module('Integration | Component | metadata-editor', function (hooks) {
         assert.deepEqual(output.list, [1, 2]);
     });
 
-    test('the heading is only rendered when a label is supplied', async function (assert) {
-        // NOTE: the component exposes a `label` getter defaulting to 'Metadata',
-        // but the template gates on `{{#if @label}}` and renders `@label`
-        // directly, so that default is never displayed.
+    // The template used to gate on {{#if @label}} and render @label directly, so the component's
+    // own `label` getter — and the 'Metadata' default it encodes — was never consulted. It reads
+    // {{this.label}} now, which is what makes that default reachable. (DEFECTS #7)
+    test('the heading falls back to Metadata when no label is supplied', async function (assert) {
         await render(TEMPLATE);
-        assert.dom('h3').doesNotExist('no heading without an explicit label');
 
+        assert.dom('h3').hasText('Metadata', 'the default the getter always encoded now applies');
+    });
+
+    test('an explicit label wins over the default', async function (assert) {
         this.set('label', 'Custom attributes');
+
+        await render(TEMPLATE);
+
         assert.dom('h3').hasText('Custom attributes');
+    });
+
+    test('an empty label suppresses the heading entirely', async function (assert) {
+        this.set('label', '');
+
+        await render(TEMPLATE);
+
+        // `?? 'Metadata'` is nullish-coalescing, so an empty string is kept rather than defaulted,
+        // and {{#if this.label}} then renders nothing. Passing '' is the way to opt out of the
+        // heading now that omitting the argument no longer does.
+        assert.dom('h3').doesNotExist();
     });
 
     test('adding a row appends an empty row and reports the change', async function (assert) {
