@@ -84,6 +84,42 @@ or the racing lines proven irrelevant, before the 100% gate can be trusted.
 it means the panel silently cannot forward a toggle.
 **Fix:** define the action, or drop the wiring.
 
+## 6. `addon/components/chat-tray.js` — `getUnreadCount` is a second, unwired implementation
+
+**Status:** NEEDS DECISION
+**Found:** the whole task reported as never invoked while covering chat-tray.
+**Evidence:** `grep -rn getUnreadCount addon/` returns only the declaration — nothing performs it. The
+unread badge is NOT broken: `chat-tray.js:294` (`countUnread`) already sets `this.unreadCount` by
+summing `unread_count` across the loaded channels, and `chat-tray.hbs:11` renders from that.
+**Impact:** none today. The two implementations differ, though: `countUnread` sums only the channels
+currently loaded, while `getUnreadCount` fetches `chat-channels/unread-count`, which is presumably
+authoritative across channels that are not loaded or are paginated away. If channel loading is ever
+paginated, the badge under-reports.
+**Fix:** decide which is authoritative. Either delete the task, or perform it on insert and let the
+server value win. Not a bug fix either way — it is a choice about where the number comes from.
+Blocks the 100% gate while it exists: dead code cannot be covered, and excluding it would hide the
+question rather than answer it.
+
+## 7. `addon/components/metadata-editor.js` — the `label` getter is referenced by no template, so its default never applies
+
+**Status:** NEEDS DECISION
+**Found:** the getter reported as never invoked — `[0,0]`, meaning it is not called at all.
+**Evidence:** `metadata-editor.hbs:3-4` reads the argument directly:
+```hbs
+{{#if @label}}
+    <h3 ...>{{@label}}</h3>
+{{/if}}
+```
+`grep -rn 'this.label' addon/` returns nothing. The getter's `this.args.label ?? 'Metadata'` is
+therefore unreachable.
+**Impact:** unlike the other two dead getters (#2, #3) this one has a visible consequence. The
+getter says the section should be titled "Metadata" when the caller supplies no label; the template
+renders **no heading at all** in that case. So the intended default is silently not applied.
+**Fix:** either use `{{this.label}}` in the template — which would start rendering a "Metadata"
+heading everywhere a caller omits the argument, a visible change — or delete the getter and accept
+that the heading is opt-in. Product call.
+Blocks the gate while it exists: an uncalled getter cannot be covered.
+
 ---
 
 ## Settled — not defects, recorded so they are not "fixed" again

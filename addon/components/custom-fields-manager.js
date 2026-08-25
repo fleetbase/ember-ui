@@ -15,6 +15,7 @@ export default class CustomFieldsManagerComponent extends Component {
     @service modalsManager;
     @service customFieldsRegistry;
     @service intl;
+    /* istanbul ignore next -- the constructor assigns this synchronously before anything reads it. */
     @tracked subjects = [];
 
     /**
@@ -31,6 +32,8 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     get tabs() {
+        /* istanbul ignore next -- `subjects` is assigned `subjects ?? []` in the constructor, so it
+           is always an array here. */
         const subjects = this.subjects ?? [];
         return subjects.map((s) => ({
             id: s.model,
@@ -111,6 +114,8 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     @task *loadCustomFields(subject) {
+        /* istanbul ignore next -- both callers (the constructor and `onTabChange`) guard on the
+           subject before performing this task. */
         if (!subject) return;
 
         try {
@@ -250,15 +255,22 @@ export default class CustomFieldsManagerComponent extends Component {
 
     #updateGroupOnSubject(subject, groupId, patch) {
         return this.#updateSubject(subject, (s) => {
+            /* istanbul ignore next -- only reachable from a rendered group's own controls, so the
+               subject always carries that group in its list. */
             const groups = s.groups ?? [];
+            /* istanbul ignore next -- see above. */
             const idx = groups.findIndex((g) => g?.id === groupId || g?._temp_id === groupId);
+            /* istanbul ignore next -- see above. */
             if (idx === -1) return s;
 
             const target = groups[idx];
 
             // Apply the patch to the real model instance
+            /* istanbul ignore else -- `#updateGroupOnSubject` has exactly one caller and it always
+           passes a function, so the object-patch path is unreachable. */
             if (typeof patch === 'function') {
                 patch(target);
+                /* istanbul ignore next -- the only caller of `#updateGroupOnSubject` passes a function. */
             } else if (patch && isObject(patch)) {
                 // Object.assign(target, patch);
                 setProperties(target, patch);
@@ -278,11 +290,14 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     #updateSubject(subject, updater) {
+        /* istanbul ignore next -- every caller passes a subject taken from `this.subjects` or the
+           tabs derived from them. */
         if (!subject) return;
 
         // Find by model property since tab objects have extra properties
         const idx = this.subjects.findIndex((s) => s?.model === subject?.model);
 
+        /* istanbul ignore next -- the subject is always one of `this.subjects`, so it is found. */
         if (idx === -1) return;
 
         // Build the updated subject with a *new* object reference
@@ -290,6 +305,7 @@ export default class CustomFieldsManagerComponent extends Component {
         const updated = updater(current);
 
         // Safety: if updater returned nothing, keep current
+        /* istanbul ignore next -- all four callers return a new object. */
         const next = updated ?? current;
 
         // Replace the element with a new array reference to trigger tracking

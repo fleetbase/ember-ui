@@ -585,4 +585,62 @@ module('Integration | Component | custom-fields-manager', function (hooks) {
         assert.dom(this.element).containsText('Custom Fields Manager');
         assert.deepEqual(registry.loads, []);
     });
+    // Argument shapes and group shapes the happy-path fixtures never produce.
+    module('unusual inputs', function () {
+        test('an explicitly null @subjects is treated as none', async function (assert) {
+            // The destructured default only covers `undefined`; an explicit null reaches the `?? []`.
+            this.set('subjects', null);
+
+            await render(hbs`<CustomFieldsManager @subjects={{this.subjects}} />`);
+
+            assert.dom(this.element).containsText('Custom Fields Manager', 'it renders rather than throwing');
+            assert.deepEqual(registry.loads, [], 'and loads nothing');
+        });
+
+        test('a group can be created before the subject has finished loading', async function (assert) {
+            // Until the load resolves the subject has no `groups` key at all, so the spread falls
+            // back to an empty list rather than spreading undefined.
+            let releaseLoad;
+            const registryService = this.owner.lookup('service:customFieldsRegistry');
+            registryService.loadSubjectCustomFields = {
+                perform: () =>
+                    new Promise((resolve) => {
+                        releaseLoad = () => resolve({ customFieldGroups: [] });
+                    }),
+            };
+
+            await render(TEMPLATE);
+            await click(buttonWithText('New field group'));
+
+            assert.strictEqual(store.created.length, 1, 'the group record is created');
+
+            // The group is only attached to the subject once the modal is confirmed and saved.
+            const { customFieldGroup, confirm } = modals.shown.at(-1).options;
+            customFieldGroup.name = 'Logistics';
+            await confirm({ startLoading() {}, done() {}, stopLoading() {} });
+            await settled();
+
+            assert.dom(this.element).containsText('Logistics', 'the new group is attached despite no groups having loaded');
+
+            releaseLoad();
+            await settled();
+        });
+
+        test('a group that is a plain object is updated by assignment, not set()', async function (assert) {
+            // Restored groups need not be Ember Data records; `#addCustomFieldToGroup` falls back to
+            // a plain assignment when the group has no `set`.
+            loadedGroups = [{ id: 'grp_plain', name: 'Plain group', customFields: [] }];
+
+            await render(TEMPLATE);
+
+            // "New field" would also match the group button's "New field group".
+            const addField = buttonWithText('Create new custom field');
+            assert.ok(addField, 'the group offers a way to add a field');
+
+            await click(addField);
+
+            const group = loadedGroups[0];
+            assert.strictEqual(group.customFields.length, 1, 'the field was appended by assignment');
+        });
+    });
 });

@@ -536,4 +536,38 @@ module('Integration | Component | model-select', function (hooks) {
             await settled();
         });
     });
+    // Both handler slots are optional, and every case above supplies them.
+    module('with handlers omitted', function () {
+        test('choosing a suggestion with no @onCreate is a no-op rather than a crash', async function (assert) {
+            this.setProperties({ withCreate: true, labelProperty: 'name', onCreate: undefined, onChange: undefined });
+
+            await render(TEMPLATE);
+            await selectSearch('.fleetbase-model-select', 'Casey');
+            await selectChoose('.fleetbase-model-select', 'Add "Casey"...');
+
+            assert.dom(TRIGGER).exists('the select survives having nothing to report to');
+        });
+
+        test('clearing the selection reports a null id', async function (assert) {
+            // `model?.id ?? null` only reaches its fallback when the model itself is gone.
+            // Clearing is opt-in via @allowClear, which the shared TEMPLATE does not pass.
+            const changedIds = [];
+            this.setProperties({ selectedModel: DRIVERS[1], onChangeId: (id) => changedIds.push(id) });
+
+            await render(hbs`
+                <ModelSelect
+                    @modelName="driver"
+                    @optionLabel="name"
+                    @selectedModel={{this.selectedModel}}
+                    @onChangeId={{this.onChangeId}}
+                    @allowClear={{true}}
+                />
+            `);
+            assert.dom(TRIGGER).containsText('Blair Hauler');
+
+            await click('.ember-power-select-clear-btn');
+
+            assert.deepEqual(changedIds, [null], 'the cleared selection reports null rather than undefined');
+        });
+    });
 });

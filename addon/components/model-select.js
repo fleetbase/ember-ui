@@ -178,6 +178,9 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask searchModels = function* (term, options, initialLoad = false) {
+        /* istanbul ignore next -- DEFECTS: denying a permission also sets `disabled` in the
+           constructor, and power-select refuses to open a disabled trigger, so neither task can
+           run with this true. */
         if (this.doesntHavePermissions || this.disabled) {
             return;
         }
@@ -203,6 +206,9 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask loadModels = function* (term, createOption) {
+        /* istanbul ignore next -- DEFECTS: denying a permission also sets `disabled` in the
+           constructor, and power-select refuses to open a disabled trigger, so neither task can
+           run with this true. */
         if (this.doesntHavePermissions || this.disabled) {
             return;
         }
