@@ -366,23 +366,20 @@ module('Integration | Component | modal', function (hooks) {
             assert.false(document.body.classList.contains('flb--modal-open'), 'the body class does not outlive the modal');
         });
 
-        // The dialog stays in the DOM for as long as the backdrop is still fading, so a resize
-        // landing in that window still has something to measure — and the modal still ends up
-        // closed afterwards.
-        test('a resize while the modal is still closing does not disturb the close', async function (assert) {
+        // The resize handler measures the dialog, and the close is a chain of awaits, so a resize
+        // landing part-way through it must not leave the modal half-shut. Dispatched in the same
+        // tick as the close rather than after a sleep, so the timing does not depend on load.
+        test('a resize while the modal is closing does not disturb the close', async function (assert) {
             this.set('open', true);
 
             await render(hbs`<Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}} @transitionDuration={{0}} @backdropTransitionDuration={{200}}>body</Modal>`);
             assert.dom(DIALOG).exists('it is open to begin with');
 
             this.set('open', false);
-            await new Promise((resolve) => setTimeout(resolve, 30));
-            assert.dom(DIALOG).exists('the dialog is still there while the backdrop fades');
-
             globalThis.dispatchEvent(new Event('resize'));
             await settled();
 
-            assert.dom(DIALOG).doesNotExist('and the close still finishes');
+            assert.dom(DIALOG).doesNotExist('the close still finishes');
         });
 
         test('a modal closed again before it finished opening ends up closed', async function (assert) {

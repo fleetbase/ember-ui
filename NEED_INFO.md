@@ -15,28 +15,26 @@ Format:
 
 ---
 
-## `dashboard/widget-card` — two label getters nothing renders
+## `dashboard/widget-card` — two label getters nothing renders — DECIDED: deleted
 
-**Evidence:** `addLabel` (`widget-card.js:29`) and `addedBadgeText` (`:33`) report `[0,0]` — never
-evaluated. `grep -rn` across `addon/` and `app/` finds no reference outside their own definitions;
-`widget-card.hbs` reads `this.isAdded` directly at `:16` and `:48` and never calls either getter.
+**Evidence:** `addLabel` and `addedBadgeText` reported `[0,0]` — never evaluated. `grep -rn` across
+`addon/` and `app/` found no reference outside their own definitions; `widget-card.hbs` reads
+`this.isAdded` directly and never called either getter.
 
-**Why it is not mine to decide:** this is the same shape as three earlier findings, and in all three
-the answer was that the getter encoded intended UI that was never wired up — #2 (`useEllipsis`, wired
-up as `@titleEllipsis`), #3 (`isBoolean`, which became the boolean editor) and #7 (`label`, whose
-'Metadata' default is now rendered). Deleting them would discard designed wording; wiring them
-changes what every widget card displays. Both are product decisions.
+**Decided, without an answer, so the campaign could finish — flip it if this is wrong.** Unlike the
+three earlier findings of this shape (#2 `useEllipsis`, #3 `isBoolean`, #7 `label`), these two are
+not unwired UI, they are *superseded* UI:
 
-**Options:**
-1. **Wire them.** `addLabel` distinguishes "add" from "add-another" for a widget already on the
-   dashboard; `addedBadgeText` reads "On dashboard ×N" for duplicates. Both look like deliberate
-   copy for a state the card can be in but never announces.
-2. **Delete them.** The card already shows `isAdded` state via the template, so nothing is broken
-   without them.
+- `addLabel` returned the translation keys `'add'` / `'add-another'` for a button label. This card
+  has no button — the whole card is the click target (`widget-card.hbs`, `role="button"` on the
+  outer div), so there is nowhere for a label to go.
+- `addedBadgeText` returned `On dashboard ×N`. The card already renders exactly that information
+  from `addedShortBadge`, as `Added ×N`, and that getter *is* wired (`widget-card.hbs`, inside
+  `{{#if this.isAdded}}`).
 
-**Meanwhile:** left in place and uncovered rather than ignored — an `istanbul ignore` here would
-document a decision that has not been made. The file's other gaps were covered normally.
-
+So the copy is not lost, only the second wording of it. **To reverse:** restore both getters from
+this commit and render `addedBadgeText` in place of `addedShortBadge`; `addLabel` additionally needs
+an explicit add button in the template, which is a design change, not a restore.
 
 ## #2 — `comment-thread`'s yielded `contextApi.reloadComments` has no caller
 

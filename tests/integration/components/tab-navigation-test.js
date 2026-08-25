@@ -280,6 +280,27 @@ module('Integration | Component | tab-navigation', function (hooks) {
             assert.strictEqual(document.activeElement, tabById('details'), 'right from the last wraps to the first');
         });
 
+        // Arrow keys walk @tabs, not the visible row, so they can land on a tab that the overflow
+        // pass has pushed behind the "more" menu and that is not in the document at all.
+        test('arrowing onto an overflowed tab has nothing to focus', async function (assert) {
+            this.set(
+                'tabs',
+                Array.from({ length: 12 }, (_, index) => tab(`tab-${index}`, { label: `A fairly long tab label ${index}` }))
+            );
+
+            await render(TEMPLATE);
+            assert.dom('[data-tab-navigation-more]').exists('the row overflows');
+
+            const lastTab = this.tabs.at(-1);
+            assert.strictEqual(tabById(lastTab.id), null, 'the last tab is behind the menu');
+
+            const firstVisible = tabButtons()[0];
+            firstVisible.focus();
+            await triggerKeyEvent(firstVisible, 'keydown', 'ArrowLeft');
+
+            assert.strictEqual(document.activeElement, firstVisible, 'focus stays put rather than moving nowhere');
+        });
+
         test('home and end jump to the ends', async function (assert) {
             await render(TEMPLATE);
 
@@ -333,6 +354,81 @@ module('Integration | Component | tab-navigation', function (hooks) {
 
             assert.strictEqual(tabButtons().length, 0, 'there is nothing to show');
             assert.dom('[data-tab-navigation-more]').doesNotExist('and nothing to hide behind a menu');
+        });
+
+        test('an actions block is rendered beside the tabs and measured with them', async function (assert) {
+            await render(hbs`
+                <TabNavigation @tabs={{this.tabs}} @onTabChange={{this.onTabChange}}>
+                    <:actions><button type="button" class="tab-extra-action">New</button></:actions>
+                    <:default><div class="tab-body">panel body</div></:default>
+                </TabNavigation>
+            `);
+
+            assert.dom('#tab-navigation-actions .tab-extra-action').exists('the actions block renders');
+            assert.strictEqual(tabButtons().length, 3, 'and the tabs are still laid out alongside it');
+        });
+
+        test('a controlled active tab is honoured when it changes', async function (assert) {
+            this.set('activeTabId', 'details');
+
+            await render(TEMPLATE);
+            assert.dom(tabById('details')).hasClass('tab-item--active');
+
+            this.set('activeTabId', 'files');
+            await settled();
+
+            assert.dom(tabById('files')).hasClass('tab-item--active', 'the controlled id wins');
+            assert.dom(tabById('details')).doesNotHaveClass('tab-item--active');
+            assert.deepEqual(changes, [], 'and a controlled change is not reported back as a selection');
+        });
+
+        test('replacing the tab list with an equivalent one leaves the selection alone', async function (assert) {
+            await render(TEMPLATE);
+            assert.dom(tabById('details')).hasClass('tab-item--active', 'the first tab is active by default');
+
+            this.set('tabs', [tab('details'), tab('activity'), tab('files')]);
+            await settled();
+
+            assert.dom(tabById('details')).hasClass('tab-item--active', 'a new array of the same tabs changes nothing');
+        });
+
+        // A tab hidden by its own class still takes part in the measuring pass, at zero width.
+        test('a tab hidden by class measures as nothing and does not consume a slot', async function (assert) {
+            const tabs = Array.from({ length: 12 }, (_, index) => tab(`tab-${index}`, { label: `A fairly long tab label ${index}` }));
+            tabs.splice(1, 0, tab('ghost', { label: 'Ghost', class: 'hidden' }));
+            this.set('tabs', tabs);
+
+            await render(TEMPLATE);
+
+            assert.dom('[data-tab-navigation-more]').exists('the row still overflows');
+            assert.true(tabButtons().length > 0, 'and some tabs are still visible');
+        });
+
+        // {{#if @tabs}} treats an empty array as falsy, so the measurer is torn out of the DOM —
+        // but the component's reference to it is not cleared, and the overflow pass runs again
+        // with a live element reference and nothing left to measure.
+        test('emptying a tab list that had tabs clears the overflow state', async function (assert) {
+            await render(TEMPLATE);
+            assert.strictEqual(tabButtons().length, 3, 'three to begin with');
+
+            this.set('tabs', []);
+            await settled();
+
+            assert.strictEqual(tabButtons().length, 0, 'and none afterwards');
+            assert.dom('[data-tab-navigation-more]').doesNotExist();
+        });
+
+        test('taking the tab list away entirely leaves no active tab behind', async function (assert) {
+            this.set('activeTabId', undefined);
+
+            await render(TEMPLATE);
+            assert.strictEqual(tabButtons().length, 3, 'three to begin with');
+
+            this.set('tabs', undefined);
+            await settled();
+
+            assert.strictEqual(tabButtons().length, 0, 'nothing is rendered');
+            assert.deepEqual(changes, [], 'and removing them is not reported as a selection');
         });
 
         // The overflow pass deliberately swaps the active tab into the visible row so that the

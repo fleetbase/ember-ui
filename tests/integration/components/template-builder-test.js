@@ -481,6 +481,27 @@ module('Integration | Component | template-builder', function (hooks) {
             assert.strictEqual(template.unit, 'mm');
         });
 
+        test('renaming the template does not touch its dimensions', async function (assert) {
+            await render(TEMPLATE);
+            const nameInput = find('.tb-panel-right input[type="text"]');
+            await fillIn(nameInput, 'Packing Slip');
+
+            const template = await savedTemplate();
+            assert.strictEqual(template.name, 'Packing Slip');
+            assert.strictEqual(template.width, 210, 'a change with no paper size or orientation in it is left alone');
+            assert.strictEqual(template.height, 297);
+        });
+
+        test('an orientation on a template with no paper size assumes A4', async function (assert) {
+            this.set('template', { name: 'Sizeless', content: [] });
+
+            await render(TEMPLATE);
+            await fillIn(settingsSelect(1), 'landscape');
+
+            const template = await savedTemplate();
+            assert.deepEqual([template.width, template.height], [297, 210], 'A4, laid on its side');
+        });
+
         test('every supported paper size resolves', async function (assert) {
             const expected = { A4: [210, 297], A3: [297, 420], A5: [148, 210], Letter: [216, 279], Legal: [216, 356] };
 
@@ -608,6 +629,31 @@ module('Integration | Component | template-builder', function (hooks) {
             // Namespaces are listed collapsed; individual variables expand on click.
             assert.dom('.tb-variable-picker').containsText('Order');
             assert.dom('.tb-variable-picker').containsText('1 variables');
+        });
+
+        test('the picker opens with no schemas at all', async function (assert) {
+            await render(hbs`<TemplateBuilder @template={{this.template}} @onSave={{this.onSave}} />`);
+            await addElements('Text');
+            await click(layerRows()[0]);
+            await click(buttonWithText('insert variable'));
+
+            assert.ok(find('.tb-variable-picker'), 'the picker still opens on an empty schema list');
+        });
+
+        test('a query with no type to name is offered with an empty one', async function (assert) {
+            this.set('template', {
+                name: 'Invoice',
+                content: [],
+                queries: [{ uuid: 'q1', variable_name: 'recent_orders', label: 'Recent Orders' }],
+            });
+
+            await render(TEMPLATE);
+            await addElements('Text');
+            await click(layerRows()[0]);
+            await click(buttonWithText('insert variable'));
+
+            assert.dom('.tb-variable-picker').containsText('Queries', 'the Queries section is still derived');
+            assert.dom('.tb-variable-picker').doesNotIncludeText('undefined', 'and the missing type is not spelled out');
         });
 
         test('saved queries are offered alongside the supplied schemas', async function (assert) {
@@ -980,6 +1026,43 @@ module('Integration | Component | template-builder', function (hooks) {
 
             const content = (await savedTemplate()).content;
             assert.strictEqual(content.length, 2, 'both elements survive');
+        });
+
+        test('rotating an element that arrived without a rotation starts from zero', async function (assert) {
+            this.set('template', {
+                name: 'Unrotated',
+                width: 210,
+                height: 297,
+                unit: 'mm',
+                content: [{ uuid: 'el_1', type: 'text', x: 0, y: 0, width: 100, height: 40, z_index: 1 }],
+            });
+
+            await render(TEMPLATE);
+            await click(layerRows()[0]);
+            await click(buttonByTitle('Rotate right 90°'));
+
+            assert.strictEqual((await savedTemplate()).content[0].rotation, 90, 'no rotation counts as zero');
+        });
+
+        test('swapping with a layer that has no z_index of its own', async function (assert) {
+            this.set('template', {
+                name: 'Unstacked',
+                width: 210,
+                height: 297,
+                unit: 'mm',
+                content: [
+                    { uuid: 'el_1', type: 'text', x: 0, y: 0, width: 100, height: 40, z_index: 2 },
+                    { uuid: 'el_2', type: 'text', x: 0, y: 0, width: 100, height: 40 },
+                ],
+            });
+
+            await render(TEMPLATE);
+            await click(layerAction(0, 'Move layer down'));
+
+            const content = (await savedTemplate()).content;
+            const byUuid = Object.fromEntries(content.map((element) => [element.uuid, element]));
+            assert.strictEqual(byUuid.el_1.z_index, 1, 'the missing z_index is read as 1 and taken over');
+            assert.strictEqual(byUuid.el_2.z_index, 2, 'and the two swap places');
         });
 
         test('rotating an element that already has a rotation adds to it', async function (assert) {

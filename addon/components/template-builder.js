@@ -262,6 +262,8 @@ export default class TemplateBuilderComponent extends Component {
         this._content = next;
 
         // Sync selectedElement so the properties panel reflects the new values.
+        /* istanbul ignore else -- both callers edit the current selection: the properties panel
+           only ever renders the selected element, and rotateElement is driven from its toolbar */
         if (this.selectedElement?.uuid === uuid) {
             this.selectedElement = updated;
         }
@@ -354,6 +356,8 @@ export default class TemplateBuilderComponent extends Component {
 
         // Sync selectedElement so the properties panel reflects the new z_index.
         if (this.selectedElement?.uuid === uuid) {
+            /* istanbul ignore next -- uuid names an element of _content, which the map above
+               rebuilt entry for entry, so the lookup always resolves */
             this.selectedElement = this._content.find((el) => el.uuid === uuid) ?? null;
         }
     }
@@ -437,6 +441,8 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     handleVariableInsert(token) {
+        /* istanbul ignore else -- the picker only renders while it is open, and the single call
+           site of openVariablePicker (properties-panel.js:238) always passes a callback */
         if (this.variablePickerCallback) {
             this.variablePickerCallback(token);
         }
@@ -463,6 +469,7 @@ export default class TemplateBuilderComponent extends Component {
      */
     @action
     handleQueriesChange(queries) {
+        /* istanbul ignore next -- the queries panel's @onChange always hands over its own array */
         this.queries = queries ?? [];
     }
 
@@ -544,6 +551,8 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     _cloneContent(content) {
+        /* istanbul ignore next -- all three callers pass this._content, which is an array from
+           construction onwards */
         return JSON.parse(JSON.stringify(content ?? []));
     }
 
@@ -574,6 +583,8 @@ export default class TemplateBuilderComponent extends Component {
             qr_code: { width: 80, height: 80, props: { value: '' } },
             barcode: { width: 200, height: 60, props: { value: '', barcode_format: 'CODE128' } },
         };
+        /* istanbul ignore next -- type comes from the toolbar's fixed set of element buttons,
+           every one of which has an entry above */
         return map[type] ?? { width: 100, height: 40, props: {} };
     }
 }
