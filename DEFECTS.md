@@ -373,17 +373,43 @@ helps and it was reverted rather than committed unproven. Note 0-of-3 does not *
 — against a ~22% baseline, three misses in a row happens about half the time — so if anyone wants to
 retry it, do so with at least ten runs.
 
-**What is still worth checking, in order:**
-1. Whether the POST reaches the middleware at all on a failing run. Log inside the `/write-coverage`
-   handler and watch a failing run — that splits "never sent" from "sent, server died first",
-   which are different fixes.
-2. `navigator.sendBeacon` instead of `fetch` for the coverage payload. It is designed for exactly
-   this — delivery during page teardown — though the server still has to survive long enough to
-   write, so it may only move the race.
-3. QUnit 2.25 *does* await promises returned from `done` callbacks (`runLoggingCallbacks` builds a
-   serial promise chain), so "QUnit does not wait" is not the explanation. Registration order might
-   still matter: testem's own `done` handler may run earlier in that chain and signal completion
-   before ours has posted.
+### Measured: the POST never reaches the server
+
+Instrumented `coverageHandler` in `ember-cli-code-coverage/lib/attach-middleware.js` with four log
+points and ran the fast filter three times (`--port=7399`, to avoid colliding with another session):
+
+    run 1: 139 pass, NO-ARTIFACT   zero probe lines
+    run 2: 139 pass, ARTIFACT      all four probe lines
+    run 3: 139 pass, NO-ARTIFACT   zero probe lines
+
+**On a failing run the middleware is never entered.** That eliminates every server-side
+explanation — it is not "sent, and the write died" — and locates the fault in the browser, between
+`fetch('/write-coverage')` being called and the request completing. It also explains why moving
+`forceModulesToBeLoaded()` changed nothing: the problem is not delay *before* the POST.
+
+### The surviving explanation, and why it fits the run-length asymmetry
+
+QUnit 2.25 runs `done` callbacks as a **serial promise chain in registration order**
+(`runLoggingCallbacks`). Testem's adapter registers its handler before the app's `tests/test-helper.js`
+does, so testem learns the run has ended — and begins closing the browser — while `sendCoverage()`
+is still in flight.
+
+After a 139-test run testem has almost nothing to serialize, so the browser dies within
+milliseconds and the fetch is aborted. After a 5130-test run, emitting thousands of results buys the
+fetch enough time to land. That is the asymmetry that made this look like random flakiness, and it
+is the first explanation consistent with every observation.
+
+**Fix candidates, in order of promise:**
+1. `navigator.sendBeacon('/write-coverage', blob)` in place of `fetch`. It exists precisely for
+   delivery during page teardown and is not cancelled when the page goes away. The response cannot
+   be read, but the only thing the response feeds is an on-screen coverage badge. Can be done in
+   `tests/test-helper.js` without patching the addon.
+2. Register the coverage `done` handler before testem's, if the test page's load order allows it.
+3. Keep a `keepalive: true` flag on the existing fetch — the same underlying mechanism as
+   sendBeacon, and a one-word change worth trying first.
+
+Whichever is chosen, verify it the same way: ten fast filtered runs, counting artifacts against the
+~22% baseline.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 
