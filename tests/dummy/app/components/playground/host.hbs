@@ -7,6 +7,7 @@
     data-theme={{this.activeTheme}}
     data-test-playground-host={{@entry.slug}}
     data-test-theme={{this.activeTheme}}
+    {{did-update this.onEntryChanged @entry}}
     {{did-update this.onStateChanged @state}}
 >
     {{#if this.warnings}}

@@ -94,6 +94,49 @@ module('Acceptance | playground | catalog', function (hooks) {
             assert.dom('[data-test-component-title]').hasText('Badge');
         });
 
+        test('moving straight from one component page to another re-applies its defaults', async function (assert) {
+            // Regression: both pages are the same route in the same template position, so Ember
+            // REUSES the host component and its constructor does not run again. Before this was
+            // handled, Table rendered with Button's control values — every key it does not share
+            // arrived as `undefined`, so `@selectable` and friends were silently dropped.
+            //
+            // Every other test boots a fresh application per test, so only a direct page-to-page
+            // navigation inside one test reaches this.
+            await visit('/components/button');
+
+            assert.dom('[data-test-control-input="text"]').hasValue('Save changes', 'Button starts from its defaults');
+
+            // Straight from one component page to the next. Going via the catalog would tear the
+            // host down and rebuild it, which is exactly the path that does NOT reproduce this.
+            await visit('/components/table');
+
+            assert.dom('[data-test-component-title]').hasText('Table');
+            assert.dom('[data-test-control-input="selectable"]').isChecked('Table got its own documented default');
+            assert.dom('[data-test-control-input="page"]').hasValue('1', 'and its own numeric default');
+            assert.dom('[data-test-preview] tbody input[type="checkbox"]').exists('the real component received the value');
+        });
+
+        test('navigating between component pages without passing through the catalog', async function (assert) {
+            // The same reuse path, with no intervening route to force a teardown.
+            await visit('/components/badge');
+            await visit('/components/progress-bar');
+
+            assert.dom('[data-test-component-title]').hasText('ProgressBar');
+            assert.dom('[data-test-control-input="percent"]').hasValue('45', 'ProgressBar defaults applied, not Badge leftovers');
+            assert.dom('[data-test-control-input="title"]').hasValue('Uploading');
+        });
+
+        test('the event log resets when the page moves to another component', async function (assert) {
+            await visit('/components/button');
+            await click('[data-test-preview] button.btn');
+
+            assert.dom('[data-test-event="onClick"]').exists('Button recorded a click');
+
+            await visit('/components/table');
+
+            assert.dom('[data-test-event="onClick"]').doesNotExist('the previous component’s events did not carry over');
+        });
+
         test('the component page links back to the catalog', async function (assert) {
             await visit('/components/badge');
             await click('[data-test-back]');

@@ -60,6 +60,7 @@ module.exports = {
                 './testem.js',
                 './blueprints/*/index.js',
                 './config/**/*.js',
+                './scripts/build-playground.js',
                 './scripts/check-coverage.js',
                 './scripts/check-coverage-test.js',
                 './scripts/stamp-coverage-run.js',

@@ -83,6 +83,19 @@ export default class PlaygroundHostComponent extends Component {
     }
 
     /**
+     * Re-initialise when the page moves to a different component.
+     *
+     * Navigating from one component page to another keeps the same route and the same position in
+     * the template, so Ember REUSES this component instance and the constructor does not run
+     * again. Without this the new component would render with the previous one's control values —
+     * every key it does not share arrives as `undefined`.
+     */
+    @action onEntryChanged() {
+        this.applyState(this.args.state);
+        this.clearEvents();
+    }
+
+    /**
      * Re-decode only when the URL changed underneath us — a back/forward navigation or a pasted
      * link. State this component itself just wrote is ignored, so typing in a control does not
      * round-trip through the codec on every keystroke.
