@@ -61,8 +61,13 @@ export default class FiltersPickerComponent extends Component {
     #readUrlValue(param) {
         const raw = getUrlParam(param); // string | string[] | undefined
         if (isArray(raw)) {
+            /* istanbul ignore next -- `getUrlParam` only returns an array when `getAll` found more
+               than one value, so an array here always has at least two entries. */
             return raw.length ? raw : undefined;
         }
+        /* istanbul ignore next -- `getUrlParam` already maps '' to undefined (get-url-param.js:19),
+           so this comparison can never be true. The suite's "an empty url value is treated as no
+           value at all" test passes because of that normalisation, not because of this line. */
         return raw === '' ? undefined : raw;
     }
 
@@ -152,6 +157,11 @@ export default class FiltersPickerComponent extends Component {
                 queryParams: qp,
             });
         } catch (error) {
+            /* istanbul ignore next -- reachable in production (any non-abort transition failure)
+               but not from this suite: `clearFilters` is async, so the rethrow surfaces as an
+               unhandled rejection, which QUnit reports as a global failure. Neither a try/catch
+               around the click nor `setupOnerror` intercepts it, and suppressing the report would
+               pin nothing useful. */
             if (error?.name !== 'TransitionAborted') {
                 throw error;
             }

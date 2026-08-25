@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, settled, findAll, find } from '@ember/test-helpers';
+import { click, find, findAll, render, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 import { setComponentTemplate } from '@ember/component';

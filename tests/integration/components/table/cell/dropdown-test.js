@@ -92,6 +92,19 @@ module('Integration | Component | table/cell/dropdown', function (hooks) {
 
             assert.dom('.cell-dropdown-button').exists();
         });
+
+        test('outside a table cell, opening and closing has no cell to restack', async function (assert) {
+            // onOpen/onClose bump the owning cell's z-index; with no owning cell both must
+            // return early rather than throw. Rendering alone does not reach them — the
+            // dropdown has to actually open.
+            await render(hbs`<Table::Cell::Dropdown @column={{this.column}} @row={{this.row}} />`);
+
+            await click(trigger());
+            assert.dom('.next-dd-menu').exists('the menu opens with no owning cell');
+
+            await click(trigger());
+            assert.dom('.next-dd-menu').doesNotExist('and closes again');
+        });
     });
 
     module('the menu', function () {
