@@ -458,6 +458,19 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
             assert.true(savedOptions[PREFS_KEY].pinnedIds.length > 0);
         });
 
+        // Registered menu items are not required to carry an id; the route is what identifies
+        // them when they do not.
+        test('an item with no id of its own is pinned by its route', async function (assert) {
+            headerMenuItems = [{ title: 'Fleet Ops', route: 'console.fleet-ops' }, item('storefront')];
+            this.set('maxVisible', 5);
+
+            await render(TEMPLATE);
+            await click(moreButton());
+            await click(pinButtons(this)[0]);
+
+            assert.deepEqual(savedOptions[PREFS_KEY].pinnedIds, ['console.fleet-ops'], 'the route stands in for the id');
+        });
+
         // The dropdown lists every item and keeps its pin button, so the same item can be
         // pinned twice from the UI — quickPin guards against the duplicate itself.
         test('pinning the same item twice adds it only once', async function (assert) {
@@ -560,6 +573,84 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
     // of the viewport. Which arm runs depends on the browser window size, so before the component
     // read `window` through ember-window-mock this file's coverage differed between a developer
     // machine and CI.
+    // Everything above measures nothing: without a .next-view-header-left ancestor the width
+    // pass has no siblings to subtract and every candidate fits. These put the component in the
+    // header layout it was written for — and stub the measurements rather than trying to produce
+    // them, because the addon's own stylesheet is not loaded in a rendering test and laying it
+    // out by hand made the result depend on when the browser got round to it.
+    module('measuring the bar against the header it sits in', function (hooks) {
+        const WIDTHS = {
+            'next-view-header-left': 420,
+            'snm-fixed-sibling': 120,
+            'snm-hidden-sibling': 0,
+            'snm-item': 90,
+        };
+
+        hooks.beforeEach(function () {
+            const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+            this.originalOffsetWidth = original;
+
+            Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+                configurable: true,
+                get() {
+                    for (const [className, width] of Object.entries(WIDTHS)) {
+                        if (this.classList.contains(className)) {
+                            return width;
+                        }
+                    }
+
+                    return original.get.call(this);
+                },
+            });
+        });
+
+        hooks.afterEach(function () {
+            Object.defineProperty(HTMLElement.prototype, 'offsetWidth', this.originalOffsetWidth);
+        });
+
+        const HEADER = hbs`
+            <div class="next-view-header-left">
+                <div class="snm-fixed-sibling">logo</div>
+                <div class="snm-hidden-sibling">hidden</div>
+                <Layout::Header::SmartNavMenu @maxVisible={{this.maxVisible}} />
+            </div>
+        `;
+
+        // The measuring pass is scheduled by a ResizeObserver, which settled() knows nothing
+        // about: it delivers on a frame of its own. Give it two, then let the runloop it
+        // scheduled work drain.
+        async function measured() {
+            await render(HEADER);
+            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            await settled();
+        }
+
+        // 420px of header, less a 120px logo (plus a 4px gap) and 44px reserved for the customise
+        // button, leaves 252px — room for two 90px items and their 8px gaps, and no more.
+        test('items that do not fit the measured width are pushed into overflow', async function (assert) {
+            headerMenuItems = Array.from({ length: 12 }, (_, index) => item(`section-${index}`));
+            this.set('maxVisible', 12);
+
+            await measured();
+
+            assert.strictEqual(barItems().length, 2, 'only what fits stays in the bar');
+
+            await click(moreButton());
+            assert.strictEqual(pinButtons(this).length, 12, 'and all twelve are reachable from the dropdown');
+        });
+
+        test('a sibling with no width of its own is not subtracted', async function (assert) {
+            headerMenuItems = [item('fleet-ops'), item('storefront')];
+            this.set('maxVisible', 12);
+
+            await measured();
+
+            // The More button is rendered whenever there are items at all — it opens a dropdown
+            // listing every one of them — so the bar count is what says nothing overflowed.
+            assert.strictEqual(barItems().length, 2, 'two items fit beside a 120px logo, and the hidden one costs nothing');
+        });
+    });
+
     module('positioning the overflow dropdown', function () {
         test('a narrow viewport clamps the dropdown to the right edge', async function (assert) {
             window.innerWidth = 700;

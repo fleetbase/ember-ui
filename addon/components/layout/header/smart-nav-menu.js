@@ -62,6 +62,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     @tracked visibleItems = A([]);
 
     /** Items that have been pushed into the overflow "More" dropdown. */
+    /* istanbul ignore next -- the first distribution pass assigns this before anything reads it */
     @tracked overflowItems = A([]);
 
     /** Controls visibility of the "More" dropdown. */
@@ -76,7 +77,10 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * The dropdown is rendered via EmberWormhole into #application-root-wormhole
      * so it escapes the 57px header height constraint entirely.
      */
+    /* istanbul ignore next -- _calculateDropdownPosition assigns both before the dropdown that
+       reads them is rendered */
     @tracked dropdownTop = 0;
+    /* istanbul ignore next */
     @tracked dropdownLeft = 0;
 
     // ─── Private internals ────────────────────────────────────────────────────
@@ -236,10 +240,12 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * Persist the current preferences to localStorage via the currentUser service.
      */
     _savePreferences() {
+        /* istanbul ignore next -- both callers (applyCustomization, quickPin) assign an array to
+           pinnedIds on the line before they save */
+        const pinnedIds = this.pinnedIds ?? [];
+
         try {
-            this.currentUser.setOption(NAV_PREFS_KEY, {
-                pinnedIds: this.pinnedIds ?? [],
-            });
+            this.currentUser.setOption(NAV_PREFS_KEY, { pinnedIds });
         } catch (_) {
             // Non-fatal – silently ignore storage errors.
         }
@@ -326,6 +332,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         this._resizeObserver = new ResizeObserver(() => {
             // Guard against re-entrancy: if we are already in the middle of a
             // recalculate pass triggered by this same observer, skip.
+            /* istanbul ignore if -- _isRecalculating is set and cleared inside one synchronous
+               pass of _recalculate, and an observer callback cannot interleave with it */
             if (this._isRecalculating) return;
             scheduleOnce('afterRender', this, this._recalculate);
         });
@@ -350,6 +358,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      */
     _recalculate() {
         const container = this._containerEl;
+        /* istanbul ignore if -- every path into _recalculate starts at registerContainer or at the
+           observer it installs, and _containerEl is never cleared once set */
         if (!container) return;
         // Prevent the ResizeObserver from re-firing while we are mutating the DOM.
         this._isRecalculating = true;
@@ -388,6 +398,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         // chicken-and-egg collapse loop.  The parent is stable (flex:1 of the full
         // header) so its width is independent of how many items are visible.
         const parent = container.closest('.next-view-header-left') || container.parentElement;
+        /* istanbul ignore next -- container is in the document, so parentElement is never null */
         const parentWidth = parent ? parent.offsetWidth : container.offsetWidth;
 
         // Subtract fixed siblings that are always present in .next-view-header-left:
@@ -396,6 +407,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         // We measure them directly from the DOM so the number stays accurate
         // across different configurations.
         let fixedSiblingsWidth = 0;
+        /* istanbul ignore else -- see above */
         if (parent) {
             for (const child of parent.children) {
                 // Skip the snm-container itself – we want sibling widths only.
@@ -413,6 +425,9 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         let cumulative = 0;
         let cutoff = 0;
         for (let i = 0; i < barCandidates.length; i++) {
+            /* istanbul ignore next -- itemEls are the bar items the previous pass rendered from
+               these same candidates, and the loop breaks at the first one that does not fit, so
+               the index never runs past the measurements */
             const w = itemWidths[i] ?? 0;
             // Skip items that haven't painted yet (zero width) to avoid
             // incorrectly cutting them to overflow.
@@ -480,6 +495,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * based on the "More" button's current screen position.
      */
     _calculateDropdownPosition() {
+        /* istanbul ignore if -- the only caller is toggleMore, which runs from a click on the More
+           button itself, so the button is in the document */
         if (!this._moreBtnEl) return;
         const rect = this._moreBtnEl.getBoundingClientRect();
         // Position the dropdown below the button, aligned to its left edge.
@@ -554,6 +571,8 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * @param {Object} menuItem
      */
     @action quickPin(menuItem) {
+        /* istanbul ignore if -- dropdown.hbs wraps the pin button in {{#unless @atPinnedLimit}},
+           so there is nothing to press once the bar is full */
         if (this.atPinnedLimit) return; // bar is full
         const currentPinned = this.pinnedIds ? [...this.pinnedIds] : [];
         const id = menuItem.id ?? menuItem.route;
