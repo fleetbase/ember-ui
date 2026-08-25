@@ -4,6 +4,107 @@ import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 
 /**
+ * Matches an absolute or protocol-relative URL. A query-mode endpoint has to be
+ * a path relative to the Fleetbase API host: the `fetch` service attaches the
+ * session credentials to every request it makes, so pointing an endpoint at a
+ * third-party host would hand that session to the third party.
+ */
+const ABSOLUTE_URL = /^([a-z][a-z0-9+.-]*:)?\/\//i;
+
+/** A `{token}` left in a query param value, resolved downstream at render time. */
+const UNRESOLVED_TOKEN = /\{[^}]*\}/;
+
+/** How many preview rows are scanned when suggesting column keys. */
+const KEY_DISCOVERY_LIMIT = 20;
+
+/** Strips the leading slashes the `fetch` service does not want. */
+function normalizeEndpoint(raw) {
+    return raw.trim().replace(/^\/+/, '');
+}
+
+/**
+ * Returns a message describing why `raw` is not a usable endpoint, or null.
+ */
+function validateEndpoint(raw) {
+    const value = (raw ?? '').trim();
+    if (!value) {
+        return 'Enter an API endpoint to query.';
+    }
+    if (ABSOLUTE_URL.test(value)) {
+        return 'Enter a path on the Fleetbase API, not a full URL — requests are sent with your session credentials.';
+    }
+    return null;
+}
+
+function describeValue(value) {
+    if (value === null) return 'null';
+    if (value === undefined) return 'nothing';
+    const type = typeof value;
+    // `object` is the only typeof that reaches here needing "an".
+    return `${type === 'object' ? 'an' : 'a'} ${type}`;
+}
+
+/**
+ * Walks the dotted `path` into `body` and returns `{ rows }` when it lands on an
+ * array, or `{ error }` describing exactly where it stopped. An empty path means
+ * the response body is itself the array of rows.
+ */
+function resolveResponsePath(body, path) {
+    const segments = (path ?? '')
+        .trim()
+        .split('.')
+        .map((segment) => segment.trim())
+        .filter(Boolean);
+    const full = segments.join('.');
+    const walked = [];
+    let cursor = body;
+
+    for (const segment of segments) {
+        if (cursor === null || typeof cursor !== 'object') {
+            const at = walked.length ? `"${walked.join('.')}"` : 'the response body';
+            return { error: `Response path "${full}" did not resolve — ${at} is ${describeValue(cursor)}, not an object.` };
+        }
+        if (!(segment in cursor)) {
+            const at = walked.length ? ` under "${walked.join('.')}"` : ' in the response';
+            return { error: `Response path "${full}" did not resolve — there is no "${segment}"${at}.` };
+        }
+        cursor = cursor[segment];
+        walked.push(segment);
+    }
+
+    if (!Array.isArray(cursor)) {
+        const at = full ? `at "${full}"` : 'in the response';
+        return { error: `Expected an array of rows ${at}, got ${describeValue(cursor)}.` };
+    }
+
+    return { rows: cursor };
+}
+
+/**
+ * Collects the union of the keys on the first `KEY_DISCOVERY_LIMIT` rows, in the
+ * order they were first seen, so the panel can offer them as table columns.
+ */
+function discoverKeys(rows) {
+    const keys = [];
+    rows.slice(0, KEY_DISCOVERY_LIMIT).forEach((row) => {
+        if (row === null || typeof row !== 'object' || Array.isArray(row)) return;
+        Object.keys(row).forEach((key) => {
+            if (!keys.includes(key)) keys.push(key);
+        });
+    });
+    return keys;
+}
+
+/** `total_amount` / `totalAmount` -> `Total Amount`, for a suggested column label. */
+function humanizeKey(key) {
+    return String(key)
+        .replace(/[_-]+/g, ' ')
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .trim()
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+/**
  * TemplateBuilderPropertiesPanelComponent
  *
  * Right-side panel that shows and edits all properties of the currently
@@ -28,6 +129,23 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     /** @type {String|null} Filename of the most recently uploaded image */
     @tracked uploadedImageFilename = null;
+
+    /** @type {Boolean} Whether the query-mode test request is in flight */
+    @tracked isTestingQuery = false;
+
+    /**
+     * @type {{uuid: String|null, error: String|null, result: Object|null}}
+     * State of the last query test, kept as one object rather than three fields:
+     * a tracked field's initializer only runs on first read, and every path here
+     * writes before reading, so assigning in the constructor is what actually
+     * defines the state. `uuid` is the element the test was run against.
+     */
+    @tracked queryTest;
+
+    constructor(owner, args) {
+        super(owner, args);
+        this._clearQueryTest();
+    }
 
     get hasSelection() {
         return !!this.args.selectedElement;
@@ -204,6 +322,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     @action
     setTableDataMode(mode) {
         if (!this.args.onUpdateElement || !this.element) return;
+        this._clearQueryTest();
         const changes = { data_source_mode: mode };
         if (mode === 'manual') {
             // Clear variable/query fields when switching to manual
@@ -216,8 +335,11 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
             changes.query_endpoint = null;
             changes.query_params = [];
             changes.query_response_path = null;
-        } else if (mode === 'query') {
-            // Clear variable field when switching to query
+        } else {
+            // 'query' — the third and last mode the toggle offers. A plain `else`
+            // rather than `else if (mode === 'query')`: a third condition would
+            // carry a false path nothing can ever reach, which is what left this
+            // branch reporting [0,0] and un-suppressable in the first place.
             changes.data_source = null;
             // Seed empty query_params array if not already present
             if (!this.element.query_params) {
@@ -228,6 +350,157 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     }
 
     // ── Query data source helpers ────────────────────────────────────────────
+    //
+    // Query mode and the `__queries__` variables are deliberately two different
+    // things, and Variable mode is the right answer far more often:
+    //
+    //   Variable mode  — a token resolved from the render context, including the
+    //                    saved TemplateQuery records the queries panel manages.
+    //                    Structured, reusable across elements, and saved with the
+    //                    template. Reach a saved query through this mode.
+    //   Query mode     — one Fleetbase API path, with params, bound to a single
+    //                    element. It exists for the endpoints the saved-query
+    //                    builder cannot express: aggregates, reports, and
+    //                    extension endpoints with no `model_type` behind them.
+    //
+    // Nothing in this addon resolves a data source at render time — the builder
+    // stores intent and the renderer downstream resolves it. `testQuery` is the
+    // one exception, and it is explicitly on demand: it fetches once so the
+    // endpoint, params and response path can be checked before the template is
+    // saved. It never writes the fetched rows onto the element.
+
+    get isTableQueryMode() {
+        return this.tableDataMode === 'query';
+    }
+
+    /** @type {Array<{key: String, value: String}>} Only read while an element is selected. */
+    get queryParams() {
+        return this.element.query_params ?? [];
+    }
+
+    /**
+     * Complaint about the endpoint as typed, or null. An empty endpoint is not
+     * reported here — there is nothing to correct until the user tests it.
+     */
+    get queryEndpointError() {
+        const raw = this.element.query_endpoint;
+        if (!raw || !raw.trim()) {
+            return null;
+        }
+        return validateEndpoint(raw);
+    }
+
+    /**
+     * Test state belongs to the element it was run against — selecting a
+     * different element must not show that element the previous one's results.
+     */
+    get _queryTestMatchesSelection() {
+        return this.queryTest.uuid === this.element.uuid;
+    }
+
+    get queryTestError() {
+        return this._queryTestMatchesSelection ? this.queryTest.error : null;
+    }
+
+    get queryTestResult() {
+        return this._queryTestMatchesSelection ? this.queryTest.result : null;
+    }
+
+    _clearQueryTest() {
+        this.queryTest = { uuid: null, error: null, result: null };
+    }
+
+    @action
+    addQueryParam() {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const query_params = [...this.queryParams, { key: '', value: '' }];
+        this.args.onUpdateElement(this.element.uuid, { query_params });
+    }
+
+    @action
+    removeQueryParam(index) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const query_params = this.queryParams.filter((_, i) => i !== index);
+        this.args.onUpdateElement(this.element.uuid, { query_params });
+    }
+
+    @action
+    updateQueryParam(index, field, event) {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const value = event.target.value;
+        const query_params = this.queryParams.map((param, i) => (i === index ? { ...param, [field]: value } : param));
+        this.args.onUpdateElement(this.element.uuid, { query_params });
+    }
+
+    /**
+     * Fetches the endpoint once and reports what came back: how many rows the
+     * response path resolved to, which keys those rows carry, and which params
+     * were left out because their value is still an unresolved variable token.
+     */
+    @action
+    async testQuery() {
+        // Reached only from the query-mode form, which the template renders
+        // inside `{{#if this.hasSelection}}`, so an element is always selected.
+        const element = this.element;
+        const uuid = element.uuid;
+        this.queryTest = { uuid, error: null, result: null };
+
+        const invalid = validateEndpoint(element.query_endpoint);
+        if (invalid) {
+            this.queryTest = { uuid, error: invalid, result: null };
+            return;
+        }
+
+        // A param whose value still holds a `{token}` cannot be sent — the token
+        // is resolved downstream, not here — so it is dropped and named instead.
+        const named = this.queryParams.filter((param) => param.key?.trim());
+        const skippedParams = [];
+        const params = {};
+        named.forEach((param) => {
+            const value = param.value ?? '';
+            if (UNRESOLVED_TOKEN.test(value)) {
+                skippedParams.push(param.key.trim());
+                return;
+            }
+            params[param.key.trim()] = value;
+        });
+
+        this.isTestingQuery = true;
+
+        try {
+            const response = await this.fetch.get(normalizeEndpoint(element.query_endpoint), params);
+            const { rows, error } = resolveResponsePath(response, element.query_response_path);
+            if (error) {
+                this.queryTest = { uuid, error, result: null };
+            } else {
+                const keys = discoverKeys(rows);
+                const result = {
+                    count: rows.length,
+                    keys,
+                    keysLabel: keys.join(', '),
+                    skippedParams,
+                    skippedParamsLabel: skippedParams.join(', '),
+                };
+                this.queryTest = { uuid, error: null, result };
+            }
+        } catch (err) {
+            const message = err?.message ? `The request failed: ${err.message}` : 'The request failed.';
+            this.queryTest = { uuid, error: message, result: null };
+        } finally {
+            this.isTestingQuery = false;
+        }
+    }
+
+    /**
+     * Replaces the table's columns with one per key the last test discovered.
+     * Undoable — every `onUpdateElement` pushes an undo frame upstream.
+     */
+    @action
+    applyDiscoveredColumns() {
+        if (!this.args.onUpdateElement || !this.element) return;
+        const columns = this.queryTestResult.keys.map((key) => ({ label: humanizeKey(key), key }));
+        this.args.onUpdateElement(this.element.uuid, { columns });
+    }
 
     @action
     addColumn() {
