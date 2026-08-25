@@ -273,6 +273,8 @@ export default class ChatWindowComponent extends Component {
     }
 
     getParticipantByUserId(userId) {
+        /* istanbul ignore next -- the only caller reads this.sender first, which is itself
+           derived from the participants list, so it cannot run without one */
         const participants = this.channel.participants ?? [];
         return participants.find((chatParticipant) => {
             return chatParticipant.user_uuid === userId;

@@ -164,6 +164,35 @@ module('Integration | Component | chat-window', function (hooks) {
         assert.dom('.chat-window-container').doesNotHaveClass('has-attachments');
     });
 
+    // The uploader reports failures through the fourth argument it was handed. Driving that
+    // callback directly is what ember-file-upload does when a request fails.
+    test('a failed upload takes the file back out of the queue', async function (assert) {
+        await render(hbs`<ChatWindow @channel={{this.channel}} />`);
+        await selectFiles('.chat-window-attachment-input input[type="file"]', new File(['delivery notes'], 'notes.txt', { type: 'text/plain' }));
+
+        const [file, , , onError] = this.fetch.calls.find((call) => call.method === 'uploadFile.perform').args;
+        const removed = [];
+        file.queue = { remove: (queuedFile) => removed.push(queuedFile) };
+
+        onError();
+        await settled();
+
+        assert.deepEqual(removed, [file], 'the file is removed from the queue it came from');
+    });
+
+    test('a failed upload for a file with no queue behind it is harmless', async function (assert) {
+        await render(hbs`<ChatWindow @channel={{this.channel}} />`);
+        await selectFiles('.chat-window-attachment-input input[type="file"]', new File(['delivery notes'], 'notes.txt', { type: 'text/plain' }));
+
+        const [file, , , onError] = this.fetch.calls.find((call) => call.method === 'uploadFile.perform').args;
+        file.queue = undefined;
+
+        onError();
+        await settled();
+
+        assert.dom('.chat-window-container').exists('nothing throws, and the window is still usable');
+    });
+
     test('it includes uploaded attachments when sending a message', async function (assert) {
         await render(hbs`<ChatWindow @channel={{this.channel}} />`);
 

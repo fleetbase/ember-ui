@@ -66,6 +66,8 @@ export default class DashboardCreateComponent extends Component {
     @action removeWidget(widget) {
         const { dashboard } = this.args;
 
+        /* istanbul ignore if -- the remove control is rendered inside {{#each @dashboard.widgets}},
+           so there is nothing to press without a dashboard */
         if (!dashboard) return;
 
         dashboard

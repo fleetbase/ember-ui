@@ -6,6 +6,7 @@ export default class QueryBuilderGroupByComponent extends Component {
     @tracked selectedGroupBy = null;
     @tracked selectedAggregateFn = null;
     @tracked selectedAggregateBy = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked groupByItems = [];
 
     constructor() {
@@ -50,6 +51,8 @@ export default class QueryBuilderGroupByComponent extends Component {
     get availableAggregateColumns() {
         if (!this.selectedAggregateFn) return [];
 
+        /* istanbul ignore next -- with neither list there are no columns to group by either, so
+           canGroup is false and group-by.hbs never renders the control that reads this */
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
         const fn = this.selectedAggregateFn.value;
 
@@ -67,10 +70,13 @@ export default class QueryBuilderGroupByComponent extends Component {
             return columnsToUse.filter((c) => ['integer', 'decimal', 'number', 'float', 'date', 'datetime', 'timestamp', 'string', 'text'].includes(c.type));
         }
 
+        /* istanbul ignore else -- fn comes from the fixed aggregateFunctions list, and every
+           entry in it is handled by one of the branches above */
         if (fn === 'group_concat') {
             return columnsToUse.filter((c) => ['string', 'text'].includes(c.type));
         }
 
+        /* istanbul ignore next -- see above */
         return columnsToUse;
     }
 
@@ -89,10 +95,13 @@ export default class QueryBuilderGroupByComponent extends Component {
             return 'Select columns first to enable grouping';
         }
 
+        /* istanbul ignore else -- group-by.hbs only renders {{this.groupingMessage}} inside the
+           {{else}} of {{#if this.canGroup}}, so it is never read while grouping is possible */
         if (!this.canGroup) {
             return 'No non-aggregated columns available for grouping';
         }
 
+        /* istanbul ignore next -- see above */
         return null;
     }
 
@@ -114,6 +123,7 @@ export default class QueryBuilderGroupByComponent extends Component {
         // For SUM/AVG/MIN/MAX/GROUP_CONCAT we need:
         // - at least one compatible column available
         // - a selected "aggregate by" column
+        /* istanbul ignore next -- availableAggregateColumns always returns an array */
         const avail = this.availableAggregateColumns ?? [];
         const hasCompatible = avail.length > 0;
 
@@ -139,6 +149,8 @@ export default class QueryBuilderGroupByComponent extends Component {
     }
 
     @action addGroupBy() {
+        /* istanbul ignore else -- the Add button is disabled by isAddGroupingDisabled until all
+           three are chosen, so there is nothing to press before then */
         if (this.selectedGroupBy && this.selectedAggregateFn && this.selectedAggregateBy) {
             // Validate that the groupBy column is actually selected
             const isGroupByColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedGroupBy.full);

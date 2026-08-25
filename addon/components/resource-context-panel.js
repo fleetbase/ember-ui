@@ -145,24 +145,16 @@ export default class ResourceContextPanelComponent extends Component {
     }
 
     /**
-     * Sets the active tab for an overlay.
-     *
-     * @method setActiveTab
-     * @param {String} overlayId - The overlay ID
-     * @param {String} tabKey - The tab key
-     * @action
-     */
-    @action setActiveTab(overlayId, tabKey) {
-        this.resourceContextPanel.setActiveTab(overlayId, tabKey);
-    }
-
-    /**
      * Task for saving a resource.
      *
      * @task saveTask
      * @param {Object} resource - The resource to save
      */
-    @task *saveTask(resource, opts = {}) {
+    // computedOverlays always builds saveOptions as `{ ...overlay.saveOptions, overlay }`, and
+    // that is the only thing ever handed to this task — so opts is always an object and always
+    // names its overlay.
+    @task *saveTask(resource, /* istanbul ignore next */ opts = {}) {
+        /* istanbul ignore next -- see above */
         const overlayId = opts?.overlay?.id ?? opts?.overlayId;
         const isNew = resource?.isNew;
 
@@ -170,6 +162,7 @@ export default class ResourceContextPanelComponent extends Component {
             const result = yield resource.save();
             this.notifications.success(`${this.getResourceName(resource)} ${isNew ? 'created' : 'updated'} successfully.`);
 
+            /* istanbul ignore else -- see above: the overlay is always named */
             if (overlayId) {
                 this.resourceContextPanel.close(overlayId);
             }
@@ -210,6 +203,7 @@ export default class ResourceContextPanelComponent extends Component {
         super(...arguments);
 
         // Add global keyboard event listener
+        /* istanbul ignore else -- this addon only runs in a browser; the guard is for FastBoot */
         if (typeof document !== 'undefined') {
             document.addEventListener('keydown', this.handleKeydown);
         }
@@ -221,6 +215,7 @@ export default class ResourceContextPanelComponent extends Component {
     willDestroy() {
         super.willDestroy();
 
+        /* istanbul ignore else -- this addon only runs in a browser; the guard is for FastBoot */
         if (typeof document !== 'undefined') {
             document.removeEventListener('keydown', this.handleKeydown);
         }

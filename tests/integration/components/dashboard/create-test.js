@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, settled, findAll } from '@ember/test-helpers';
+import { render, click, find, settled, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 
@@ -10,8 +10,9 @@ function widget(id, overrides = {}) {
         component: 'widget/count',
         options: { title: `Widget ${id}` },
         grid_options: { x: 0, y: 0, w: 4, h: 4 },
-        updateProperties() {
+        updateProperties(properties) {
             this.updated = (this.updated ?? 0) + 1;
+            this.lastProperties = properties;
             return true;
         },
         ...overrides,
@@ -94,6 +95,61 @@ module('Integration | Component | dashboard/create', function (hooks) {
             await render(hbs`<Dashboard::Create @dashboard={{this.dashboard}} data-test-grid="yes" />`);
 
             assert.dom('.fleetbase-dashboard-grid').hasAttribute('data-test-grid', 'yes');
+        });
+    });
+
+    // GridStack announces moves and resizes as a DOM `change` event on its own element, carrying
+    // the affected widgets in `detail`. Dispatching one directly is the only way to drive this
+    // without a real drag, and it is what gridstack itself does.
+    module('persisting grid changes', function () {
+        function announceChange(...items) {
+            find('.grid-stack').dispatchEvent(new CustomEvent('change', { detail: items }));
+
+            return settled();
+        }
+
+        test('a moved widget has its new position written back', async function (assert) {
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
+
+            const [first, second] = this.dashboard.widgets;
+            assert.strictEqual(first.updated, 1, 'the moved widget is updated');
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 1, y: 2, w: 3, h: 4 } });
+            assert.strictEqual(second.updated, undefined, 'and only that one');
+        });
+
+        test('a widget that is not on the dashboard is skipped', async function (assert) {
+            await render(TEMPLATE);
+            await announceChange({ id: 'not-a-widget', x: 0, y: 0, w: 1, h: 1 });
+
+            assert.deepEqual(
+                this.dashboard.widgets.map((widget) => widget.updated),
+                [undefined, undefined],
+                'nothing is written back'
+            );
+        });
+
+        test('a widget already written back is not written back again', async function (assert) {
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
+            await announceChange({ id: 'w1', x: 5, y: 6, w: 7, h: 8 });
+
+            const [first] = this.dashboard.widgets;
+            assert.strictEqual(first.updated, 1, 'the second announcement is ignored');
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 1, y: 2, w: 3, h: 4 } }, 'the first position stands');
+        });
+
+        test('a widget that refuses the update is retried on the next change', async function (assert) {
+            this.dashboard.widgets[0].updateProperties = function () {
+                this.updated = (this.updated ?? 0) + 1;
+                return false;
+            };
+
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
+            await announceChange({ id: 'w1', x: 5, y: 6, w: 7, h: 8 });
+
+            assert.strictEqual(this.dashboard.widgets[0].updated, 2, 'it is not remembered as done, so it is tried again');
         });
     });
 

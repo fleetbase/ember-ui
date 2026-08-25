@@ -481,6 +481,14 @@ module('Integration | Component | resource-context-panel', function (hooks) {
             assert.deepEqual(uncaught, [failure], 'and the error is re-thrown for any awaiting caller');
         });
 
+        test('an overlay that is not an object is skipped rather than fatal', async function (assert) {
+            panel.overlays = ['not an overlay'];
+
+            await render(TEMPLATE);
+
+            assert.dom('.resource-context-panel-body').exists('the panel still renders');
+        });
+
         test('an explicit saveTask on the overlay wins over the default one', async function (assert) {
             const performed = [];
             const { overlay } = savableOverlay();
