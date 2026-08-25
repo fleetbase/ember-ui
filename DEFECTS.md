@@ -28,6 +28,33 @@ exactly there.
 
 # Open
 
+## 21. `addon/components/query-builder.js` — the `columns` getter's work is thrown away
+
+**Status:** OPEN — logged, not changed; the fix is a behaviour decision (see below)
+**Found:** chasing the uncovered `join.table?.columns` else-branch and the two `label || name`
+fallbacks inside the getter.
+**Evidence:** `query-builder.js:25-56` walks the selected table and every join and composes a
+fully-labelled entry per available column (`label: `${join.table.label || join.table.name} - ...``).
+That list is handed to the conditions panel as `@columns`, on both the block form
+(`query-builder.hbs:31`) and the flat form (`:75`). `query-builder/conditions.hbs` mentions
+`@columns` exactly once:
+
+    :15  {{#if @columns}}
+
+Nothing else reads it. Every field the panel actually offers comes from `availableColumns`
+(`conditions.js:36`), which reads `@allSelectedColumns`, falling back to `@selectedColumns` — with
+the explicit comment "This ensures conditions can only be applied to selected columns."
+
+**Impact:** two things, both small. The label composition is dead work on every recompute. And the
+panel body's visibility is gated on the columns a query *could* use rather than the ones it does,
+so choosing a table opens the conditions panel with an empty field dropdown.
+
+**Fix — not applied.** Making `@columns` drive the field list would contradict the stated rule that
+conditions apply only to selected columns, and changing the gate to `@allSelectedColumns` changes
+when the panel appears. Both are product calls, not repairs. The getter is now covered by three
+tests in `query-builder-test.js` that pin the gate — the only observable it still drives — including
+the joins-with-no-columns case that leaves it closed.
+
 ## 20. `addon/components/attach/popover.js` — document listeners are added and never removed
 
 **Status:** FIXED — `willDestroy()` now calls `removeEventListeners()`

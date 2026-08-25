@@ -37,6 +37,8 @@ export default class CommentThreadComponent extends Component {
      * Array of comments related to the subject.
      * @tracked
      */
+    /* istanbul ignore next -- the constructor assigns this.comments unconditionally before any
+       read, so the field initializer is never the value that survives */
     @tracked comments = [];
 
     /**
@@ -51,6 +53,8 @@ export default class CommentThreadComponent extends Component {
     context = {
         isCommentInvalid: this.isCommentInvalid.bind(this),
         reloadComments: () => {
+            /* istanbul ignore next -- yielded public API: nothing inside this addon calls
+               contextApi.reloadComments, only a host app's own block-form template can */
             return this.reloadComments.perform();
         },
         publishReply: (comment, input) => {
@@ -185,6 +189,9 @@ export default class CommentThreadComponent extends Component {
      * @returns {boolean} True if the comment is invalid, false otherwise.
      */
     isCommentInvalid(comment) {
+        /* istanbul ignore if -- every caller's control is disabled on the same falsy value:
+           comment-thread.hbs disables publish on `(not this.input)`, and comment.hbs disables
+           save on `(not this.comment.content)` and reply on `(not this.input)` */
         if (!comment) {
             this.notifications.warning(this.intl.t('component.comment-thread.comment-input-empty-notification'));
             return true;

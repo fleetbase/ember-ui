@@ -3,6 +3,22 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, fillIn, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { selectChoose, getDropdownItems } from 'ember-power-select/test-support';
+import ModalsManagerService from '@fleetbase/ember-ui/services/modals-manager';
+
+// A stand-in for the modal query-builder/computed-columns drives, always validating and
+// always saving the same column. Mirrors the fixture in the computed-columns test.
+function fakeComputedColumnModal() {
+    return {
+        startLoading() {},
+        stopLoading() {},
+        done() {},
+        getOption(key) {
+            return key === 'modalComponentInstance'
+                ? { validateExpression: () => Promise.resolve(true), save: () => ({ name: 'days_open', label: 'Days Open', expression: 'DATEDIFF(closed_at, opened_at)', type: 'integer' }) }
+                : undefined;
+        },
+    };
+}
 
 const ORDERS = {
     name: 'orders',
@@ -223,6 +239,41 @@ module('Integration | Component | query-builder', function (hooks) {
         });
     });
 
+    // `this.columns` — every column the query COULD use — reaches Conditions only as the
+    // `{{#if @columns}}` gate on its panel body (see DEFECTS #21). These tests pin the gate,
+    // which is the one observable the getter still drives.
+    module('the available-column list behind the conditions panel', function () {
+        const TEMPLATE = hbs`
+            <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
+                <qb.conditions />
+            </QueryBuilder>
+        `;
+
+        test('a joined table with no columns of its own contributes nothing to the list', async function (assert) {
+            this.set('initialQuery', { joins: [{ table: { name: 'audits' } }] });
+
+            await render(TEMPLATE);
+
+            assert.dom('.query-builder-panel-content .condition-group-container').doesNotExist('with nothing to offer, the panel body stays closed');
+        });
+
+        test('an unlabelled joined table and its unlabelled columns still contribute', async function (assert) {
+            this.set('initialQuery', { joins: [{ table: { name: 'shipments', columns: [{ name: 'tracking_number' }] } }] });
+
+            await render(TEMPLATE);
+
+            assert.dom('.query-builder-panel-content .condition-group-container').exists('a column named but not labelled is still a column');
+        });
+
+        test('an unlabelled column on the main table counts too', async function (assert) {
+            this.set('initialQuery', { table: { name: 'invoices', columns: [{ name: 'amount_due' }] } });
+
+            await render(TEMPLATE);
+
+            assert.dom('.query-builder-panel-content .condition-group-container').exists();
+        });
+    });
+
     module('columns available to the children', function () {
         test('columns selected on a join join the main ones in the condition field list', async function (assert) {
             this.set('initialQuery', {
@@ -299,6 +350,58 @@ module('Integration | Component | query-builder', function (hooks) {
             `);
 
             assert.dom(this.element).containsText('Select columns first to enable grouping');
+        });
+    });
+
+    // The `joins` and `computedColumns` arms of callbackChange are the two the panels above
+    // never reach, because each is driven by a child the other modules do not render.
+    module('joins and computed columns reported by their panels', function (hooks) {
+        hooks.beforeEach(function () {
+            this.set('initialQuery', { table: ORDERS });
+        });
+
+        test('joining a relationship puts the join on the query object', async function (assert) {
+            await render(hbs`
+                <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
+                    <qb.joins />
+                </QueryBuilder>
+            `);
+
+            const checkbox = find('.relationship-card input[type="checkbox"]');
+            assert.ok(checkbox, "the table's one relationship is offered");
+            await click(checkbox);
+
+            assert.strictEqual(lastQuery().joins.length, 1, 'the join reaches the query object');
+            assert.strictEqual(lastQuery().joins[0].key, 'customer');
+        });
+
+        test('saving a computed column puts it on the query object', async function (assert) {
+            const shown = [];
+            this.owner.unregister('service:modalsManager');
+            this.owner.register(
+                'service:modalsManager',
+                class extends ModalsManagerService {
+                    show(name, options) {
+                        shown.push({ name, options });
+                        return Promise.resolve();
+                    }
+                }
+            );
+
+            await render(hbs`
+                <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
+                    <qb.computedColumns />
+                </QueryBuilder>
+            `);
+
+            await click(buttonWithText('Add the first computed column'));
+            await shown[0].options.confirm(fakeComputedColumnModal());
+
+            assert.deepEqual(
+                lastQuery().computed_columns.map((column) => column.name),
+                ['days_open'],
+                'the computed column reaches the query object'
+            );
         });
     });
 

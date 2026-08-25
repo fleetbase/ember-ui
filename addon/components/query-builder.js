@@ -107,6 +107,8 @@ export default class QueryBuilderComponent extends Component {
                 break;
             case 'columns':
                 this.selectedColumns = value;
+                /* istanbul ignore else -- the only caller is column-select's notifyChange, which
+                   always passes its columnAliases, and that field is never anything but an object */
                 if (additionalArgs[0]) {
                     this.columnAliases = additionalArgs[0];
                 }

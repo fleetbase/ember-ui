@@ -319,6 +319,24 @@ module('Integration | Component | comment-thread', function (hooks) {
             assert.dom('textarea').hasValue('', 'and the box is cleared');
         });
 
+        // No @subjectType, and a plain-object subject getModelName cannot name: the type is
+        // simply left off the query. This is also the only shape where subjectPublicId falls
+        // all the way through public_id and id to uuid.
+        test('a subject with no resolvable type is queried without one', async function (assert) {
+            this.set('subject', { uuid: 'order_uuid_only' });
+
+            await render(hbs`<CommentThread @subject={{this.subject}} @comments={{this.comments}} />`);
+            await fillIn('textarea', 'A comment on an untyped subject');
+            await click('button');
+
+            const [created] = storeCalls(this.store, 'createRecord');
+            assert.deepEqual(created.args[1], { content: 'A comment on an untyped subject', subject_id: 'order_uuid_only', subject_type: null }, 'the record carries a null type');
+
+            const [queried] = storeCalls(this.store, 'query');
+            assert.strictEqual(queried.args[1].subject_uuid, 'order_uuid_only', 'queried by uuid');
+            assert.notOk('subject_type' in queried.args[1], 'and no subject_type is sent at all');
+        });
+
         test('a subject carrying a uuid is queried by that uuid instead', async function (assert) {
             this.set('subject', { uuid: 'order_uuid_1', public_id: 'order_test_1' });
 

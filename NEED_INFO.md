@@ -37,3 +37,13 @@ changes what every widget card displays. Both are product decisions.
 **Meanwhile:** left in place and uncovered rather than ignored — an `istanbul ignore` here would
 document a decision that has not been made. The file's other gaps were covered normally.
 
+
+## #2 — `comment-thread`'s yielded `contextApi.reloadComments` has no caller
+
+`addon/components/comment-thread.js` yields `reloadComments` on the `contextApi` object handed to
+`comment-thread/comment`. Nothing in this addon calls it — `comment-thread/comment` reloads its own
+replies via `this.comment.reload()` instead, and the thread-level reload only ever runs from
+`comment-thread.js`'s own tasks. It is covered by an `istanbul ignore` for now.
+
+**Decision needed:** is it part of the published API that host apps call from their own block-form
+templates (keep it, and the ignore stands), or is it leftover (drop it, and the ignore goes with it)?
