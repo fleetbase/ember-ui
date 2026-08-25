@@ -3,6 +3,8 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { click, render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
+import { setupWindowMock } from 'ember-window-mock/test-support';
+import window from 'ember-window-mock';
 
 class StubDocsPanelService extends Service {
     lastTarget = null;
@@ -16,6 +18,7 @@ class StubDocsPanelService extends Service {
 
 module('Integration | Component | table/empty-state', function (hooks) {
     setupRenderingTest(hooks);
+    setupWindowMock(hooks);
 
     hooks.beforeEach(function () {
         this.owner.register('service:docs-panel', StubDocsPanelService);
@@ -56,6 +59,26 @@ module('Integration | Component | table/empty-state', function (hooks) {
         await click('.next-table-empty-state-primary-action');
 
         assert.verifySteps(['refresh', 'create']);
+    });
+
+    test('with no title of its own it says there are no records yet', async function (assert) {
+        await render(hbs`<Table::EmptyState @icon="truck" />`);
+
+        assert.dom('.next-table-empty-state-title').hasText('No records yet');
+    });
+
+    // Host apps that do not install the docs panel get a service without an `open` method; the
+    // link then behaves like an ordinary external link.
+    test('without a docs panel the guide opens in a window instead', async function (assert) {
+        const opened = [];
+        this.owner.unregister('service:docs-panel');
+        this.owner.register('service:docs-panel', class extends Service {});
+        window.open = (...args) => opened.push(args);
+
+        await render(hbs`<Table::EmptyState @icon="truck" @title="Add your first vehicle" @docsUrl="https://fleetbase.io/docs/vehicles" />`);
+        await click('.next-table-empty-state-docs-action');
+
+        assert.deepEqual(opened, [['https://fleetbase.io/docs/vehicles', '_docs']], 'the target is opened in the docs window');
     });
 
     test('it renders filtered copy when context includes search', async function (assert) {

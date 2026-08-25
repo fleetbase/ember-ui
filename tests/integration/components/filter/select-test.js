@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, findAll, find } from '@ember/test-helpers';
+import { render, fillIn, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 
@@ -163,11 +163,26 @@ module('Integration | Component | filter/select', function (hooks) {
         });
     });
 
-    test('it renders without an onChange handler', async function (assert) {
+    test('choosing an option reports the filter alongside the value', async function (assert) {
+        this.set('options', OPTIONS);
+
+        await render(TEMPLATE);
+        await fillIn('select', 'pending');
+
+        assert.deepEqual(changes, [[FILTER, 'pending']], 'the filter it belongs to travels with the selection');
+        assert.dom('select').hasValue('pending', 'and the select holds the new value');
+    });
+
+    test('choosing an option with no onChange handler is harmless', async function (assert) {
         this.set('options', OPTIONS);
 
         await render(hbs`<Filter::Select @filter={{this.filter}} @options={{this.options}} />`);
 
         assert.ok(find('select'), 'no handler is required to render');
+
+        await fillIn('select', 'active');
+
+        assert.dom('select').hasValue('active', 'and the selection is still kept');
+        assert.deepEqual(changes, [], 'with nothing reported anywhere');
     });
 });

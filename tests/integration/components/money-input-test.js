@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, settled, triggerEvent, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { selectChoose } from 'ember-power-select/test-support';
 import Service from '@ember/service';
 
 function input() {
@@ -163,6 +164,34 @@ module('Integration | Component | money-input', function (hooks) {
             await render(hbs`<MoneyInput @currency="USD" @value={{100}} />`);
 
             assert.ok(input(), 'no handler is required');
+        });
+
+        // 16 of the currencies in get-currency.js place their symbol after the amount.
+        test('a currency that places its symbol after the amount is formatted that way', async function (assert) {
+            this.set('currency', 'CZK');
+            this.set('value', 1500);
+
+            await render(TEMPLATE);
+
+            assert.dom(input()).hasValue(/K\u010d$/, 'the koruna symbol trails the amount');
+        });
+
+        // CLP declares the same character for both separators. AutoNumeric refuses that, so the
+        // component reverts the group separator to a comma.
+        test('a currency whose separators would collide has its group separator reverted', async function (assert) {
+            this.set('currency', 'CLP');
+            this.set('value', 1234567);
+
+            await render(TEMPLATE);
+
+            assert.dom(input()).hasValue(/,/, 'the amount is grouped with commas rather than being rejected');
+        });
+
+        test('picking a currency with no handler behind it still reformats', async function (assert) {
+            await render(hbs`<MoneyInput @currency="USD" @value={{1500}} @canSelectCurrency={{true}} />`);
+            await selectChoose('.ember-power-select-trigger', 'JPY');
+
+            assert.dom(input()).hasValue(/\u00a5/, 'the field is reformatted for the new currency');
         });
     });
 

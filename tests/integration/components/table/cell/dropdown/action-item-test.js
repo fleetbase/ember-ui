@@ -128,6 +128,33 @@ module('Integration | Component | table/cell/dropdown/action-item', function (ho
             assert.dom(item()).exists('a falsy isVisible short-circuits the check and leaves the item visible');
         });
 
+        test('an item with no action at all still renders', async function (assert) {
+            this.set('columnAction', undefined);
+
+            await render(TEMPLATE);
+
+            assert.dom(item()).exists('the action defaults to an empty object rather than throwing');
+            assert.dom(item()).hasText('', 'with nothing to label it');
+        });
+
+        test('isVisible true as a boolean keeps the item', async function (assert) {
+            this.set('columnAction', { label: 'Edit', isVisible: true });
+
+            await render(TEMPLATE);
+
+            assert.dom(item()).exists('a literal true is honoured as well as a predicate');
+        });
+
+        // isVisible is documented as a boolean or a predicate. Anything else truthy — a string
+        // from a template, say — is neither, and falls through to the default.
+        test('an isVisible that is neither a boolean nor a function keeps the item', async function (assert) {
+            this.set('columnAction', { label: 'Edit', isVisible: 'yes' });
+
+            await render(TEMPLATE);
+
+            assert.dom(item()).exists('the item is kept rather than silently dropped');
+        });
+
         // The constructor destructures `{ row = {} }`, so `row` is never nullish and the
         // `isNone(context)` short-circuit inside visibilityCheck is unreachable — the
         // predicate runs even when no @row is supplied.
