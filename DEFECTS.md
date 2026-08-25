@@ -176,7 +176,48 @@ touches one private method and no public surface. Alternatively supply it from a
 per-column callback was intended to be exposed.
 Blocks the gate while it exists.
 
+## 12. `addon/components/country-select.js` — the `changed` action is wired to nothing
+
+**Status:** NEEDS DECISION
+**Found:** the whole action reported as never invoked (`[0,0]` on its only branch).
+**Evidence:** `country-select.hbs` wires `handleChange` (as `{{did-update this.handleChange @value}}`)
+and `selectCountry` (as PowerSelect's `@onChange`). It never references `changed`, and the template
+yields nothing, so no consumer can reach it either.
+**Impact:** none. `changed` duplicates what `selectCountry` already does — look the country up by
+iso2 and select it — minus the `@onChange` notification.
+**Fix:** delete it. Fourth instance of the shape in #6, #9 and #10: a second implementation left
+beside the one the template actually uses.
+Blocks the gate while it exists.
+
 ---
+
+## Tests that pass for a reason other than the one they name
+
+A separate category from the dead code above, and arguably more dangerous: these tests are green,
+assert a real outcome, and would KEEP passing if the behaviour they describe broke — because the
+behaviour they describe is not what produces the outcome. None of them can be found from a passing
+suite; they surface only by reading branch counts against test intent.
+
+**Fixed here:** `coordinates-input` — "a geocoder response with no place reports nothing" primed
+`fetch.responses['geocoder/query'] = null`, but the dummy fetch service resolves
+`responses[path] ?? []`, so `place` was a TRUTHY empty array. `if (place)` was taken,
+`place.location.coordinates` threw, and the catch swallowed it. `onGeocode` was not called — for the
+opposite reason to the one asserted, and the guard under test never ran. Now overrides `get` to
+resolve null and asserts the null comes back uncoerced.
+
+**Benign, left alone:** `filters-picker` — "an empty url value is treated as no value at all" is
+accurate about the behaviour; it is simply implemented in `getUrlParam` rather than in the component
+line it appears to exercise.
+
+**Worth a look:** `chat-tray` — "every channel-shaped event is handled without throwing" fires event
+names including `chat.added_participant` and `chat.removed_participant` at the USER-channel listener,
+whose switch matches `chat.participant_added` / `chat.participant_removed`. Unmatched names fall
+through, so the test passes trivially. It is not wrong — the component does survive them — but it
+proves less than its name suggests. See the socket event-name inconsistency noted with #6.
+
+**The general lesson:** `fetch.responses[path] ?? []` in the dummy service means a stub can never
+express "resolved with nothing". Any test that needs a falsy response must override `get` directly.
+Two tests in this repo primed a null response and silently got `[]`.
 
 ## Settled — not defects, recorded so they are not "fixed" again
 
