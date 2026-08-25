@@ -70,7 +70,7 @@
                         <textarea
                             class="tb-input w-full min-h-20 resize-y font-mono text-xs"
                             placeholder="Enter text or use {variable.name} syntax..."
-                            {{on "input" (fn this.updateProp "content" value="target.value")}}
+                            {{on "input" (fn this.updateProp "content")}}
                         >{{this.element.content}}</textarea>
                     </div>
                     <button

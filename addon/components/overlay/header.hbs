@@ -7,8 +7,8 @@
                 <div class="next-view-header-left-inner {{@headerLeftInnerClass}}">
                     <div class="next-view-header-left-title-wrapper flex flex-row items-center {{@titleWrapperClass}}">
                         <h2 class="next-content-overlay-panel-title {{@titleClass}}">
-                            {{#if @overlay.isMinimized}}
-                                {{this.titleWithElipsis}}
+                            {{#if this.isTitleTruncated}}
+                                {{this.titleWithEllipsis}}
                             {{else}}
                                 {{@title}}
                             {{/if}}

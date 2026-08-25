@@ -11,12 +11,72 @@
  *   3. Every eligible first-party source file under addon/ appears in the
  *      report — so untested/unimported files can never silently drop out of
  *      the denominator.
+ *   4. The artifacts on disk were actually produced by the run that just
+ *      finished, rather than left behind by an earlier one. See
+ *      `checkArtifactFreshness` and DEFECTS.md #16.
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const { STAMP_FILENAME } = require('./stamp-coverage-run');
+
 const METRICS = ['statements', 'branches', 'functions', 'lines'];
+
+/**
+ * Confirms the coverage artifacts belong to the run that just finished.
+ *
+ * DEFECTS.md #16: a run can finish green and leave the PREVIOUS
+ * `coverage-final.json` in place, or write the summary and HTML report without
+ * writing `coverage-final.json` at all. Neither announces itself. Reading
+ * whichever files happen to be on disk then reports the last run's numbers as
+ * this run's — and in the direction that matters, a line that regressed is
+ * reported as still covered.
+ *
+ * `scripts/stamp-coverage-run.js` records when the run started; every required
+ * artifact must have been written after that.
+ *
+ * @param {{stampPath: string, artifactPaths: string[], projectRoot: string}} options
+ * @returns {string[]} failures, empty when the artifacts are demonstrably fresh
+ */
+function checkArtifactFreshness({ stampPath, artifactPaths, projectRoot }) {
+    const failures = [];
+
+    if (!fs.existsSync(stampPath)) {
+        return [
+            `no coverage run stamp at ${normalize(stampPath, projectRoot)} — run \`pnpm run test:coverage\`, which stamps the run, ` +
+                'rather than reading whatever coverage artifacts are already on disk',
+        ];
+    }
+
+    let startedAt;
+    try {
+        ({ startedAt } = JSON.parse(fs.readFileSync(stampPath, 'utf8')));
+    } catch (error) {
+        return [`coverage run stamp at ${normalize(stampPath, projectRoot)} is unreadable (${error.message}) — re-run \`pnpm run test:coverage\``];
+    }
+
+    if (typeof startedAt !== 'number') {
+        return [`coverage run stamp at ${normalize(stampPath, projectRoot)} has no numeric "startedAt" — re-run \`pnpm run test:coverage\``];
+    }
+
+    for (const artifactPath of artifactPaths) {
+        const relative = normalize(artifactPath, projectRoot);
+
+        if (!fs.existsSync(artifactPath)) {
+            failures.push(`${relative} was not written by this run — the suite reported results but produced no coverage artifact`);
+            continue;
+        }
+
+        const writtenAt = fs.statSync(artifactPath).mtimeMs;
+        if (writtenAt < startedAt) {
+            const age = Math.round((startedAt - writtenAt) / 1000);
+            failures.push(`${relative} is ${age}s older than this coverage run — it is a stale artifact from an earlier run, not this one's results`);
+        }
+    }
+
+    return failures;
+}
 
 function listSourceFiles(sourceRoot) {
     const results = [];
@@ -129,6 +189,23 @@ function main(argv) {
     const projectRoot = process.cwd();
     const summaryPath = path.resolve(projectRoot, argv[2] || 'coverage/coverage-summary.json');
     const sourceRoot = path.resolve(projectRoot, argv[3] || 'addon');
+    const stampPath = path.resolve(projectRoot, argv[4] || STAMP_FILENAME);
+
+    // Freshness first: percentages read off a stale artifact are worse than no
+    // percentages, because they look authoritative.
+    const staleness = checkArtifactFreshness({
+        stampPath,
+        artifactPaths: [summaryPath, path.resolve(path.dirname(summaryPath), 'coverage-final.json')],
+        projectRoot,
+    });
+
+    if (staleness.length > 0) {
+        console.error(`Coverage gate failed — the report cannot be trusted (${staleness.length} problem(s)):`);
+        for (const failure of staleness) {
+            console.error(`  - ${failure}`);
+        }
+        return 1;
+    }
 
     const { ok, failures } = checkCoverage({ summaryPath, sourceRoot, projectRoot });
 
@@ -144,7 +221,7 @@ function main(argv) {
     return 0;
 }
 
-module.exports = { checkCoverage, listSourceFiles, isFullyCovered, METRICS };
+module.exports = { checkCoverage, checkArtifactFreshness, listSourceFiles, isFullyCovered, METRICS, STAMP_FILENAME };
 
 if (require.main === module) {
     process.exitCode = main(process.argv);

@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import { isArray } from '@ember/array';
 import { run } from '@ember/runloop';
-import { computed } from '@ember/object';
+import { action, computed } from '@ember/object';
 
 export default class CountdownComponent extends Component {
     /**
@@ -132,12 +132,17 @@ export default class CountdownComponent extends Component {
                     duration.seconds = 0; // Stop the countdown at 0
                     clearInterval(this.interval);
 
+                    // Hand the consumer a way to restart in place. Without this there was no way
+                    // to run a countdown again short of re-rendering the component, which is what
+                    // restartCountdown() was written for and never wired to.
+                    const endPayload = { restartFn: this.restartCountdown };
+
                     if (typeof this.args.onCountdownEnd === 'function') {
-                        this.args.onCountdownEnd();
+                        this.args.onCountdownEnd(endPayload);
                     }
 
                     if (typeof this.args.onEnd === 'function') {
-                        this.args.onEnd();
+                        this.args.onEnd(endPayload);
                     }
                 }
             });
@@ -162,9 +167,12 @@ export default class CountdownComponent extends Component {
     /**
      * Restarts the countdown by resetting the timeRemaining property and clearing the interval.
      *
+     * Handed to `@onEnd` / `@onCountdownEnd` as `restartFn`, so a consumer can write
+     * `onEnd={{this.handleEnd}}` with `handleEnd({ restartFn }) { restartFn(); }`.
+     *
      * @method restartCountdown
      */
-    restartCountdown() {
+    @action restartCountdown() {
         clearInterval(this.interval);
         // Reset properties
         this.remaining = null;

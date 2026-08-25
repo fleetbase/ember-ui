@@ -582,6 +582,7 @@ module('Integration | Component | chat-tray socket handling', function (hooks) {
 
     let loadedChannels;
     let listened;
+    let serverUnreadCount;
 
     function channelFixture(id, overrides = {}) {
         return {
@@ -598,6 +599,7 @@ module('Integration | Component | chat-tray socket handling', function (hooks) {
     hooks.beforeEach(function () {
         loadedChannels = [];
         listened = [];
+        serverUnreadCount = null;
 
         this.owner.register(
             'service:chat',
@@ -649,8 +651,20 @@ module('Integration | Component | chat-tray socket handling', function (hooks) {
         this.owner.register(
             'service:fetch',
             class extends Service {
-                get() {
-                    return Promise.resolve({ unreadCount: 0 });
+                get(path) {
+                    // The authoritative unread count. `null` means the server has nothing to say,
+                    // so the locally summed channel counts stand — which is what the tests in this
+                    // module assert. Set `serverUnreadCount` to a number to have the server win,
+                    // or to an Error to make the call fail.
+                    if (path === 'chat-channels/unread-count') {
+                        if (serverUnreadCount instanceof Error) {
+                            return Promise.reject(serverUnreadCount);
+                        }
+
+                        return Promise.resolve({ unreadCount: serverUnreadCount });
+                    }
+
+                    return Promise.resolve({ unreadCount: null });
                 }
             }
         );
@@ -727,6 +741,52 @@ module('Integration | Component | chat-tray socket handling', function (hooks) {
         await settled();
 
         assert.dom('.chat-tray').exists('the event is handled without an unhandled audio rejection');
+    });
+
+    // The badge has two sources: countUnread() sums the channels currently loaded, and
+    // getUnreadCount() asks the server for the real total across every channel, including any
+    // paginated away. The server is authoritative when it answers. (DEFECTS #6)
+    module('the authoritative unread count', function () {
+        test('the server count wins over the channels currently loaded', async function (assert) {
+            serverUnreadCount = 9;
+            loadedChannels = [channelFixture('a', { unread_count: 2 }), channelFixture('b', { unread_count: 3 })];
+
+            await render(hbs`<ChatTray />`);
+
+            assert.dom('.chat-tray-unread-notifications-badge').hasText('9', 'the server total is shown, not the summed 5');
+        });
+
+        test('a zero from the server clears a badge the loaded channels would still show', async function (assert) {
+            serverUnreadCount = 0;
+            loadedChannels = [channelFixture('a', { unread_count: 4 })];
+
+            await render(hbs`<ChatTray />`);
+
+            assert.dom('.chat-tray-unread-notifications-badge').doesNotExist('the server says nothing is unread');
+        });
+
+        test('a failed lookup leaves the summed count in place', async function (assert) {
+            serverUnreadCount = new Error('unread-count endpoint is down');
+            loadedChannels = [channelFixture('a', { unread_count: 2 }), channelFixture('b', { unread_count: 3 })];
+
+            await render(hbs`<ChatTray />`);
+
+            assert.dom('.chat-tray-unread-notifications-badge').hasText('5', 'the badge falls back rather than blanking');
+        });
+
+        test('reloading the channels re-asks the server', async function (assert) {
+            serverUnreadCount = 4;
+            loadedChannels = [channelFixture('a', { unread_count: 1 })];
+            await render(hbs`<ChatTray />`);
+            assert.dom('.chat-tray-unread-notifications-badge').hasText('4');
+
+            serverUnreadCount = 6;
+            loadedChannels = [channelFixture('a', { unread_count: 1 })];
+            handlerFor('chat.chan_a')({ event: 'chat_message.created', data: { sender_uuid: 'someone-else' } });
+            await settled();
+
+            assert.dom('.chat-tray-unread-notifications-badge').hasText('6', 'the reload picks up the new server total');
+        });
     });
 });
 

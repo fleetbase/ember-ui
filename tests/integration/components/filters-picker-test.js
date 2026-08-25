@@ -335,4 +335,44 @@ module('Integration | Component | filters-picker', function (hooks) {
 
         assert.strictEqual(router.listeners.length, 0);
     });
+    // DEFECTS #11. `onColumn` was a parameter of the private #rebuildFilters(onColumn), and all
+    // three call sites invoked it with no argument, so the guard ran on every column and the
+    // callback never once. It reads this.args.onColumn now, which is the consumer-facing hook the
+    // guard was clearly written for.
+    module('the per-column hook', function () {
+        test('it is called once per filterable column, in order', async function (assert) {
+            const seen = [];
+            this.set('onColumn', (column, index, value) => seen.push({ label: column.label, index, value }));
+
+            await render(hbs`<FiltersPicker @columns={{this.columns}} @onColumn={{this.onColumn}} />`);
+
+            assert.deepEqual(
+                seen.map((entry) => entry.label),
+                COLUMNS.filter((column) => column.filterable).map((column) => column.label),
+                'every filterable column is reported, and only those'
+            );
+            assert.deepEqual(
+                seen.map((entry) => entry.index),
+                seen.map((_, index) => index),
+                'the index counts filterable columns'
+            );
+        });
+
+        test('it receives the resolved filter param, not the raw value path', async function (assert) {
+            const seen = [];
+            this.set('onColumn', (column) => seen.push(column.param));
+
+            await render(hbs`<FiltersPicker @columns={{this.columns}} @onColumn={{this.onColumn}} />`);
+
+            // Status has no filterParam so it falls back to its valuePath; Driver overrides
+            // `driver_uuid` with `driver`. The hook sees the resolved value in both cases.
+            assert.deepEqual(seen, ['status', 'driver']);
+        });
+
+        test('it is not required', async function (assert) {
+            await render(hbs`<FiltersPicker @columns={{this.columns}} />`);
+
+            assert.dom('.ember-basic-dropdown-trigger').exists('the picker renders without the hook');
+        });
+    });
 });

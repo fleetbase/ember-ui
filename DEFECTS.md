@@ -35,7 +35,7 @@ keeps the save button off read-only panels.
 
 ## 1. `addon/components/chat-window/attachment.js` — a filename with no extension crashes the component
 
-**Status:** OPEN
+**Status:** FIXED (PR #163)
 **Found:** writing a test for the `extensionMatch ? extensionMatch[1] : null` fallback.
 **Evidence:** `getExtension` returns `null` for a filename with no dot; `getIcon` passes that
 straight to `getWithDefault`, which asserts `The key provided to get must be a string or number`.
@@ -46,27 +46,42 @@ Confirmed by test: the component throws during render rather than falling back.
 uncovered until then — the only test that reaches it asserts a crash, which would pin behaviour that
 should change.
 
+**Applied:** `getIcon` returns `'file-alt'` when there is no extension, the same guard
+`file-icon.js` already used. Covered by *a filename with no extension renders rather than throwing*
+and *a dotfile with no extension also renders*.
+
 ## 2. `addon/components/overlay/header.js` — `useEllipsis` is referenced by no template
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Evidence:** `grep -rn useEllipsis addon app` returns only the definition. `overlay/header.hbs`
 gates the truncated title on `@overlay.isMinimized` instead.
 **Impact:** the 15-character threshold the getter encodes has no effect anywhere — a minimized
 overlay always truncates however short the title, and a non-minimized one never does.
 **Fix:** delete the getter, or wire it if the threshold is the intended behaviour. Product call.
 
+**Applied:** `@titleEllipsis` opts a non-minimized header into truncation, and
+`@titleEllipsisLength` sets the threshold (default 15, the value the getter always encoded).
+A minimized overlay still truncates regardless, so no existing call site changes behaviour.
+The misspelled internal getter is now `titleWithEllipsis`, and `isTitleTruncated` holds the
+decision. Eight tests, including a length of 0 and the exclusive threshold.
+
 ## 3. `addon/components/report-builder/condition-value.js` — `isBoolean` is referenced by no template
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Evidence:** `condition-value.hbs` branches on `isDate`, `isDateTime`, `isNumber`, `isJSON`, then
 falls through to a text input. There is no boolean arm.
 **Impact:** a column typed `boolean` gets a free-text field.
 **Fix:** either a stale getter to delete, or a missing editor to build. Product call — more likely
 the latter.
 
+**Applied:** a True/False radio group, using the addon's own `<RadioButton>`. It reports real
+booleans, normalises values that round-tripped as `'true'`/`1`, selects neither option for an
+unrecognised value, and gives each rendered editor its own group name via `guidFor` so two boolean
+conditions cannot clear each other. Eight tests.
+
 ## 4. `addon/components/layout/sidebar.js` — makes the coverage total nondeterministic
 
-**Status:** OPEN
+**Status:** FIXED (PR #163)
 **Evidence:** two `test:coverage` runs on identical code, both fully green, reported 8479 vs 8477
 covered statements. A per-file diff of the two `coverage-final.json` artifacts names this file alone
 (201 vs 199); every other file is byte-identical between runs.
@@ -76,17 +91,32 @@ runs with no code change. This is a blocker for the gate, not a cosmetic issue.
 tracker's #129 for why deterministic scheduling there carries behavioural risk). Must be resolved,
 or the racing lines proven irrelevant, before the 100% gate can be trusted.
 
+**Applied — and the first diagnosis was wrong.** The racing statements are NOT the
+`requestAnimationFrame` callback, which runs reliably. They are the *cancel* branches in
+`flushResizeFrame()` (187-188) and `teardown()` (368-369), reached only when a frame is still
+pending — which depended on whether the browser painted first. An earlier attempt that awaited the
+frame before releasing the gutter made it strictly worse, permanently closing the only path to
+187-188.
+
+The fix is two tests that dispatch synchronously, with no `await` between the events, so no paint
+can intervene and a pending frame is a certainty. That idiom was already in use a few tests earlier
+in the same file. `sidebar.js` went from 199/215 to 203/215 — exactly those four statements — and
+the value no longer depends on timing.
+
 ## 5. `addon/components/layout/resource/panel.hbs:5` — `@onToggle` points at an action that does not exist
 
-**Status:** OPEN
+**Status:** FIXED (PR #163)
 **Evidence:** the template wires `@onToggle={{this.onToggle}}`; `panel.js` defines no `onToggle`.
 **Impact:** `undefined` is passed to `<Overlay>`. Harmless today because the overlay guards it, but
 it means the panel silently cannot forward a toggle.
 **Fix:** define the action, or drop the wiring.
 
+**Applied:** `onToggle` is defined and forwards through `contextComponentCallback`, matching
+`onOpen` and `onClose`. Two tests.
+
 ## 6. `addon/components/chat-tray.js` — `getUnreadCount` is a second, unwired implementation
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Found:** the whole task reported as never invoked while covering chat-tray.
 **Evidence:** `grep -rn getUnreadCount addon/` returns only the declaration — nothing performs it. The
 unread badge is NOT broken: `chat-tray.js:294` (`countUnread`) already sets `this.unreadCount` by
@@ -100,9 +130,14 @@ server value win. Not a bug fix either way — it is a choice about where the nu
 Blocks the 100% gate while it exists: dead code cannot be covered, and excluding it would hide the
 question rather than answer it.
 
+**Decision:** the server is authoritative. `getUnreadCount` is performed after `countUnread` on
+both load and reload, so the summed count shows immediately and the server total replaces it.
+The task is `restartable` (a slow earlier response cannot overwrite a newer one) and failures are
+caught, leaving the summed count rather than blanking the badge. Four tests.
+
 ## 7. `addon/components/metadata-editor.js` — the `label` getter is referenced by no template, so its default never applies
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Found:** the getter reported as never invoked — `[0,0]`, meaning it is not called at all.
 **Evidence:** `metadata-editor.hbs:3-4` reads the argument directly:
 ```hbs
@@ -120,9 +155,13 @@ heading everywhere a caller omits the argument, a visible change — or delete t
 that the heading is opt-in. Product call.
 Blocks the gate while it exists: an uncalled getter cannot be covered.
 
+**Decision:** the template reads `{{this.label}}`, so the 'Metadata' default now applies. Note
+`?? 'Metadata'` is nullish-coalescing, so passing `@label=""` is the way to opt out of the heading
+now that omitting the argument no longer does. Three tests.
+
 ## 8. `addon/components/countdown.js` — `restartCountdown` is never called
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Found:** the whole method reported as never invoked.
 **Evidence:** `grep -rn restartCountdown addon/` returns only the declaration and its docblock. It
 is not an `@action`, not referenced by `countdown.hbs`, and not called from anywhere in the class.
@@ -134,9 +173,14 @@ consumers can restart a countdown in place. Same family as #6 and the dead gette
 written for an intent the wiring never delivered.
 Blocks the gate while it exists — an uncalled method cannot be covered.
 
+**Decision:** exposed rather than deleted. `restartCountdown` is an `@action` and both
+`@onCountdownEnd` and `@onEnd` receive `{ restartFn }`, so a consumer writes
+`handleEnd({ restartFn }) { restartFn(); }`. Existing consumers that declare no parameters are
+unaffected. Three tests.
+
 ## 9. `addon/components/table/cell/dropdown.js` — `onDropdownItemClick` is orphaned, duplicating ActionItem
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163) — deleted
 **Found:** the whole method reported as never invoked (`[0,0]` on both its guards).
 **Evidence:** `dropdown.hbs:23-25` renders each action through
 `<Table::Cell::Dropdown::ActionItem …>`, which carries its own `@action onClick(columnAction, row, dd)`
@@ -151,7 +195,7 @@ Blocks the gate while it exists.
 
 ## 10. `addon/components/pagination.js` — `pageNumbers` is a superseded page-list implementation
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163) — deleted
 **Found:** the getter reported as never evaluated (`[0,0]`).
 **Evidence:** `grep -rn pageNumbers addon/ app/` returns only the declaration. `pagination.hbs:69`
 iterates `this.pageItems` instead. The getter's `dots: page === 12` / `slice(0, 12)` logic looks like
@@ -163,7 +207,7 @@ Blocks the gate while it exists.
 
 ## 11. `addon/components/filters-picker.js` — the `onColumn` hook has no caller that supplies it
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163)
 **Found:** `if (typeof onColumn === 'function')` reads `[0,86]` — the guard ran 86 times and the
 callback never once.
 **Evidence:** `onColumn` is a parameter of the private `#rebuildFilters(onColumn)`. All three call
@@ -176,9 +220,12 @@ touches one private method and no public surface. Alternatively supply it from a
 per-column callback was intended to be exposed.
 Blocks the gate while it exists.
 
+**Decision:** the hook was meant to be the consumer's. `#rebuildFilters` reads
+`this.args.onColumn` and the unused parameter is gone. Three tests.
+
 ## 12. `addon/components/country-select.js` — the `changed` action is wired to nothing
 
-**Status:** NEEDS DECISION
+**Status:** FIXED (PR #163) — deleted
 **Found:** the whole action reported as never invoked (`[0,0]` on its only branch).
 **Evidence:** `country-select.hbs` wires `handleChange` (as `{{did-update this.handleChange @value}}`)
 and `selectCountry` (as PowerSelect's `@onChange`). It never references `changed`, and the template
@@ -191,7 +238,7 @@ Blocks the gate while it exists.
 
 ## 13. `addon/components/query-builder/conditions.js` — a multi-value condition kept only the last value picked
 
-**Status:** FIXED (this branch)
+**Status:** FIXED (PR #161)
 **Found:** writing the first real test for the `is one of` editor. Selecting `active` then `pending`
 reported `['pending']`, not `['active', 'pending']`.
 **Evidence:** `updateConditionValue` mutated `cond.value` on the existing condition object and then
@@ -211,7 +258,7 @@ fails against the old code.
 
 ## 14. `addon/components/template-builder/properties-panel.hbs:73` — `value="target.value"` on `{{fn}}` does nothing
 
-**Status:** NEEDS DECISION (cosmetic; no behaviour change either way)
+**Status:** FIXED (PR #163)
 **Found:** chasing the uncovered `event?.target ? event.target.value : event` branch in `updateProp`.
 The only call site that looks like it passes a raw value is this one.
 **Evidence:** `{{on "input" (fn this.updateProp "content" value="target.value")}}`. `value=` is an
@@ -224,9 +271,13 @@ string, and the `: event` fallback in `updateProp` exists to serve a call shape 
 `updateNumericProp` and `updateTemplateProp` should stay is a separate call — it is currently
 unreachable from this template and is documented as such.
 
+**Applied:** the `value=` argument is dropped. The `: event` fallbacks in `updateProp`,
+`updateNumericProp` and `updateTemplateProp` remain unreachable from this template and stay
+documented as such.
+
 ## 15. `addon/components/template-builder/properties-panel.js:219` — the table's `query` data mode has no control
 
-**Status:** NEEDS DECISION
+**Status:** DEFERRED — a later update, by decision
 **Found:** `else if (mode === 'query')` reports `[0,0]` — never evaluated either way.
 **Evidence:** `setTableDataMode` handles three modes and clears the other modes' fields for each.
 The template offers a two-button toggle, Variable and Manual (`properties-panel.hbs:258` and `:266`);
@@ -237,12 +288,20 @@ by this action and read by nothing.
 **Impact:** none at runtime. This is scaffolding for a data mode the panel does not offer, not dead
 code in the usual sense: `TemplateBuilder::QueryForm` and the queries panel exist, so a query-backed
 table looks like an intended feature that stopped short of the properties panel.
-**Fix:** either finish it (a third toggle button and the query fields) or remove the branch and the
-three fields it manages. Not a call to make from the coverage side.
+**Fix:** finish it. Confirmed as intended behaviour — fetch from a url with params — and deferred to
+its own session rather than half-built here. What it needs before anyone starts: an endpoint
+contract, an auth story, loading and error states, a defined shape for `query_response_path`, and
+something on the render side that consumes a query-backed table (nothing does today). It also has to
+be reconciled with the `__queries__` variable route, which already solves the same problem by
+exposing saved queries as variables — otherwise the panel ends up with two competing mechanisms.
+
+Until then the branch stays uncovered rather than suppressed: an `istanbul ignore` here would have
+to sit on the opening `if`, and `ignore else` there also swallows the `variable` branch, which real
+tests cover.
 
 ## 16. Coverage collection itself is unreliable, which the 100% gate cannot tolerate
 
-**Status:** OPEN — blocks the gate, alongside #4
+**Status:** PARTIALLY FIXED (PR #163) — detection landed, the cause has not
 **Found:** repeatedly, while verifying single files.
 **Evidence:** three distinct failure modes, all observed in one session:
 1. A run reports `# tests 77 / # pass 77 / # fail 0` and leaves `coverage/coverage-final.json`
@@ -271,6 +330,27 @@ than reading whatever is on disk. Either stamp the run and require the artifact 
 delete `coverage/` before the run and fail loudly if nothing is written. Locally, `rm -rf coverage`
 before a run has produced a complete set every time, where deleting only `coverage-final.json`
 has not.
+
+**Applied — detection.** `scripts/stamp-coverage-run.js` clears `coverage/` and records when the
+run started; `test:coverage` runs it first. `checkArtifactFreshness` in the gate now rejects a
+missing stamp, an unreadable one, an artifact older than the run, and a `coverage-final.json` that
+was never written — before it reads a single percentage. The self-test grew from 10 cases to 17,
+including the dangerous one: a green suite that leaves the previous artifact in place.
+
+**Still open — the cause.** Collection itself keeps failing. Measured across this session: 7 of 9
+fast filtered runs produced no `coverage/` directory at all, while every full run produced one.
+That points at the addon POSTing `window.__coverage__` from the browser at test end and a short run
+tearing down before the request completes. It is therefore a local-development tax rather than a CI
+risk — CI runs the full suite — but it makes per-file verification unreliable, which is how most of
+this campaign's work gets checked.
+
+**Correcting two earlier claims in this entry's history:** `rm -rf coverage` before a run does NOT
+make collection reliable (it was the first thing tried, and the 7-of-9 figure above is *with* it),
+and the Node 18 ESM failure is unrelated to this and cannot affect CI, which pins Node 22.
+
+**Next step, unstarted:** the addon's `parallel` option writes per-browser JSON to disk instead of
+POSTing. Flipping it and running the fast filter ten times would either fix the cause or rule it
+out in about twenty minutes.
 
 ## 17. `addon/components/full-calendar.js` — every event listener leaks, and the obvious fix does not work
 

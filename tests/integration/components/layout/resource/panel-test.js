@@ -167,6 +167,50 @@ module('Integration | Component | layout/resource/panel', function (hooks) {
             assert.strictEqual(opens[1].resource, this.resource);
         });
 
+        // DEFECTS #5. panel.hbs wired @onToggle={{this.onToggle}} to an action the class never
+        // defined, so the panel passed `undefined` to <Overlay> and could not forward a toggle at
+        // all. The action now exists and forwards through contextComponentCallback, exactly as
+        // onOpen and onClose do.
+        test('toggling the panel reports it with the resource', async function (assert) {
+            const toggles = [];
+            let context;
+            this.set('onLoad', (value) => {
+                context = value;
+            });
+            this.set('onToggle', (payload) => toggles.push(payload));
+
+            await render(hbs`<Layout::Resource::Panel @resource={{this.resource}} @onLoad={{this.onLoad}} @onToggle={{this.onToggle}} />`);
+
+            // Only Overlay's toggle() reports a toggle — open() and close() each report their own
+            // event and nothing else, which is why the panel's context exposes toggle separately.
+            assert.strictEqual(toggles.length, 0, 'opening on insert is not a toggle');
+
+            context.toggle();
+            await settled();
+
+            assert.strictEqual(toggles.length, 1, 'toggling closed reports it');
+            assert.strictEqual(toggles[0].resource, this.resource, 'the resource travels with the event');
+
+            context.toggle();
+            await settled();
+
+            assert.strictEqual(toggles.length, 2, 'toggling back open reports another');
+        });
+
+        test('it toggles happily with no onToggle handler', async function (assert) {
+            let context;
+            this.set('onLoad', (value) => {
+                context = value;
+            });
+
+            await render(hbs`<Layout::Resource::Panel @resource={{this.resource}} @onLoad={{this.onLoad}} />`);
+
+            context.toggle();
+            await settled();
+
+            assert.dom(OVERLAY).doesNotHaveClass('is-open', 'the toggle still happens without a consumer');
+        });
+
         test('it opens and closes happily with no callbacks', async function (assert) {
             let context;
             this.set('onLoad', (value) => {

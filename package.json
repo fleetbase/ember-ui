@@ -31,7 +31,7 @@
         "start": "ember serve",
         "test": "concurrently \"npm:lint\" \"npm:test:*\" --names \"lint,test:\"",
         "test:ember": "ember test",
-        "test:coverage": "COVERAGE=true ember test",
+        "test:coverage": "node scripts/stamp-coverage-run.js && COVERAGE=true ember test",
         "coverage:check": "node scripts/check-coverage.js",
         "coverage:selftest": "node scripts/check-coverage-test.js",
         "test:ci": "pnpm run coverage:selftest && pnpm run test:coverage && pnpm run coverage:check",

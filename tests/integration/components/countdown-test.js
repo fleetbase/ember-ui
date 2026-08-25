@@ -133,6 +133,82 @@ module('Integration | Component | countdown', function (hooks) {
             assert.true(cleared.includes(4242), 'the interval is cleared');
         });
 
+        // DEFECTS #8. restartCountdown() existed but nothing could reach it — not an @action, not
+        // referenced by the template, never called from the class — so a countdown could only be
+        // restarted by re-rendering the component. Both end callbacks now receive it as
+        // `restartFn`.
+        test('both end callbacks receive a restartFn', async function (assert) {
+            const payloads = [];
+            this.set('onCountdownEnd', (payload) => payloads.push(payload));
+            this.set('onEnd', (payload) => payloads.push(payload));
+
+            await render(hbs`<Countdown @seconds={{1}} @onCountdownEnd={{this.onCountdownEnd}} @onEnd={{this.onEnd}} />`);
+            await step(3);
+
+            assert.strictEqual(payloads.length, 2, 'both callbacks fired');
+            assert.strictEqual(typeof payloads[0].restartFn, 'function', 'onCountdownEnd gets one');
+            assert.strictEqual(typeof payloads[1].restartFn, 'function', 'and so does onEnd');
+        });
+
+        // The outer stub only captures the FIRST 1000ms interval, so a restart would fall through
+        // to the real timer and leak into the rest of the run. Capture it locally instead, which
+        // also gives the assertion something concrete: a restart schedules a fresh interval.
+        async function captureRestart(restart) {
+            const scheduled = [];
+            const previousSetInterval = window.setInterval;
+
+            window.setInterval = function (callback, delay, ...rest) {
+                if (delay === 1000) {
+                    scheduled.push(delay);
+                    return 9999;
+                }
+
+                return previousSetInterval.call(window, callback, delay, ...rest);
+            };
+
+            try {
+                restart();
+                await settled();
+            } finally {
+                window.setInterval = previousSetInterval;
+            }
+
+            return scheduled;
+        }
+
+        test('calling restartFn starts the countdown over', async function (assert) {
+            let restart;
+            this.set('onEnd', ({ restartFn }) => {
+                restart = restartFn;
+            });
+
+            await render(hbs`<Countdown @seconds={{1}} @onEnd={{this.onEnd}} />`);
+            await step(3);
+
+            assert.true(cleared.includes(4242), 'the first run cleared its interval');
+
+            const scheduled = await captureRestart(restart);
+
+            assert.deepEqual(scheduled, [1000], 'a fresh ticking interval is scheduled');
+            assert.dom('.countdown-container').exists('and the component is still rendering');
+        });
+
+        test('restartFn is bound, so it works detached from the component', async function (assert) {
+            let restart;
+            this.set('onEnd', (payload) => {
+                restart = payload.restartFn;
+            });
+
+            await render(hbs`<Countdown @seconds={{1}} @onEnd={{this.onEnd}} />`);
+            await step(3);
+
+            // Called as a bare function, exactly as a consumer's `handleEnd({ restartFn })` would.
+            const detached = restart;
+            const scheduled = await captureRestart(detached);
+
+            assert.deepEqual(scheduled, [1000], 'no `this` binding error — the restart really ran');
+        });
+
         test('it finishes happily without any end handlers', async function (assert) {
             await render(hbs`<Countdown @seconds={{1}} />`);
 

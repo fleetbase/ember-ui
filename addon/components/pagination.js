@@ -4,7 +4,6 @@ import { action, computed, defineProperty } from '@ember/object';
 import { alias, gt, not } from '@ember/object/computed';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 import PaginationItems from '../utils/pagination/items';
-import arrayRange from '../utils/array-range';
 
 export default class PaginationComponent extends Component {
     /**
@@ -143,16 +142,6 @@ export default class PaginationComponent extends Component {
      *
      * @var {Array}
      */
-    @computed('args.meta.last_page') get pageNumbers() {
-        const pages = arrayRange(this.args.meta?.last_page || 0, 1).map((page) => {
-            return {
-                page,
-                dots: page === 12,
-            };
-        });
-        return pages.length < 12 ? pages : pages.slice(0, 12);
-    }
-
     /**
      * Create instance of PaginationComponent
      */

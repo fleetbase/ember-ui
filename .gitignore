@@ -29,3 +29,6 @@
 # the coverage folder and into the package root (see config/coverage.js).
 /ember-core/
 /*/addon/**/*.js.html
+
+# Written by scripts/stamp-coverage-run.js; proves the coverage artifacts belong to the last run
+.coverage-run-stamp.json

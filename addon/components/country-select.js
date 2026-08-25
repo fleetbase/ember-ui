@@ -38,14 +38,6 @@ export default class CountrySelectComponent extends Component {
         }
     }
 
-    @action changed(value) {
-        const country = this.findCountry(value);
-
-        if (country) {
-            this.selectCountry(country);
-        }
-    }
-
     @action handleChange(el, [value]) {
         this.selected = this.findCountry(value);
     }

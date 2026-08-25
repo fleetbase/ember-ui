@@ -62,6 +62,7 @@ module.exports = {
                 './config/**/*.js',
                 './scripts/check-coverage.js',
                 './scripts/check-coverage-test.js',
+                './scripts/stamp-coverage-run.js',
                 './tests/dummy/config/**/*.js',
             ],
             parserOptions: {

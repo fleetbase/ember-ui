@@ -31,6 +31,62 @@ module('Integration | Component | overlay/header', function (hooks) {
             assert.dom('.next-content-overlay-panel-title').hasText('Short...');
         });
 
+        // DEFECTS #2. The component always carried a `useEllipsis` getter encoding a 15-character
+        // threshold, but nothing consulted it — the template truncated on @overlay.isMinimized
+        // alone. @titleEllipsis opts a non-minimized header into the same truncation, and
+        // @titleEllipsisLength makes the threshold configurable.
+        test('@titleEllipsis truncates a long title on an open overlay', async function (assert) {
+            await render(hbs`<Overlay::Header @title="A very long order title indeed" @titleEllipsis={{true}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('A very long ord...');
+        });
+
+        test('a title at or under the threshold is left alone', async function (assert) {
+            await render(hbs`<Overlay::Header @title="Order 123" @titleEllipsis={{true}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('Order 123', 'nine characters is under fifteen');
+        });
+
+        test('a title of exactly the threshold is not truncated', async function (assert) {
+            await render(hbs`<Overlay::Header @title="123456789012345" @titleEllipsis={{true}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('123456789012345', 'the threshold is exclusive');
+        });
+
+        test('without @titleEllipsis an open overlay never truncates', async function (assert) {
+            await render(hbs`<Overlay::Header @title="A very long order title indeed" />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('A very long order title indeed', 'the argument is opt-in');
+        });
+
+        test('@titleEllipsisLength moves the threshold', async function (assert) {
+            await render(hbs`<Overlay::Header @title="A very long order title indeed" @titleEllipsis={{true}} @titleEllipsisLength={{5}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('A ver...');
+        });
+
+        test('a length of zero truncates everything', async function (assert) {
+            await render(hbs`<Overlay::Header @title="Order 123" @titleEllipsis={{true}} @titleEllipsisLength={{0}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('...', 'zero is honoured rather than falling back to the default');
+        });
+
+        test('a minimized overlay still truncates without the argument', async function (assert) {
+            this.set('overlay', { isMinimized: true });
+
+            await render(hbs`<Overlay::Header @title="A very long order title indeed" @overlay={{this.overlay}} @titleEllipsis={{false}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('A very long ord...', 'minimizing is independent of the opt-in');
+        });
+
+        test('@titleEllipsisLength applies to a minimized overlay too', async function (assert) {
+            this.set('overlay', { isMinimized: true });
+
+            await render(hbs`<Overlay::Header @title="A very long order title indeed" @overlay={{this.overlay}} @titleEllipsisLength={{4}} />`);
+
+            assert.dom('.next-content-overlay-panel-title').hasText('A ve...');
+        });
+
         test('a status renders a badge', async function (assert) {
             await render(hbs`<Overlay::Header @title="Order 123" @status="dispatched" />`);
 

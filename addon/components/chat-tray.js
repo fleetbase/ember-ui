@@ -35,6 +35,7 @@ export default class ChatTrayComponent extends Component {
             withChannels: (channels) => {
                 this.channels = channels;
                 this.countUnread(channels);
+                this.getUnreadCount.perform();
                 this.listenAllChatChannels(channels);
                 this.listenUserChannel();
             },
@@ -247,10 +248,23 @@ export default class ChatTrayComponent extends Component {
         }
     }
 
-    @task *getUnreadCount() {
-        const { unreadCount } = yield this.fetch.get('chat-channels/unread-count');
-        if (!isNone(unreadCount)) {
-            this.unreadCount = unreadCount;
+    /**
+     * The authoritative unread count.
+     *
+     * `countUnread()` sums `unread_count` across the channels currently loaded, which is instant
+     * but only as complete as that list — anything paginated away is missed. This asks the server
+     * for the real total and lets it win. Restartable so a slow earlier response cannot overwrite
+     * a newer one, and failures fall back to the locally summed count rather than blanking the
+     * badge.
+     */
+    @task({ restartable: true }) *getUnreadCount() {
+        try {
+            const { unreadCount } = yield this.fetch.get('chat-channels/unread-count');
+            if (!isNone(unreadCount)) {
+                this.unreadCount = unreadCount;
+            }
+        } catch (error) {
+            console.warn('Error loading unread chat count:', error);
         }
     }
 
@@ -328,6 +342,7 @@ export default class ChatTrayComponent extends Component {
             withChannels: (channels) => {
                 this.channels = channels;
                 this.countUnread(channels);
+                this.getUnreadCount.perform();
                 if (options && options.relisten === true) {
                     this.listenAllChatChannels(channels);
                 }
