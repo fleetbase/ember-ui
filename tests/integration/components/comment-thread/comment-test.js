@@ -219,6 +219,28 @@ module('Integration | Component | comment-thread/comment', function (hooks) {
             assert.dom('textarea').doesNotExist('the reply form closes');
         });
 
+        // A comment that arrived without a uuid — an unsaved or partially loaded record — is
+        // parented by whichever identifier it does have.
+        test('a parent with no uuid is replied to by its public id, then its id', async function (assert) {
+            delete this.comment.uuid;
+            this.comment.public_id = 'comment_public_1';
+
+            await render(hbs`<CommentThread::Comment @comment={{this.comment}} />`);
+            await click('.thread-comment-conent-actions-reply button');
+            await fillIn('textarea', 'My reply');
+            await click(replyButton(this.element));
+
+            assert.strictEqual(created[0].attrs.parent_comment_uuid, 'comment_public_1', 'the public id stands in');
+
+            delete this.comment.public_id;
+
+            await click('.thread-comment-conent-actions-reply button');
+            await fillIn('textarea', 'Another reply');
+            await click(replyButton(this.element));
+
+            assert.strictEqual(created[1].attrs.parent_comment_uuid, 'comment_1', 'and the plain id after that');
+        });
+
         test('editing saves the record directly', async function (assert) {
             await render(hbs`<CommentThread::Comment @comment={{this.comment}} />`);
 

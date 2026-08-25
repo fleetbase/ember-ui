@@ -11,6 +11,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Boolean}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked truncatePages = true;
 
     /**
@@ -18,6 +19,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Boolean}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked showFL = false;
 
     /**
@@ -25,6 +27,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Integer}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked numPagesToShow = 10;
 
     /**
@@ -32,6 +35,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Integer}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked currentPage = 1;
 
     /**

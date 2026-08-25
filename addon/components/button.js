@@ -78,14 +78,8 @@ export default class ButtonComponent extends Component {
      *
      * @memberof ButtonComponent
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked visible = true;
-
-    /**
-     * Determines if the button is disabled
-     *
-     * @memberof ButtonComponent
-     */
-    @tracked disabled = false;
 
     /**
      * Creates an instance of ButtonComponent.

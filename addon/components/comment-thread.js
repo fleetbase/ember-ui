@@ -52,11 +52,9 @@ export default class CommentThreadComponent extends Component {
      */
     context = {
         isCommentInvalid: this.isCommentInvalid.bind(this),
-        reloadComments: () => {
-            /* istanbul ignore next -- yielded public API: nothing inside this addon calls
-               contextApi.reloadComments, only a host app's own block-form template can */
-            return this.reloadComments.perform();
-        },
+        // Yielded public API: nothing inside this addon calls contextApi.reloadComments, only a
+        // host app's own block-form template can.
+        reloadComments: /* istanbul ignore next */ () => this.reloadComments.perform(),
         publishReply: (comment, input) => {
             return this.publishReply.perform(comment, input);
         },

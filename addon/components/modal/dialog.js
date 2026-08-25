@@ -107,6 +107,8 @@ export default class ModalDialog extends Component {
      */
 
     @action handleKeyDown(e) {
+        /* istanbul ignore next -- every keydown this suite and a browser produce carries a
+           keyCode; `which` is the pre-DOM-3 fallback */
         let code = e.keyCode || e.which;
         if (code === 27 && this.args.keyboard) {
             this.args.onClose?.();

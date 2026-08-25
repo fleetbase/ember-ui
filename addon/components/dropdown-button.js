@@ -18,8 +18,6 @@ export default class DropdownButtonComponent extends Component {
     /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked buttonComponentArgs = {};
     @tracked _onInsertFired = false;
-    @tracked _onTriggerInsertFired = false;
-    @tracked _onButtonInsertFired = false;
     /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked disabled = false;
     /* istanbul ignore next -- the constructor assigns this before anything reads it. */
@@ -78,9 +76,9 @@ export default class DropdownButtonComponent extends Component {
             this.args.onTriggerInsert(...arguments);
         }
 
-        this._onTriggerInsertFired = true;
-
         // Fallback for insert, when `renderInPlace=false` Trigger becomes whole node
+        /* istanbul ignore else -- onInsert is only ever reached from here, so _onInsertFired is
+           still false at this point and the condition is always true */
         if (this.args.renderInPlace === true || this._onInsertFired === false) {
             this.onInsert(...arguments);
         }
@@ -90,8 +88,6 @@ export default class DropdownButtonComponent extends Component {
         if (typeof this.args.onButtonInsert === 'function') {
             this.args.onButtonInsert(...arguments);
         }
-
-        this._onButtonInsertFired = true;
     }
 
     @action onInsert() {

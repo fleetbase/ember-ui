@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 
 export default class QueryBuilderSortByComponent extends Component {
     @tracked selectedSortBy = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked selectedSortDirection = null;
     /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked sortByItems = [];

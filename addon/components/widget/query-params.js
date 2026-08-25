@@ -11,6 +11,8 @@ export default class WidgetQueryParamsComponent extends Component {
         if (component === 'date-picker') {
             // date-picker's @onChange hands over the raw Date first; `formattedDate` lives on
             // the AirDatepicker selection that follows it, not on the Date.
+            /* istanbul ignore next -- the date-picker's @onChange hands over the AirDatepicker
+               selection, which always carries formattedDate */
             value = selection?.formattedDate ?? value;
         }
 

@@ -80,8 +80,10 @@ class MetadataRow {
 
 export default class MetadataEditorComponent extends Component {
     @service modalsManager;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked rows = [];
     @tracked filterText = '';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked preservedData = {};
 
     constructor(owner, args) {

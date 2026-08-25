@@ -185,6 +185,8 @@ module('Integration | Component | chart', function (hooks) {
             assert.strictEqual(adapter().parse(undefined), null);
             assert.strictEqual(adapter().parse('not a date'), null);
             assert.strictEqual(adapter().parse('31/31/2024', 'dd/MM/yyyy'), null, 'an impossible date is rejected');
+            assert.strictEqual(adapter().parse(true), null, 'a value that is neither a number, a Date nor a string is rejected');
+            assert.strictEqual(adapter().parse({ when: 'soon' }), null, 'and so is an object');
         });
 
         test('format renders a time with the given pattern', function (assert) {

@@ -62,6 +62,8 @@ export default class OverlayHeaderComponent extends Component {
             );
         };
 
+        /* istanbul ignore else -- header.hbs renders the cancel button inside
+           {{#if @onPressCancel}}, so there is nothing to press unless one was supplied */
         if (typeof onPressCancel === 'function') {
             onPressCancel({ closeOverlay });
         }

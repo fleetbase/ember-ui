@@ -70,9 +70,8 @@ export default class KanbanComponent extends Component {
      * Handle card drop on column
      */
     @action
-    /* istanbul ignore next -- the only caller is kanban/column.js, which always passes the
-       target position. */
-    onCardDrop(targetColumnId, targetPosition = null) {
+    // The only caller is kanban/column.js, which always passes the target position.
+    onCardDrop(targetColumnId, /* istanbul ignore next */ targetPosition = null) {
         if (!this.draggedCard) return;
 
         const card = this.draggedCard;

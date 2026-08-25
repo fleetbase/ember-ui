@@ -32,6 +32,7 @@ export default class ModelSelectOptionsComponent extends Component {
         // the null guards below are defensive and are not reachable from a rendered dropdown.
         this.scrollable = element.closest('.ember-basic-dropdown-content');
 
+        /* istanbul ignore else -- see above */
         if (this.scrollable) {
             this.scrollable.addEventListener('scroll', this.onScroll, { passive: true });
         }
@@ -50,6 +51,7 @@ export default class ModelSelectOptionsComponent extends Component {
     }
 
     #stopWatching() {
+        /* istanbul ignore else -- see the note in #startWatching */
         if (this.scrollable) {
             this.scrollable.removeEventListener('scroll', this.onScroll);
             this.scrollable = null;

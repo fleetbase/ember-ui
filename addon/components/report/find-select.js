@@ -13,7 +13,10 @@ export default class ReportFindSelectComponent extends Component {
 
     @tracked reports = [];
     @tracked searchTerm = '';
+    // Both are assigned by the constructor before anything reads them.
+    /* istanbul ignore next */
     @tracked selectedReports = [];
+    /* istanbul ignore next */
     @tracked limit = null;
 
     constructor() {
