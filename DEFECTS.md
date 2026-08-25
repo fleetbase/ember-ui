@@ -28,6 +28,34 @@ exactly there.
 
 # Open
 
+## 24. `addon/components/modal.js` — `showBackdrop()` asserts on a modal that was torn down
+
+**Status:** FIXED
+**Found:** writing a test that opens a modal and removes it from its parent template in the same
+tick. The suite went red with a global failure, not a test failure.
+**Evidence:**
+
+    Error: Assertion Failed: Backdrop element should be in DOM
+        at wrapperClass.showBackdrop
+        at async wrapperClass.show
+
+`showBackdrop()` sets `shouldShowBackdrop`, awaits `nextRunloop()`, and then asserts the backdrop
+element is present. Inside that runloop the component can be destroyed — and the backdrop is
+rendered by the component, so it goes with it. `hideBackdrop()` already guards its own teardown
+this way (`if (this.isDestroyed) return`); `showBackdrop()` had no guard on the way in.
+
+**Impact:** a dev-build assertion — so a hard failure in development and tests — from an ordinary
+sequence: open a modal and navigate away, or open one inside a block that stops rendering. In
+production builds the assert is stripped and `transitionEnd(undefined, ...)` rejects instead,
+leaving `_isOpen` true and the body class attached.
+
+**Fix — applied:** the same `isDestroyed || isDestroying` guard, immediately after the await.
+
+Also worth recording, because it cost the most time here: `utils/transition-end.js` forces every
+duration to 0 while `Ember.testing` is true, which collapses `show()` and `hide()` into a single
+tick and closes every window between their awaits. Tests that need those windows have to call the
+exported `skipTransition(false)` first and restore it afterwards.
+
 ## 23. `addon/components/attach/popover.js` — `@flip`, `@modifiers` and `@floatingOptions` are inert
 
 **Status:** FIXED — the three fields are removed

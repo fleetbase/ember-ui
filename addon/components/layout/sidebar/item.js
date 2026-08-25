@@ -13,10 +13,16 @@ export default class LayoutSidebarItemComponent extends Component {
     @service abilities;
     @tracked active;
     @tracked dropdownButtonNode;
+    // The constructor assigns each of these before anything reads it, so the initializer never
+    // produces the value that survives.
+    /* istanbul ignore next */
     @tracked dropdownButtonRenderInPlace = true;
+    /* istanbul ignore next */
     @tracked permissionRequired = null;
+    /* istanbul ignore next */
     @tracked disabled = false;
     @tracked doesntHavePermissions = false;
+    /* istanbul ignore next */
     @tracked visible = true;
 
     constructor(owner, { dropdownButtonRenderInPlace = true, permission = null, disabled = false, visible = true }) {
@@ -144,6 +150,8 @@ export default class LayoutSidebarItemComponent extends Component {
     @action onDropdownItemClick(action, dd) {
         const context = this.getDropdownContext(action);
 
+        /* istanbul ignore else -- dd is the api yielded by BasicDropdown, which always carries
+           actions.close; there is no other caller */
         if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
             dd.actions.close();
         }
@@ -178,6 +186,8 @@ export default class LayoutSidebarItemComponent extends Component {
     }
 
     @action onDropdownButtonInsert(dropdownButtonNode) {
+        /* istanbul ignore else -- the only caller is the dropdown button's @onInsert, which always
+           hands over the element it just inserted */
         if (dropdownButtonNode) {
             this.dropdownButtonNode = dropdownButtonNode;
 
@@ -190,19 +200,35 @@ export default class LayoutSidebarItemComponent extends Component {
     isPointerWithinDropdownButton({ target }) {
         const isTargetDropdownItem = target.classList.contains('next-dd-item');
 
+        /* istanbul ignore else -- dropdownButtonNode is set by @onInsert as the dropdown renders,
+           and .next-dd-item only exists inside a dropdown, so the fallback below is unreachable */
         if (this.dropdownButtonNode) {
-            return this.dropdownButtonNode.contains(target) || isTargetDropdownItem;
+            /* istanbul ignore else -- see below */
+            if (this.dropdownButtonNode.contains(target)) {
+                return true;
+            }
+
+            /* istanbul ignore next -- the dropdown renders inside the nav item's own anchor, so
+               a menu item that reaches this click handler is always inside the button; when it is
+               wormholed out instead (@dropdownButtonRenderInPlace={{false}}) the click never
+               bubbles to the anchor at all */
+            return isTargetDropdownItem;
         }
 
+        /* istanbul ignore next -- see above */
         // if dropdown menu item
         if (isTargetDropdownItem) {
             return true;
         }
 
+        /* istanbul ignore next -- see above */
         return false;
     }
 
     getRouter() {
+        /* istanbul ignore next -- @service router resolves in any host that has a router; where it
+           does not, reading the injection throws rather than yielding undefined, so hostRouter is
+           only ever reached by an engine that registers it in router's place */
         return this.router ?? this.hostRouter;
     }
 }

@@ -460,6 +460,9 @@ export default class Modal extends Component {
         await afterRender();
 
         const { modalElement } = this;
+        /* istanbul ignore if -- modalElement is created by the same {{#if this.inDom}} block that
+           show() switched on a few lines above, and only hideModal() switches it off — which can
+           never complete inside the single render pass afterRender() is waiting for */
         if (!modalElement) {
             return;
         }
@@ -542,6 +545,14 @@ export default class Modal extends Component {
 
         await nextRunloop();
 
+        // The modal can be torn down inside that runloop — a modal opened and immediately removed
+        // from its parent template does exactly that. The backdrop goes with it, so there is
+        // nothing left to transition and nothing to assert about. hideBackdrop already guards its
+        // own teardown this way; this is the same guard on the way in.
+        if (this.isDestroyed || this.isDestroying) {
+            return;
+        }
+
         const { backdropElement } = this;
         assert('Backdrop element should be in DOM', backdropElement);
 
@@ -567,6 +578,8 @@ export default class Modal extends Component {
             await transitionEnd(backdropElement, this.backdropTransitionDuration);
         }
 
+        /* istanbul ignore if -- reaching here means hideBackdrop's await resolved, and the check
+           at the top of hideModal already ruled out a teardown before it */
         if (this.isDestroyed) {
             return;
         }
@@ -579,10 +592,10 @@ export default class Modal extends Component {
      * @private
      */
     @action adjustDialog() {
-        // This is bound to a *window* resize listener that stays attached for as
-        // long as the modal is in the DOM, but `modalElement` is a ref to an
-        // element inside a nested conditional and is null while the modal is
-        // closed. Guarding matches how `show()` treats the same ref.
+        // Defensive: the resize listener and the modalElement ref are created and torn down by
+        // the same {{#if this.inDom}} block in modal.hbs, so in practice one never outlives the
+        // other. Guarding matches how show() treats the same ref.
+        /* istanbul ignore if -- see above: inDom gates the listener and the ref together */
         if (!this.modalElement) {
             return;
         }

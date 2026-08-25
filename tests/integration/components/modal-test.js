@@ -3,6 +3,7 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled, find, findAll, triggerKeyEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupWindowMock } from 'ember-window-mock/test-support';
+import { skipTransition } from '@fleetbase/ember-ui/utils/transition-end';
 import window from 'ember-window-mock';
 
 const DIALOG = '.flb--modal';
@@ -311,6 +312,143 @@ module('Integration | Component | modal', function (hooks) {
             await render(hbs`<Modal @isOpen={{true}}>body</Modal>`);
 
             assert.dom(DIALOG).exists('and renders with no page scrollbar to compensate for');
+        });
+    });
+
+    // show() and hide() are long chains of awaits. These cover what happens when the world
+    // changes underneath them: the same modal asked to open twice, and a modal torn down
+    // while it is still working through one of those chains.
+    module('opening and closing across await points', function (hooks) {
+        // In tests every transition is skipped, which collapses show() and hide() into a single
+        // tick and closes the windows these tests are about. Turn the skipping off so the
+        // durations below mean something.
+        hooks.beforeEach(function () {
+            skipTransition(false);
+        });
+
+        hooks.afterEach(function () {
+            skipTransition(true);
+        });
+
+        test('a second truthy @open is not treated as a second opening', async function (assert) {
+            const opens = [];
+            this.set('open', false);
+            this.set('onOpen', () => opens.push('open'));
+
+            await render(hbs`<Modal @open={{this.open}} @renderInPlace={{true}} @fade={{false}} @onOpen={{this.onOpen}}>body</Modal>`);
+
+            // Two different truthy values: @open changes, so the modifier fires again, but the
+            // modal is already open.
+            this.set('open', 1);
+            await settled();
+            this.set('open', true);
+            await settled();
+
+            assert.deepEqual(opens, ['open', 'open'], 'both changes are reported to @onOpen');
+            assert.dom(DIALOG).exists({ count: 1 }, 'and there is still exactly one dialog');
+        });
+
+        test('a modal torn down while it is opening leaves nothing behind', async function (assert) {
+            this.set('visible', true);
+            this.set('open', false);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}}>body</Modal>
+                {{/if}}
+            `);
+
+            this.set('open', true);
+            this.set('visible', false);
+            await settled();
+
+            assert.dom(DIALOG).doesNotExist();
+            assert.false(document.body.classList.contains('flb--modal-open'), 'the body class does not outlive the modal');
+        });
+
+        // The dialog stays in the DOM for as long as the backdrop is still fading, so a resize
+        // landing in that window still has something to measure — and the modal still ends up
+        // closed afterwards.
+        test('a resize while the modal is still closing does not disturb the close', async function (assert) {
+            this.set('open', true);
+
+            await render(hbs`<Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}} @transitionDuration={{0}} @backdropTransitionDuration={{200}}>body</Modal>`);
+            assert.dom(DIALOG).exists('it is open to begin with');
+
+            this.set('open', false);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+            assert.dom(DIALOG).exists('the dialog is still there while the backdrop fades');
+
+            globalThis.dispatchEvent(new Event('resize'));
+            await settled();
+
+            assert.dom(DIALOG).doesNotExist('and the close still finishes');
+        });
+
+        test('a modal closed again before it finished opening ends up closed', async function (assert) {
+            this.set('open', false);
+
+            await render(hbs`<Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}} @transitionDuration={{0}} @backdropTransitionDuration={{200}}>body</Modal>`);
+
+            this.set('open', true);
+            await new Promise((resolve) => setTimeout(resolve, 10));
+            this.set('open', false);
+            await settled();
+
+            assert.dom(DIALOG).doesNotExist('the close wins');
+            assert.false(document.body.classList.contains('flb--modal-open'), 'and the body class goes with it');
+        });
+
+        test('reopening a modal that is still closing settles on open', async function (assert) {
+            this.set('open', true);
+
+            await render(hbs`<Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}} @backdrop={{false}} @transitionDuration={{0}}>body</Modal>`);
+            assert.dom(DIALOG).exists('it is open to begin with');
+
+            this.set('open', false);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            this.set('open', true);
+            await settled();
+
+            assert.dom(DIALOG).exists('the reopen wins over the close that was still in flight');
+        });
+
+        test('a modal torn down while its backdrop is still fading out leaves nothing behind', async function (assert) {
+            this.set('visible', true);
+            this.set('open', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}} @transitionDuration={{0}} @backdropTransitionDuration={{200}}>body</Modal>
+                {{/if}}
+            `);
+
+            this.set('open', false);
+            await new Promise((resolve) => setTimeout(resolve, 30));
+
+            this.set('visible', false);
+            await settled();
+
+            assert.dom(DIALOG).doesNotExist();
+            assert.false(document.body.classList.contains('flb--modal-open'));
+        });
+
+        test('a modal torn down while it is closing leaves nothing behind', async function (assert) {
+            this.set('visible', true);
+            this.set('open', true);
+
+            await render(hbs`
+                {{#if this.visible}}
+                    <Modal @open={{this.open}} @renderInPlace={{true}} @fade={{true}}>body</Modal>
+                {{/if}}
+            `);
+            assert.dom(DIALOG).exists('it is open to begin with');
+
+            this.set('open', false);
+            this.set('visible', false);
+            await settled();
+
+            assert.dom(DIALOG).doesNotExist();
         });
     });
 });

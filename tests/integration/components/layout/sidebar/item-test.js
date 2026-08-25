@@ -230,6 +230,18 @@ module('Integration | Component | layout/sidebar/item', function (hooks) {
                 assert.dom(navItem()).doesNotHaveClass('active');
             });
 
+            // `?? ''` — and every url includes the empty string, so the model param stops
+            // discriminating entirely when the model does not carry it.
+            test('a model that lacks the route param matches on the route and url alone', async function (assert) {
+                router.currentRoute = { paramNames: ['public_id'] };
+                router.currentURL = window.location.pathname;
+                this.set('model', { id: 'ord_1' });
+
+                await render(hbs`<Layout::Sidebar::Item @route="console.orders" @model={{this.model}}>Orders</Layout::Sidebar::Item>`);
+
+                assert.dom(navItem()).hasClass('active');
+            });
+
             test('a url that is not the current one is never active', async function (assert) {
                 router.currentURL = '/somewhere/else/entirely';
                 this.set('model', { id: 'ord_1' });
@@ -337,6 +349,15 @@ module('Integration | Component | layout/sidebar/item', function (hooks) {
             assert.deepEqual(router.transitions, []);
         });
 
+        test('a disabled item absorbs the click', async function (assert) {
+            await render(hbs`<Layout::Sidebar::Item @route="console.orders" @disabled={{true}}>Orders</Layout::Sidebar::Item>`);
+
+            assert.dom(navItem()).hasAttribute('disabled');
+            await click(navItem());
+
+            assert.deepEqual(router.transitions, [], 'a disabled item does not transition');
+        });
+
         test('an item with nothing to do does nothing', async function (assert) {
             await render(hbs`<Layout::Sidebar::Item>Orders</Layout::Sidebar::Item>`);
             await click(navItem());
@@ -433,6 +454,31 @@ module('Integration | Component | layout/sidebar/item', function (hooks) {
             await click('.next-dd-item');
 
             assert.deepEqual(router.transitions, [], 'the dropdown click is not treated as a nav click');
+        });
+
+        // With the dropdown content rendered outside the button, the button no longer contains
+        // the menu item that was clicked — the class is all that is left to recognise it by.
+        test('a dropdown item rendered outside the button is still recognised as one', async function (assert) {
+            this.set('actions', [{ label: 'Export', fn: () => {} }]);
+
+            await render(hbs`
+                <Layout::Sidebar::Item
+                    @route="console.reports"
+                    @dropdownButton={{true}}
+                    @dropdownButtonRenderInPlace={{false}}
+                    @dropdownButtonActions={{this.actions}}
+                >
+                    Reports
+                </Layout::Sidebar::Item>
+            `);
+            await click('.ember-basic-dropdown-trigger');
+
+            const item = find('.next-dd-item');
+            assert.false(find('.ember-basic-dropdown-trigger').contains(item), 'the menu is rendered away from the button');
+
+            await click(item);
+
+            assert.deepEqual(router.transitions, [], 'the dropdown click is still not treated as a nav click');
         });
 
         test('an action is hidden by a false flag or by a predicate that carries a context', async function (assert) {
