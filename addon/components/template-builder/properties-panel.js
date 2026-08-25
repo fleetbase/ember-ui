@@ -133,14 +133,19 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     /** @type {Boolean} Whether the query-mode test request is in flight */
     @tracked isTestingQuery = false;
 
-    /** @type {String|null} Error from the most recent query test */
-    @tracked _queryTestError = null;
+    /**
+     * @type {{uuid: String|null, error: String|null, result: Object|null}}
+     * State of the last query test, kept as one object rather than three fields:
+     * a tracked field's initializer only runs on first read, and every path here
+     * writes before reading, so assigning in the constructor is what actually
+     * defines the state. `uuid` is the element the test was run against.
+     */
+    @tracked queryTest;
 
-    /** @type {Object|null} `{ count, keys, skippedParams }` from the last successful test */
-    @tracked _queryTestResult = null;
-
-    /** @type {String|null} uuid of the element the query test state belongs to */
-    @tracked _queryTestElementUuid = null;
+    constructor(owner, args) {
+        super(owner, args);
+        this._clearQueryTest();
+    }
 
     get hasSelection() {
         return !!this.args.selectedElement;
@@ -390,21 +395,19 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
      * different element must not show that element the previous one's results.
      */
     get _queryTestMatchesSelection() {
-        return this._queryTestElementUuid === this.element.uuid;
+        return this.queryTest.uuid === this.element.uuid;
     }
 
     get queryTestError() {
-        return this._queryTestMatchesSelection ? this._queryTestError : null;
+        return this._queryTestMatchesSelection ? this.queryTest.error : null;
     }
 
     get queryTestResult() {
-        return this._queryTestMatchesSelection ? this._queryTestResult : null;
+        return this._queryTestMatchesSelection ? this.queryTest.result : null;
     }
 
     _clearQueryTest() {
-        this._queryTestError = null;
-        this._queryTestResult = null;
-        this._queryTestElementUuid = null;
+        this.queryTest = { uuid: null, error: null, result: null };
     }
 
     @action
@@ -424,7 +427,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
     @action
     updateQueryParam(index, field, event) {
         if (!this.args.onUpdateElement || !this.element) return;
-        const value = event?.target ? event.target.value : event;
+        const value = event.target.value;
         const query_params = this.queryParams.map((param, i) => (i === index ? { ...param, [field]: value } : param));
         this.args.onUpdateElement(this.element.uuid, { query_params });
     }
@@ -436,16 +439,15 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
      */
     @action
     async testQuery() {
+        // Reached only from the query-mode form, which the template renders
+        // inside `{{#if this.hasSelection}}`, so an element is always selected.
         const element = this.element;
-        if (!element) return;
-
-        this._queryTestElementUuid = element.uuid;
-        this._queryTestError = null;
-        this._queryTestResult = null;
+        const uuid = element.uuid;
+        this.queryTest = { uuid, error: null, result: null };
 
         const invalid = validateEndpoint(element.query_endpoint);
         if (invalid) {
-            this._queryTestError = invalid;
+            this.queryTest = { uuid, error: invalid, result: null };
             return;
         }
 
@@ -469,19 +471,21 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
             const response = await this.fetch.get(normalizeEndpoint(element.query_endpoint), params);
             const { rows, error } = resolveResponsePath(response, element.query_response_path);
             if (error) {
-                this._queryTestError = error;
+                this.queryTest = { uuid, error, result: null };
             } else {
                 const keys = discoverKeys(rows);
-                this._queryTestResult = {
+                const result = {
                     count: rows.length,
                     keys,
                     keysLabel: keys.join(', '),
                     skippedParams,
                     skippedParamsLabel: skippedParams.join(', '),
                 };
+                this.queryTest = { uuid, error: null, result };
             }
         } catch (err) {
-            this._queryTestError = err?.message ? `The request failed: ${err.message}` : 'The request failed.';
+            const message = err?.message ? `The request failed: ${err.message}` : 'The request failed.';
+            this.queryTest = { uuid, error: message, result: null };
         } finally {
             this.isTestingQuery = false;
         }
