@@ -87,14 +87,21 @@ export default class FullCalendarComponent extends Component {
             const callbackName = `on${classify(eventName)}`;
 
             if (typeof this.args[callbackName] === 'function') {
+                // Bind ONCE and keep the resulting function. `.bind()` returns a new function on
+                // every call, so `calendar.off()` can only unsubscribe if it is handed the exact
+                // reference `calendar.on()` was given — binding again at destroy time removes
+                // nothing at all.
+                const handler = this.triggerCalendarEvent.bind(this, callbackName);
+
                 // track for destroy purposes
                 this._listeners.push({
                     eventName,
                     callbackName,
+                    handler,
                 });
 
                 // create listener
-                this.calendar.on(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+                this.calendar.on(eventName, handler);
             }
         }
 
@@ -105,10 +112,26 @@ export default class FullCalendarComponent extends Component {
     destroyCalendarEventListeners() {
         for (let i = 0; i < this._listeners.length; i++) {
             const listener = this._listeners[i];
-            const { eventName, callbackName } = listener;
+            const { eventName, handler } = listener;
 
             // kill listener
-            this.calendar.off(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+            this.calendar.off(eventName, handler);
         }
+
+        this._listeners = [];
+    }
+
+    /**
+     * Unsubscribe every calendar listener when the component goes away.
+     *
+     * Nothing called `destroyCalendarEventListeners` before this, so a calendar on a route the
+     * user navigated in and out of accumulated a listener per callback for the lifetime of the
+     * page. `_listeners` is only ever populated after `this.calendar` exists, so an empty list
+     * here means the calendar was never set up and there is nothing to unsubscribe from.
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+
+        this.destroyCalendarEventListeners();
     }
 }

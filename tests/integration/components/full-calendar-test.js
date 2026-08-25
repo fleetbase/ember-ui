@@ -165,4 +165,64 @@ module('Integration | Component | full-calendar', function (hooks) {
 
         assert.dom('.fc').exists('the calendar still initialises and renders');
     });
+    // The leak these cover (DEFECTS #17): nothing ever called destroyCalendarEventListeners, and
+    // even when called it re-bound the handler, so `off()` was handed a function `on()` had never
+    // seen and FullCalendar removed nothing. Both tests fail against the pre-fix component — the
+    // callback still fires after the component is gone.
+    module('tearing down', function () {
+        test('a destroyed calendar stops firing its callbacks', async function (assert) {
+            const clicks = [];
+            this.set('show', true);
+            this.set('onEventClick', () => clicks.push('click'));
+
+            await render(hbs`
+                {{#if this.show}}
+                    <FullCalendar @onEventClick={{this.onEventClick}} @onInit={{this.onInit}} />
+                {{/if}}
+            `);
+
+            calendar.trigger('eventClick', {});
+            await settled();
+            assert.strictEqual(clicks.length, 1, 'the callback fires while the component is alive');
+
+            this.set('show', false);
+            await settled();
+
+            calendar.trigger('eventClick', {});
+            await settled();
+
+            assert.strictEqual(clicks.length, 1, 'and not once the component is gone');
+        });
+
+        test('every subscribed event is unsubscribed, not just the first', async function (assert) {
+            const fired = [];
+            this.set('show', true);
+            this.setProperties({
+                onDateClick: () => fired.push('dateClick'),
+                onEventClick: () => fired.push('eventClick'),
+                onEventDrop: () => fired.push('eventDrop'),
+            });
+
+            await render(hbs`
+                {{#if this.show}}
+                    <FullCalendar
+                        @onInit={{this.onInit}}
+                        @onDateClick={{this.onDateClick}}
+                        @onEventClick={{this.onEventClick}}
+                        @onEventDrop={{this.onEventDrop}}
+                    />
+                {{/if}}
+            `);
+
+            this.set('show', false);
+            await settled();
+
+            for (const eventName of ['dateClick', 'eventClick', 'eventDrop']) {
+                calendar.trigger(eventName, {});
+            }
+            await settled();
+
+            assert.deepEqual(fired, [], 'no listener survives the teardown');
+        });
+    });
 });
