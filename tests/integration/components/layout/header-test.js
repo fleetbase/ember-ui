@@ -213,6 +213,23 @@ module('Integration | Component | layout/header', function (hooks) {
             );
         });
 
+        test('mutateUserMenuItems is offered the assembled list too', async function (assert) {
+            const seen = [];
+            this.set('mutateUserMenuItems', (items) => seen.push(items));
+
+            await render(hbs`<Layout::Header @mutateUserMenuItems={{this.mutateUserMenuItems}} />`);
+
+            assert.strictEqual(seen.length, 1, 'the hook is called once');
+            assert.true(
+                seen[0].some((item) => item.text === 'Logout'),
+                'the static items are already present'
+            );
+            assert.true(
+                seen[0].some((item) => item.action === 'invalidateSession'),
+                'including the ones carrying actions'
+            );
+        });
+
         test('choosing an item dispatches its action', async function (assert) {
             const dispatched = [];
             this.set('onAction', (...args) => dispatched.push(args));

@@ -151,6 +151,8 @@ export default class LayoutSidebarComponent extends Component {
         this.flushResizeFrame();
         sidebarNode.classList.remove('sidebar-is-resizing');
         this.setResizeContainerActive(sidebarNode, false);
+        /* istanbul ignore next -- stopResizing has already dereferenced sidebarNode several times
+           above, and an element always has getBoundingClientRect */
         const currentWidth = sidebarNode?.getBoundingClientRect?.().width ?? 0;
 
         if (rawWidth <= collapseBelowWidth) {
@@ -161,6 +163,8 @@ export default class LayoutSidebarComponent extends Component {
             const visibleWidth = Math.max(currentWidth, minResizeWidth);
             sidebarNode.style.width = `${visibleWidth}px`;
 
+            /* istanbul ignore else -- visibleWidth is Math.max(currentWidth, minResizeWidth), so
+               it is never below minResizeWidth */
             if (visibleWidth >= minResizeWidth) {
                 this.lastVisibleWidth = visibleWidth;
             }
@@ -218,6 +222,9 @@ export default class LayoutSidebarComponent extends Component {
     applyResizeWidth(width) {
         const { sidebarNode } = this;
 
+        /* istanbul ignore if -- both callers pass this.pendingResizeWidth, which the pointer-move
+           handler sets to a finite number before either can run, and sidebarNode is registered by
+           {{did-insert}} before any resize can start */
         if (!sidebarNode || !Number.isFinite(width)) {
             return;
         }
@@ -275,10 +282,14 @@ export default class LayoutSidebarComponent extends Component {
         }
     }
 
-    syncTransitionWidth(sidebarNode = this.sidebarNode) {
+    // Every caller passes the node explicitly, so the `= this.sidebarNode` default is unreachable.
+    syncTransitionWidth(/* istanbul ignore next */ sidebarNode = this.sidebarNode) {
+        /* istanbul ignore if -- see above: the node always arrives */
         if (!sidebarNode) return;
 
         const width = sidebarNode.getBoundingClientRect?.().width;
+        /* istanbul ignore if -- every call site runs against a sidebar that is in the document and
+           has just had a width applied to it */
         if (!Number.isFinite(width) || width <= 0) return;
 
         sidebarNode.style.setProperty('--sidebar-transition-width', `${width}px`);
@@ -317,7 +328,9 @@ export default class LayoutSidebarComponent extends Component {
         return this.hide(sidebarNode, true);
     }
 
-    @action hide(sidebarNode, now = false, options = {}) {
+    // Every caller supplies `now`: the two in this file pass it literally, and SidebarContext's
+    // `hide` forwards its own default.
+    @action hide(sidebarNode, /* istanbul ignore next */ now = false, options = {}) {
         sidebarNode = sidebarNode ?? this.sidebarNode;
         const restoreWidthAfterHide = options.restoreWidthAfterHide === true;
 

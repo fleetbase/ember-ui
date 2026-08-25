@@ -206,6 +206,56 @@ module('Integration | Component | layout/mobile-navbar', function (hooks) {
             assert.true(sidebar.isVisible, 'and shown again');
         });
 
+        // The component closes the sidebar behind any route change, not only the ones it starts
+        // itself — but only on a mobile viewport, where the sidebar is an overlay.
+        test('a route change from anywhere closes the sidebar on mobile', async function (assert) {
+            const listeners = [];
+            this.owner.unregister('service:router');
+            this.owner.register(
+                'service:router',
+                class extends Service {
+                    on(name, handler) {
+                        listeners.push([name, handler]);
+                    }
+                    off() {}
+                }
+            );
+
+            await render(hbs`<Layout::MobileNavbar @menuItems={{this.menuItems}} />`);
+            assert.true(sidebar.isVisible, 'the sidebar starts open');
+
+            const [, routeDidChange] = listeners.find(([name]) => name === 'routeDidChange');
+            routeDidChange();
+            await settled();
+
+            assert.false(sidebar.isVisible, 'navigating anywhere closes it');
+        });
+
+        test('a route change on a desktop viewport leaves the sidebar alone', async function (assert) {
+            const listeners = [];
+            this.owner.unregister('service:media');
+            this.owner.register('service:media', DesktopMediaStub);
+            this.owner.unregister('service:router');
+            this.owner.register(
+                'service:router',
+                class extends Service {
+                    on(name, handler) {
+                        listeners.push([name, handler]);
+                    }
+                    off() {}
+                }
+            );
+
+            await render(hbs`<Layout::MobileNavbar @menuItems={{this.menuItems}} />`);
+            assert.true(sidebar.isVisible, 'the sidebar starts open');
+
+            const [, routeDidChange] = listeners.find(([name]) => name === 'routeDidChange');
+            routeDidChange();
+            await settled();
+
+            assert.true(sidebar.isVisible, 'a desktop sidebar is not an overlay, so it stays put');
+        });
+
         test('routing to a menu item transitions and closes the sidebar', async function (assert) {
             const transitions = [];
             let navbar;

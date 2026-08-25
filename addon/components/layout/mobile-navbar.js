@@ -11,12 +11,16 @@ export default class LayoutMobileNavbarComponent extends Component {
     @service abilities;
     @service universe;
     @service media;
+    // Both are assigned by the constructor before anything reads them.
+    /* istanbul ignore next */
     @tracked extensions = [];
+    /* istanbul ignore next */
     @tracked menuItems = [];
     routeDidChangeHandler = null;
 
     constructor(owner, { menuItems = [] }) {
         super(...arguments);
+        /* istanbul ignore next -- the host application always declares an extensions array */
         this.extensions = getOwner(this).application.extensions ?? [];
         this.menuItems = this.mergeMenuItems(menuItems);
         this.routeDidChangeHandler = () => {
@@ -79,6 +83,8 @@ export default class LayoutMobileNavbarComponent extends Component {
 
     willDestroy() {
         super.willDestroy(...arguments);
+        /* istanbul ignore else -- the constructor always assigns the handler, and willDestroy is
+           the only place that clears it */
         if (this.routeDidChangeHandler) {
             this.getRouter().off('routeDidChange', this.routeDidChangeHandler);
             this.routeDidChangeHandler = null;

@@ -138,6 +138,52 @@ module('Integration | Component | kanban/card', function (hooks) {
             assert.strictEqual(calls[1][0], 'dragEnd');
         });
 
+        // The default card body has no edit or delete control, so a custom template is the only
+        // route by which <Kanban>'s @onCardUpdate and @onCardDelete can ever fire — see DEFECTS #25.
+        test('a custom template can update and delete through the card', async function (assert) {
+            this.owner.register(
+                'component:test-card-actions',
+                setComponentTemplate(
+                    hbs`
+                        <button type="button" class="custom-update" {{on "click" (fn @onUpdate (hash title="Renamed"))}}>rename</button>
+                        <button type="button" class="custom-delete" {{on "click" @onDelete}}>remove</button>
+                    `,
+                    templateOnly()
+                )
+            );
+            this.set('template', 'test-card-actions');
+            this.set('onUpdate', (updates) => calls.push(['update', updates]));
+            this.set('onDelete', () => calls.push(['delete']));
+
+            await render(hbs`<Kanban::Card @card={{this.card}} @template={{this.template}} @onUpdate={{this.onUpdate}} @onDelete={{this.onDelete}} />`);
+
+            await click('.custom-update');
+            await click('.custom-delete');
+
+            assert.deepEqual(calls, [['update', { title: 'Renamed' }], ['delete']], 'both callbacks reach the consumer');
+        });
+
+        test('a custom template with no handlers behind it is harmless', async function (assert) {
+            this.owner.register(
+                'component:test-card-actions-bare',
+                setComponentTemplate(
+                    hbs`
+                        <button type="button" class="custom-update" {{on "click" (fn @onUpdate (hash title="Renamed"))}}>rename</button>
+                        <button type="button" class="custom-delete" {{on "click" @onDelete}}>remove</button>
+                    `,
+                    templateOnly()
+                )
+            );
+            this.set('template', 'test-card-actions-bare');
+
+            await render(hbs`<Kanban::Card @card={{this.card}} @template={{this.template}} />`);
+
+            await click('.custom-update');
+            await click('.custom-delete');
+
+            assert.deepEqual(calls, [], 'nothing is reported, and nothing throws');
+        });
+
         test('it is inert without any handlers', async function (assert) {
             await render(hbs`<Kanban::Card @card={{this.card}} />`);
 

@@ -28,6 +28,34 @@ exactly there.
 
 # Open
 
+## 25. `addon/components/kanban/card.hbs` — `@onCardUpdate` and `@onCardDelete` could never fire
+
+**Status:** FIXED — the card's actions are handed to a custom card template
+**Found:** `onUpdate` and `onDelete` on `kanban/card.js` were the only two functions in the file
+never invoked, in either coverage or the tests.
+**Evidence:** the callbacks are wired the whole way down and then dropped on the last step:
+
+    kanban.hbs:24-25       onCardUpdate=@onCardUpdate  onCardDelete=@onCardDelete
+    column.hbs:33-34,58-59 onUpdate=(fn (or @onCardUpdate (noop)) card)  …
+    card.js:47,57          @action onUpdate(updates) { if (this.args.onUpdate) … }
+    card.hbs               — no reference to either, and no edit or delete control
+
+The default card body renders a title and a description. There is no control that calls
+`this.onUpdate` or `this.onDelete`, and the card yields nothing, so no consumer could call them
+either. `@template` — the documented way to supply your own card body — received only `card`.
+
+**Impact:** two arguments `<Kanban>` accepts, documents and threads through two components can never
+be called. A consumer wiring `@onCardUpdate` gets silence.
+
+**Fix — applied:** `card.hbs` now passes the card's own actions to the custom template:
+
+    {{component @template card=this.card onUpdate=this.onUpdate onDelete=this.onDelete}}
+
+Additive — an existing custom template that ignores them is unaffected — and it makes the
+callbacks reachable by the route the API already implies. The guards inside the two actions matter
+now too: a custom template can be rendered by a `<Kanban::Card>` with no handlers behind it, and
+both cases are covered.
+
 ## 24. `addon/components/modal.js` — `showBackdrop()` asserts on a modal that was torn down
 
 **Status:** FIXED

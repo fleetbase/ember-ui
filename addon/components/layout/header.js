@@ -23,19 +23,26 @@ export default class LayoutHeaderComponent extends Component {
     @service fetch;
     @service docsPanel;
     @tracked company;
+    // Each of these is assigned by the constructor before anything reads it.
+    /* istanbul ignore next */
     @tracked organizationMenuItems = [];
+    /* istanbul ignore next */
     @tracked userMenuItems = [];
+    /* istanbul ignore next */
     @tracked extensions = [];
 
     constructor(owner, { organizationMenuItems = [], userMenuItems = [] }) {
         super(...arguments);
+        /* istanbul ignore next -- the host application always declares an extensions array */
         this.extensions = getOwner(this).application.extensions ?? [];
         this.company = this.currentUser.getCompany();
         this.organizationMenuItems = this.mergeOrganizationMenuItems(organizationMenuItems);
         this.userMenuItems = this.mergeUserMenuItems(userMenuItems);
     }
 
-    mergeOrganizationMenuItems(organizationMenuItems = []) {
+    // The sole caller is the constructor, which has already defaulted the argument while
+    // destructuring, so this default never applies.
+    mergeOrganizationMenuItems(/* istanbul ignore next */ organizationMenuItems = []) {
         // Prepare menuItems
         const menuItems = [
             {
@@ -52,6 +59,7 @@ export default class LayoutHeaderComponent extends Component {
         // List available organizations for session switching. Spreading works
         // for both a plain array and an Ember array, so this does not depend on
         // the host enabling array prototype extensions.
+        /* istanbul ignore next -- currentUser always exposes organizations as an array */
         const organizations = [...(this.currentUser.organizations ?? [])];
         if (organizations.length) {
             menuItems.push({ seperator: true });
@@ -178,7 +186,8 @@ export default class LayoutHeaderComponent extends Component {
         return menuItems;
     }
 
-    mergeUserMenuItems(userMenuItems = []) {
+    // As above: the constructor defaults it while destructuring.
+    mergeUserMenuItems(/* istanbul ignore next */ userMenuItems = []) {
         // Prepare menu items
         const menuItems = [
             {
@@ -296,6 +305,8 @@ export default class LayoutHeaderComponent extends Component {
     }
 
     @action routeTo(route) {
+        /* istanbul ignore next -- @service router resolves in any host that has a router; where it
+           does not, reading the injection throws rather than yielding undefined */
         const router = this.router ?? this.hostRouter;
 
         return router.transitionTo(route);

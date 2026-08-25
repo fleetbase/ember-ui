@@ -13,7 +13,9 @@
     tabindex="0"
 >
     {{#if @template}}
-        {{component @template card=this.card}}
+        {{! The card's own actions are handed to a custom template: they are the only route by
+            which @onCardUpdate and @onCardDelete can ever fire — see DEFECTS #25. }}
+        {{component @template card=this.card onUpdate=this.onUpdate onDelete=this.onDelete}}
     {{else}}
         <div class="kanban-card-content">
             <h4 class="kanban-card-title">{{this.card.title}}</h4>
