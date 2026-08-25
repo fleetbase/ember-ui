@@ -28,6 +28,34 @@ exactly there.
 
 # Open
 
+## 20. `addon/components/attach/popover.js` — document listeners are added and never removed
+
+**Status:** OPEN — NEEDS DECISION (same shape as the former #17, which was fixed)
+**Found:** chasing the uncovered body of `removeEventListeners()` while closing coverage gaps.
+**Evidence:** the component registers listeners on `document`, not just on its target:
+
+    :294  document.addEventListener(clickoutEvent, this.hideOnClickOut, this.useCapture);
+    :299  document.addEventListener('keydown', this.hideOnEscapeKey, this.useCapture);
+    :327  document.addEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, ...);
+
+`removeEventListeners()` exists and does the right thing, but its only caller is the first line of
+`initializeAttacher()` (`:124`), which runs once from `{{did-insert this.setupComponent}}`. At that
+moment the listener maps are still empty, so the removal loops never execute — which is why they
+show as uncovered. There is no `willDestroy`, no `registerDestructor`, and no template reference.
+
+**Impact:** real. Every popover that is rendered and then destroyed leaves a `click`/`touchend`
+handler and — when `hideOn` includes `escapekey`, which is the default — a `keydown` handler on
+`document` for the lifetime of the page. A route that renders many popovers accumulates them, and
+each surviving handler still runs `hideOnClickOut` against a destroyed component.
+
+**Fix:** call `removeEventListeners()` from a destructor. Unlike the full-calendar leak, the method
+itself is already correct — it stores each handler on `hideListenersOnDocumentByEvent` /
+`hideListenersOnTargetByEvent` and passes the stored reference to `removeEventListener`, so the
+references match. This is the wiring, not the logic.
+
+Worth checking while there: `this.useCapture` must be the same value at add and remove time, or the
+removal silently no-ops the way `.bind()` did in the former #17.
+
 ## 18. Coverage branch totals still vary by ±1 between identical runs
 
 **Status:** OPEN — same class of blocker as #4 was, and the last one known

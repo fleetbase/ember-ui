@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn, findAll, find } from '@ember/test-helpers';
+import { render, click, fillIn, findAll, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 function buttonByTitle(title) {
@@ -365,6 +365,25 @@ module('Integration | Component | template-builder', function (hooks) {
             assert.deepEqual(layerLabels(), ['Image', 'Text'], 'and comes back');
         });
 
+        // With only two layers every element in the map() is either the one moved or the one it
+        // swapped with. A third layer is what exercises the fall-through, and it is the case that
+        // matters in practice: reordering two layers must leave the rest alone.
+        test('reordering two layers leaves the others untouched', async function (assert) {
+            await render(TEMPLATE);
+            await addElements('Text', 'Image', 'Shape');
+            assert.deepEqual(layerLabels(), ['Shape', 'Image', 'Text'], 'newest on top');
+
+            const before = (await savedTemplate()).content.find((el) => el.type === 'text');
+
+            await click(layerAction(0, 'Move layer down'));
+
+            assert.deepEqual(layerLabels(), ['Image', 'Shape', 'Text'], 'only the top two swap');
+
+            const after = (await savedTemplate()).content.find((el) => el.type === 'text');
+            assert.strictEqual(after.z_index, before.z_index, 'the bystander keeps its z-index');
+            assert.strictEqual(after.uuid, before.uuid, 'and is the same element');
+        });
+
         test('reordering keeps the selected element in sync', async function (assert) {
             await render(TEMPLATE);
             await addElements('Text', 'Image');
@@ -483,6 +502,21 @@ module('Integration | Component | template-builder', function (hooks) {
             assert.strictEqual(template.orientation, 'landscape');
             assert.strictEqual(template.width, 297, 'the long edge becomes the width');
             assert.strictEqual(template.height, 210);
+        });
+
+        // _dimensionsForPaperSize returns null for a size it does not recognise. The select only
+        // offers known sizes, so the only way in is a template that was saved with one — then the
+        // builder has to leave the explicit width and height alone rather than blanking them.
+        test('an unrecognised paper size leaves the stored dimensions alone', async function (assert) {
+            this.set('template', { name: 'Odd', paper_size: 'Tabloid', orientation: 'portrait', width: 279, height: 432, unit: 'mm', content: [] });
+
+            await render(TEMPLATE);
+            await fillIn(settingsSelect(1), 'landscape');
+
+            const template = await savedTemplate();
+            assert.strictEqual(template.orientation, 'landscape', 'the orientation still changes');
+            assert.strictEqual(template.width, 279, 'but the width is untouched');
+            assert.strictEqual(template.height, 432, 'and so is the height');
         });
 
         test('changing the paper size is undoable', async function (assert) {
@@ -747,6 +781,241 @@ module('Integration | Component | template-builder', function (hooks) {
             await click(element);
 
             assert.dom('.tb-panel-right').containsText('Position', 'the selection survives a click on a child');
+        });
+    });
+    // moveElement and resizeElement exist to keep the data model in sync after an interact.js
+    // gesture — interact has already moved the DOM, and these carry the result into the next save.
+    // Driving them means driving a real gesture, which interact.js supports: it listens for
+    // PointerEvents on the document, so dispatching them exercises the whole path.
+    module('syncing the model after a gesture', function () {
+        function pointer(type, x, y, target) {
+            (target ?? document).dispatchEvent(
+                new PointerEvent(type, {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                    pointerId: 1,
+                    pointerType: 'mouse',
+                    isPrimary: true,
+                    button: 0,
+                    buttons: type === 'pointerup' ? 0 : 1,
+                    clientX: x,
+                    clientY: y,
+                })
+            );
+        }
+
+        async function drag(target, from, to) {
+            pointer('pointerdown', from.x, from.y, target);
+            pointer('pointermove', from.x + (to.x - from.x) / 2, from.y + (to.y - from.y) / 2);
+            pointer('pointermove', to.x, to.y);
+            pointer('pointerup', to.x, to.y);
+            await settled();
+        }
+
+        function centreOf(node) {
+            const box = node.getBoundingClientRect();
+            return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+        }
+
+        test('dragging an element carries its new position into the save', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonByTitle('Add Text'));
+
+            const element = find('.tb-element');
+
+            // moveElement mutates the content entry in place, and savedTemplate() hands back those
+            // same objects — so these have to be captured as primitives, or the "before" values
+            // move with the result and the assertion cannot fail.
+            const { x: beforeX, y: beforeY, uuid } = (await savedTemplate()).content[0];
+
+            const from = centreOf(element);
+            await drag(element, from, { x: from.x + 40, y: from.y + 25 });
+
+            const after = (await savedTemplate()).content[0];
+            assert.strictEqual(after.x, beforeX + 40, 'the x delta reached the model');
+            assert.strictEqual(after.y, beforeY + 25, 'and so did the y delta');
+            assert.strictEqual(after.uuid, uuid, 'it is still the same element');
+        });
+
+        test('resizing an element carries its new size into the save', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonByTitle('Add Text'));
+            await click(find('.tb-element'));
+
+            const handle = find('.tb-handle-se');
+            const { width: beforeWidth, height: beforeHeight } = (await savedTemplate()).content[0];
+
+            // interact's resizable sets each edge from the pointer's ABSOLUTE position, not from a
+            // delta, so the target has to be measured off the element's own box. Dragging relative
+            // to the handle's centre — which sits inside the element's edge — shrinks it instead.
+            const box = find('.tb-element').getBoundingClientRect();
+            await drag(handle, centreOf(handle), { x: box.right + 30, y: box.bottom + 15 });
+
+            const after = (await savedTemplate()).content[0];
+
+            // Deliberately not asserting exact arithmetic here. moveElement works from pointer
+            // DELTAS, so its numbers map 1:1; resizeElement works from interact's measured
+            // `event.rect`, and Ember's test container scales its contents — a 200x40 element
+            // measures 100x20 — so client-rect units are not model units in this environment.
+            // What matters is the contract: the gesture reaches the model.
+            assert.notStrictEqual(after.width, beforeWidth, 'the resize reached the model width');
+            assert.notStrictEqual(after.height, beforeHeight, 'and the model height');
+            assert.true(Number.isFinite(after.width), 'as a usable width');
+            assert.true(Number.isFinite(after.height), 'and a usable height');
+        });
+
+        test('a gesture does not add an undo entry', async function (assert) {
+            await render(TEMPLATE);
+            await click(buttonByTitle('Add Text'));
+
+            const element = find('.tb-element');
+            const from = centreOf(element);
+            await drag(element, from, { x: from.x + 40, y: from.y + 25 });
+
+            // Undo should remove the element the Add created, not step back through the drag —
+            // these two actions mutate in place precisely so they stay out of undo history.
+            await click(buttonByTitle('Undo'));
+
+            assert.deepEqual((await savedTemplate()).content, [], 'one undo returns to the empty canvas');
+        });
+    });
+    // The undo stack is capped at 50 entries. Past that, the oldest states are dropped, so a very
+    // long editing session cannot be rewound all the way to the beginning.
+    test('the undo history is capped at fifty steps', async function (assert) {
+        await render(TEMPLATE);
+
+        // 52 adds push 52 states; the stack keeps the most recent 50.
+        for (let i = 0; i < 52; i++) {
+            await click(buttonByTitle('Add Text'));
+        }
+
+        assert.strictEqual((await savedTemplate()).content.length, 52, 'all 52 elements are on the canvas');
+
+        for (let i = 0; i < 50; i++) {
+            await click(buttonByTitle('Undo'));
+        }
+
+        const remaining = (await savedTemplate()).content;
+        assert.strictEqual(remaining.length, 2, 'fifty undos rewind to the oldest state still held');
+        assert.dom(buttonByTitle('Undo')).hasAttribute('disabled', '', 'and there is nothing left to undo');
+    });
+    // The cheapest branches left in this file are the optional arguments: each guard's other side
+    // is reached simply by rendering without the argument. Grouped here rather than scattered.
+    module('without its optional arguments', function () {
+        test('saving with no @onSave handler is harmless', async function (assert) {
+            await render(hbs`<TemplateBuilder @template={{this.template}} />`);
+            await click(buttonByTitle('Add Text'));
+            await click(buttonWithText('save'));
+
+            assert.deepEqual(saved, [], 'nothing is reported');
+            assert.dom('.tb-canvas').exists('and the builder survives');
+        });
+
+        test('previewing with no @onPreview handler is harmless', async function (assert) {
+            await render(hbs`<TemplateBuilder @template={{this.template}} />`);
+            await click(buttonByTitle('Preview template'));
+
+            assert.deepEqual(previewed, [], 'nothing is reported');
+        });
+
+        test('it renders with no @contextSchemas', async function (assert) {
+            await render(hbs`<TemplateBuilder @template={{this.template}} @onSave={{this.onSave}} />`);
+
+            assert.dom('.tb-canvas').exists('the schema list falls back to empty');
+        });
+
+        test('a template with no content array starts empty', async function (assert) {
+            this.set('template', { name: 'Bare', width: 210, height: 297, unit: 'mm' });
+
+            await render(TEMPLATE);
+
+            assert.deepEqual((await savedTemplate()).content, [], 'content defaults to an empty list');
+        });
+
+        // The uuid/id fallback lives on the ember-data path — a plain object is cloned wholesale,
+        // so these have to be record-shaped to reach it.
+        function record(attributes, extra = {}) {
+            return {
+                ...attributes,
+                ...extra,
+                eachAttribute(callback) {
+                    Object.keys(attributes).forEach((attribute) => callback(attribute));
+                },
+            };
+        }
+
+        test('a record identified by id rather than uuid keeps that identity', async function (assert) {
+            this.set('template', record({ name: 'By id', width: 210, height: 297, content: [] }, { id: 'tpl_7' }));
+
+            await render(TEMPLATE);
+
+            assert.strictEqual((await savedTemplate()).uuid, 'tpl_7', 'the id stands in for the uuid');
+        });
+
+        test('a record with neither id nor uuid saves a null identity', async function (assert) {
+            this.set('template', record({ name: 'Unsaved', width: 210, height: 297, content: [] }));
+
+            await render(TEMPLATE);
+
+            assert.strictEqual((await savedTemplate()).uuid, null, 'rather than undefined');
+        });
+
+        test('a null attribute on a record survives the clone', async function (assert) {
+            this.set('template', record({ name: 'Nulls', description: null, width: 210, height: 297, content: [] }, { uuid: 'tpl_9' }));
+
+            await render(TEMPLATE);
+
+            assert.strictEqual((await savedTemplate()).description, null, 'null is preserved rather than cloned through JSON');
+        });
+    });
+
+    module('acting on an element that is not the selected one', function () {
+        test('updating an unselected element leaves the selection alone', async function (assert) {
+            await render(TEMPLATE);
+            await addElements('Text', 'Image');
+
+            // The image is selected (it was added last). Move the text layer instead.
+            await click(layerAction(1, 'Move layer up'));
+
+            const content = (await savedTemplate()).content;
+            assert.strictEqual(content.length, 2, 'both elements survive');
+        });
+
+        test('rotating an element that already has a rotation adds to it', async function (assert) {
+            this.set('template', {
+                name: 'Rotated',
+                width: 210,
+                height: 297,
+                unit: 'mm',
+                content: [{ uuid: 'el_1', type: 'text', x: 0, y: 0, width: 100, height: 40, rotation: 45, z_index: 1 }],
+            });
+
+            await render(TEMPLATE);
+            await click(layerRows()[0]);
+            await click(buttonByTitle('Rotate right 90°'));
+
+            assert.strictEqual((await savedTemplate()).content[0].rotation, 135, '45 plus 90');
+        });
+
+        test('elements with no z-index still reorder', async function (assert) {
+            this.set('template', {
+                name: 'No z',
+                width: 210,
+                height: 297,
+                unit: 'mm',
+                content: [
+                    { uuid: 'a', type: 'text', x: 0, y: 0, width: 100, height: 40 },
+                    { uuid: 'b', type: 'shape', x: 0, y: 0, width: 100, height: 40 },
+                ],
+            });
+
+            await render(TEMPLATE);
+            await click(layerAction(0, 'Move layer down'));
+
+            const content = (await savedTemplate()).content;
+            assert.strictEqual(content.length, 2, 'both elements survive a reorder with no z-index to start from');
+            assert.deepEqual(layerLabels(), ['Text', 'Shape'], 'and the order actually changed');
         });
     });
 });

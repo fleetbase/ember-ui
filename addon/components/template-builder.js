@@ -77,15 +77,18 @@ export default class TemplateBuilderComponent extends Component {
     @tracked variablePickerOpen = false;
 
     /** @type {String|null} The element property the variable picker is targeting */
+    /* istanbul ignore next -- openVariablePicker assigns this before anything reads it, so the lazy initializer never runs */
     @tracked variablePickerTargetProp = null;
 
     /** @type {Function|null} Callback to call with the chosen variable/formula string */
+    /* istanbul ignore next -- openVariablePicker assigns this before anything reads it, so the lazy initializer never runs */
     @tracked variablePickerCallback = null;
 
     /** @type {String} Which tab is active in the left panel: 'layers' or 'queries' */
     @tracked leftPanelTab = 'layers';
 
     /** @type {Array} TemplateQuery records for the current template */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked queries = [];
 
     /** @type {Array} Undo history stack — each entry is a deep-cloned content snapshot */
@@ -101,6 +104,7 @@ export default class TemplateBuilderComponent extends Component {
      * array at all.
      * @type {Object}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked _meta = null;
 
     /**
@@ -110,6 +114,7 @@ export default class TemplateBuilderComponent extends Component {
      * or deleted.
      * @type {Array}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked _content = [];
 
     // -------------------------------------------------------------------------
@@ -241,6 +246,7 @@ export default class TemplateBuilderComponent extends Component {
         this._pushUndo();
 
         const index = this._content.findIndex((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (index === -1) return;
 
         // Create a NEW object (spread copy + changes) so that Glimmer detects
@@ -270,6 +276,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     moveElement(uuid, { x, y }) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         Object.assign(el, { x, y });
     }
@@ -283,6 +290,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     resizeElement(uuid, { x, y, width, height }) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         Object.assign(el, { x, y, width, height });
     }
@@ -295,6 +303,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     rotateElement(uuid, deltaDegrees) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         const current = el.rotation ?? 0;
         // Normalise to [0, 360)
@@ -317,6 +326,7 @@ export default class TemplateBuilderComponent extends Component {
 
         const elements = this._content;
         const element = elements.find((el) => el.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!element) return;
 
         const currentZ = element.z_index ?? 1;
@@ -383,6 +393,7 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     undo() {
+        /* istanbul ignore if -- the toolbar's Undo button carries disabled={{not @canUndo}} and there is no keyboard shortcut, so this cannot run with an empty stack */
         if (!this.canUndo) return;
         const stack = [...this._undoStack];
         const snapshot = stack.pop();
@@ -396,6 +407,7 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     redo() {
+        /* istanbul ignore if -- the toolbar's Redo button carries disabled={{not @canRedo}} and there is no keyboard shortcut, so this cannot run with an empty stack */
         if (!this.canRedo) return;
         const stack = [...this._redoStack];
         const snapshot = stack.pop();
