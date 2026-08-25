@@ -2,6 +2,8 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, findAll, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { setupWindowMock } from 'ember-window-mock/test-support';
+import window from 'ember-window-mock';
 import Service from '@ember/service';
 import Component from '@glimmer/component';
 
@@ -28,6 +30,7 @@ function customiseButton() {
 
 module('Integration | Component | layout/header/smart-nav-menu', function (hooks) {
     setupRenderingTest(hooks);
+    setupWindowMock(hooks);
 
     let headerMenuItems;
     let savedOptions;
@@ -551,6 +554,35 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
 
             assert.dom('.snm-customizer-panel').doesNotExist('opening the dropdown closes it again');
             assert.dom(moreButton()).hasAttribute('aria-expanded', 'true');
+        });
+    });
+    // _calculateDropdownPosition clamps the 680px dropdown so it cannot spill past the right edge
+    // of the viewport. Which arm runs depends on the browser window size, so before the component
+    // read `window` through ember-window-mock this file's coverage differed between a developer
+    // machine and CI.
+    module('positioning the overflow dropdown', function () {
+        test('a narrow viewport clamps the dropdown to the right edge', async function (assert) {
+            window.innerWidth = 700;
+            headerMenuItems = [item('a'), item('b'), item('c'), item('d'), item('e'), item('f')];
+
+            await render(hbs`<Layout::Header::SmartNavMenu @maxVisible={{2}} />`);
+            await click(moreButton());
+
+            const panel = dropdown(this);
+            assert.ok(panel, 'the dropdown opened');
+            assert.strictEqual(panel.style.left, `${700 - 680 - 8}px`, 'it is pulled back from the edge');
+        });
+
+        test('a wide viewport leaves the dropdown aligned to the button', async function (assert) {
+            window.innerWidth = 3000;
+            headerMenuItems = [item('a'), item('b'), item('c'), item('d'), item('e'), item('f')];
+
+            await render(hbs`<Layout::Header::SmartNavMenu @maxVisible={{2}} />`);
+            await click(moreButton());
+
+            const panel = dropdown(this);
+            assert.ok(panel, 'the dropdown opened');
+            assert.notStrictEqual(panel.style.left, `${3000 - 680 - 8}px`, 'no clamping is applied');
         });
     });
 });

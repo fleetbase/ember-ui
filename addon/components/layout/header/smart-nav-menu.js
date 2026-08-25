@@ -133,6 +133,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
         }
         // Clean up the routeDidChange listener.
         try {
+            /* istanbul ignore else -- the handler is assigned during setup and only cleared here, so willDestroy always finds one; the else would need teardown to run twice */
             if (this._routeDidChangeHandler) {
                 this._getRouter().off('routeDidChange', this._routeDidChangeHandler);
                 this._routeDidChangeHandler = null;
@@ -332,6 +333,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
     }
 
     _teardownObserver() {
+        /* istanbul ignore else -- the observer is created during setup and only cleared here, so teardown always finds one */
         if (this._resizeObserver) {
             this._resizeObserver.disconnect();
             this._resizeObserver = null;
