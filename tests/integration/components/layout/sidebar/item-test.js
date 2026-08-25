@@ -3,9 +3,12 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
+import { setupWindowMock } from 'ember-window-mock/test-support';
+import window from 'ember-window-mock';
 
 module('Integration | Component | layout/sidebar/item', function (hooks) {
     setupRenderingTest(hooks);
+    setupWindowMock(hooks);
 
     let router;
     let deniedAbilities;
@@ -450,6 +453,40 @@ module('Integration | Component | layout/sidebar/item', function (hooks) {
                 ['Shown', 'ShownByPredicate', 'ShownByTrueFlag', 'ContextlessStaysVisible'],
                 'a false flag hides, a predicate hides, and a contextless predicate leaves the item alone'
             );
+        });
+    });
+    // The url arms of the click handler. These are only testable now that the component reads
+    // `window` through ember-window-mock — before that, asserting on window.location.href meant
+    // navigating the test runner away.
+    module('items that point at a url', function () {
+        test('a url with a target opens a new window', async function (assert) {
+            const opened = [];
+            window.open = (url, target) => opened.push({ url, target });
+
+            await render(hbs`<Layout::Sidebar::Item @url="https://example.test/docs" @target="_blank">Docs</Layout::Sidebar::Item>`);
+            await click(navItem());
+
+            assert.deepEqual(opened, [{ url: 'https://example.test/docs', target: '_blank' }], 'the target is honoured');
+        });
+
+        test('a url with no target navigates in place', async function (assert) {
+            await render(hbs`<Layout::Sidebar::Item @url="https://example.test/changelog">Changelog</Layout::Sidebar::Item>`);
+            await click(navItem());
+
+            assert.strictEqual(window.location.href, 'https://example.test/changelog', 'the url is assigned to location');
+        });
+
+        test('a url item prefers onClick when both are supplied', async function (assert) {
+            const clicks = [];
+            this.set('onClick', () => clicks.push('clicked'));
+
+            await render(hbs`<Layout::Sidebar::Item @url="https://example.test/docs" @onClick={{this.onClick}}>Docs</Layout::Sidebar::Item>`);
+            await click(navItem());
+
+            // The url arm returns first, so onClick is NOT reached — asserting the actual
+            // precedence rather than the one that might be assumed.
+            assert.deepEqual(clicks, [], 'the url wins over onClick');
+            assert.strictEqual(window.location.href, 'https://example.test/docs');
         });
     });
 });

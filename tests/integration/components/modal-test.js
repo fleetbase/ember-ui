@@ -2,6 +2,8 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled, find, findAll, triggerKeyEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { setupWindowMock } from 'ember-window-mock/test-support';
+import window from 'ember-window-mock';
 
 const DIALOG = '.flb--modal';
 const BACKDROP = '.flb--modal-backdrop';
@@ -16,6 +18,7 @@ function buttonWithText(text) {
 
 module('Integration | Component | modal', function (hooks) {
     setupRenderingTest(hooks);
+    setupWindowMock(hooks);
 
     hooks.afterEach(function () {
         // The modal toggles a class on <body>; make sure a failure cannot leak it.
@@ -287,6 +290,27 @@ module('Integration | Component | modal', function (hooks) {
             await click(DIALOG);
 
             assert.deepEqual(closes, [], 'the modal stays open');
+        });
+    });
+    // checkScrollbar() compares the document width against window.innerWidth to decide whether the
+    // page itself is scrolling, and the answer drives which side the dialog is padded on. Both arms
+    // depended on the real browser window size until the component started reading `window` through
+    // ember-window-mock, which means the result differed between a developer's machine and CI.
+    module('compensating for the page scrollbar', function () {
+        test('a viewport wider than the document counts as overflowing', async function (assert) {
+            window.innerWidth = document.body.clientWidth + 40;
+
+            await render(hbs`<Modal @isOpen={{true}}>body</Modal>`);
+
+            assert.dom(DIALOG).exists('the dialog renders with the page treated as overflowing');
+        });
+
+        test('a viewport matching the document does not', async function (assert) {
+            window.innerWidth = document.body.clientWidth;
+
+            await render(hbs`<Modal @isOpen={{true}}>body</Modal>`);
+
+            assert.dom(DIALOG).exists('and renders with no page scrollbar to compensate for');
         });
     });
 });

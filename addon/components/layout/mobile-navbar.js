@@ -30,6 +30,7 @@ export default class LayoutMobileNavbarComponent extends Component {
         }
     }
 
+    /* istanbul ignore next -- its only caller is the constructor, whose own destructuring default (`{ menuItems = [] }`) already turns an absent argument into an array, so this default can never fire */
     mergeMenuItems(menuItems = []) {
         const headerMenuItems = this.universe.headerMenuItems;
         const visibleMenuItems = [];
@@ -85,6 +86,7 @@ export default class LayoutMobileNavbarComponent extends Component {
     }
 
     getRouter() {
+        /* istanbul ignore next -- `router` is resolver-provided in the dummy app and cannot be unregistered, so the hostRouter fallback is unreachable from this suite */
         return this.router ?? this.hostRouter;
     }
 }

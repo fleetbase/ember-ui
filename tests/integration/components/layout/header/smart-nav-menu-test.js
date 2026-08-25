@@ -311,20 +311,25 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
         await render(hbs`<Layout::Header::SmartNavMenu />`);
         const [, handler] = menuServiceHandlers[0];
 
-        headerMenuItems = [item('a'), item('b')];
-        handler({ id: 'b' }, 'sidebar');
+        // Fire the non-header registration with the item list UNCHANGED. Changing it first would
+        // prove nothing: `allItems` reads the universe service live, so any re-render would pick
+        // the new item up regardless of which registry fired — which is what made an earlier
+        // version of this test pass in one run and fail in the next.
+        handler({ id: 'ignored' }, 'sidebar');
         await settled();
 
         assert.deepEqual(
             barItems().map((node) => node.textContent.trim()),
             ['a'],
-            'the header bar is untouched'
+            'a sidebar registration does not redistribute the header bar'
         );
 
+        // Only now add the item, so the redistribution is unambiguously the header call's doing.
+        headerMenuItems = [item('a'), item('b')];
         handler({ id: 'b' }, 'header');
         await settled();
 
-        assert.strictEqual(barItems().length, 2, 'but a header registration does redistribute');
+        assert.strictEqual(barItems().length, 2, 'but a header registration does');
     });
 
     test('it forwards splattributes', async function (assert) {

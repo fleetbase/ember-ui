@@ -115,4 +115,32 @@ module('Integration | Component | combo-box', function (hooks) {
         assert.dom('.options-list').containsText('Apple');
         assert.dom('.selected-list').containsText('Banana');
     });
+    // toggleSelection moves a selection in and out of `unpending`. Clicking once marks it; clicking
+    // the same selection again takes the other arm and unmarks it — which no test had exercised.
+    test('clicking a selection twice unmarks it again', async function (assert) {
+        this.set('options', ['Apple']);
+        this.set('selected', ['Durian', 'Elderberry']);
+
+        await render(hbs`<ComboBox @options={{this.options}} @selected={{this.selected}} />`);
+
+        const first = document.querySelectorAll('.combo-box-option')[0];
+        await click(first);
+        assert.dom(first).hasClass('selected', 'the first click marks it');
+
+        await click(first);
+        assert.dom(first).doesNotHaveClass('selected', 'the second click unmarks it');
+    });
+
+    test('marking one selection leaves the others alone', async function (assert) {
+        this.set('options', ['Apple']);
+        this.set('selected', ['Durian', 'Elderberry']);
+
+        await render(hbs`<ComboBox @options={{this.options}} @selected={{this.selected}} />`);
+
+        const chosen = document.querySelectorAll('.combo-box-option');
+        await click(chosen[0]);
+
+        assert.dom(chosen[0]).hasClass('selected');
+        assert.dom(chosen[1]).doesNotHaveClass('selected', 'its neighbour is untouched');
+    });
 });

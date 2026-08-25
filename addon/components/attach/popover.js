@@ -55,6 +55,7 @@ export default class AttachPopoverComponent extends Component {
     @computed('showOn') get showEvents() {
         let { showOn } = this;
 
+        /* istanbul ignore if -- `showOn` is a class field with this exact default, and setDefaultOptions() skips any argument that is undefined, so it is never undefined here; this fallback is redundant with the field initialiser */
         if (showOn === undefined) {
             showOn = 'mouseenter focus';
         }
@@ -65,6 +66,7 @@ export default class AttachPopoverComponent extends Component {
     @computed('hideOn') get hideEvents() {
         let { hideOn } = this;
 
+        /* istanbul ignore if -- same as showEvents above: the class field already carries this default and setDefaultOptions() never assigns undefined over it */
         if (hideOn === undefined) {
             hideOn = 'mouseleave blur escapekey';
         }
