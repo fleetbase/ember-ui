@@ -347,3 +347,113 @@ Two tests in this repo primed a null response and silently got `[]`.
   not refetched on tab change. Edits made inside the manager update local state directly; only
   out-of-band changes go stale, and that trade was accepted deliberately over refetching on every
   tab switch.
+
+---
+
+## Appendix A — the earlier numbering (#25–#160), and why references to it are stale
+
+Before this file existed, findings were recorded as numbered comments on PR #143 under a different
+scheme that ran to #160. That numbering survives in a few source comments — `full-calendar-test.js`
+cites "DEFECTS.md #94 for Leaflet", for instance — and those references now point at nothing, because
+this file restarted at #1.
+
+**Every finding in that older set has since been resolved.** Verified against the current source on
+2026-08-25 before the PR comments were retired; each line below names the evidence:
+
+| old # | finding | outcome |
+|---|---|---|
+| #146 | `filter/multi-option`'s `search` called an `@task` as a function, and mutated `this.options` | fixed — `this.fetchOptions.perform(...)`, with the old bug described inline |
+| #150 | `overlay.resize` clamped on width and returned before the `isHorizontal` fork, so a bottom drawer could never resize | fixed — `minSize = isHorizontal ? minResizeWidth : minResizeHeight` |
+| #143 | `custom-field/form`'s `save` task assigned to `this.args` and called a misnamed callback | resolved by deletion — `addon/components/custom-field/form.js` no longer exists |
+| #160(a) | `set-height` turned `'auto'` / `'100%'` into the invalid string `"px"` | fixed — keyword values take the `calculated` path |
+| #160(b) | `services/leaflet` never set `initialized` when an instance was preset, so the poll ran forever | fixed — `initialized = true` hoisted out of the `instance === undefined` check |
+| #156 | `transition-to` asserted the same condition as the `if` it sat inside, so it could never fire | fixed — `=== 'string'` |
+| #154 | `resource-context-panel.open()` read the definition before validating it | resolved — the component was restructured; no `open()` or validate path remains |
+| #152 | `is-menu-item-active`'s contradictory `slugOnly && view` | resolved — the helper no longer exists |
+| #139 | `custom-field/input`'s money arm could never run, and disagreed with the raw arm | fixed — the arm was removed, with the reasoning inline |
+| #141 | `dashboard/widget-panel`'s `hoveredWidget` / `onHover` / `onUnhover` | resolved — no occurrence anywhere in `addon/` |
+| #147 | `custom-field/yield`'s `resolveSubject` and `toggleGroupEdit` | resolved — both gone |
+| #149 | `custom-field/options-input`'s `addMetaOption` | resolved — gone |
+| #151 | `smart-nav-menu/customizer`'s `unpinnedItems` | resolved — gone (`reorderPinned` stayed and is now covered) |
+| #148 | the three `query-builder` `validate*` actions were never performed, so a panel kept sorting and grouping by deselected columns | fixed — all three are wired to `{{did-update}}` on the column list (`conditions.hbs:3`, `group-by.hbs:3`, `sort-by.hbs:3`) |
+| #128 | `attach/popover`'s `@isOffset` guarded on a field nothing assigned | fixed, with the old behaviour described inline |
+| #120 | `modal`'s `@fade={{false}}` did not disable transitions | fixed — the `_fade` getter |
+| #105 | `model-select`'s infinite scroll was inert | fixed (PR #151) |
+| #108 | `table/cell/resource-identity` hard-coded its compact padding | fixed (PR #152) |
+| #26 | `translations-editor` backtracking assertion | fixed (PR #149, rebuilt around stable rows) |
+| — | the scheduling cluster (`availability-editor`, `schedule-calendar`, `schedule-item-card`) | resolved — none of the three remains |
+| — | adopt `eslint-plugin-qunit`; add a lint rule for unguarded handler arguments | done (PR #148) |
+
+If you meet an old-scheme reference in a source comment, this table is where it resolves to. The
+`#94` in `full-calendar-test.js` is the Leaflet-state-leak finding, fixed long ago; the `afterEach`
+it justifies is still doing real work for the reason given in #17.
+
+## Appendix B — why the remaining gaps are where they are
+
+Kept from the PR #143 write-up because it is the most reusable thing that came out of this work.
+Seven categories account for essentially every site the gate still names.
+
+**1. Defaults on signatures only the framework calls.** Glimmer always invokes
+`compute(args.positional, args.named)` with both arguments, passing an empty object when the
+template supplies none; ember-modifier does the same. So `named = {}` / `positional = []` can never
+take their default. Affects the six ability helpers, `now`, `place-address`, `get-model-name`,
+`set-model-attr`, `format-date-fns`, `json-stringify`, `background-url`.
+
+The distinction that costs the most time: **a default on a plain function or a service method is
+real, reachable surface** — chasing those produced 24 tests in a single iteration across
+`modals-manager`, `dashboard`, `services/sidebar` and `sidebar-navigator`. A default on a
+framework-invoked signature is dead. They are indistinguishable in istanbul's branch map; only the
+call site tells them apart. Positional destructuring like `[direction = 'bottom']` *is* reachable,
+because the positional array can be shorter.
+
+**2. Resolver-provided services that cannot be removed.** `is-dark-mode`,
+`get-universe-components`, `get-universe-menu-items` and `sidebar-navigator`'s
+`lookupService('router') ?? lookupService('host-router')` all guard on `if (service)`. Reaching the
+else needs `lookup` to answer nothing, and `owner.unregister('service:theme')` does not achieve
+that: the dummy app provides these through the *resolver*, and `unregister` only removes explicit
+registrations. You can shadow a resolver factory by registering over it; you cannot make it vanish.
+
+**3. `@tracked` initializers a constructor pre-empts.** `@tracked x = false` compiles to a lazy
+initializer. When the constructor assigns before anything reads — the prevailing style here — the
+initializer never runs and the field declaration reports as uncovered forever. The fix is dropping
+the redundant initializer, not adding a test.
+
+**4. Statements after a `throw`.** `dropdown-fn`'s two `return false` lines.
+
+**5. Guards whose only entry point is already disabled.** In each case the button that calls them
+carries `disabled={{…}}` for exactly that condition and an existing test asserts the disabled state.
+This turned out to be the single most common unreachable shape in the codebase.
+
+**6. Comparator early-return halves.** `to-power-select-groups` and `truncate-pages` — `if (A < B)` /
+`if (A > B)` pairs where one side stays unvisited for any array a test can construct.
+
+**7. Genuine harness questions — mostly disproven since.** This category was the largest, and most of
+it did not survive contact: the `template-builder` files were said to be blocked on
+interact.js/drag-sort DOM measurement, and both libraries turned out to be drivable (see #16's
+neighbours and PR #161). Treat anything in this category as unverified until someone has actually
+tried it.
+
+## Appendix C — habits that paid for themselves
+
+**A green test is not evidence that the branch you aimed at ran.** Five tests written during the
+original work passed while covering nothing: three re-asserted an outcome another test already
+covered, and two fed already-sorted input so the comparator never took the branch they were aimed
+at. Only the next coverage report caught them. This has recurred in every phase since.
+
+**A test that fails against production code is a finding, not a broken test.** Seven were deleted
+rather than weakened for this reason, and each deletion was a defect report.
+
+**A fully-populated fixture hides every fallback.** `activity-log`'s `#normalizeActivity` is fifteen
+consecutive defaulting expressions and every fixture was a complete activity, so all fifteen
+right-hand sides were dead in the suite while being exactly what a trimmed API response hits. One
+`{}` took that file from 29 partial branches to 9. Same story in `dashboard/widget-panel`,
+`chat-tray` and `place-address`.
+
+**A module reached only through its consumer is only ever called the way that consumer calls it.**
+`sidebar-navigator`'s ten defaulted parameters had never defaulted; one unit test file closed 20 of
+its 21 partial branches.
+
+**Ranking by absolute uncovered counts hides small modules.** The component-heavy ranking buried a
+tier of small utils and services — including two still carrying generated "it works" stubs — behind
+a handful of large components. The per-file percentage view surfaced them and produced the largest
+single-iteration branch gain of the effort.
