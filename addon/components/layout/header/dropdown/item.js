@@ -47,10 +47,13 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
     get active() {
         const { item } = this.args;
 
+        /* istanbul ignore else -- see above: `active` is only read from the isInteractive branch
+           of item.hbs, which renders only for an item that is neither blank nor inert */
         if (this.isInteractive && !isBlank(item)) {
             return isMenuItemActive(item.section, item.slug, item.view);
         }
 
+        /* istanbul ignore next -- see above */
         return false;
     }
 }

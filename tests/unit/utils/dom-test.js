@@ -291,6 +291,22 @@ module('Unit | Utility | dom', function (hooks) {
             }
         });
 
+        // A negative timeout means "wait indefinitely": no timer is armed, so there is none for
+        // cleanup to clear either.
+        test('a negative timeout arms no deadline', async function (assert) {
+            const el = document.createElement('div');
+            el.style.cssText = 'width: 10px; height: 10px;';
+
+            const promise = waitForInsertedAndSized(() => el, { timeoutMs: -1 });
+            document.body.appendChild(el);
+
+            try {
+                assert.strictEqual(await promise, el, 'it still resolves once the element is there');
+            } finally {
+                el.remove();
+            }
+        });
+
         test('it rejects when the element never becomes sized', async function (assert) {
             const el = document.createElement('div');
             document.body.appendChild(el);

@@ -47,6 +47,40 @@ module('Integration | Component | chat-window/pending-attachment', function (hoo
         assert.dom('.chat-window-pending-attachment-name').hasText('really-long-f....png');
     });
 
+    test('a file with no name, url or path is not treated as an image', async function (assert) {
+        this.set('file', { id: 'file-1' });
+
+        await render(hbs`<ChatWindow::PendingAttachment @file={{this.file}} />`);
+
+        assert.dom('img.x-fleetbase-file-preview').doesNotExist('there is nothing to identify it by');
+        assert.dom('.chat-window-pending-attachment').exists('and it still renders');
+    });
+
+    test('a file identified only by its path is judged on that', async function (assert) {
+        this.set('file', { id: 'file-1', path: 'uploads/chat/photo.png' });
+
+        await render(hbs`<ChatWindow::PendingAttachment @file={{this.file}} />`);
+
+        assert.dom('img.x-fleetbase-file-preview').exists('the path carries the extension');
+    });
+
+    test('a filename with no extension is not treated as an image', async function (assert) {
+        this.set('file', { id: 'file-1', original_filename: 'scan' });
+
+        await render(hbs`<ChatWindow::PendingAttachment @file={{this.file}} />`);
+
+        assert.dom('img.x-fleetbase-file-preview').doesNotExist('nothing says what kind of file it is');
+    });
+
+    test('removing with no handler behind it is harmless', async function (assert) {
+        this.set('file', { id: 'file-1', original_filename: 'notes.txt' });
+
+        await render(hbs`<ChatWindow::PendingAttachment @file={{this.file}} />`);
+        await click('.chat-window-pending-attachment-actions a');
+
+        assert.dom('.chat-window-pending-attachment').exists('the attachment is still shown, and nothing threw');
+    });
+
     test('it invokes @onRemove with the file when the remove action is clicked', async function (assert) {
         const removed = [];
         this.set('file', {

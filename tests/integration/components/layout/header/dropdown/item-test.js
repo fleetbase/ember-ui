@@ -4,6 +4,7 @@ import { render, click, findAll, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { setComponentTemplate } from '@ember/component';
 import templateOnly from '@ember/component/template-only';
+import { ExtensionComponent } from '@fleetbase/ember-core/contracts';
 
 const TEMPLATE = hbs`<Layout::Header::Dropdown::Item @item={{this.item}} @onAction={{this.onAction}} />`;
 
@@ -171,6 +172,27 @@ module('Integration | Component | layout/header/dropdown/item', function (hooks)
             assert.dom('a').hasClass('next-dd-item');
             assert.dom('a').hasText('Home');
         });
+    });
+
+    test('no item at all renders nothing', async function (assert) {
+        this.set('item', undefined);
+
+        await render(TEMPLATE);
+
+        assert.dom('.next-header-dd-menu-item').doesNotExist('every shape check bails on a missing item');
+        assert.dom('.next-dd-menu-seperator').doesNotExist();
+    });
+
+    // An ExtensionComponent instance is what ember-core hands over for a registered extension
+    // menu item. It takes the component branch rather than the text branch — the component itself
+    // resolves through a lazy engine, which a rendering test has no engine to load.
+    test('an ExtensionComponent item with no onClick is classified as a component', async function (assert) {
+        this.set('item', { component: new ExtensionComponent('@fleetbase/some-engine', 'components/menu-entry'), text: 'Not shown as text' });
+
+        await render(TEMPLATE);
+
+        assert.dom('.next-header-dd-menu-item').doesNotExist('it is not rendered as a text item');
+        assert.dom(this.element).doesNotIncludeText('Not shown as text', 'the text is not what gets rendered');
     });
 
     test('an item with nothing to show renders nothing', async function (assert) {
