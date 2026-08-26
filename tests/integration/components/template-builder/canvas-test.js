@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, find } from '@ember/test-helpers';
+import { render, click, find, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 function styleValue(style, property) {
@@ -109,6 +109,66 @@ module('Integration | Component | template-builder/canvas', function (hooks) {
         await render(hbs`<TemplateBuilder::Canvas @template={{this.template}} />`);
 
         assert.strictEqual(find('.tb-canvas').children.length, 0);
+    });
+
+    // The canvas forwards a tap on an element straight to @onSelectElement. interact.js listens
+    // for real pointer events, so this drives it the way a browser would.
+    module('selecting an element', function () {
+        function pointer(type, x, y, target) {
+            (target ?? document).dispatchEvent(
+                new PointerEvent(type, {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                    pointerId: 1,
+                    pointerType: 'mouse',
+                    isPrimary: true,
+                    button: 0,
+                    buttons: type === 'pointerup' ? 0 : 1,
+                    clientX: x,
+                    clientY: y,
+                })
+            );
+        }
+
+        async function tap(node) {
+            const box = node.getBoundingClientRect();
+            const at = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+            pointer('pointerdown', at.x, at.y, node);
+            pointer('pointerup', at.x, at.y, node);
+            await settled();
+        }
+
+        const WITH_ELEMENT = {
+            width: 200,
+            height: 200,
+            unit: 'px',
+            content: [{ uuid: 'el_1', type: 'text', x: 10, y: 10, width: 100, height: 40, z_index: 1, props: { content: 'Hello' } }],
+        };
+
+        test('tapping an element reports it to the parent', async function (assert) {
+            const selected = [];
+            this.set('template', WITH_ELEMENT);
+            this.set('onSelectElement', (element) => selected.push(element));
+
+            await render(hbs`<TemplateBuilder::Canvas @template={{this.template}} @onSelectElement={{this.onSelectElement}} />`);
+            await tap(find('.tb-element'));
+
+            assert.deepEqual(
+                selected.map((element) => element.uuid),
+                ['el_1'],
+                'the element the parent needs to select is handed up'
+            );
+        });
+
+        test('tapping an element with no handler above is harmless', async function (assert) {
+            this.set('template', WITH_ELEMENT);
+
+            await render(hbs`<TemplateBuilder::Canvas @template={{this.template}} />`);
+            await tap(find('.tb-element'));
+
+            assert.dom('.tb-element').exists('the canvas survives a tap with nothing listening');
+        });
     });
 
     test('clicking the canvas background deselects', async function (assert) {

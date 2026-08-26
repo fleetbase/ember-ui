@@ -165,6 +165,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     get withString() {
+        /* istanbul ignore next -- withRelations is a tracked array and every assignment gives it
+           another one */
         return (this.withRelations ?? []).join(', ');
     }
 
@@ -229,6 +231,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         // alive and keeps focus. Then bump the array reference so Glimmer knows
         // the list changed (needed for the operator select and value visibility).
         const item = this.conditions[index];
+        /* istanbul ignore else -- the index comes from {{#each this.conditions}}, so it always
+           names a row that exists */
         if (item) {
             Object.assign(item, { [field]: value });
             this.conditions = [...this.conditions];
@@ -253,6 +257,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     updateSortField(index, field, event) {
         const value = event.target.value;
         const item = this.sort[index];
+        /* istanbul ignore else -- the index comes from {{#each this.sort}}, so it always names a
+           row that exists */
         if (item) {
             Object.assign(item, { [field]: value });
             this.sort = [...this.sort];
@@ -285,6 +291,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
             uuid: this.args.query?.uuid ?? null,
             label: this.label.trim(),
             variable_name: this.variableName.trim() || this._deriveVariableName(this.label),
+            /* istanbul ignore next -- description is a tracked string, assigned '' when there is
+               nothing to show */
             description: this.description?.trim() ?? '',
             model_type: this.modelType,
             conditions: this.conditions.filter((c) => c.field?.trim()),
@@ -311,6 +319,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     _deriveVariableName(label) {
+        /* istanbul ignore next -- the only caller passes this.label, a tracked string */
         return (label ?? '')
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '_')

@@ -11,6 +11,7 @@ export default class LayoutSidebarPanelComponent extends Component {
     @tracked permissionRequired = null;
     /* istanbul ignore next */
     @tracked disabled = false;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked doesntHavePermissions = false;
     /* istanbul ignore next */
     @tracked visible = true;

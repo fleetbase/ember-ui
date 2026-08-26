@@ -52,6 +52,20 @@ module('Integration | Component | template-builder/variable-picker', function (h
         this.set('onClose', () => closed++);
     });
 
+    // A schema that declares no variables at all, and a variable of a type the icon map does not
+    // know, are both shapes a host application can register.
+    const ODD_SCHEMAS = [
+        { namespace: 'empty', label: 'Empty' },
+        {
+            namespace: 'odd',
+            label: 'Odd',
+            variables: [
+                { path: 'odd.thing', label: 'Thing', type: 'geometry' },
+                { path: 'odd.unlabelled', type: 'geometry' },
+            ],
+        },
+    ];
+
     const TEMPLATE = hbs`
         <TemplateBuilder::VariablePicker
             @isOpen={{this.isOpen}}
@@ -279,6 +293,30 @@ module('Integration | Component | template-builder/variable-picker', function (h
             assert.strictEqual(closed, 1);
         });
 
+        // The button is disabled on `not this.formulaExpression`, which whitespace satisfies — so
+        // a spaces-only expression is pressable and the trim guard inside is what stops it.
+        test('a whitespace-only expression inserts nothing', async function (assert) {
+            await render(TEMPLATE);
+            await openFormulaTab();
+            await fillIn('textarea', '   ');
+
+            assert.dom(buttonWithText('Insert Formula')).isNotDisabled('the button is pressable');
+
+            await click(buttonWithText('Insert Formula'));
+
+            assert.deepEqual(inserted, [], 'nothing is inserted');
+            assert.strictEqual(closed, 0, 'and the picker stays open');
+        });
+
+        test('inserting a formula with no handler behind it still closes the picker', async function (assert) {
+            await render(hbs`<TemplateBuilder::VariablePicker @isOpen={{true}} @contextSchemas={{this.contextSchemas}} @onClose={{this.onClose}} />`);
+            await openFormulaTab();
+            await fillIn('textarea', '1 + 1');
+            await click(buttonWithText('Insert Formula'));
+
+            assert.strictEqual(closed, 1, 'the picker closes with nothing to report to');
+        });
+
         test('unbalanced braces are reported and nothing is inserted', async function (assert) {
             await render(TEMPLATE);
             await openFormulaTab();
@@ -309,6 +347,22 @@ module('Integration | Component | template-builder/variable-picker', function (h
             await click(buttonWithText('Insert Formula'));
 
             assert.deepEqual(inserted, ['[{ round(1.5) }]']);
+        });
+    });
+
+    module('shapes a host application can register', function () {
+        test('searching skips a schema with no variables, and an unknown type still gets an icon', async function (assert) {
+            this.set('contextSchemas', ODD_SCHEMAS);
+
+            await render(TEMPLATE);
+            await fillIn(searchInput(), 'thing');
+
+            assert.dom(this.element).doesNotIncludeText('Empty', 'a schema with nothing in it drops out of the results');
+            assert.dom(this.element).includesText('Thing', 'the matching variable is listed');
+
+            await fillIn(searchInput(), 'unlabelled');
+
+            assert.dom(this.element).includesText('odd.unlabelled', 'a variable with no label of its own is matched on its path');
         });
     });
 

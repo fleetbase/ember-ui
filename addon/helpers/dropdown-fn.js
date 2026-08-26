@@ -34,6 +34,7 @@ const context = (function buildUntouchableThis() {
                reached from this module-level IIFE */
             assertOnProperty(property);
 
+            /* istanbul ignore next -- assertOnProperty never returns */
             return false;
         };
 
