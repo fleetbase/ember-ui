@@ -35,6 +35,13 @@ machine.
 test"` to clear it — other sessions and dev servers share this machine, and a blanket kill has
 already taken out someone else's run once.
 
+**Do not assume every browser timeout is this.** A `Browser timeout exceeded: 120s` that names a
+*specific test* is a different thing wearing the same clothes: the page navigated away and testem
+lost the browser. That is what kept CI red on this branch for its whole life, and it was read as
+contention for longer than it should have been. Tell them apart by the message — "Browser failed to
+connect within 120s" before any test ran is contention; "Error while executing test: <name>" is the
+test. Then check whether that test clicks a real `<LinkTo>` or anything else with an `href`.
+
 
 ---
 

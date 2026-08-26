@@ -28,9 +28,18 @@ exactly there.
 
 # Status
 
-The coverage gate passes: `pnpm run coverage:check` exits 0 at 100% statements, branches, functions
-and lines across every addon file, with 5395 tests and no failures. Three consecutive full runs
-agree.
+The coverage gate passes **in CI** — run
+[32938940906](https://github.com/fleetbase/ember-ui/actions/runs/32938940906), commit `a210ac1`:
+
+    Statements   : 100% ( 8456/8456 )
+    Branches     : 100% ( 5963/5963 )
+    Functions    : 100% ( 2234/2234 )
+    Lines        : 100% ( 8015/8015 )
+    # tests 5396 / # pass 5396 / # fail 0
+    Coverage gate passed: 100% statements, branches, functions and lines across all addon files.
+
+That qualifier is the point. The gate passed locally for some time before it ever passed in CI, and
+the difference was not noise — see the two conventions below.
 
 What remains below is the worklist that outlived the campaign: findings that need a product
 decision rather than a fix (#21, #26, #31), and #18, which is about the measurement rather than the
@@ -45,6 +54,23 @@ Two conventions worth knowing before adding to this file:
 - **`istanbul ignore next` does not attach to an object-property value or to a destructured
   parameter in some positions.** Where it will not take, hoist the expression into a local `const`
   and put the comment above that.
+- **An ignore inside a method body does not ignore the method.** The statement stops counting, but
+  the function still has to be *called* to count as covered. `tip-tap-editor`'s `onFocus`/`onBlur`
+  sat at 46/47 functions in CI and 47/47 locally for exactly this reason. Put the comment above the
+  method when the method itself is what cannot run.
+- **A local pass is not a CI pass, and the gap is usually window focus.** Headless Linux Chrome
+  never gives the page focus and macOS Chrome does, so anything downstream of focus differs: tiptap
+  calls `onFocus`/`onBlur` locally and not in CI, and the browser fires `blur` as a focused input is
+  torn down locally and not in CI. Coverage that arrives *incidentally*, from an event the browser
+  happened to send, is the coverage that disappears in CI. Cover the path on purpose instead —
+  `layers-panel`'s re-entrancy guard is now covered by two blurs dispatched in the same tick, which
+  no platform gets a vote on.
+- **`Browser timeout exceeded: 120s` naming a specific test is usually navigation, not a hang.**
+  Clicking a real `<LinkTo>` in a rendering test either starts a transition the test app cannot
+  service, or — for a modifier-held click, which Ember deliberately hands back to the browser — lets
+  the page follow the `href` and navigate away from the test harness. testem then loses the browser
+  and the whole run dies. Hold the modifier *and* suppress the default action. This one kept the
+  suite from ever reaching the gate step in CI.
 
 # Open
 
