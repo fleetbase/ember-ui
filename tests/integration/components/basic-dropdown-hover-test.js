@@ -48,6 +48,36 @@ module('Integration | Component | basic-dropdown-hover', function (hooks) {
         assert.dom('.ember-basic-dropdown-trigger').hasAttribute('aria-expanded', 'false');
     });
 
+    // A zero delay is the "no delay" case: the open and close run immediately rather than
+    // through a timer.
+    test('a zero delay opens and closes immediately', async function (assert) {
+        await render(hbs`
+            <BasicDropdownHover @renderInPlace={{true}} @openDelay={{0}} @closeDelay={{0}} as |dd|>
+                <dd.Trigger class="hover-trigger">Actions</dd.Trigger>
+                <dd.Content class="hover-content">Fleet actions</dd.Content>
+            </BasicDropdownHover>
+        `);
+
+        await triggerEvent('.ember-basic-dropdown-trigger', 'mouseenter');
+        assert.dom('.ember-basic-dropdown-content').exists('open with no timer in between');
+
+        await triggerEvent('.ember-basic-dropdown-trigger', 'mouseleave');
+        assert.dom('.ember-basic-dropdown-content').doesNotExist('and closed the same way');
+    });
+
+    test('mousedown on the trigger is swallowed so it cannot toggle the dropdown', async function (assert) {
+        await render(hbs`
+            <BasicDropdownHover @renderInPlace={{true}} @openDelay={{0}} as |dd|>
+                <dd.Trigger class="hover-trigger">Actions</dd.Trigger>
+                <dd.Content class="hover-content">Fleet actions</dd.Content>
+            </BasicDropdownHover>
+        `);
+
+        await triggerEvent('.ember-basic-dropdown-trigger', 'mousedown');
+
+        assert.dom('.ember-basic-dropdown-content').doesNotExist('a press does nothing — this dropdown is hover-driven');
+    });
+
     test('it opens after the default delay when no delay arguments are given', async function (assert) {
         await render(hbs`
             <BasicDropdownHover @renderInPlace={{true}} as |dd|>

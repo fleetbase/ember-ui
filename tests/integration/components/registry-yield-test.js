@@ -105,6 +105,41 @@ module('Integration | Component | registry-yield', function (hooks) {
 
             assert.deepEqual(yielded(), []);
         });
+
+        test('with no menu service at all the universe answers instead', async function (assert) {
+            universeMenuItems = { header: [{ title: 'From universe' }] };
+            registerServices(this.owner, { withMenuService: false });
+            this.set('registry', 'header');
+            this.set('type', 'menu');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['From universe']);
+        });
+
+        // A universe that answers with nothing at all rather than an empty list.
+        test('a universe fallback that returns undefined yields nothing', async function (assert) {
+            menuItems = { header: [] };
+            registerServices(this.owner);
+            this.owner.unregister('service:universe');
+            this.owner.register(
+                'service:universe',
+                class extends Service {
+                    getMenuItemsFromRegistry() {
+                        return undefined;
+                    }
+                    getRenderableComponentsFromRegistry() {
+                        return undefined;
+                    }
+                }
+            );
+            this.set('registry', 'header');
+            this.set('type', 'menu');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), []);
+        });
     });
 
     module('components', function () {
@@ -147,6 +182,53 @@ module('Integration | Component | registry-yield', function (hooks) {
             await render(TEMPLATE);
 
             assert.deepEqual(yielded(), []);
+        });
+
+        test('with no registry service at all the universe answers instead', async function (assert) {
+            universeComponents = { widgets: [{ title: 'From universe' }] };
+            registerServices(this.owner, { withRegistryService: false });
+            this.set('registry', 'widgets');
+            this.set('type', 'components');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), ['From universe']);
+        });
+
+        test('a universe component fallback that returns undefined yields nothing', async function (assert) {
+            components = { widgets: [] };
+            registerServices(this.owner);
+            this.owner.unregister('service:universe');
+            this.owner.register(
+                'service:universe',
+                class extends Service {
+                    getMenuItemsFromRegistry() {
+                        return undefined;
+                    }
+                    getRenderableComponentsFromRegistry() {
+                        return undefined;
+                    }
+                }
+            );
+            this.set('registry', 'widgets');
+            this.set('type', 'components');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), []);
+        });
+
+        // With nothing to yield there is no first item to inspect, so the component cannot be
+        // treated as a component registry either.
+        test('an empty registry is not treated as a component registry', async function (assert) {
+            registerServices(this.owner, { withUniverseFallbacks: false });
+            this.set('registry', 'panels');
+            this.set('type', 'components');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(yielded(), [], 'nothing is yielded');
+            assert.dom('.registry-yield-component').doesNotExist('and nothing is rendered as a component');
         });
 
         test('an unknown registry yields nothing', async function (assert) {
