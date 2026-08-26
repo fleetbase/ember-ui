@@ -149,6 +149,32 @@ module('Integration | Component | notification-tray', function (hooks) {
         return findAll('.notification-item');
     }
 
+    // The view-all control is a real <LinkTo>, which makes a click on it two problems at once.
+    //
+    // A plain click is one Ember handles: it starts a real transition, and a rendering test has no
+    // application route to service it — "Attempted to resolve `welcome-page`".
+    //
+    // A modifier-held click is one Ember deliberately hands back to the browser, so the transition
+    // is skipped — but the anchor's default action is not, and the test page navigates to the
+    // href. macOS Chrome swallows that; headless Linux Chrome follows it, testem loses the browser
+    // and the run dies with "Browser timeout exceeded: 120s". That is why this only ever failed in
+    // CI.
+    //
+    // So: hold a modifier to keep Ember out of it, and suppress the default action outright rather
+    // than trusting either platform. The component's own {{on "click"}} still runs, which is what
+    // these tests are about.
+    async function clickWithoutNavigating(node) {
+        const suppress = (event) => event.preventDefault();
+
+        document.addEventListener('click', suppress, true);
+
+        try {
+            await triggerEvent(node, 'click', { metaKey: true });
+        } finally {
+            document.removeEventListener('click', suppress, true);
+        }
+    }
+
     function badge() {
         return find('.notification-tray-unread-notifications-badge');
     }
@@ -395,10 +421,7 @@ module('Integration | Component | notification-tray', function (hooks) {
             assert.ok(link, 'the link is offered');
             assert.dom(link).hasText('View all notifications');
 
-            // A plain click makes <LinkTo> start a real transition, which a rendering test
-            // cannot service. Ember skips the transition for a non-simple click (modifier key
-            // held) while still dispatching the event our {{on "click"}} listens for.
-            await triggerEvent(link, 'click', { metaKey: true });
+            await clickWithoutNavigating(link);
             assert.strictEqual(pressed, 1, 'the callback fires');
         });
 
@@ -407,7 +430,7 @@ module('Integration | Component | notification-tray', function (hooks) {
 
             await render(hbs`<NotificationTray @renderInPlace={{true}} />`);
             await click('.ember-basic-dropdown-trigger');
-            await triggerEvent('.notification-tray-view-all-link', 'click', { metaKey: true });
+            await clickWithoutNavigating(find('.notification-tray-view-all-link'));
 
             assert.dom('.notification-tray-view-all-link').exists('no handler is required');
         });
