@@ -1,4 +1,67 @@
 /*
+ * Element normalisation for the preview surface.
+ *
+ * `addon/styles/addon.css` deliberately ships no `@tailwind base` — an addon that emitted
+ * preflight would clobber every application consuming it. Its component rules are `@apply`-
+ * generated and assume the host has already normalised the elements underneath them. Without that
+ * layer a <button> keeps the user agent's `buttontext` colour (pure black) instead of inheriting,
+ * and form controls keep UA fonts: the previews looked unstyled when only the layer beneath them
+ * was missing.
+ *
+ * Emitting `@tailwind base` here would fix the previews and break the addon. Preflight would land
+ * AFTER the addon's stylesheet and win on equal specificity, silently overriding deliberate rules
+ * — `button { cursor: pointer }` versus the console's `* { cursor: default }`, which
+ * `tests/integration/components/layout/sidebar/navigator-test.js` asserts. In a real console the
+ * application's preflight loads BEFORE the addon, so the addon wins; reproducing that ordering
+ * inside the dummy app is not possible.
+ *
+ * So only the normalisation the previews actually need is applied, scoped to the playground. The
+ * ancestor sits in `:where()` so it contributes no specificity: these rules weigh exactly as much
+ * as preflight's own element selectors (0,0,1), which keeps `.btn-sm` and friends winning, and
+ * nothing outside `.pg-host` — every component integration test included — is affected.
+ */
+:where(.pg-host) button,
+:where(.pg-host) input,
+:where(.pg-host) optgroup,
+:where(.pg-host) select,
+:where(.pg-host) textarea {
+    color: inherit;
+    font-family: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+}
+
+:where(.pg-host) button,
+:where(.pg-host) select {
+    text-transform: none;
+}
+
+/*
+ * Opt out of the console's viewport lock.
+ *
+ * The addon's shipped CSS contains `body, html { height: 100vh; overflow: hidden; overflow-y:
+ * hidden }` (plus `body { height: 100%; max-height: 100% }`). That is right for the Fleetbase
+ * console, which fills the viewport and scrolls its sidebar and main pane independently — but the
+ * playground is an ordinary document that grows past the fold, and inheriting the lock made every
+ * catalog entry and control below ~720px unreachable: content measured 3080px tall inside a
+ * 720px, non-scrolling viewport.
+ *
+ * `tests/dummy` is loaded after the addon's stylesheet, so a same-specificity rule is enough; no
+ * `!important` and no selector hacks are needed. Component previews that want the console's
+ * full-height behaviour still get it — they set their own heights inside the preview surface.
+ */
+html,
+body {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    overflow-y: auto;
+}
+
+/*
  * Playground chrome only.
  *
  * Deliberately plain CSS scoped to `pg-` classes: the components under test bring the addon's own

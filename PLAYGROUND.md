@@ -163,6 +163,43 @@ https://fleetbase.github.io/ember-ui/#/embed/button?state=…
 
 ---
 
+## What the host application has to supply
+
+The addon ships component styles, not a document. Two things a consuming application normally
+provides had to be supplied by the playground, and both were missing at first — the previews
+looked unstyled and the page would not scroll.
+
+**1. Element normalisation.** `addon/styles/addon.css` deliberately contains no `@tailwind base`;
+an addon emitting preflight would clobber every application consuming it. Its component rules are
+`@apply`-generated and assume the elements underneath are already normalised. Without that layer a
+`<button>` keeps the user agent's `buttontext` colour — pure black — instead of inheriting, and
+form controls keep UA fonts.
+
+Emitting `@tailwind base` from the dummy app fixes the previews and *breaks the addon*: preflight
+would land after the addon's stylesheet and win on equal specificity, silently overriding
+deliberate rules — `button { cursor: pointer }` against the console's `* { cursor: default }`,
+which `tests/integration/components/layout/sidebar/navigator-test.js` asserts. A real console loads
+its preflight *before* the addon, so the addon wins there; that ordering cannot be reproduced from
+inside the dummy app.
+
+So `tests/dummy/app/styles/app.css` applies only the normalisation the previews need, scoped to
+`.pg-host`, with the ancestor inside `:where()` so it contributes no specificity. The rules weigh
+exactly as much as preflight's own element selectors (0,0,1), which keeps `.btn-sm` and friends
+winning, and nothing outside the playground is affected.
+
+**2. Opting out of the console's viewport lock.** The shipped CSS contains
+`body, html { height: 100vh; overflow: hidden }`. That is right for the Fleetbase console, which
+fills the viewport and scrolls its sidebar and main pane independently — but the playground is an
+ordinary document that grows past the fold. Inheriting the lock made everything below it
+unreachable: the catalog measured 3080px inside a 720px, non-scrolling viewport. `app.css` restores
+`height: auto` and `overflow-y: auto`; `tests/dummy` loads after the addon stylesheet, so a
+same-specificity rule is enough — no `!important`, no selector hacks.
+
+Both are covered by `tests/acceptance/playground/styling-test.js`, which asserts the computed
+styles of a previewed Button and that nothing between the catalog and the document clips it.
+
+---
+
 ## Local commands
 
 ```bash
