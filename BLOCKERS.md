@@ -35,3 +35,11 @@ machine.
 test"` to clear it — other sessions and dev servers share this machine, and a blanket kill has
 already taken out someone else's run once.
 
+
+---
+
+## Nothing is currently blocking
+
+The campaign reached a passing gate. The entry above stays because the Chrome start-up failure is a
+property of this machine under contention, not of the suite — it will happen again, and the point of
+the entry is that it reads like a broken suite and is not.

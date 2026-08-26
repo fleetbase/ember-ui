@@ -15,6 +15,12 @@ Format:
 
 ---
 
+**Three questions are open below.** None of them blocked the gate — each is either ignored with a
+trace naming this file, or decided in the direction recorded. All three are product calls: what a
+component should *do*, not whether the code is right.
+
+---
+
 ## `dashboard/widget-card` — two label getters nothing renders — DECIDED: deleted
 
 **Evidence:** `addLabel` and `addedBadgeText` reported `[0,0]` — never evaluated. `grep -rn` across

@@ -26,7 +26,101 @@ exactly there.
 
 ---
 
+# Status
+
+The coverage gate passes: `pnpm run coverage:check` exits 0 at 100% statements, branches, functions
+and lines across every addon file, with 5395 tests and no failures. Three consecutive full runs
+agree.
+
+What remains below is the worklist that outlived the campaign: findings that need a product
+decision rather than a fix (#21, #26, #31), and #18, which is about the measurement rather than the
+code. Everything else in the numbered range shipped and was removed.
+
+Two conventions worth knowing before adding to this file:
+
+- **Every `istanbul ignore` in the addon carries a reason naming the specific thing that makes the
+  code unreachable** — the caller that always passes the argument, the template that disables the
+  control, the constructor that assigns the field first. An ignore without that trace is a bug
+  waiting to be reintroduced, not a coverage exemption.
+- **`istanbul ignore next` does not attach to an object-property value or to a destructured
+  parameter in some positions.** Where it will not take, hoist the expression into a local `const`
+  and put the comment above that.
+
 # Open
+
+## 31. `addon/components/floating.js` — `@arrow` renders an arrow that is never positioned
+
+**Status:** OPEN — logged, not changed; a real fix is a feature, not a repair
+**Found:** the `if (arrowNode instanceof Element)` guard that installs floating-ui's arrow
+middleware has no coverage, and tracing why turned up two independent reasons it can never work.
+**Evidence:**
+
+    :94  const arrowNode = element.closest('[x-arrow]');
+    :96  if (arrowNode instanceof Element) { middleware.push(arrow(arrowNode)); }
+
+`element` is the floating element, and the arrow — `<div x-arrow>` in `attach/popover.hbs` — is a
+*descendant* of it. `closest()` searches the element and its ancestors, so it never finds one and
+the middleware is never installed.
+
+And even if it were, nothing would come of it: `computePosition()` (`:141`) destructures only
+`{ x, y }` from the result and never reads `middlewareData.arrow`, which is the only thing the
+arrow middleware produces.
+
+**Impact:** `<Attach::Popover @arrow={{true}} />` renders the arrow element and its CSS, and the
+arrow is never placed against the target — it sits wherever the stylesheet leaves it.
+
+**Fix — not applied.** Making it work needs both halves: `querySelector` instead of `closest`, and
+applying `middlewareData.arrow`'s `x`/`y` to the arrow element after each computation. That is
+implementing the feature, not correcting a slip, and it changes what every popover with an arrow
+looks like. Fixing only the lookup would install middleware whose output is discarded.
+
+## 30. `addon/components/basic-dropdown-hover.js` — a zero delay was read as no delay at all
+
+**Status:** FIXED
+**Found:** the `else` arms of `if (openDelay)` and `if (closeDelay)` — the branches that open and
+close without a timer — had no coverage, and a test asking for `@openDelay={{0}}` did not reach
+them.
+**Evidence:** `getDelay()` picked its answer by truthiness:
+
+    if (this.args[`${action}Delay`]) { return this.args[`${action}Delay`]; }
+    if (this.args.delay) { return this.args.delay; }
+    return defaultDelay;   // 300
+
+`0` is falsy, so `@openDelay={{0}}` fell through both checks and became 300ms. The function could
+therefore never return a falsy delay, which is why the immediate-open and immediate-close arms
+below it were unreachable.
+
+**Impact:** a consumer asking for a hover dropdown with no delay got the default 300ms one — in
+both directions, and for `@delay={{0}}` as well.
+
+**Fix — applied:** both checks compare against `undefined` rather than testing truthiness. `0` now
+means what it says, and the two arms it unlocks are covered by a test that opens and closes with
+no timer in between.
+
+## 29. `addon/components/aside-item-scroller.js` — an item with no title throws before its guard
+
+**Status:** FIXED
+**Found:** the `continue` inside `itemsGroupByTitleLetter` had no coverage, and the reason turned
+out to be that it cannot be reached.
+**Evidence:**
+
+    const title = get(item, titleKey);
+    const firstLetter = title[0];        // ← throws first
+
+    if (!title || !firstLetter) {
+        continue;
+    }
+
+An item whose `titleKey` resolves to undefined dies on `title[0]` — `Cannot read properties of
+undefined (reading '0')` — one line before the guard written to skip it. The same shape as the
+`@item` guard in `layout/header/dropdown/item.js`, which was fixed earlier for the same reason.
+
+**Impact:** a single untitled item takes the whole grouped list down, and the getter is read
+straight from the template, so the component renders nothing at all.
+
+**Fix — applied:** the `!title` check moved above the dereference. `!firstLetter` went with it: a
+non-empty string always has a first character, so that half could never have been the reason to
+skip.
 
 ## 28. `addon/components/model-select.js` — one unusable record empties the whole dropdown
 
@@ -269,7 +363,16 @@ is gone, rather than asserting the method ran.
 
 ## 18. Coverage branch totals still vary by ±1 between identical runs
 
-**Status:** OPEN — same class of blocker as #4 was, and the last one known
+**Status:** OPEN — but it has not been observed since the gate reached 100%. Three consecutive full
+runs at 5395 tests all report an identical 5963/5963 branches. The denominator is far smaller now
+than when this was found (6255), because a large number of unreachable branches have been ignored
+with traces rather than left in it — so there is simply less surface for it to flap on. Treat the
+entry as unresolved rather than fixed: the mechanism was never located, and a run that comes back
+at 5962/5963 is this, not a regression in the code.
+
+**Original finding below.**
+
+**Was:** same class of blocker as #4 was, and the last one known
 **Found:** verifying the #16 fix. Three full runs, all 5130 tests passing, all with identical
 statement totals (8366/8702) and an identical `layout/sidebar.js` (203/215) — but **branches differ**:
 
