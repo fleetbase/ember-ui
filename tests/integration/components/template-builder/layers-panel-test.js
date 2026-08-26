@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, doubleClick, fillIn, blur, triggerKeyEvent, find, findAll } from '@ember/test-helpers';
+import { render, click, doubleClick, fillIn, blur, triggerKeyEvent, find, findAll, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 function elements() {
@@ -295,6 +295,30 @@ module('Integration | Component | template-builder/layers-panel', function (hook
 
             assert.ok(renameField(), 'the field is still open');
             assert.deepEqual(updated, [], 'and nothing is reported yet');
+        });
+
+        test('a second blur landing before the field closes is ignored', async function (assert) {
+            await render(TEMPLATE);
+            await doubleClick(rowLabel(0));
+            await fillIn(renameField(), 'Renamed once');
+
+            // Committing sets renamingUuid to null and schedules the field's removal — it is still
+            // in the DOM, with its blur listener attached, until that render runs. A second blur
+            // arriving in the same tick therefore re-enters commitRename with nothing to commit,
+            // which is exactly what the guard is there for. Dispatching both synchronously pins
+            // that window down; relying on the blur the browser fires as the field is torn down
+            // does not, because headless Linux Chrome does not fire it at all.
+            const field = renameField();
+            field.dispatchEvent(new FocusEvent('blur'));
+            field.dispatchEvent(new FocusEvent('blur'));
+            await settled();
+
+            assert.deepEqual(
+                updated.map(([, changes]) => changes),
+                [{ label: 'Renamed once' }],
+                'the rename is reported exactly once'
+            );
+            assert.notOk(renameField(), 'and the field is closed');
         });
 
         test('a blank name is not committed', async function (assert) {

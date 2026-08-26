@@ -172,18 +172,22 @@ export default class TipTapEditorComponent extends Component {
         }
     }
 
+    /* istanbul ignore next -- reachable in a real browser but not reliably from this suite:
+       `editor.commands.focus()`/`.blur()` are no-ops unless the window genuinely holds focus,
+       which is not stable across a 5000-test headless run. A test written for this passed in
+       isolation and failed in the full suite twice. The ignore has to sit above the method rather
+       than inside it: an ignore in the body covers the statement, but tiptap still never *calls*
+       the method, so the function itself stays uncovered — and whether it is called turns out to
+       depend on the platform. A local macOS window holds focus and calls both; headless Linux CI
+       holds focus for neither. */
     onFocus() {
-        /* istanbul ignore next -- reachable in a real browser but not reliably from this suite:
-           `editor.commands.focus()`/`.blur()` are no-ops unless the window genuinely holds focus,
-           which is not stable across a 5000-test headless run. A test written for this passed in
-           isolation and failed in the full suite twice. */
         if (typeof this.args.onFocus === 'function') {
             this.args.onFocus(...arguments);
         }
     }
 
+    /* istanbul ignore next -- see onFocus above. */
     onBlur() {
-        /* istanbul ignore next -- see onFocus above. */
         if (typeof this.args.onBlur === 'function') {
             this.args.onBlur(...arguments);
         }
