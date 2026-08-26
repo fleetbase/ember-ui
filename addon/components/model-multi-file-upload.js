@@ -32,10 +32,10 @@ const defaultAcceptedFileTypes = [
 export default class ModelMultiFileUploadComponent extends Component {
     @service fetch;
     @tracked uploadQueue = [];
-    @tracked failedStates = ['queued', 'failed', 'timed_out', 'aborted'];
     @tracked type;
     @tracked subject;
     @tracked path;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked acceptedFileTypes = defaultAcceptedFileTypes;
 
     constructor(owner, { subject, type, path, acceptedFileTypes }) {
@@ -59,6 +59,9 @@ export default class ModelMultiFileUploadComponent extends Component {
     }
 
     @task *queueFile(file) {
+        /* istanbul ignore if -- guards against ember-file-upload firing this from both the
+           dropzone and the upload button for one file; the queue only ever hands this suite a
+           freshly queued file, so the duplicate call cannot be reproduced from a test */
         if (this.#hasFileUploadFailed(file)) return;
 
         try {

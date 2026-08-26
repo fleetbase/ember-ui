@@ -197,6 +197,21 @@ module('Integration | Component | model-multi-file-upload', function (hooks) {
             assert.strictEqual(findAll('.bg-blue-100').length, 0, 'the queue still drains');
         });
 
+        // A file that is no longer attached to a queue — the queue may already have dropped it —
+        // is still taken out of the component's own list.
+        test('a file with no queue behind it still leaves the list', async function (assert) {
+            uploadHandler = (file, params, callback, errorCallback) => {
+                file.queue = undefined;
+                errorCallback(new Error('rejected'));
+            };
+
+            await render(TEMPLATE);
+            await selectFiles(fileInput(), textFile());
+
+            assert.strictEqual(findAll('.bg-blue-100').length, 0, 'the queue still drains');
+            assert.dom('.dropzone').exists('and nothing throws');
+        });
+
         test('a failed upload also clears the queue', async function (assert) {
             const uploaded = [];
             this.set('onUploaded', (file) => uploaded.push(file));

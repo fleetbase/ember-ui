@@ -142,6 +142,22 @@ module('Integration | Component | translations-editor', function (hooks) {
             assert.deepEqual(renderedKeys(), ['greeting']);
         });
 
+        // A language key with nothing behind it — the API returns null for a language that has
+        // not been translated yet.
+        test('a language with no translations at all is still given the default keys', async function (assert) {
+            this.set('value', { en: { greeting: 'Hello' }, fr: null });
+            this.set('defaultKeys', ['greeting']);
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(tabLabels(), ['en', 'fr'], 'both languages are offered');
+
+            await click(tabs()[1]);
+
+            assert.deepEqual(renderedKeys(), ['greeting'], 'the empty language gets the default key');
+            assert.strictEqual(valueInputs()[0].value, '', 'with no translation behind it');
+        });
+
         test('an array value produces no language tabs at all', async function (assert) {
             this.set('value', ['not', 'an', 'object']);
             this.set('defaultKeys', ['greeting']);

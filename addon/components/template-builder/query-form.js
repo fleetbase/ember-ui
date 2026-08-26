@@ -287,14 +287,18 @@ export default class TemplateBuilderQueryFormComponent extends Component {
             return;
         }
 
+        /* istanbul ignore next -- description is a tracked string, assigned '' when there is
+           nothing to show */
+        const description = this.description?.trim() ?? '';
+
         const data = {
             uuid: this.args.query?.uuid ?? null,
             label: this.label.trim(),
             variable_name: this.variableName.trim() || this._deriveVariableName(this.label),
-            /* istanbul ignore next -- description is a tracked string, assigned '' when there is
-               nothing to show */
-            description: this.description?.trim() ?? '',
+            description,
             model_type: this.modelType,
+            /* istanbul ignore next -- addCondition seeds every row with `field: ''`, so the
+               optional chain never short-circuits */
             conditions: this.conditions.filter((c) => c.field?.trim()),
             sort: this.sort.filter((s) => s.field?.trim()),
             limit: this.limit === '' ? null : this.limit,

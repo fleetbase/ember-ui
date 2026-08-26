@@ -164,4 +164,21 @@ module('Integration | Component | modals/changelog', function (hooks) {
 
         assert.dom(this.element).containsText('Failed to fetch');
     });
+
+    test('a failure with no message of its own still says something', async function (assert) {
+        respondWith = () => Promise.reject({});
+
+        await render(TEMPLATE);
+
+        assert.dom(this.element).containsText('Unable to load the changelog.');
+    });
+
+    test('a response body of null is treated as no releases', async function (assert) {
+        respondWith = () => Promise.resolve(null);
+
+        await render(TEMPLATE);
+
+        assert.deepEqual(releaseHeadings(), [], 'nothing is listed');
+        assert.strictEqual(find('.fleetbase-loader'), null, 'and no spinner is left running');
+    });
 });

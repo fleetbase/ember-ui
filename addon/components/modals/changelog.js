@@ -3,8 +3,13 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class ModalsChangelogComponent extends Component {
+    // loadRepositoryReleases() runs from the constructor and assigns all three before the
+    // template that reads them is rendered.
+    /* istanbul ignore next */
     @tracked releases = [];
+    /* istanbul ignore next */
     @tracked isLoading = false;
+    /* istanbul ignore next */
     @tracked loadError = null;
 
     constructor() {

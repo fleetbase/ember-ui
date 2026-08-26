@@ -70,6 +70,7 @@ export default class EventCalendarComponent extends Component {
      * Reference to the DOM element the calendar is mounted on.
      * @type {HTMLElement}
      */
+    /* istanbul ignore next -- setup assigns this before anything reads it */
     @tracked calendarEl = null;
 
     /**
@@ -77,6 +78,7 @@ export default class EventCalendarComponent extends Component {
      * Exposes .setOption(name, value) and .getOption(name).
      * @type {Object}
      */
+    /* istanbul ignore next -- setup assigns this before anything reads it */
     @tracked calendar = null;
 
     /**
@@ -136,6 +138,8 @@ export default class EventCalendarComponent extends Component {
      * Called via {{did-update this.update ...watchedArgs}} in the template.
      */
     @action update() {
+        /* istanbul ignore if -- {{did-update}} only fires after {{did-insert this.setup}} has
+           built the calendar */
         if (!this.calendar) {
             return;
         }
@@ -147,6 +151,8 @@ export default class EventCalendarComponent extends Component {
      * Called via {{will-destroy this.teardown}} in the template.
      */
     @action teardown() {
+        /* istanbul ignore else -- teardown runs from {{will-destroy}} on the element setup built
+           the calendar on */
         if (this.calendar) {
             destroyCalendar(this.calendar);
         }
@@ -240,6 +246,7 @@ export default class EventCalendarComponent extends Component {
      * Batched via scheduleOnce('afterRender') to coalesce multiple arg changes.
      */
     _applyDynamicOptions() {
+        /* istanbul ignore if -- the only caller is update(), which has already checked */
         if (!this.calendar) {
             return;
         }
@@ -296,6 +303,8 @@ export default class EventCalendarComponent extends Component {
      * @param {*}      value
      */
     _setOption(key, value) {
+        /* istanbul ignore else -- every caller runs from _applyDynamicOptions, which has already
+           established the calendar, and the library always exposes setOption */
         if (this.calendar && typeof this.calendar.setOption === 'function') {
             this.calendar.setOption(key, value);
         }

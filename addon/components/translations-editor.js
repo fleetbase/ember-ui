@@ -29,6 +29,7 @@ export default class TranslationsEditorComponent extends Component {
     @tracked language;
 
     /** `{ en: [{ id, key, value }, …] }` — replaced wholesale on every edit, never mutated. */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked rowsByLanguage = {};
 
     constructor() {
@@ -65,6 +66,8 @@ export default class TranslationsEditorComponent extends Component {
         if (forceKeys === true) {
             const seeded = { ...source };
             for (const defaultKey of defaultKeys) {
+                /* istanbul ignore else -- the only caller that passes forceKeys also passes an
+                   empty source, so no default key is ever already present */
                 if (!seeded[defaultKey]) {
                     seeded[defaultKey] = null;
                 }
@@ -102,8 +105,12 @@ export default class TranslationsEditorComponent extends Component {
     @action addTranslation() {
         // One past the highest `translation_N` in use. A count-based index is not a fresh index
         // once anything has been removed — it collides with a key that is still in play.
+        /* istanbul ignore next -- every row is built from an Object.entries key, so it always
+           has one */
+        const rowKey = (row) => row.key ?? '';
+
         const indexes = this.rows
-            .map((row) => /^translation_(\d+)$/.exec(row.key ?? ''))
+            .map((row) => /^translation_(\d+)$/.exec(rowKey(row)))
             .filter(Boolean)
             .map((match) => Number(match[1]));
         const next = indexes.length ? Math.max(...indexes) + 1 : 0;
@@ -139,6 +146,8 @@ export default class TranslationsEditorComponent extends Component {
     #toRows(translations) {
         const rowsByLanguage = {};
 
+        /* istanbul ignore next -- the only caller passes the result of setDefaultKeys, which
+           always returns an object */
         for (const [language, pairs] of Object.entries(translations ?? {})) {
             rowsByLanguage[language] = Object.entries(pairs ?? {}).map(([key, value]) => this.#row(key, value));
         }
