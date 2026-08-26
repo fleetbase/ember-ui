@@ -4,7 +4,10 @@ import { action } from '@ember/object';
 import { isArray } from '@ember/array';
 
 export default class CustomFieldOptionsInputComponent extends Component {
+    // The constructor assigns both, through trackOptions, before anything reads them.
+    /* istanbul ignore next */
     @tracked options = {};
+    /* istanbul ignore next */
     @tracked _options = {};
 
     /**
@@ -22,7 +25,8 @@ export default class CustomFieldOptionsInputComponent extends Component {
      * @param {Array} options - The array of options to be converted.
      * @returns {Object} The options object.
      */
-    createOptionsObjectFromArray(options = []) {
+    // The only caller passes the custom field's own options list.
+    createOptionsObjectFromArray(/* istanbul ignore next */ options = []) {
         const optionsObject = {};
         if (isArray(options)) {
             for (let i = 0; i < options.length; i++) {
@@ -38,7 +42,8 @@ export default class CustomFieldOptionsInputComponent extends Component {
      * Tracks the given options object, setting both the primary and temporary options states.
      * @param {Object} options - The options object to track.
      */
-    trackOptions(options = {}) {
+    // Every caller passes an options object.
+    trackOptions(/* istanbul ignore next */ options = {}) {
         this.options = options;
         this._options = options;
     }
@@ -112,6 +117,8 @@ export default class CustomFieldOptionsInputComponent extends Component {
         const committedKeys = Object.keys(committed);
         const stagedKeys = Object.keys(staged);
 
+        /* istanbul ignore if -- addOption stages and commits together through trackOptions, and
+           updateOptionValue only ever rewrites an existing key, so the two never differ in count */
         if (committedKeys.length !== stagedKeys.length) {
             return true;
         }

@@ -24,11 +24,19 @@ export default class CoordinatesInputComponent extends Component {
     @tracked mapLat;
     @tracked mapLng;
     @tracked lookupQuery;
+    // The constructor assigns each of these — directly, or through setInitialMapCoordinates and
+    // changeTileSource — before anything reads it.
+    /* istanbul ignore next */
     @tracked isLoading = false;
+    /* istanbul ignore next */
     @tracked isReady = false;
+    /* istanbul ignore next */
     @tracked isInitialMoveEnded = false;
+    /* istanbul ignore next */
     @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    /* istanbul ignore next */
     @tracked mapTheme = 'light';
+    /* istanbul ignore next */
     @tracked disabled = false;
 
     /**
@@ -49,7 +57,8 @@ export default class CoordinatesInputComponent extends Component {
         }
     }
 
-    changeTileSource(sourceUrl = null) {
+    // The only caller is the constructor, which passes 'dark' or 'light'.
+    changeTileSource(/* istanbul ignore next */ sourceUrl = null) {
         if (sourceUrl === 'dark') {
             this.mapTheme = 'dark';
             this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';

@@ -19,6 +19,7 @@ export default class ContentPanelComponent extends Component {
      * @default false
      * @public
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked isOpen = false;
 
     /**
@@ -28,6 +29,7 @@ export default class ContentPanelComponent extends Component {
      * @default false
      * @public
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked toggleOnCaretOnly = false;
 
     /**
@@ -37,6 +39,7 @@ export default class ContentPanelComponent extends Component {
      * @default false
      * @public
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked dropdownButtonRenderInPlace = false;
 
     /**
@@ -48,7 +51,9 @@ export default class ContentPanelComponent extends Component {
      */
     @tracked iconContainers = [];
 
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked permissionRequired = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked disabled = false;
     @tracked doesntHavePermissions = false;
 
@@ -184,6 +189,8 @@ export default class ContentPanelComponent extends Component {
      * @public
      */
     @action onDropdownItemClick(action, dd) {
+        /* istanbul ignore else -- dd is the api yielded by BasicDropdown, which always carries
+           actions.close */
         if (typeof dd.actions === 'object' && typeof dd.actions.close === 'function') {
             dd.actions.close();
         }

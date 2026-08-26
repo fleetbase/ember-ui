@@ -139,6 +139,16 @@ module('Integration | Component | custom-field/input', function (hooks) {
             assert.dom('.radio-group-item.is-checked').exists({ count: 1 }, 'and the field tracks the new value');
         });
 
+        test('a text field records the typed value with no onChange handler', async function (assert) {
+            this.set('customField', createCustomField({ component: 'input', type: 'text' }));
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await fillIn('input[type="text"]', 'Typed with nobody listening');
+
+            assert.dom('input[type="text"]').hasValue('Typed with nobody listening', 'the value is kept internally');
+        });
+
         test('a radio-button-select still records the value with no onChange handler', async function (assert) {
             this.set('customField', createCustomField({ component: 'radio-button-select', type: 'radio-button-select', options: ['Low', 'High'] }));
             this.set('subject', createSubject());
@@ -163,6 +173,21 @@ module('Integration | Component | custom-field/input', function (hooks) {
             assert.strictEqual(typeof changes[0].value, 'string', 'the second argument wins over the date instance');
             assert.ok(changes[0].value.startsWith('2026-06-19'), `the chosen date is reported (${changes[0].value})`);
             assert.strictEqual(changes[0].changedCustomField, customField);
+        });
+
+        test('a date-picker reports the formatted string the same way', async function (assert) {
+            const customField = createCustomField({ component: 'date-picker', type: 'date-picker' });
+            const changes = [];
+            this.set('customField', customField);
+            this.set('subject', createSubject());
+            this.set('onChange', (value) => changes.push(value));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @onChange={{this.onChange}} />`);
+            await click('.fleetbase-date-picker');
+            await click(findAll('.air-datepicker-cell.-day-')[9]);
+
+            assert.strictEqual(changes.length, 1, 'the pick is reported once');
+            assert.strictEqual(typeof changes[0], 'string', 'as the formatted string, not the raw Date');
         });
 
         test('a date-time-input with no onChange handler does not throw', async function (assert) {

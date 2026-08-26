@@ -31,6 +31,8 @@ export default class FloatingComponent extends Component {
         let floatingContainer = document.body;
 
         if (container === undefined && target instanceof Element) {
+            /* istanbul ignore next -- target is an Element in the document, so it always has a
+               parentNode and the closest() fallbacks behind it are never reached */
             floatingContainer = target.parentNode || target.closest('section') || target.closest('main') || target.closest('body');
         }
 
@@ -53,6 +55,8 @@ export default class FloatingComponent extends Component {
             return this.target;
         }
 
+        /* istanbul ignore next -- resolveTarget is called with the floating element itself, from
+           {{did-insert}}, so it is always an Element */
         let possibleTarget = element instanceof Element ? element.parentNode : document.body;
 
         if (target instanceof Element) {
@@ -93,6 +97,8 @@ export default class FloatingComponent extends Component {
         if (displayArrow === true) {
             const arrowNode = element.closest('[x-arrow]');
 
+            /* istanbul ignore if -- closest() searches self and ancestors, and the arrow element
+               is a descendant of the floating element, so this never resolves. See DEFECTS #31. */
             if (arrowNode instanceof Element) {
                 middleware.push(arrow(arrowNode));
             }

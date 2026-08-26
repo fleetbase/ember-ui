@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, click, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 function createCustomField(attributes = {}) {
@@ -84,6 +84,55 @@ module('Integration | Component | custom-field/value', function (hooks) {
         assert.strictEqual(normalizeCall.args[1].id, 'file-1');
         assert.dom('.custom-field-file').exists('the file is rendered');
         assert.dom('.custom-field-file').containsText('invoice-2024.pdf');
+    });
+
+    test('a subject whose values have not loaded yet renders the fallback', async function (assert) {
+        this.set('customField', createCustomField());
+        this.set('subject', { id: 'subject-1', get: () => undefined });
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+        assert.dom('.field-value').hasText('-', 'the field falls back with nothing to read');
+    });
+
+    test('a file value that arrives already parsed is used as-is', async function (assert) {
+        const filePayload = {
+            id: 'file-2',
+            original_filename: 'receipt.pdf',
+            filename: 'receipt.pdf',
+            content_type: 'application/pdf',
+            url: 'https://example.test/files/receipt.pdf',
+        };
+        this.set('customField', createCustomField({ type: 'file-upload' }));
+        this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: filePayload }]));
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+        assert.dom('.custom-field-file').containsText('receipt.pdf', 'no JSON parsing was needed');
+    });
+
+    test('a file value can be downloaded through the fetch service', async function (assert) {
+        const filePayload = {
+            id: 'file-1',
+            original_filename: 'invoice-2024.pdf',
+            filename: 'invoice-2024.pdf',
+            content_type: 'application/pdf',
+            url: 'https://example.test/files/invoice-2024.pdf',
+        };
+        this.set('customField', createCustomField({ type: 'file-upload' }));
+        this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify(filePayload) }]));
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+        await click('.custom-field-file .ember-basic-dropdown-trigger');
+        await click(findAll('.custom-field-file a').find((anchor) => anchor.textContent.toLowerCase().includes('download')));
+
+        const fetch = this.owner.lookup('service:fetch');
+        const download = fetch.calls.find((call) => call.method === 'download');
+        assert.ok(download, 'the download goes through the fetch service');
+        assert.strictEqual(download.args[0], 'files/download');
+        assert.deepEqual(download.args[1], { file: 'file-1' });
+        assert.deepEqual(download.args[2], { fileName: 'invoice-2024.pdf', mimeType: 'application/pdf' });
     });
 
     test('it applies the column span from the custom field meta', async function (assert) {
