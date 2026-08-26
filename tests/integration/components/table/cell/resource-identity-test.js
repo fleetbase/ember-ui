@@ -277,6 +277,48 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
             assert.deepEqual(calls, ['argument', 'column'], 'both handlers run, the argument first');
         });
 
+        test('an image on a row with nothing to label it carries empty alt text', async function (assert) {
+            this.set('row', {});
+            this.set('column', { mediaUrl: 'https://example.com/anon.png' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('alt', '', 'there is no label to borrow');
+        });
+
+        test('an altText callback is invoked with the row', async function (assert) {
+            this.set('row', { name: 'Driver One' });
+            this.set('column', {
+                labelPath: 'name',
+                altText: (row) => `Photo of ${row.name}`,
+                mediaUrl: 'https://example.com/driver.png',
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('alt', 'Photo of Driver One');
+        });
+
+        test('a status with no badge size of its own is rendered at the default size', async function (assert) {
+            this.set('row', { name: 'Driver One', state: 'available' });
+            this.set('column', { labelPath: 'name', statusPath: 'state', showStatusBadge: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-status-badge]').exists('the badge renders without a configured size');
+        });
+
+        test('a column onClick works with no argument handler behind it', async function (assert) {
+            const calls = [];
+            this.set('row', { name: 'Driver One' });
+            this.set('column', { labelPath: 'name', onClick: () => calls.push('column') });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+            await click('button');
+
+            assert.deepEqual(calls, ['column'], 'the column handler still runs on its own');
+        });
+
         test('it falls back to the plain @value with no column at all', async function (assert) {
             this.set('row', { name: 'Driver One' });
 

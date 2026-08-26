@@ -57,6 +57,14 @@ module('Integration | Component | table/cell/dropdown', function (hooks) {
             assert.dom(trigger()).containsText('Actions');
         });
 
+        test('with no column at all it still labels itself', async function (assert) {
+            this.set('column', undefined);
+
+            await render(IN_CELL);
+
+            assert.dom(trigger()).containsText('Actions', 'the default label survives a missing column');
+        });
+
         test('the button text can be overridden', async function (assert) {
             this.set('column', { ddButtonText: 'More', actions: [] });
 

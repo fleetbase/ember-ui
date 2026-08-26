@@ -287,6 +287,16 @@ module('Integration | Component | template-builder/layers-panel', function (hook
             assert.notOk(renameField(), 'and the field closes');
         });
 
+        test('any other key leaves the rename open', async function (assert) {
+            await render(TEMPLATE);
+            await doubleClick(rowLabel(0));
+            await fillIn(renameField(), 'Still typing');
+            await triggerKeyEvent(renameField(), 'keydown', 'KeyA');
+
+            assert.ok(renameField(), 'the field is still open');
+            assert.deepEqual(updated, [], 'and nothing is reported yet');
+        });
+
         test('a blank name is not committed', async function (assert) {
             await render(TEMPLATE);
             await doubleClick(rowLabel(0));

@@ -17,12 +17,49 @@ module('Integration | Component | phone-input', function (hooks) {
 
     let iti;
 
+    let originalFetch;
+    let geoResponse;
+
+    // intl-tel-input is configured with `initialCountry: 'auto'`, so the component's geoIpLookup
+    // runs — and lookupUserIp reaches json.geoiplookup.io over the real network. Stubbing fetch
+    // keeps the suite off the internet. Note that intl-tel-input resolves the auto-country once
+    // per page and caches it, so only the first PhoneInput rendered in a run gets that far.
     hooks.beforeEach(function () {
+        localStorage.removeItem('fleetbase:whois');
+        // intl-tel-input remembers the resolved auto-country itself and skips geoIpLookup
+        // entirely on the next render if it is still there.
+        localStorage.removeItem('itiAutoCountry');
+        geoResponse = { ok: true, body: { country_code: 'GB', ip: '1.2.3.4' } };
+        originalFetch = globalThis.fetch;
+        globalThis.fetch = () => {
+            if (geoResponse instanceof Error) {
+                return Promise.reject(geoResponse);
+            }
+
+            return Promise.resolve({
+                ok: geoResponse.ok,
+                status: geoResponse.ok ? 200 : 500,
+                json: () => Promise.resolve(geoResponse.body),
+            });
+        };
+
         iti = undefined;
         // Several tests drive the library instance directly; the component destroys it itself.
         this.set('captureIti', (instance) => {
             iti = instance;
         });
+    });
+
+    hooks.afterEach(function () {
+        globalThis.fetch = originalFetch;
+        localStorage.removeItem('fleetbase:whois');
+        localStorage.removeItem('itiAutoCountry');
+    });
+
+    test('it renders with no @onInit handler', async function (assert) {
+        await render(hbs`<PhoneInput />`);
+
+        assert.ok(find('.iti'), 'the library still wraps the input');
     });
 
     test('it renders a telephone input wrapped by intl-tel-input', async function (assert) {

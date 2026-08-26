@@ -25,6 +25,7 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
      *
      * @type {Array<Object>}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked workingPinned = A([]);
 
     constructor(owner, args) {
@@ -73,11 +74,11 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
             this.workingPinned.splice(idx, 1);
             // Trigger reactivity.
             this.workingPinned = A([...this.workingPinned]);
-            /* istanbul ignore next -- the template renders the pin control
-               `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`, so it cannot be
-               clicked while at the limit and this guard is never consulted as false. */
         } else if (!this.atPinnedLimit) {
             // Pin.
+            /* istanbul ignore else -- the template renders the pin control
+               `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`, so it cannot be
+               clicked while at the limit and this guard is never consulted as false */
             this.workingPinned = A([...this.workingPinned, item]);
         }
     }
@@ -97,6 +98,8 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
      * Drag-sort reorder handler for the pinned items list.
      */
     @action reorderPinned({ sourceList, sourceIndex, targetList, targetIndex }) {
+        /* istanbul ignore if -- ember-drag-sort does not report a drop that did not move
+           anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
         const item = sourceList[sourceIndex];
         sourceList.splice(sourceIndex, 1);

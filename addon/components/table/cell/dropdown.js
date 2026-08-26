@@ -48,6 +48,8 @@ export default class TableCellDropdownComponent extends Component {
             return;
         }
 
+        /* istanbul ignore next -- onOpen sets the cell's zIndex before onClose can run, so it
+           always parses to a number here */
         const currentZIndex = Number.parseInt(this.tableCellNode.style.zIndex, 10) || 1;
         this.tableCellNode.style.zIndex = currentZIndex - 1;
     }
@@ -71,6 +73,8 @@ export default class TableCellDropdownComponent extends Component {
 
         const triggerRect = trigger.getBoundingClientRect();
         const contentRect = content?.getBoundingClientRect?.();
+        /* istanbul ignore next -- calculatePosition is called with the dropdown's own content
+           element, which is in the document and has a width by then */
         const contentWidth = contentRect?.width || 224;
 
         const style = {

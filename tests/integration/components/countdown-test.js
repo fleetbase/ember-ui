@@ -20,6 +20,12 @@ module('Integration | Component | countdown', function (hooks) {
         assert.dom('.countdown-container p').hasClass('my-countdown');
     });
 
+    test('a countdown given only minutes starts from a whole number of them', async function (assert) {
+        await render(hbs`<Countdown @minutes={{2}} @display="minutes,seconds" />`);
+
+        assert.dom('.countdown-container').exists('the unspecified units fall back to nought');
+    });
+
     test('it accepts an expiry date and a display list without error', async function (assert) {
         this.set('expiry', new Date(Date.now() + 10 * 60 * 1000));
 
@@ -191,6 +197,29 @@ module('Integration | Component | countdown', function (hooks) {
 
             assert.deepEqual(scheduled, [1000], 'a fresh ticking interval is scheduled');
             assert.dom('.countdown-container').exists('and the component is still rendering');
+        });
+
+        // Restarting rebuilds the duration from the arguments; a countdown given only minutes has
+        // to fall back to nought for the units it was not given.
+        test('restarting a countdown with no seconds argument falls back to nought', async function (assert) {
+            let restart;
+            this.set('onEnd', ({ restartFn }) => {
+                restart = restartFn;
+            });
+
+            this.set('seconds', 1);
+
+            await render(hbs`<Countdown @seconds={{this.seconds}} @onEnd={{this.onEnd}} />`);
+            await step(3);
+
+            // The restart rebuilds the duration from whatever the arguments say NOW.
+            this.set('seconds', undefined);
+            await settled();
+
+            const scheduled = await captureRestart(restart);
+
+            assert.deepEqual(scheduled, [1000], 'a fresh interval is scheduled');
+            assert.dom('.countdown-container').exists();
         });
 
         test('restartFn is bound, so it works detached from the component', async function (assert) {

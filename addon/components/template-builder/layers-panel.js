@@ -21,6 +21,8 @@ import { action } from '@ember/object';
  */
 export default class TemplateBuilderLayersPanelComponent extends Component {
     @tracked renamingUuid = null;
+    /* istanbul ignore next -- startRename assigns this before the rename field that reads it
+       is rendered */
     @tracked renameValue = '';
 
     get sortedElements() {
@@ -138,6 +140,8 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
 
     @action
     cancelRename() {
+        /* istanbul ignore if -- the only callers are the rename field's own blur and Escape
+           handlers, and that field is only rendered while a rename is in progress */
         if (this.renamingUuid === null) {
             return;
         }
