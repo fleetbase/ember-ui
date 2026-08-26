@@ -4,6 +4,20 @@ import { setupTest } from 'dummy/tests/helpers';
 module('Unit | Service | docs-panel', function (hooks) {
     setupTest(hooks);
 
+    // Every other test calls open() first, which assigns all of these — this is the only look at
+    // the service before anything has happened to it.
+    test('a freshly looked-up service starts closed and empty', function (assert) {
+        const service = this.owner.lookup('service:docs-panel');
+
+        assert.false(service.isOpen, 'closed');
+        assert.strictEqual(service.url, null, 'with nothing to show');
+        assert.strictEqual(service.title, 'Documentation', 'and a generic title');
+        assert.strictEqual(service.source, null);
+        assert.false(service.iframeFailed);
+        assert.false(service.isIframeLoading);
+        assert.strictEqual(service.iframeTheme, 'light');
+    });
+
     test('it normalizes documentation slugs and urls', function (assert) {
         const service = this.owner.lookup('service:docs-panel');
 

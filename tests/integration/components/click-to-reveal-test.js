@@ -100,4 +100,19 @@ module('Integration | Component | click-to-reveal', function (hooks) {
 
         assert.deepEqual(this.copiedValues, ['sk_live_secret'], 'clickToCopy from the column definition enables copying');
     });
+
+    // A column that declares cellComponentArgs but sets neither option falls back to the
+    // component's own defaults rather than to undefined.
+    test('a column with empty cell component args falls back to the defaults', async function (assert) {
+        this.set('column', { cellComponentArgs: {} });
+
+        await render(hbs`<ClickToReveal @value="sk_live_secret" @column={{this.column}} />`);
+
+        assert.dom('.click-to-reveal').doesNotHaveClass('cell-reveal', 'no wrapper class is applied');
+
+        await click('.click-to-reveal--button button');
+        await click('.click-to-reveal');
+
+        assert.deepEqual(this.copiedValues, [], 'and copying stays off');
+    });
 });

@@ -122,6 +122,8 @@ export default class ModalsManagerService extends Service {
         this.modals = [...this.modals, modal];
 
         // Trigger modal opened event
+        /* istanbul ignore else -- `events` is looked up rather than injected, and the dummy app
+           ships one; the guard is for a host application that does not */
         if (this.events) {
             this.events.trackEvent('ui.modal.opened', component, opts);
         }
@@ -248,12 +250,16 @@ export default class ModalsManagerService extends Service {
                 selectOption: (event) => {
                     const { value } = event.target;
                     const topModal = this.getTopModal();
+                    /* istanbul ignore else -- these run from the prompt modal's own controls,
+                       so that modal is still on the stack when they do */
                     if (topModal) {
                         this.setOptionForModal(topModal.id, 'selected', value);
                     }
                 },
                 confirm: () => {
                     const topModal = this.getTopModal();
+                    /* istanbul ignore else -- these run from the prompt modal's own controls,
+                       so that modal is still on the stack when they do */
                     if (topModal) {
                         this.startLoadingForModal(topModal.id);
                         const selected = this.getOptionForModal(topModal.id, 'selected');
@@ -263,6 +269,8 @@ export default class ModalsManagerService extends Service {
                 },
                 decline: () => {
                     const topModal = this.getTopModal();
+                    /* istanbul ignore else -- these run from the prompt modal's own controls,
+                       so that modal is still on the stack when they do */
                     if (topModal) {
                         this.done(topModal.id);
                     }
@@ -364,6 +372,8 @@ export default class ModalsManagerService extends Service {
             this.modals = this.modals.filter((m) => m.id !== modal.id);
 
             // Trigger modal closed event
+            /* istanbul ignore else -- `events` is looked up rather than injected, and the dummy app
+           ships one; the guard is for a host application that does not */
             if (this.events) {
                 this.events.trackEvent('ui.modal.closed', modal.componentToRender, action, modal.options);
             }

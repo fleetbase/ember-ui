@@ -101,6 +101,20 @@ module('Unit | Utility | to-power-select-groups', function () {
         assert.deepEqual(groupNames(groups), ['Alpha', 'beta', 'Zulu'], 'lowercase comparison keeps beta before Zulu');
     });
 
+    // Insertion order already ascending: the comparator's other arm, the one that reports "after".
+    test('groups already in order are left in it', function (assert) {
+        const groups = toPowerSelectGroups(
+            [
+                { label: 'x', group: 'a' },
+                { label: 'y', group: 'b' },
+                { label: 'z', group: 'c' },
+            ],
+            { groupLabelMap: { a: 'Alpha', b: 'Bravo', c: 'Charlie' } }
+        );
+
+        assert.deepEqual(groupNames(groups), ['Alpha', 'Bravo', 'Charlie']);
+    });
+
     test('groupSort desc reverses the header order and false preserves insertion order', function (assert) {
         const items = [
             { label: 'x', group: 'c' },
@@ -123,6 +137,35 @@ module('Unit | Utility | to-power-select-groups', function () {
         );
 
         assert.deepEqual(labelsIn(groups, 0), ['Apple', 'mango', 'zebra'], 'case-insensitive ascending');
+    });
+
+    test('options already in order are left in it', function (assert) {
+        const groups = toPowerSelectGroups(
+            [
+                { label: 'Apple', group: 'a' },
+                { label: 'mango', group: 'a' },
+                { label: 'zebra', group: 'a' },
+            ],
+            { groupLabelMap: LABEL_MAP }
+        );
+
+        assert.deepEqual(labelsIn(groups, 0), ['Apple', 'mango', 'zebra']);
+    });
+
+    test('options with identical labels keep their relative order', function (assert) {
+        const groups = toPowerSelectGroups(
+            [
+                { label: 'Same', value: 1, group: 'a' },
+                { label: 'Same', value: 2, group: 'a' },
+            ],
+            { groupLabelMap: LABEL_MAP }
+        );
+
+        assert.deepEqual(
+            groups[0].options.map((option) => option.value),
+            [1, 2],
+            'equal labels are left alone rather than reordered'
+        );
     });
 
     test('optionSort desc reverses option order and false preserves it', function (assert) {

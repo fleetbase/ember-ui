@@ -466,6 +466,16 @@ module('Unit | Service | modals-manager', function (hooks) {
             assert.strictEqual(this.manager.getOptions([]), modal.options);
         });
 
+        // `show()` is normally called with an options hash; a caller that passes none leaves the
+        // modal without one at all.
+        test('getOptions returns an empty object for a modal shown with no options', function (assert) {
+            this.manager.show('modal/layouts/alert');
+            const modal = this.manager.getTopModal();
+            modal.options = undefined;
+
+            assert.deepEqual(this.manager.getOptions([]), {}, 'an absent options hash reads as empty');
+        });
+
         test('getOptions returns an empty object when there is no modal', function (assert) {
             assert.deepEqual(this.manager.getOptions(['title']), {});
         });

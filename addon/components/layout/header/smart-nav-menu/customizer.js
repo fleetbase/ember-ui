@@ -74,12 +74,14 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
             this.workingPinned.splice(idx, 1);
             // Trigger reactivity.
             this.workingPinned = A([...this.workingPinned]);
-        } else if (!this.atPinnedLimit) {
+        } else {
             // Pin.
             /* istanbul ignore else -- the template renders the pin control
                `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`, so it cannot be
                clicked while at the limit and this guard is never consulted as false */
-            this.workingPinned = A([...this.workingPinned, item]);
+            if (!this.atPinnedLimit) {
+                this.workingPinned = A([...this.workingPinned, item]);
+            }
         }
     }
 
