@@ -41,9 +41,10 @@ The coverage gate passes **in CI** — run
 That qualifier is the point. The gate passed locally for some time before it ever passed in CI, and
 the difference was not noise — see the two conventions below.
 
-What remains below is the worklist that outlived the campaign: findings that need a product
-decision rather than a fix (#21, #26, #31), and #18, which is about the measurement rather than the
-code. Everything else in the numbered range shipped and was removed.
+What remains below is the worklist that outlived the campaign. The three findings that needed a
+product decision (#21, #26, #31) were decided by Ron on 2026-08-28 and are now FIXED — their
+entries record which option was taken. The only open item is #18, which is about the measurement
+rather than the code.
 
 Two conventions worth knowing before adding to this file:
 
@@ -76,7 +77,7 @@ Two conventions worth knowing before adding to this file:
 
 ## 31. `addon/components/floating.js` — `@arrow` renders an arrow that is never positioned
 
-**Status:** OPEN — logged, not changed; a real fix is a feature, not a repair
+**Status:** FIXED — Ron chose to implement the feature (decision 2026-08-28, option a)
 **Found:** the `if (arrowNode instanceof Element)` guard that installs floating-ui's arrow
 middleware has no coverage, and tracing why turned up two independent reasons it can never work.
 **Evidence:**
@@ -95,10 +96,15 @@ arrow middleware produces.
 **Impact:** `<Attach::Popover @arrow={{true}} />` renders the arrow element and its CSS, and the
 arrow is never placed against the target — it sits wherever the stylesheet leaves it.
 
-**Fix — not applied.** Making it work needs both halves: `querySelector` instead of `closest`, and
-applying `middlewareData.arrow`'s `x`/`y` to the arrow element after each computation. That is
-implementing the feature, not correcting a slip, and it changes what every popover with an arrow
-looks like. Fixing only the lookup would install middleware whose output is discarded.
+**Fix — applied.** Both halves: `getMiddleware()` finds the arrow with `querySelector` (stashing it
+on `this.arrowNode`) and installs the middleware as `arrow({ element })` — the options-object form
+floating-ui actually accepts, a third latent slip. `computePosition()` then applies
+`middlewareData.arrow`'s cross-axis coordinate (`x` for top/bottom placements, `y` for left/right)
+as inline `left`/`top`; the static-side inset and rotation stay with the `[x-placement]` rules in
+`attacher.css`. This visually changes every popover rendered with an arrow — accepted with the
+decision. Covered by two placement tests in `floating-test.js`, and the old `ignore if` on the
+lookup came out — both sides of the guard are now reachable (an in-place bare `<Floating>` renders
+no arrow node).
 
 ## 30. `addon/components/basic-dropdown-hover.js` — a zero delay was read as no delay at all
 
@@ -195,7 +201,7 @@ tests for paste (with and without a value) and for editing with no handler at al
 
 ## 26. `addon/components/layout/sidebar/navigator.js` — a search result with children cannot be opened
 
-**Status:** OPEN — logged, not changed; the fix is a design decision (see below)
+**Status:** FIXED — Ron chose to require `path` from the provider (decision 2026-08-28, option 1)
 **Found:** covering the `result.path ?? [...this.currentStack, item]` fallback, which only a search
 provider's result can reach — provider results carry no path through the item tree.
 **Evidence:** `openSearchResult()` descends into a result that has children:
@@ -211,13 +217,13 @@ dropped on the very next read and the navigator falls back to its root.
 and then does nothing visible — the panel closes and the navigator returns to the top level. A
 provider returning leaf results (the common case, and what every existing test uses) is unaffected.
 
-**Fix — not applied.** Two shapes are plausible and they are not equivalent: keep provider results
-out of the stack entirely and require a provider to supply `path` for anything navigable, or let
-`currentStack` hold items that are not in `@items` — which changes what "the current stack" means
-and affects the transition and breadcrumb code that reads it. That is a design call.
-
-Covered by a test that pins the current behaviour rather than the intended one, and names this
-entry so the two move together.
+**Fix — applied.** Provider results stay out of the stack entirely. `openSearchResult()` descends
+only when `result.path` is present — the `[...this.currentStack, item]` fallback, whose entry the
+next `currentStack` read silently dropped, is gone. A result with children and no path closes the
+search, stays put, and still honours its `defaultRoute`. Path entries resolve through `@items` by
+`itemKey` (id/route/url/label/title), so a provider makes a result navigable by naming a path of
+key-matching entries; `navigator-test.js` pins both sides — the no-path result staying put, and a
+path-carrying result opening the section its path names.
 
 ## 25. `addon/components/kanban/card.hbs` — `@onCardUpdate` and `@onCardDelete` could never fire
 
@@ -332,7 +338,7 @@ fail (5 frames instead of 0) with the guard removed.
 
 ## 21. `addon/components/query-builder.js` — the `columns` getter's work is thrown away
 
-**Status:** OPEN — logged, not changed; the fix is a behaviour decision (see below)
+**Status:** FIXED — Ron chose to gate the panel on the selected columns (decision 2026-08-28, option b)
 **Found:** chasing the uncovered `join.table?.columns` else-branch and the two `label || name`
 fallbacks inside the getter.
 **Evidence:** `query-builder.js:25-56` walks the selected table and every join and composes a
@@ -351,11 +357,14 @@ the explicit comment "This ensures conditions can only be applied to selected co
 panel body's visibility is gated on the columns a query *could* use rather than the ones it does,
 so choosing a table opens the conditions panel with an empty field dropdown.
 
-**Fix — not applied.** Making `@columns` drive the field list would contradict the stated rule that
-conditions apply only to selected columns, and changing the gate to `@allSelectedColumns` changes
-when the panel appears. Both are product calls, not repairs. The getter is now covered by three
-tests in `query-builder-test.js` that pin the gate — the only observable it still drives — including
-the joins-with-no-columns case that leaves it closed.
+**Fix — applied.** `conditions.hbs` now gates its body on `this.availableColumns.length` — the same
+list the field dropdown offers, so the panel opens exactly when there is something to condition on,
+and choosing a table no longer opens it over an empty dropdown. That left `@columns` with zero
+readers in the conditions component, which made the `columns` getter provably dead end to end: its
+only consumers were the two `@columns` hand-offs in `query-builder.hbs`, and nothing else reads
+`this.columns` (grep over `addon/`). Getter and hand-offs deleted; the three gate-pinning tests in
+`query-builder-test.js` were rewritten to pin the new gate, including the available-but-unselected
+case that now stays closed.
 
 ## 20. `addon/components/attach/popover.js` — document listeners are added and never removed
 

@@ -9,6 +9,16 @@ authoritative — this document points at them rather than replacing them.
 
 ---
 
+> **UPDATE 2026-08-28 — all five decisions received from Ron and implemented.**
+> 1.1 → implement the arrow (option a) · 1.2 → require `path` from the provider (option 1) ·
+> 1.3 → gate the conditions panel on selected columns (option b) · 1.4 → `reloadComments` is
+> published API, kept (option a) · 1.5 → a "Change Report" control was added (option 1).
+> The item descriptions below are kept as they were compiled; the FIXED/DECIDED entries in
+> `DEFECTS.md` and `NEED_INFO.md` record what actually shipped. Still open: the #18 measurement
+> note (§3) and the environment facts (§4).
+
+---
+
 ## Where things stand
 
 The coverage gate passes **in CI**, which is the only place the claim means anything:
@@ -313,16 +323,16 @@ Four things were reported as broken and are not:
 
 ## Summary
 
-| # | Item | Type | Blocks merge? |
+| # | Item | Type | Status (2026-08-28) |
 |---|---|---|---|
-| 1.1 | `floating.js` — `@arrow` never positioned | product decision | no |
-| 1.2 | `navigator.js` — search result with children | design decision | no |
-| 1.3 | `query-builder.js` — discarded label work | behaviour decision | no |
-| 1.4 | `comment-thread` — is `reloadComments` API? | API decision | no |
-| 1.5 | `widget/report` — configure-once? | product decision | no |
-| 2 | `widget-card` label getters deleted | decided, reversible | no |
-| 3 | ±1 branch flake (#18) | diagnostic task | no |
-| 4 | Chrome contention | environment | no |
+| 1.1 | `floating.js` — `@arrow` never positioned | product decision | decided: implemented |
+| 1.2 | `navigator.js` — search result with children | design decision | decided: `path` required |
+| 1.3 | `query-builder.js` — discarded label work | behaviour decision | decided: gate on selected columns |
+| 1.4 | `comment-thread` — is `reloadComments` API? | API decision | decided: published API, kept |
+| 1.5 | `widget/report` — configure-once? | product decision | decided: change control added |
+| 2 | `widget-card` label getters deleted | decided, reversible | stands |
+| 3 | ±1 branch flake (#18) | diagnostic task | still open |
+| 4 | Chrome contention | environment | still live |
 
 Five decisions, one confirmation, one diagnostic task with a written method, one environment fact.
 The gate is green in CI and the branch is mergeable.

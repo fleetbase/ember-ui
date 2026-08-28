@@ -15,9 +15,9 @@ Format:
 
 ---
 
-**Three questions are open below.** None of them blocked the gate — each is either ignored with a
-trace naming this file, or decided in the direction recorded. All three are product calls: what a
-component should *do*, not whether the code is right.
+**All questions below are settled.** Ron answered #2 and #3 on 2026-08-28; the `widget-card`
+deletion was decided during the campaign and stands. Entries are kept because each records a
+reversible decision and how to reverse it.
 
 ---
 
@@ -42,17 +42,18 @@ So the copy is not lost, only the second wording of it. **To reverse:** restore 
 this commit and render `addedBadgeText` in place of `addedShortBadge`; `addLabel` additionally needs
 an explicit add button in the template, which is a design change, not a restore.
 
-## #2 — `comment-thread`'s yielded `contextApi.reloadComments` has no caller
+## #2 — `comment-thread`'s yielded `contextApi.reloadComments` has no caller — DECIDED: published API, kept
 
 `addon/components/comment-thread.js` yields `reloadComments` on the `contextApi` object handed to
 `comment-thread/comment`. Nothing in this addon calls it — `comment-thread/comment` reloads its own
 replies via `this.comment.reload()` instead, and the thread-level reload only ever runs from
-`comment-thread.js`'s own tasks. It is covered by an `istanbul ignore` for now.
+`comment-thread.js`'s own tasks.
 
-**Decision needed:** is it part of the published API that host apps call from their own block-form
-templates (keep it, and the ignore stands), or is it leftover (drop it, and the ignore goes with it)?
+**Decided (Ron, 2026-08-28):** it is part of the published API that host apps call from their own
+block-form templates. It stays, and the `istanbul ignore` on it stands — the comment above it in
+`comment-thread.js` already names this as yielded public API.
 
-## #3 — `widget/report` can never change its report once one is chosen
+## #3 — `widget/report` can never change its report once one is chosen — DECIDED: control added
 
 **Evidence:** `report.hbs` renders the "Select Report" button inside the `{{else}}` arm — the empty
 state. Once `this.report` is set, that arm is not rendered, and `selectReport` has no other caller:
@@ -68,5 +69,8 @@ reconfigure affordance to copy (`widget/count` and `widget/query-params` have no
 1. **Add a control to the loaded state.** Matches what `selectedReports` was clearly written for.
 2. **Leave it as configure-once** and delete `selectedReports`.
 
-**Meanwhile:** the getter is kept and its dead branch carries an `istanbul ignore` naming this
-entry. If option 1 is taken, that ignore should come out with it — the branch becomes reachable.
+**Decided (Ron, 2026-08-28): option 1.** The loaded state now renders a small "Change Report"
+button (`data-test-widget-report-change`) above the report body, wired to the same `selectReport`
+action. The `istanbul ignore` on `selectedReports` came out with it — the branch is reachable and
+is covered by a test asserting the picker opens from the loaded state with the current report
+preselected.
