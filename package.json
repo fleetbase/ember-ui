@@ -18,6 +18,7 @@
     },
     "scripts": {
         "build": "ember build --environment=production",
+        "build:playground": "node scripts/build-playground.js",
         "lint": "concurrently \"npm:lint:*(!fix)\" --names \"lint:\"",
         "check:css-alpha": "node scripts/normalize-rgba-alpha.js --check",
         "fix:css-alpha": "node scripts/normalize-rgba-alpha.js",

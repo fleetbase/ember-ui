@@ -2,11 +2,13 @@ name: Ember CI
 
 on:
   push:
-    branches: [main]
+    # `test/coverage-campaign` is a long-lived integration branch (PR #143). Without it here,
+    # pull requests targeting the campaign branch would run no checks at all.
+    branches: [main, test/coverage-campaign]
     tags:
       - 'v*'
   pull_request:
-    branches: [main]
+    branches: [main, test/coverage-campaign]
 
 env:
   NODE_VERSION: 22.x
@@ -62,6 +64,34 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Build the playground for GitHub Pages
+        run: pnpm run build:playground
+
+      - name: Verify the Pages artifact
+        run: |
+          set -euo pipefail
+
+          test -f playground-dist/index.html || { echo 'playground-dist/index.html is missing'; exit 1; }
+          test -f playground-dist/.nojekyll || { echo 'playground-dist/.nojekyll is missing'; exit 1; }
+          test -d playground-dist/assets   || { echo 'playground-dist/assets is missing'; exit 1; }
+
+          # Assets must resolve under the sub-path, or every request 404s on Pages.
+          grep -q '/ember-ui/assets/' playground-dist/index.html \
+            || { echo 'index.html does not reference assets under /ember-ui/'; exit 1; }
+
+          # Nothing from the test or coverage lifecycle may reach a published artifact.
+          for unwanted in tests tests.html testem.js coverage; do
+            if [ -e "playground-dist/$unwanted" ]; then
+              echo "playground-dist/$unwanted must not be published"
+              exit 1
+            fi
+          done
+
+          if find playground-dist -name 'lcov.info' -o -name 'coverage-*.json' | grep -q .; then
+            echo 'coverage artefacts leaked into the Pages build'
+            exit 1
+          fi
 
   test:
     name: Test with coverage

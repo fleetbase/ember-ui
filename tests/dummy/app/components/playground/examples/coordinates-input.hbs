@@ -1,0 +1,15 @@
+{{!
+    CoordinatesInput example adapter. Geocoding callbacks are wired to the event log only — the
+    preview issues no geocoding request and loads no map tiles of its own.
+}}
+<CoordinatesInput
+    @lat={{@values.lat}}
+    @lng={{@values.lng}}
+    @zoom={{@values.zoom}}
+    @disabled={{@values.disabled}}
+    @isLoading={{@values.isLoading}}
+    @onChange={{fn (or @onEvent (noop)) "onChange"}}
+    @onGeocode={{fn (or @onEvent (noop)) "onGeocode"}}
+    @onGeocodeError={{fn (or @onEvent (noop)) "onGeocodeError"}}
+    @onMoveend={{fn (or @onEvent (noop)) "onMoveend"}}
+/>

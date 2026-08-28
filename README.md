@@ -173,6 +173,29 @@ The following components are included in the Fleetbase Ember UI Components libra
 
 We are continually adding new components, so be sure to check back for updates!
 
+## Playground
+
+An interactive playground for the documented component surface is built from this addon's dummy
+application. Every component documented at [fleetbase.io/docs/ui](https://fleetbase.io/docs/ui) has
+a route where you can change its arguments and watch the real component react, plus a minimal
+embeddable view for the documentation site.
+
+```bash
+pnpm start                    # serve the playground at http://localhost:4200
+pnpm run build:playground     # build the static GitHub Pages artifact
+```
+
+Routes:
+
+- `/components` — searchable, categorized catalog
+- `/components/:slug` — full interactive page with controls, presets and an event log
+- `/embed/:slug` — minimal iframe view, used by the documentation site
+
+Scope follows the official documentation rather than the full public export list: the addon ships
+275 public components and the documentation covers 63, so only those 63 get pages. See
+[PLAYGROUND.md](PLAYGROUND.md) for the architecture, the registry schema, how to add an example,
+iframe integration, and how to update the allowlist when the documentation changes.
+
 ## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guide for details.

@@ -1,1 +1,1089 @@
-/* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
+/*
+ * Element normalisation for the preview surface.
+ *
+ * `addon/styles/addon.css` deliberately ships no `@tailwind base` — an addon that emitted
+ * preflight would clobber every application consuming it. Its component rules are `@apply`-
+ * generated and assume the host has already normalised the elements underneath them. Without that
+ * layer a <button> keeps the user agent's `buttontext` colour (pure black) instead of inheriting,
+ * and form controls keep UA fonts: the previews looked unstyled when only the layer beneath them
+ * was missing.
+ *
+ * Emitting `@tailwind base` here would fix the previews and break the addon. Preflight would land
+ * AFTER the addon's stylesheet and win on equal specificity, silently overriding deliberate rules
+ * — `button { cursor: pointer }` versus the console's `* { cursor: default }`, which
+ * `tests/integration/components/layout/sidebar/navigator-test.js` asserts. In a real console the
+ * application's preflight loads BEFORE the addon, so the addon wins; reproducing that ordering
+ * inside the dummy app is not possible.
+ *
+ * So only the normalisation the previews actually need is applied, scoped to the playground. The
+ * ancestor sits in `:where()` so it contributes no specificity: these rules weigh exactly as much
+ * as preflight's own element selectors (0,0,1), which keeps `.btn-sm` and friends winning, and
+ * nothing outside `.pg-host` — every component integration test included — is affected.
+ */
+:where(.pg-host) button,
+:where(.pg-host) input,
+:where(.pg-host) optgroup,
+:where(.pg-host) select,
+:where(.pg-host) textarea {
+    color: inherit;
+    font-family: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+}
+
+:where(.pg-host) button,
+:where(.pg-host) select {
+    text-transform: none;
+}
+
+/*
+ * Opt out of the console's viewport lock.
+ *
+ * The addon's shipped CSS contains `body, html { height: 100vh; overflow: hidden; overflow-y:
+ * hidden }` (plus `body { height: 100%; max-height: 100% }`). That is right for the Fleetbase
+ * console, which fills the viewport and scrolls its sidebar and main pane independently — but the
+ * playground is an ordinary document that grows past the fold, and inheriting the lock made every
+ * catalog entry and control below ~720px unreachable: content measured 3080px tall inside a
+ * 720px, non-scrolling viewport.
+ *
+ * `tests/dummy` is loaded after the addon's stylesheet, so a same-specificity rule is enough; no
+ * `!important` and no selector hacks are needed. Component previews that want the console's
+ * full-height behaviour still get it — they set their own heights inside the preview surface.
+ */
+html,
+body {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    overflow-y: auto;
+}
+
+/*
+ * Playground chrome.
+ *
+ * Plain CSS scoped to `pg-` classes: the components under test bring the addon's own styles, and
+ * the playground must not restyle them or the preview would stop being representative. There are
+ * deliberately no bare element selectors reaching into `[data-test-preview]`.
+ *
+ * Palette is the Fleetbase brand ramp from `tailwind.config.js` — `sky` for accent, `night` /
+ * `nightsky` for dark. No invented colours.
+ */
+
+:root {
+    --pg-bg: #eef2f7;
+    --pg-surface: #ffffff;
+    --pg-surface-2: #f8fafd;
+    --pg-surface-3: #f4f7fb;
+    --pg-border: #e3e9f2;
+    --pg-border-strong: #cfd9e8;
+    --pg-text: #06172a;
+    --pg-text-2: #3d4d63;
+    --pg-muted: #7a8a9e;
+    --pg-accent: #3485e2;
+    --pg-accent-hover: #1c6cc7;
+    --pg-accent-strong: #16539a;
+    --pg-accent-soft: #e6f0fb;
+    --pg-accent-border: #bad5f5;
+    --pg-danger: #b91c1c;
+    --pg-danger-soft: #fef2f2;
+    --pg-shadow: 0 1px 1px rgba(6, 23, 42, 0.03);
+    --pg-shadow-hover: 0 1px 2px rgba(6, 23, 42, 0.06);
+    --pg-ring: 0 0 0 3px rgba(52, 133, 226, 0.18);
+    --pg-radius: 9px;
+    --pg-radius-sm: 7px;
+    --pg-radius-xs: 5px;
+    --pg-radius-input: 8px;
+    --pg-font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --pg-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+[data-theme='dark'] {
+    --pg-bg: #0c1424;
+    --pg-surface: #131b2b;
+    --pg-surface-2: #182232;
+    --pg-surface-3: #1d2737;
+    --pg-border: #222c3c;
+    --pg-border-strong: #283345;
+    --pg-text: #e6f0fb;
+    --pg-text-2: #bad5f5;
+    --pg-muted: #8593a8;
+    --pg-accent: #61a0e8;
+    --pg-accent-hover: #8dbbef;
+    --pg-accent-strong: #bad5f5;
+    --pg-accent-soft: #103b6d;
+    --pg-accent-border: #16539a;
+    --pg-danger: #fca5a5;
+    --pg-danger-soft: #2a1416;
+    --pg-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+    --pg-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --pg-ring: 0 0 0 3px rgba(97, 160, 232, 0.22);
+}
+
+/*
+ * Typography is set on the playground's own containers, never on `body`.
+ *
+ * The addon expects `html, body { font-size: 16px }` (layout/legacy.css) and its components are
+ * measured against it. `#ember-testing` lives inside the same <body>, so a font-size here reaches
+ * all ~5000 component integration tests: setting 13px flipped a drag-reorder decision in
+ * `query-builder/group-by-test.js`, which derives `clientY` from element geometry. Scoping the
+ * type to `.pg-app` / `.pg-embed` leaves the addon's own baseline intact everywhere else.
+ *
+ * `body` keeps only what cannot leak into a component's layout.
+ */
+body {
+    margin: 0;
+    background: var(--pg-bg);
+}
+
+/* ---------------------------------------------------------------- app shell */
+
+.pg-app,
+.pg-embed {
+    color: var(--pg-text);
+    font-family: var(--pg-font);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.pg-app {
+    min-height: 100vh;
+    background: var(--pg-surface);
+}
+
+/* The header, the filter bar and the body are separated by real rules, as in the design. */
+.pg-app__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 52px;
+    padding: 0 20px;
+    background: var(--pg-surface);
+    border-bottom: 1px solid var(--pg-border);
+}
+
+.pg-app__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--pg-text);
+}
+
+.pg-app__mark {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--pg-accent);
+    color: #fff;
+    font: 700 12px/1 var(--pg-font);
+    letter-spacing: -0.02em;
+}
+
+.pg-app__name {
+    font-size: 13.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.pg-app__sub {
+    font-size: 13.5px;
+    color: var(--pg-muted);
+}
+
+.pg-app__nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pg-app__doclink {
+    font-size: 12.5px;
+    color: var(--pg-accent-hover);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+}
+
+.pg-app__doclink:hover {
+    background: var(--pg-accent-soft);
+}
+
+.pg-ext {
+    font-size: 0.9em;
+}
+
+.pg-app__main {
+    display: block;
+}
+
+/* ---------------------------------------------------------------- primitives */
+
+.pg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+    background: var(--pg-surface);
+    color: var(--pg-text-2);
+    padding: 7px 10px;
+    font: 500 12px/1 var(--pg-font);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.pg-btn:hover {
+    border-color: var(--pg-accent-hover);
+    color: var(--pg-text);
+}
+
+.pg-btn--theme {
+    background: var(--pg-surface-2);
+}
+
+.pg-btn:focus-visible,
+.pg-input:focus-visible,
+.pg-card:focus-visible,
+.pg-jumpto__link:focus-visible {
+    outline: none;
+    border-color: var(--pg-accent);
+    box-shadow: var(--pg-ring);
+}
+
+.pg-btn--mini {
+    padding: 5px 8px;
+    font-size: 11px;
+    border-radius: var(--pg-radius-xs);
+}
+
+.pg-btn--primary {
+    background: var(--pg-accent);
+    border-color: var(--pg-accent-hover);
+    color: #fff;
+}
+
+.pg-btn--primary:hover {
+    background: var(--pg-accent-hover);
+    color: #fff;
+}
+
+.pg-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pg-accent);
+    flex: none;
+}
+
+.pg-badge,
+.pg-group__count {
+    display: inline-grid;
+    place-items: center;
+    padding: 3px 7px;
+    border-radius: 20px;
+    background: var(--pg-surface-3);
+    border: 1px solid var(--pg-border);
+    color: var(--pg-muted);
+    font: 500 11px/1 var(--pg-mono);
+}
+
+.pg-chip {
+    display: inline-block;
+    padding: 5px 7px;
+    border-radius: 6px;
+    background: var(--pg-accent-soft);
+    border: 1px solid var(--pg-accent-border);
+    color: var(--pg-accent-strong);
+    font: 500 12px/1 var(--pg-mono);
+}
+
+.pg-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--pg-border-strong);
+    border-radius: var(--pg-radius-input);
+    background: var(--pg-surface);
+    color: var(--pg-text);
+    padding: 8px 10px;
+    font: 400 13px/1.2 var(--pg-font);
+}
+
+.pg-input--code {
+    font-family: var(--pg-mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.pg-input--color {
+    padding: 2px;
+    height: 32px;
+}
+
+.pg-checkbox {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--pg-accent);
+    flex: none;
+}
+
+/* Uppercase, muted field labels — the design's filter and control labels. */
+.pg-field-label {
+    font: 600 11px/1 var(--pg-font);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+}
+
+.pg-control__label {
+    font: 600 11.5px/1.3 var(--pg-font);
+    color: var(--pg-text);
+}
+
+/* ---------------------------------------------------------------- notices */
+
+.pg-notice {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    padding: 9px 12px;
+    border: 1px solid var(--pg-border);
+    border-left: 3px solid var(--pg-accent);
+    border-radius: var(--pg-radius-sm);
+    background: var(--pg-surface-2);
+    margin: 0;
+}
+
+.pg-notice--warning {
+    border-left-color: var(--pg-danger);
+}
+
+.pg-notice__icon {
+    display: grid;
+    place-items: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--pg-accent);
+    color: #fff;
+    font: 700 10px/1 var(--pg-font);
+    flex: none;
+    margin-top: 1px;
+}
+
+.pg-notice--warning .pg-notice__icon {
+    background: var(--pg-danger);
+}
+
+.pg-notice__body {
+    min-width: 0;
+}
+
+.pg-notice__line {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--pg-text-2);
+}
+
+/* ---------------------------------------------------------------- catalog */
+
+/* A tinted band with its own rule, sitting between the app header and the body. */
+.pg-filters {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--pg-surface-2);
+    border-bottom: 1px solid var(--pg-border);
+}
+
+.pg-filters__inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.pg-filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pg-filters__field--search {
+    flex: 1;
+    max-width: 380px;
+    min-width: 220px;
+}
+
+.pg-filters__field--category {
+    width: 220px;
+}
+
+.pg-searchwrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pg-searchwrap .pg-input {
+    padding-right: 62px;
+}
+
+.pg-kbd {
+    position: absolute;
+    right: 8px;
+    padding: 3px 5px;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius-xs);
+    background: var(--pg-surface-3);
+    color: var(--pg-muted);
+    font: 500 10.5px/1 var(--pg-mono);
+    pointer-events: none;
+}
+
+.pg-filters__count {
+    margin: 0 0 9px auto;
+    font: 500 12px/1 var(--pg-font);
+    color: var(--pg-muted);
+}
+
+.pg-filters__count strong {
+    color: var(--pg-text);
+    font-weight: 650;
+}
+
+/* The rail is divided from the content by a rule that runs the height of the body. */
+.pg-catalog__body {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    align-items: start;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+    .pg-catalog__body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pg-jumpto {
+        display: none;
+    }
+
+    .pg-catalog__groups {
+        border-left: 0;
+    }
+}
+
+.pg-jumpto {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 20px 12px 20px 20px;
+    position: sticky;
+    top: 81px;
+}
+
+.pg-jumpto__title {
+    margin: 0;
+    padding: 0 8px 8px;
+    font: 600 10.5px/1 var(--pg-font);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+}
+
+.pg-jumpto__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--pg-radius-sm);
+    font-size: 12.5px;
+    color: var(--pg-text-2);
+    text-decoration: none;
+}
+
+.pg-jumpto__link:hover {
+    background: var(--pg-surface-3);
+    color: var(--pg-text);
+}
+
+.pg-jumpto__count {
+    font: 500 11px/1 var(--pg-mono);
+    color: var(--pg-muted);
+}
+
+.pg-catalog__groups {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    padding: 20px 20px 28px;
+    min-width: 0;
+    border-left: 1px solid var(--pg-border);
+}
+
+.pg-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pg-group__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pg-group__title {
+    margin: 0;
+    font: 650 11.5px/1 var(--pg-font);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pg-text);
+}
+
+.pg-group__rule {
+    flex: 1;
+    height: 1px;
+    background: var(--pg-border);
+}
+
+.pg-cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+}
+
+.pg-cards > li {
+    display: flex;
+}
+
+.pg-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    background: var(--pg-surface);
+    box-shadow: var(--pg-shadow);
+    text-decoration: none;
+    color: inherit;
+}
+
+.pg-card:hover {
+    border-color: var(--pg-accent-hover);
+    background: var(--pg-surface-2);
+    box-shadow: var(--pg-shadow-hover);
+}
+
+.pg-card__name {
+    font: 600 13px/1.25 var(--pg-font);
+    letter-spacing: -0.01em;
+    color: var(--pg-text);
+}
+
+.pg-card__slug {
+    font: 400 11px/1 var(--pg-mono);
+    color: var(--pg-accent);
+}
+
+.pg-card__description {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--pg-muted);
+}
+
+.pg-catalog__empty {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--pg-muted);
+}
+
+/* ---------------------------------------------------------------- component page */
+
+.pg-detail,
+.pg-notfound {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pg-crumbs {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--pg-muted);
+}
+
+.pg-crumbs a {
+    color: var(--pg-accent-hover);
+    text-decoration: none;
+}
+
+.pg-crumbs a:hover {
+    text-decoration: underline;
+}
+
+.pg-detail__titlerow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.pg-detail__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 62ch;
+}
+
+.pg-detail__headline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pg-detail__title {
+    margin: 0;
+    font: 650 24px/1.15 var(--pg-font);
+    letter-spacing: -0.025em;
+}
+
+.pg-detail__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pg-detail__description {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--pg-text-2);
+}
+
+.pg-meta {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    background: var(--pg-surface-2);
+    overflow: hidden;
+}
+
+.pg-meta__item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 9px 13px;
+    min-width: 0;
+    flex: 1 1 auto;
+    border-right: 1px solid var(--pg-border);
+}
+
+.pg-meta__item:last-child {
+    border-right: 0;
+}
+
+.pg-meta__key {
+    font: 500 10.5px/1 var(--pg-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+    flex: none;
+}
+
+.pg-meta__val {
+    font: 400 11.5px/1.4 var(--pg-mono);
+    color: var(--pg-text-2);
+    overflow-wrap: anywhere;
+}
+
+.pg-meta__link {
+    color: var(--pg-accent-hover);
+    text-decoration: none;
+}
+
+.pg-meta__link:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- host layout */
+
+.pg-host {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 14px;
+    align-items: start;
+    background: transparent;
+    color: var(--pg-text);
+}
+
+@media (max-width: 900px) {
+    .pg-host {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.pg-host > .pg-notice,
+.pg-host > .pg-snippets {
+    grid-column: 1 / -1;
+}
+
+.pg-preview {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+.pg-controls {
+    grid-column: 2;
+}
+
+.pg-events {
+    grid-column: 2;
+}
+
+.pg-preview,
+.pg-controls,
+.pg-events {
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    background: var(--pg-surface);
+    box-shadow: var(--pg-shadow);
+    overflow: hidden;
+}
+
+.pg-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--pg-surface-2);
+    border-bottom: 1px solid var(--pg-border);
+}
+
+.pg-panel__title {
+    margin: 0;
+    font: 650 10px/1 system-ui, sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+}
+
+.pg-panel__meta,
+.pg-panel__actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.pg-panel__metaitem {
+    font: 500 10.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-muted);
+}
+
+.pg-panel__sep {
+    color: var(--pg-border-strong);
+}
+
+/*
+ * The dotted grid is drawn on the surface itself rather than on a child, so it never interferes
+ * with the component being previewed.
+ */
+.pg-preview__surface {
+    position: relative;
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+    padding: 32px 22px;
+    background-color: var(--pg-surface);
+    background-image: radial-gradient(var(--pg-border) 1px, transparent 1px);
+    background-size: 16px 16px;
+    overflow: auto;
+}
+
+/* Wide components (tables, resource layouts, calendars) still get the full width. */
+.pg-preview__surface > * {
+    max-width: 100%;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.pg-controls__body {
+    padding: 4px 12px 12px;
+}
+
+.pg-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--pg-border);
+}
+
+.pg-control:last-child {
+    border-bottom: 0;
+}
+
+.pg-control--inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pg-control__labelling {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pg-control__help {
+    font: 400 11px/1.35 system-ui, sans-serif;
+    color: var(--pg-muted);
+}
+
+.pg-control__error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 2px 0 0;
+    color: var(--pg-danger);
+    font-size: 11px;
+    flex-basis: 100%;
+}
+
+.pg-control__error-icon {
+    display: grid;
+    place-items: center;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--pg-danger);
+    color: #fff;
+    font: 700 9px/1 system-ui, sans-serif;
+    flex: none;
+    margin-top: 1px;
+}
+
+.pg-control--invalid .pg-input {
+    border-color: var(--pg-danger);
+}
+
+/* ---------------------------------------------------------------- events */
+
+.pg-events__list {
+    list-style: none;
+    margin: 0;
+    padding: 10px 12px;
+    max-height: 320px;
+    overflow: auto;
+    display: grid;
+    gap: 7px;
+}
+
+.pg-event {
+    border-left: 3px solid var(--pg-accent);
+    border-radius: 0 var(--pg-radius-sm) var(--pg-radius-sm) 0;
+    background: var(--pg-surface-2);
+    padding: 6px 9px;
+}
+
+.pg-event__head {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+.pg-event__seq {
+    font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-muted);
+}
+
+.pg-event__name {
+    font: 600 11.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-accent);
+}
+
+.pg-event__at {
+    margin-left: auto;
+    font: 400 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-muted);
+}
+
+.pg-event__args {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.pg-event__arg code {
+    font: 400 10.5px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-text-2);
+    overflow-wrap: anywhere;
+}
+
+.pg-event__fields {
+    display: block;
+    color: var(--pg-muted);
+    font: 400 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.pg-event__field::after {
+    content: ' · ';
+}
+
+.pg-event__field:last-child::after {
+    content: '';
+}
+
+.pg-events__empty {
+    margin: 0;
+    padding: 12px;
+    color: var(--pg-muted);
+    font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------------- snippets */
+
+.pg-snippets {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    margin-top: 4px;
+}
+
+.pg-snippet__title {
+    margin: 0 0 6px;
+    font: 650 10px/1 system-ui, sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+}
+
+.pg-code {
+    margin: 0 0 8px;
+    padding: 11px 13px;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    background: var(--pg-surface-2);
+    font: 400 11.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--pg-text-2);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.pg-snippets__note {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 12px;
+    color: var(--pg-muted);
+}
+
+/* ---------------------------------------------------------------- embed */
+
+/*
+ * The embed is measured by a ResizeObserver and its height is posted to the parent page, so it
+ * must grow with its content: no fixed height, no `100vh`, and nothing here may become a scroll
+ * container, or the reported height would pin to a constant and the iframe would stop resizing.
+ */
+.pg-embed {
+    padding: 12px;
+    background: var(--pg-bg);
+}
+
+.pg-host--embedded {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+
+.pg-host--embedded .pg-preview,
+.pg-host--embedded .pg-controls,
+.pg-host--embedded .pg-events {
+    grid-column: auto;
+    grid-row: auto;
+}
+
+.pg-host--embedded .pg-preview__surface {
+    min-height: 150px;
+    padding: 26px 18px;
+}
+
+.pg-host--embedded .pg-events__list {
+    max-height: none;
+    overflow: visible;
+}
+
+/* Two columns of controls once the iframe is wide enough to take them. */
+@media (min-width: 560px) {
+    .pg-host--embedded .pg-controls__body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 18px;
+    }
+
+    .pg-host--embedded .pg-control:nth-last-child(2) {
+        border-bottom: 0;
+    }
+}
+
+/* ---------------------------------------------------------------- not found */
+
+.pg-notfound {
+    max-width: 60ch;
+    padding: 48px 0;
+}
+
+.pg-notfound__eyebrow {
+    margin: 0 0 6px;
+    font: 650 10px/1 system-ui, sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pg-muted);
+}
+
+.pg-notfound__title {
+    margin: 0 0 8px;
+    font: 650 20px/1.25 system-ui, sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.pg-notfound__body {
+    margin: 0 0 16px;
+    color: var(--pg-text-2);
+}

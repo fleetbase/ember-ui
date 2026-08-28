@@ -1,0 +1,83 @@
+{{page-title @model.name}}
+
+<article class="pg-detail" data-test-component-page={{@model.slug}}>
+    <nav class="pg-crumbs" aria-label="Breadcrumb">
+        <LinkTo @route="components" data-test-back>All components</LinkTo>
+        <span class="pg-crumbs__sep" aria-hidden="true">/</span>
+        <span>{{@model.category}}</span>
+    </nav>
+
+    <div class="pg-detail__titlerow">
+        <div class="pg-detail__heading">
+            <div class="pg-detail__headline">
+                <h1 class="pg-detail__title" data-test-component-title>{{@model.name}}</h1>
+                <code class="pg-chip" data-test-component-identifier>&lt;{{@model.component}} /&gt;</code>
+            </div>
+            <p class="pg-detail__description">{{@model.description}}</p>
+        </div>
+
+        <div class="pg-detail__actions">
+            <LinkTo
+                @route="embed"
+                @model={{@model.slug}}
+                class="pg-btn pg-btn--primary"
+                data-test-open-embed
+            >
+                Open embed <span class="pg-ext" aria-hidden="true">↗</span>
+            </LinkTo>
+        </div>
+    </div>
+
+    <div class="pg-meta" role="list">
+        <div class="pg-meta__item" role="listitem">
+            <span class="pg-meta__key">source</span>
+            <code class="pg-meta__val" data-test-source-path>{{@model.sourcePath}}</code>
+        </div>
+        <div class="pg-meta__item" role="listitem">
+            <span class="pg-meta__key">tests</span>
+            {{#each @model.testPaths as |path|}}
+                <code class="pg-meta__val" data-test-test-path>{{path}}</code>
+            {{/each}}
+        </div>
+        <div class="pg-meta__item" role="listitem">
+            <span class="pg-meta__key">docs</span>
+            <a href={{@model.docsUrl}} rel="noopener" class="pg-meta__val pg-meta__link" data-test-docs-link>{{@model.docsUrl}}</a>
+        </div>
+    </div>
+
+    {{#if @model.notes}}
+        <div class="pg-notice pg-notice--info" data-test-notes>
+            <span class="pg-notice__icon" aria-hidden="true">i</span>
+            <div class="pg-notice__body">
+                <p class="pg-notice__line">{{@model.notes}}</p>
+            </div>
+        </div>
+    {{/if}}
+
+    <Playground::Host @entry={{@model}} @state={{this.state}} @embedded={{false}} as |api|>
+        <section class="pg-snippets" aria-label="Usage">
+            <div class="pg-snippet">
+                <h2 class="pg-snippet__title">Usage</h2>
+                <pre class="pg-code" data-test-usage-example>{{api.usageExample}}</pre>
+            </div>
+
+            <div class="pg-snippet">
+                <h2 class="pg-snippet__title">Embed</h2>
+                <pre class="pg-code pg-code--url" data-test-embed-url>{{api.embedUrl}}</pre>
+                <LinkTo
+                    @route="embed"
+                    @model={{@model.slug}}
+                    @query={{hash state=api.encodedState}}
+                    class="pg-btn"
+                >
+                    Open the embed view
+                </LinkTo>
+            </div>
+
+            <p class="pg-snippets__note">
+                The complete argument reference is on
+                <a href={{@model.docsUrl}} rel="noopener">the documentation page</a>.
+            </p>
+        </section>
+    </Playground::Host>
+</article>

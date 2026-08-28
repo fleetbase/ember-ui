@@ -32,3 +32,6 @@
 
 # Written by scripts/stamp-coverage-run.js; proves the coverage artifacts belong to the last run
 .coverage-run-stamp.json
+
+# Static playground build output (GitHub Pages artifact)
+/playground-dist/

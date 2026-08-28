@@ -1,0 +1,105 @@
+name: Playground (GitHub Pages)
+
+# Deploys the interactive component playground to GitHub Pages.
+#
+# Trigger scope is deliberately narrow:
+#   - Only pushes to `test/coverage-campaign`, the branch this work lands on while PR #143 is
+#     open. Pull request heads are NEVER deployed — a PR from a fork would otherwise be able to
+#     publish arbitrary content to the project's Pages site.
+#   - `workflow_dispatch` allows a manual redeploy without a push.
+#
+# POST-MERGE: when the campaign branch merges into `main`, move (or add) `main` here and drop
+# `test/coverage-campaign`, so the published site tracks the default branch. Leaving both would
+# let two branches overwrite the same Pages site unpredictably. See PLAYGROUND.md.
+
+on:
+  push:
+    branches: [test/coverage-campaign]
+    paths:
+      - 'addon/**'
+      - 'app/**'
+      - 'tests/dummy/**'
+      - 'scripts/build-playground.js'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'ember-cli-build.js'
+      - 'tailwind.config.js'
+      - '.github/workflows/playground-pages.yml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 22.x
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. In-progress deploys are allowed to finish rather than being cancelled,
+# so the published site is never left half-written.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build playground
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build the playground
+        # `base_path` follows whatever Pages reports, so moving to a custom domain later needs no
+        # code change. It falls back to the project-page sub-path.
+        # Invoked directly rather than through `pnpm run`, so the flag reaches the script instead
+        # of being consumed by the package manager.
+        run: node scripts/build-playground.js --base-path "${{ steps.pages.outputs.base_path || '/ember-ui/' }}"
+
+      - name: Verify the artifact
+        run: |
+          set -euo pipefail
+
+          test -f playground-dist/index.html || { echo 'index.html is missing'; exit 1; }
+          test -f playground-dist/.nojekyll || { echo '.nojekyll is missing'; exit 1; }
+          test -d playground-dist/assets || { echo 'assets/ is missing'; exit 1; }
+
+          for unwanted in tests tests.html testem.js coverage; do
+            if [ -e "playground-dist/$unwanted" ]; then
+              echo "playground-dist/$unwanted must not be published"
+              exit 1
+            fi
+          done
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playground-dist
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
