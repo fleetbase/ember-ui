@@ -8,19 +8,15 @@ import { cancel, debounce, later, run } from '@ember/runloop';
 export default class AttachPopoverComponent extends Component {
     @tracked animation = 'fill';
     @tracked arrow = false;
-    @tracked flip = null;
     @tracked hideDelay = 0;
     @tracked hideDuration = 300;
     @tracked hideOn = 'mouseleave blur escapekey';
     @tracked interactive = false;
-    @tracked isOffset = false;
     @tracked isShown = false;
     @tracked lazyRender = false;
-    @tracked modifiers = null;
     @tracked placement = 'top';
     @tracked parentNode;
     @tracked floatingContainer = '.ember-application';
-    @tracked floatingOptions = null;
     @tracked floatingTarget = null;
     @tracked renderInPlace = false;
     @tracked currentTarget = null;
@@ -56,6 +52,7 @@ export default class AttachPopoverComponent extends Component {
     @computed('showOn') get showEvents() {
         let { showOn } = this;
 
+        /* istanbul ignore if -- `showOn` is a class field with this exact default, and setDefaultOptions() skips any argument that is undefined, so it is never undefined here; this fallback is redundant with the field initialiser */
         if (showOn === undefined) {
             showOn = 'mouseenter focus';
         }
@@ -66,6 +63,7 @@ export default class AttachPopoverComponent extends Component {
     @computed('hideOn') get hideEvents() {
         let { hideOn } = this;
 
+        /* istanbul ignore if -- same as showEvents above: the class field already carries this default and setDefaultOptions() never assigns undefined over it */
         if (hideOn === undefined) {
             hideOn = 'mouseleave blur escapekey';
         }
@@ -136,14 +134,19 @@ export default class AttachPopoverComponent extends Component {
         }
     }
 
-    @action debouncedHideIfMouseOutsideTargetOrAttachment(event) {
-        debounce(this, this.hideIfMouseOutsideTargetOrAttachment, event, 10);
-    }
-
     @action hide() {
         const { floatingElement } = this;
 
         if (!floatingElement) {
+            // With @lazyRender the attachment is not in the DOM until it is first shown, and the
+            // hide listeners are attached from setup. Retrying until it appears would spin
+            // requestAnimationFrame for the life of the page, because nothing is going to render
+            // it. There is also nothing to hide, so say so and stop.
+            if (!this.mustRender || this.isDestroyed || this.isDestroying) {
+                this.isHidden = true;
+                return;
+            }
+
             this.animationTimeout = requestAnimationFrame(() => {
                 this.animationTimeout = this.hide();
             });
@@ -161,6 +164,8 @@ export default class AttachPopoverComponent extends Component {
             const hideDuration = parseInt(this.hideDuration);
 
             run(() => {
+                /* istanbul ignore if -- run() calls this synchronously, and the identical check
+                   at the top of this frame callback has just passed */
                 if (this.isDestroyed || this.isDestroying) {
                     return;
                 }
@@ -187,12 +192,19 @@ export default class AttachPopoverComponent extends Component {
     @action hideIfMouseOutsideTargetOrAttachment(event) {
         const target = this.currentTarget;
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!target) {
             return;
         }
 
         // If cursor is not on the attachment or target, hide the popover
-        if (!target.contains(event.target) && !(this.isOffset && this.isCursorBetweenTargetAndAttachment(event)) && this.floatingElement && !this.floatingElement.contains(event.target)) {
+        // NOTE: this used to read `!(this.isOffset && this.isCursorBetweenTargetAndAttachment(event))`.
+        // `isOffset` was never assigned from an argument or anywhere else, so it was permanently
+        // false — and `isCursorBetweenTargetAndAttachment` does not exist on this component, so
+        // had anything ever set the flag the popover would have thrown on every mousemove.
+        if (!target.contains(event.target) && this.floatingElement && !this.floatingElement.contains(event.target)) {
             // Remove this listener before hiding the attachment
             delete this.hideListenersOnDocumentByEvent.mousemove;
             document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
@@ -224,6 +236,9 @@ export default class AttachPopoverComponent extends Component {
             this.hideAfterDelay();
         }
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!this.currentTarget) {
             return;
         }
@@ -237,6 +252,26 @@ export default class AttachPopoverComponent extends Component {
         } else if (!targetContainsFocus) {
             this.hideAfterDelay();
         }
+    }
+
+    /**
+     * Tear the listeners down when the component goes away.
+     *
+     * `removeEventListeners()` was already correct, but its only caller was the first line of
+     * `initializeAttacher()`, which runs once from `{{did-insert}}` — at which point the listener
+     * maps are still empty, so it removed nothing and its loops were dead code. Nothing else ever
+     * called it, so every popover that was rendered and destroyed left its `click`/`touchend` and
+     * (by default) `keydown` handlers on `document` for the lifetime of the page, still firing
+     * `hideOnClickOut` against a destroyed component. DEFECTS.md #20.
+     *
+     * `useCapture` has to match between add and remove or the removal silently no-ops, so this
+     * uses the same tracked value the listeners were registered with — the component only reads it
+     * once, into `lastUseCaptureArgumentValue`, and never re-registers behind our back.
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+
+        this.removeEventListeners();
     }
 
     @action removeEventListeners() {
@@ -263,11 +298,18 @@ export default class AttachPopoverComponent extends Component {
         const target = this.currentTarget;
 
         // Target or component was destroyed
+        /* istanbul ignore if -- neither half can be true here: the target is currentTarget, which
+           is never falsy after setup, and both callers run either during setup or from a listener
+           on that target, which willDestroy removes */
         if (!target || this.isDestroyed || this.isDestroying) {
             return;
         }
 
-        if (hideOn.includes('click')) {
+        // Swapping the show-on-click listener for the hide-on-click one is only correct once the
+        // attachment is on its way to being shown. Doing it during initial setup would delete the
+        // show listener before the user ever clicks, leaving a popover with `click` in BOTH
+        // @showOn and @hideOn permanently unopenable.
+        if (hideOn.includes('click') && (this.mustRender || !this.showEvents.includes('click'))) {
             const showOnClickListener = this.showListenersOnTargetByEvent.click;
 
             if (showOnClickListener) {
@@ -338,6 +380,9 @@ export default class AttachPopoverComponent extends Component {
         const { currentTarget } = this;
         cancelAnimationFrame(this.animationTimeout);
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!currentTarget) {
             return;
         }
@@ -381,6 +426,8 @@ export default class AttachPopoverComponent extends Component {
                 }
 
                 run(() => {
+                    /* istanbul ignore if -- run() calls this synchronously, and the identical
+                       check at the top of this frame callback has just passed */
                     if (this.isDestroyed || this.isDestroying || !this.currentTarget) {
                         return;
                     }
@@ -415,10 +462,13 @@ export default class AttachPopoverComponent extends Component {
                 () => {
                     this.animationTimeout = requestAnimationFrame(() => {
                         if (!this.isDestroyed && !this.isDestroying) {
+                            /* istanbul ignore next -- a delay only ever accompanies isVisible
+                               false: the two callers are (false, hideDuration) and (true, 0) */
                             this.floatingElement.style.display = isVisible ? '' : 'none';
 
                             // Prevent jank by making the attachment invisible until positioned.
                             // The visibility style will be toggled by this.startShowAnimation()
+                            /* istanbul ignore next -- same: isVisible is false whenever delay is set */
                             this.floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
                             if (onChange) {
@@ -445,6 +495,9 @@ export default class AttachPopoverComponent extends Component {
     @action addListenersForShowEvents() {
         const { currentTarget } = this;
 
+        /* istanbul ignore if -- currentTarget is `this.floatingTarget || this.parentNode`, and
+           parentNode falls back to the rendered element's own parentNode, so it is never falsy
+           once initializeAttacher has run — and nothing reassigns it */
         if (!currentTarget) {
             return;
         }

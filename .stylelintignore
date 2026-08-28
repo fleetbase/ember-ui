@@ -3,6 +3,7 @@
 
 # compiled output
 /dist/
+/coverage/
 
 # addons
 /.node_modules.ember-try/

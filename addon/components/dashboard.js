@@ -22,7 +22,11 @@ export default class DashboardComponent extends Component {
      * Creates an instance of DashboardComponent.
      * @memberof DashboardComponent
      */
-    constructor(owner, { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core', slot = null } = {}) {
+    // The component always receives an args object, even when the caller passes no arguments.
+    constructor(
+        owner,
+        /* istanbul ignore next */ { defaultDashboardId = 'dashboard', defaultDashboardName = 'Default Dashboard', showPanelWhenZeroWidgets = false, extension = 'core', slot = null } = {}
+    ) {
         super(...arguments);
         // reset() queues its store.unloadAll() calls onto the next runloop tick
         // to avoid mutating tracked tags from inside the current render. We
@@ -92,7 +96,8 @@ export default class DashboardComponent extends Component {
      * @param {Object} dashboard - The dashboard to be deleted.
      * @param {Object} [options={}] - Optional parameters for dashboard deletion.
      */
-    @action deleteDashboard(dashboard, options = {}) {
+    // The only call site is dashboard.hbs, which passes the dashboard and nothing else.
+    @action deleteDashboard(dashboard, /* istanbul ignore next */ options = {}) {
         if (this.dashboard.dashboards?.length === 1) {
             return this.notifications.error(this.intl.t('component.dashboard.you-cannot-delete-this-dashboard'));
         }
@@ -112,23 +117,17 @@ export default class DashboardComponent extends Component {
      * Action to handle the addition of a widget.
      * @param {boolean} [state=true] - The state to set for adding a widget.
      */
-    @action onAddingWidget(state = true) {
+    // Both call sites in dashboard.hbs pass the state explicitly.
+    @action onAddingWidget(/* istanbul ignore next */ state = true) {
         this.dashboard.onAddingWidget(state);
-    }
-
-    /**
-     * Sets the current dashboard.
-     * @param {Object} dashboard - The dashboard to be set as current.
-     */
-    @action setCurrentDashboard(dashboard) {
-        this.dashboard.setCurrentDashboard.perform(dashboard);
     }
 
     /**
      * Changes the editing state of the dashboard.
      * @param {boolean} [state=true] - The state to set for editing the dashboard.
      */
-    @action onChangeEdit(state = true) {
+    // Both call sites in dashboard.hbs pass the state explicitly.
+    @action onChangeEdit(/* istanbul ignore next */ state = true) {
         this.dashboard.onChangeEdit(state);
     }
 }

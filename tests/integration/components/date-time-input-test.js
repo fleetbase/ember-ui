@@ -48,6 +48,37 @@ module('Integration | Component | date-time-input', function (hooks) {
         assert.dom('[aria-label="Time Input"]').hasValue('');
     });
 
+    test('it renders a date-only iso string', async function (assert) {
+        // No time part, so the local date-time pattern does not match and the value falls through
+        // to parseISO.
+        this.set('value', '2026-07-03');
+
+        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+
+        assert.dom('[aria-label="Date Input"]').hasValue('2026-07-03');
+    });
+
+    test('a value shaped like a local date-time but impossible renders empty', async function (assert) {
+        this.set('value', '2026-13-45T99:99');
+
+        await render(hbs`<DateTimeInput @value={{this.value}} />`);
+
+        assert.dom('[aria-label="Date Input"]').hasValue('', 'it looks right but does not parse');
+        assert.dom('[aria-label="Time Input"]').hasValue('');
+    });
+
+    test('a time chosen before any date is reported on its own', async function (assert) {
+        const reported = [];
+        this.set('onUpdate', (dateTimeInstance, dateTime) => reported.push([dateTimeInstance, dateTime]));
+
+        await render(hbs`<DateTimeInput @onUpdate={{this.onUpdate}} />`);
+        await fillIn('[aria-label="Time Input"]', '19:12');
+
+        assert.dom('[aria-label="Time Input"]').hasValue('19:12', 'the time is kept');
+        assert.strictEqual(reported.length, 1, 'the time alone is still reported');
+        assert.true(reported[0][1].endsWith('19:12'), `paired with today's date (${reported[0][1]})`);
+    });
+
     test('it calls onUpdate with a date instance and formatted date-time string', async function (assert) {
         assert.expect(4);
 

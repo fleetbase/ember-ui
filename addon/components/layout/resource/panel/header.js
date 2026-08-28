@@ -1,16 +1,7 @@
 import Component from '@glimmer/component';
-import titleize from 'ember-cli-string-helpers/utils/titleize';
 
-export default class LayoutResourcePanelHeaderComponent extends Component {
-    get modelName() {
-        if (this.args.modelName) return this.args.modelName;
-        const model = this.args.resource;
-        const modelName = model?.constructor?.modelName ?? model?._internalModel?.modelName;
-        if (!modelName) {
-            return 'Resource';
-        }
-
-        const normalized = modelName.replace(/[-_]/g, ' ');
-        return titleize(normalized);
-    }
-}
+// The `modelName` getter that used to live here was a byte-identical duplicate of the one in
+// `header-actions.js`, and header.hbs never read it. `@modelName` is now forwarded to
+// HeaderActions instead, so there is exactly one implementation and it is the one that decides
+// the save button's label.
+export default class LayoutResourcePanelHeaderComponent extends Component {}

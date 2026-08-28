@@ -12,7 +12,6 @@
             group=(component
                 "query-builder/group-by"
                 groupBy=this.groupBy
-                columns=this.columns
                 selectedColumns=this.selectedColumns
                 allSelectedColumns=this.allSelectedColumns
                 onChange=(fn this.callbackChange "groupBy")
@@ -20,7 +19,6 @@
             sort=(component
                 "query-builder/sort-by"
                 sortBy=this.sortBy
-                columns=this.columns
                 selectedColumns=this.selectedColumns
                 allSelectedColumns=this.allSelectedColumns
                 onChange=(fn this.callbackChange "sortBy")
@@ -30,7 +28,6 @@
             conditions=(component
                 "query-builder/conditions"
                 table=this.table
-                columns=this.columns
                 selectedColumns=this.selectedColumns
                 allSelectedColumns=this.allSelectedColumns
                 joins=this.joins
@@ -60,14 +57,12 @@
             />
             <QueryBuilder::GroupBy
                 @groupBy={{this.groupBy}}
-                @columns={{this.columns}}
                 @selectedColumns={{this.selectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @onChange={{fn this.callbackChange "groupBy"}}
             />
             <QueryBuilder::SortBy
                 @sortBy={{this.sortBy}}
-                @columns={{this.columns}}
                 @selectedColumns={{this.selectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @onChange={{fn this.callbackChange "sortBy"}}
@@ -76,7 +71,6 @@
             <QueryBuilder::Joins @table={{this.table}} @relationships={{this.table.relationships}} @onChange={{fn this.callbackChange "joins"}} class="col-span-2" />
             <QueryBuilder::Conditions
                 @table={{this.table}}
-                @columns={{this.columns}}
                 @selectedColumns={{this.selectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @joins={{this.joins}}

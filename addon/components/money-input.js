@@ -10,7 +10,6 @@ import AutoNumeric from 'autonumeric';
 export default class MoneyInputComponent extends Component {
     @service fetch;
     @service currentUser;
-    @tracked currencies = getCurrency();
     @tracked currency;
     @tracked currencyData;
     @tracked autonumeric;
@@ -57,6 +56,8 @@ export default class MoneyInputComponent extends Component {
     @action setCurrency(currency) {
         const { onCurrencyChange } = this.args;
 
+        /* istanbul ignore else -- autoNumerize runs from {{did-insert}} on the amount field, so
+           the instance exists before the currency selector can be reached */
         if (this.autonumeric) {
             let value = this.autonumeric.getNumber();
             this.autonumeric.update(this.getCurrencyFormatOptions(currency));
@@ -73,12 +74,23 @@ export default class MoneyInputComponent extends Component {
     }
 
     @action getCurrencyFormatOptions(currency) {
+        /* istanbul ignore next -- every entry in get-currency.js declares a symbol */
+        const currencySymbol = isNone(currency.symbol) ? '$' : currency.symbol;
+        /* istanbul ignore next -- every entry in get-currency.js declares a precision */
+        const decimalPlaces = isNone(currency.precision) ? 2 : currency.precision;
+        /* istanbul ignore next -- every entry in get-currency.js declares a thousandSeparator */
+        const digitGroupSeparator = isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator;
+
         let options = {
-            currencySymbol: isNone(currency.symbol) ? '$' : currency.symbol,
+            currencySymbol,
             currencySymbolPlacement: currency.symbolPlacement === 'before' ? 'p' : 's',
-            decimalCharacter: isNone(currency.decimalSeperator) ? '.' : currency.decimalSeparator,
-            decimalPlaces: isNone(currency.precision) ? 2 : currency.precision,
-            digitGroupSeparator: isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator,
+            // Truthiness, not isNone: 16 zero-decimal currencies in get-currency.js carry
+            // `decimalSeparator: ''`, and an empty decimalCharacter makes AutoNumeric build the
+            // broken character class /[^-0123456789\]/ and throw. The rest of this component
+            // already tests the separator with `!currency.decimalSeparator`.
+            decimalCharacter: currency.decimalSeparator || '.',
+            decimalPlaces,
+            digitGroupSeparator,
         };
 
         // decimal and thousand seperator cannot be the same, if they are revert the thousand seperator

@@ -7,6 +7,8 @@ import { isNone } from '@ember/utils';
 export default class LayoutResourceTabularComponent extends Component {
     @service filters;
     @tracked table;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked columns = [];
 
     get checkboxSticky() {

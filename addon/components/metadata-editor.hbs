@@ -1,7 +1,7 @@
 <div class="space-y-2" ...attributes>
     <div class="flex items-center justify-between {{@actionsWrapperClass}}">
-        {{#if @label}}
-            <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200">{{@label}}</h3>
+        {{#if this.label}}
+            <h3 class="text-sm font-medium text-gray-800 dark:text-gray-200">{{this.label}}</h3>
         {{/if}}
         <div class="flex items-center gap-2">
             <input type="text" placeholder="Filter keys…" class="form-input form-input-sm" {{on "input" this.onFilter}} />

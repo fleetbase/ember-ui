@@ -26,18 +26,13 @@ export default class DashboardWidgetCardComponent extends Component {
         return this.isDefault || this.isAdded;
     }
 
-    get addLabel() {
-        return this.isAdded ? 'add-another' : 'add';
-    }
-
-    get addedBadgeText() {
-        const n = this.args.addedCount ?? 0;
-        return n > 1 ? `On dashboard ×${n}` : 'On dashboard';
-    }
-
-    /** Compact inline "Added" indicator. Falls back to "Added" for 1, "Added ×N" for >1. */
+    /**
+     * Compact inline "Added" indicator: "Added" for 1, "Added ×N" for more. Only rendered inside
+     * `{{#if this.isAdded}}`, which already means addedCount is a number greater than zero — hence
+     * no default here; `undefined > 1` would read "Added" anyway.
+     */
     get addedShortBadge() {
-        const n = this.args.addedCount ?? 0;
+        const n = this.args.addedCount;
         return n > 1 ? `Added ×${n}` : 'Added';
     }
 

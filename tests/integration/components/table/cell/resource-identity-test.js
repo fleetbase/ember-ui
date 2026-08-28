@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { click, render } from '@ember/test-helpers';
+import { click, render, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | table/cell/resource-identity', function (hooks) {
@@ -30,7 +30,7 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
         assert.dom('.table-cell-resource-identity').exists();
         assert.dom('[data-test-resource-identity-image]').hasAttribute('src', 'https://example.com/truck.png');
         assert.dom('button').hasClass('items-start');
-        assert.dom('button').doesNotHaveClass('py-0.5');
+        assert.dom('button').hasClass('py-0.5', 'the default padding is unchanged');
         assert.dom('[data-test-resource-identity-image]').hasClass('h-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('w-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('border');
@@ -132,9 +132,12 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
 
         await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
 
-        assert.dom('[data-test-resource-identity-meta-badge]').exists({ count: 2 });
-        assert.dom('[data-test-resource-identity-meta-badge]').includesText('+1 555 0100');
-        assert.dom('[data-test-resource-identity-meta-badge]').includesText('Van 12');
+        // assert.dom(selector) always targets the FIRST match, so each badge has to be
+        // selected individually.
+        const badges = findAll('[data-test-resource-identity-meta-badge]');
+        assert.strictEqual(badges.length, 2);
+        assert.dom(badges[0]).includesText('+1 555 0100');
+        assert.dom(badges[1]).includesText('Van 12');
         assert.dom('[data-test-resource-identity-status-badge]').exists();
         assert.dom('[data-test-resource-identity-status-badge]').hasClass('status-badge-xxs');
     });
@@ -159,5 +162,272 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
         assert.dom('[data-test-resource-identity-status-dot]').hasClass('top-0');
         assert.dom('[data-test-resource-identity-status-dot]').hasClass('-ml-1');
         assert.dom('[data-test-resource-identity-status-dot]').hasClass('-mt-1');
+    });
+
+    // Nearly every option in this cell accepts either a path, a literal or a callback. The
+    // callback forms are what the path-driven tests above never exercise.
+    module('callback and literal column options', function () {
+        test('a labelFormatter takes precedence over every path', async function (assert) {
+            this.set('row', { first_name: 'Ada', last_name: 'Lovelace' });
+            this.set('column', {
+                labelPath: 'first_name',
+                labelFormatter: (row) => `${row.first_name} ${row.last_name}`,
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('Ada Lovelace', 'the formatter is asked, not the path');
+        });
+
+        test('a literal labelValue is used as given', async function (assert) {
+            this.set('row', { name: 'ignored' });
+            this.set('column', { labelPath: 'name', labelValue: 'Fixed Label' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('Fixed Label');
+            assert.dom('button').doesNotIncludeText('ignored');
+        });
+
+        test('a labelValue callback is invoked with the row', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelValue: (row) => row.name.toUpperCase() });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('TRUCK 104');
+        });
+
+        test('a labelPath given as a function is called rather than resolved', async function (assert) {
+            this.set('row', { parts: ['Van', '12'] });
+            this.set('column', { labelPath: (row) => row.parts.join(' ') });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('Van 12');
+        });
+
+        test('literal identifier, status and altText values bypass their paths', async function (assert) {
+            this.set('row', { public_id: 'ignored_id', state: 'ignored_state' });
+            this.set('column', {
+                labelValue: 'Resource',
+                identifierPath: 'public_id',
+                identifier: 'literal_id',
+                statusPath: 'state',
+                status: 'available',
+                altText: 'A literal alt',
+                mediaUrl: 'https://example.com/literal.png',
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('literal_id');
+            assert.dom('button').doesNotIncludeText('ignored_id');
+            assert.dom('button').includesText('Available');
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('src', 'https://example.com/literal.png');
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('alt', 'A literal alt');
+        });
+
+        test('a statusFormatter renames the status and a statusToneClass callback colours it', async function (assert) {
+            this.set('row', { name: 'Truck 104', state: 'in_service' });
+            this.set('column', {
+                labelPath: 'name',
+                statusPath: 'state',
+                statusFormatter: (status) => `State: ${status}`,
+                statusToneClass: (value) => (value === 'in_service' ? 'text-blue-400' : 'text-gray-400'),
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            // The template humanises whatever the formatter returns, so `in_service` still comes
+            // back out title-cased.
+            assert.dom('button').includesText('State: In Service');
+            assert.dom('[data-test-resource-identity-status-dot]').hasClass('text-blue-400');
+        });
+
+        test('a false online flag is toned as offline', async function (assert) {
+            this.set('row', { name: 'Driver One', online: false, status: 'available' });
+            this.set('column', { labelPath: 'name', statusPath: 'status', onlinePath: 'online' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-status-dot]').hasClass('text-yellow-200', 'a boolean online value picks the boolean tones');
+            assert.dom('[data-test-resource-identity-status-dot]').doesNotHaveClass('text-green-500');
+        });
+
+        test('an explicit imageRoundedClass wins over the imageRounded flag', async function (assert) {
+            this.set('row', { name: 'Driver One' });
+            this.set('column', { labelPath: 'name', imageRounded: true, imageRoundedClass: 'rounded-none' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-image]').hasClass('rounded-none');
+            assert.dom('[data-test-resource-identity-image]').doesNotHaveClass('rounded-full');
+        });
+
+        test('a column onClick handler is called alongside the argument handler', async function (assert) {
+            const calls = [];
+            this.set('row', { name: 'Driver One' });
+            this.set('column', { labelPath: 'name', onClick: () => calls.push('column') });
+            this.set('onClick', () => calls.push('argument'));
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} @onClick={{this.onClick}} />`);
+            await click('button');
+
+            assert.deepEqual(calls, ['argument', 'column'], 'both handlers run, the argument first');
+        });
+
+        test('an image on a row with nothing to label it carries empty alt text', async function (assert) {
+            this.set('row', {});
+            this.set('column', { mediaUrl: 'https://example.com/anon.png' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('alt', '', 'there is no label to borrow');
+        });
+
+        test('an altText callback is invoked with the row', async function (assert) {
+            this.set('row', { name: 'Driver One' });
+            this.set('column', {
+                labelPath: 'name',
+                altText: (row) => `Photo of ${row.name}`,
+                mediaUrl: 'https://example.com/driver.png',
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-image]').hasAttribute('alt', 'Photo of Driver One');
+        });
+
+        test('a status with no badge size of its own is rendered at the default size', async function (assert) {
+            this.set('row', { name: 'Driver One', state: 'available' });
+            this.set('column', { labelPath: 'name', statusPath: 'state', showStatusBadge: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('[data-test-resource-identity-status-badge]').exists('the badge renders without a configured size');
+        });
+
+        test('a column onClick works with no argument handler behind it', async function (assert) {
+            const calls = [];
+            this.set('row', { name: 'Driver One' });
+            this.set('column', { labelPath: 'name', onClick: () => calls.push('column') });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+            await click('button');
+
+            assert.deepEqual(calls, ['column'], 'the column handler still runs on its own');
+        });
+
+        test('it falls back to the plain @value with no column at all', async function (assert) {
+            this.set('row', { name: 'Driver One' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @value="Just a value" />`);
+
+            assert.dom('.table-cell-resource-identity').exists('an absent column is treated as an empty one');
+            assert.dom('button').includesText('Just a value');
+        });
+    });
+
+    module('metadata normalisation', function () {
+        test('a metaPath function may return either a descriptor or a bare value', async function (assert) {
+            this.set('row', { name: 'Truck 104', plate: 'ABC-123', mileage: 90210 });
+            this.set('column', {
+                labelPath: 'name',
+                metaPaths: [(row) => ({ value: `Plate ${row.plate}` }), (row) => `${row.mileage} miles`],
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('Plate ABC-123', 'a descriptor is used as-is');
+            assert.dom('button').includesText('90210 miles', 'a bare value is wrapped into one');
+        });
+
+        test('a descriptor may compute its own value', async function (assert) {
+            this.set('row', { name: 'Truck 104', quantity: 4 });
+            this.set('column', {
+                labelPath: 'name',
+                metaPaths: [{ value: (row) => `${row.quantity} in stock` }],
+            });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('4 in stock');
+        });
+
+        test('an unusable metaPath entry is dropped rather than rendered', async function (assert) {
+            this.set('row', { name: 'Truck 104', plate: 'ABC-123' });
+            this.set('column', { labelPath: 'name', metaPaths: [42, null, 'plate'] });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').includesText('ABC-123', 'the usable entry still renders');
+            assert.dom('button').doesNotIncludeText('42', 'the unusable ones are discarded');
+        });
+
+        test('duplicate metadata values are shown once', async function (assert) {
+            this.set('row', { name: 'Truck 104', plate: 'ABC-123', registration: 'ABC-123' });
+            this.set('column', { labelPath: 'name', metaPaths: ['plate', 'registration'] });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            const shown = this.element.textContent.match(/ABC-123/g) ?? [];
+            assert.strictEqual(shown.length, 1, 'the repeated value is de-duplicated');
+        });
+    });
+    // #108: the trigger's vertical padding used to be a literal in the template, so a dense table
+    // had no way to compact the identity cell however its column was configured.
+    module('the trigger padding', function () {
+        test('it carries the standard padding by default', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-0.5');
+        });
+
+        test('a compact column drops it', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-0', 'the dense variant is actually dense');
+            assert.dom('button').doesNotHaveClass('py-0.5');
+        });
+
+        test('an explicit triggerClass replaces the padding outright', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', triggerClass: 'py-2 font-bold' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-2');
+            assert.dom('button').hasClass('font-bold');
+            assert.dom('button').doesNotHaveClass('py-0.5');
+        });
+
+        test('an explicit triggerClass wins over compact', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true, triggerClass: 'py-3' });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('py-3', 'the specific option beats the shorthand');
+            assert.dom('button').doesNotHaveClass('py-0');
+        });
+
+        test('the layout classes survive either way', async function (assert) {
+            this.set('row', { name: 'Truck 104' });
+            this.set('column', { labelPath: 'name', compact: true });
+
+            await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+            assert.dom('button').hasClass('flex');
+            assert.dom('button').hasClass('items-start');
+            assert.dom('button').hasClass('gap-2');
+            assert.dom('button').hasClass('text-left');
+        });
     });
 });

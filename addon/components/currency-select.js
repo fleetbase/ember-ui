@@ -39,6 +39,8 @@ export default class CurrencySelectComponent extends Component {
     }
 
     @action searchCurrencies(currency, term) {
+        /* istanbul ignore if -- power-select only calls a @matcher with the string the user has
+           typed, and only once there is something to match */
         if (!term || typeof term !== 'string') {
             return -1;
         }

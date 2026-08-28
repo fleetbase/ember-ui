@@ -14,28 +14,20 @@ export default class TableCellComponent extends Component {
         return sortColumns.find((c) => c.param === sortParam);
     }
 
+    // `Th` resolves the direction through `table.getSortColumn(param)` and passes it down; it
+    // always sends a boolean, so honour a truthy one and otherwise fall back to the local
+    // `sortColumns` computation. That covers a table implementing only `getSortColumn`, a table
+    // populating only `sortColumns`, and body cells, which get no argument at all.
     get isAscending() {
-        return this.sortColumn?.direction === 'asc';
+        return this.args.isAscending || this.sortColumn?.direction === 'asc';
     }
 
     get isDescending() {
-        return this.sortColumn?.direction === 'desc';
+        return this.args.isDescending || this.sortColumn?.direction === 'desc';
     }
 
     @action setupComponent(tableCellNode) {
         this.tableCellNode = tableCellNode;
-    }
-
-    @action getOwnerTable(tableCellNode) {
-        while (tableCellNode) {
-            tableCellNode = tableCellNode.parentNode;
-
-            if (tableCellNode.tagName.toLowerCase() === 'table') {
-                return tableCellNode;
-            }
-        }
-
-        return undefined;
     }
 
     @action triggerSort(event) {

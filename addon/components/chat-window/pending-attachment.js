@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 
 export default class ChatWindowPendingAttachmentComponent extends Component {
     @tracked file;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked isImage = false;
 
     constructor(owner, { file }) {

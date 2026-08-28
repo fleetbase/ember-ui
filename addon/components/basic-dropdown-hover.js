@@ -43,12 +43,14 @@ export default class BasicDropdownHoverComponent extends Component {
         return false;
     }
 
+    // Compared against undefined, not for truthiness: a caller asking for no delay at all passes
+    // 0, and a truthiness check turned that into the 300ms default. See DEFECTS #30.
     getDelay(action, defaultDelay = 300) {
-        if (this.args[`${action}Delay`]) {
+        if (this.args[`${action}Delay`] !== undefined) {
             return this.args[`${action}Delay`];
         }
 
-        if (this.args.delay) {
+        if (this.args.delay !== undefined) {
             return this.args.delay;
         }
 
