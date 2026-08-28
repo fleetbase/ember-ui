@@ -88,6 +88,24 @@
                     <File @file={{this.uploadedFile}} @onDelete={{this.removeFile}} class="custom-field-file" />
                 {{/if}}
             </InputGroup>
+        {{else if (eq this.customFieldComponent "signature-pad")}}
+            <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>
+                <SignaturePad
+                    @value={{this.signatureDataUrl}}
+                    @height={{or this.customField.meta.height 200}}
+                    @disabled={{this.isUploadingSignature}}
+                    @onChange={{this.onSignatureChange}}
+                />
+                {{#if this.file}}
+                    <div class="mt-2 flex items-center text-sm">
+                        <Spinner class="dark:text-blue-400 text-blue-900" />
+                        <span class="ml-2 text-xs dark:text-blue-400 text-blue-900">{{round this.file.progress}}%</span>
+                    </div>
+                {{/if}}
+                {{#if this.uploadedFile}}
+                    <File @file={{this.uploadedFile}} @onDelete={{this.removeFile}} class="custom-field-file mt-2" />
+                {{/if}}
+            </InputGroup>
         {{/if}}
     </div>
 {{/if}}

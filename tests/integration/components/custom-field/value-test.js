@@ -3,6 +3,8 @@ import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, findAll } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
+const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+
 function createCustomField(attributes = {}) {
     return {
         id: 'custom-field-1',
@@ -22,6 +24,10 @@ function createSubject(customFieldValues = []) {
             return this[key];
         },
     };
+}
+
+function signatureField() {
+    return createCustomField({ name: 'signature', label: 'Signature', type: 'signature-pad' });
 }
 
 module('Integration | Component | custom-field/value', function (hooks) {
@@ -142,5 +148,58 @@ module('Integration | Component | custom-field/value', function (hooks) {
         await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
 
         assert.dom('.field-info-container').hasClass('col-span-3');
+    });
+
+    module('signature fields', function () {
+        test('it renders a signature stored as expanded file json', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ uuid: 'file_1', url: 'https://files.test/signature.png' }) }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').hasAttribute('src', 'https://files.test/signature.png');
+            assert.dom('img.custom-field-signature-image').hasAttribute('alt', 'Signature');
+            assert.dom('.field-name').hasText('Signature');
+        });
+
+        test('it renders a signature still held as a raw data url', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: RED_PNG }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').hasAttribute('src', RED_PNG);
+        });
+
+        test('it renders nothing for an unexpanded file sentinel', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_1' }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').doesNotExist('there is no url to render yet');
+            assert.dom('.field-value').exists('the field is still listed');
+        });
+
+        test('an expanded signature file without a url renders as a plain file', async function (assert) {
+            this.set('customField', signatureField());
+            // already-parsed file json, but the record carries no url to show inline
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_2', filename: 'signature.png' } }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').doesNotExist('nothing to render inline');
+            assert.dom('.custom-field-file').exists('the file fallback takes over');
+        });
+
+        test('it survives a signature value that is not valid json', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: '{not json' }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').doesNotExist();
+            assert.dom('.field-value').exists('rendering does not blow up');
+        });
     });
 });

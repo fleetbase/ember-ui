@@ -1,5 +1,6 @@
 import getCustomFieldTypeMap from '@fleetbase/ember-ui/utils/get-custom-field-type-map';
 import { module, test } from 'qunit';
+import { camelize, dasherize } from '@ember/string';
 
 module('Unit | Utility | get-custom-field-type-map', function () {
     test('it returns the full set of supported custom field types', function (assert) {
@@ -7,7 +8,7 @@ module('Unit | Utility | get-custom-field-type-map', function () {
 
         assert.deepEqual(
             Object.keys(map),
-            ['input', 'phoneInput', 'moneyInput', 'dateTimeInput', 'datePicker', 'radioButton', 'select', 'fileUpload'],
+            ['input', 'phoneInput', 'moneyInput', 'dateTimeInput', 'datePicker', 'radioButton', 'select', 'fileUpload', 'signaturePad'],
             'the key set and its order are part of the contract'
         );
     });
@@ -23,6 +24,7 @@ module('Unit | Utility | get-custom-field-type-map', function () {
         assert.strictEqual(map.radioButton.component, 'radio-button-select');
         assert.strictEqual(map.select.component, 'select');
         assert.strictEqual(map.fileUpload.component, 'file-upload');
+        assert.strictEqual(map.signaturePad.component, 'signature-pad');
     });
 
     test('only the option-driven types declare hasOptions', function (assert) {
@@ -32,6 +34,7 @@ module('Unit | Utility | get-custom-field-type-map', function () {
         assert.deepEqual(withOptions, ['radioButton', 'select']);
         assert.strictEqual(map.input.hasOptions, undefined, 'plain inputs do not declare hasOptions at all');
         assert.false('hasOptions' in map.fileUpload, 'the key is absent rather than false');
+        assert.false('hasOptions' in map.signaturePad, 'a signature is not an option-driven field');
     });
 
     test('commented-out types are not exposed', function (assert) {
@@ -39,6 +42,19 @@ module('Unit | Utility | get-custom-field-type-map', function () {
 
         assert.false('modelSelect' in map, 'modelSelect is disabled in source');
         assert.false('dropzone' in map, 'dropzone is disabled in source');
+    });
+
+    test('every key survives the dasherize/camelize round trip', function (assert) {
+        // `custom-field/form.js` persists `dasherize(key)` as the field type and looks the
+        // field map back up with `camelize(type)`, so a key that does not round trip would
+        // silently render the wrong component.
+        for (const key of Object.keys(getCustomFieldTypeMap())) {
+            assert.strictEqual(camelize(dasherize(key)), key, `${key} round trips`);
+        }
+    });
+
+    test('signaturePad dasherizes to the persisted field type', function (assert) {
+        assert.strictEqual(dasherize('signaturePad'), 'signature-pad', 'the persisted custom field type is signature-pad');
     });
 
     test('it returns a fresh object graph on every call', function (assert) {
