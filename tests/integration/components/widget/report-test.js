@@ -74,6 +74,27 @@ module('Integration | Component | widget/report', function (hooks) {
         assert.dom().includesText('$42.00');
     });
 
+    test('a loaded report can be changed, with the current one preselected', async function (assert) {
+        this.store.report = {
+            id: 'report-1',
+            title: 'Revenue',
+            result_columns: [{ label: 'Total', name: 'total' }],
+            data: [{ total: '$42.00' }],
+        };
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+        await waitUntil(() => this.store.findRecordCalls.length === 1);
+        await settled();
+
+        assert.dom('[data-test-widget-report-select]').doesNotExist('the empty-state control is gone');
+        await click('[data-test-widget-report-change]');
+
+        assert.strictEqual(this.modalsManager.shown.length, 1, 'the picker opens from the loaded state');
+        assert.strictEqual(this.modalsManager.shown[0].name, 'modals/find-select-report');
+        assert.deepEqual(this.modalsManager.shown[0].options.selected, [this.store.report], 'the current report is preselected');
+    });
+
     test('it saves the selected report id to widget options', async function (assert) {
         assert.expect(7);
 
