@@ -34,16 +34,10 @@ argument, every yielded block, and the guidance on when to reach for which compo
 The **[playground](https://fleetbase.github.io/ember-ui/)** is its interactive companion: each
 documented component has a page where you change arguments and watch the real component react.
 
-> The playground deploys from this repository to GitHub Pages. Until the Pages source is switched
-> on for the repository (Settings → Pages → "GitHub Actions"), that link will 404 — run it locally
-> with `pnpm start` in the meantime.
-
 ## Installation
 
 ```bash
 pnpm add @fleetbase/ember-ui
-# or
-npm install @fleetbase/ember-ui
 ```
 
 Requires Node 18 or newer. The addon brings its own styles; no additional CSS import is needed.
@@ -284,14 +278,9 @@ The suite runs in headless Chrome through Testem. Coverage is gated at **100% of
 `addon/` source** — statements, branches, functions and lines — and enforced in CI:
 
 ```bash
-pnpm run coverage:selftest   # prove the gate itself works
 pnpm run test:coverage       # run the suite with coverage
 pnpm run coverage:check      # enforce the gate
 ```
-
-The gate deliberately fails on a stale or missing artifact rather than reporting the previous run's
-numbers. `DEFECTS.md` records why the coverage lifecycle is shaped the way it is, and what is still
-open.
 
 ## Contributing
 

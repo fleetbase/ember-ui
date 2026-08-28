@@ -78,9 +78,8 @@ modifiers, services, initializers, and utility functions. Services may back an e
 ### ScheduleCalendar (documentation is stale)
 
 `/docs/ui/scheduling/event-calendar` is titled **"EventCalendar / ScheduleCalendar"**, but
-`ScheduleCalendar` and `ScheduleItemCard` no longer exist in this addon. They were deleted as
-confirmed dead code during PR #143 (commit `e6a3903`, *"Delete confirmed dead code; scope the
-coverage gate to first-party source"*).
+`ScheduleCalendar` and `ScheduleItemCard` no longer exist in this addon — they were removed as
+dead code.
 
 The playground therefore:
 
@@ -101,9 +100,9 @@ Registry controls were derived from the current `addon/components/*.hbs` and `*.
 documentation prose. Where the two disagree, the implementation wins, because it is what actually
 runs. Two consequences worth stating:
 
-- **`Layout::Resource::Panel` has no save button unless you pass `@saveTask`.** This is deliberate
-  (see `DEFECTS.md`) — wiring a default would force a save button onto read-only panels. The
-  playground passes a local no-op task so the button is demonstrable.
+- **`Layout::Resource::Panel` has no save button unless you pass `@saveTask`.** This is
+  deliberate: wiring a default would force a save button onto read-only panels. The playground
+  passes a local no-op task so the button is demonstrable.
 - **`Spinner` takes `@message`, `@size`, `@width`/`@height`.** Several arguments named in passing
   in the prose are not read by the component.
 - **`InputGroup`'s label comes from `@name`, not `@labelText`.** `@labelText` is not read by the
@@ -165,38 +164,43 @@ https://fleetbase.github.io/ember-ui/#/embed/button?state=…
 
 ## What the host application has to supply
 
-The addon ships component styles, not a document. Two things a consuming application normally
-provides had to be supplied by the playground, and both were missing at first — the previews
-looked unstyled and the page would not scroll.
+The addon ships component styles, not a document. A consuming application supplies the layer
+underneath them, and the playground — being that application here — has to supply it too. Three
+rules in `tests/dummy/app/styles/app.css` do that, and each is load-bearing.
 
-**1. Element normalisation.** `addon/styles/addon.css` deliberately contains no `@tailwind base`;
-an addon emitting preflight would clobber every application consuming it. Its component rules are
-`@apply`-generated and assume the elements underneath are already normalised. Without that layer a
-`<button>` keeps the user agent's `buttontext` colour — pure black — instead of inheriting, and
-form controls keep UA fonts.
+**1. Element normalisation.** `addon/styles/addon.css` contains no `@tailwind base`, by design: an
+addon that emitted preflight would clobber the styles of every application consuming it. Its
+component rules are `@apply`-generated and assume the elements underneath are already normalised.
+Without that layer a `<button>` keeps the user agent's `buttontext` colour rather than inheriting,
+and form controls keep user agent fonts.
 
-Emitting `@tailwind base` from the dummy app fixes the previews and *breaks the addon*: preflight
-would land after the addon's stylesheet and win on equal specificity, silently overriding
-deliberate rules — `button { cursor: pointer }` against the console's `* { cursor: default }`,
-which `tests/integration/components/layout/sidebar/navigator-test.js` asserts. A real console loads
-its preflight *before* the addon, so the addon wins there; that ordering cannot be reproduced from
-inside the dummy app.
+Emitting `@tailwind base` here is not the answer: it would load *after* the addon's stylesheet and
+win on equal specificity, overriding deliberate rules such as the console's `* { cursor: default }`.
+A consuming application loads preflight *before* the addon, and that ordering cannot be reproduced
+from inside the dummy application.
 
-So `tests/dummy/app/styles/app.css` applies only the normalisation the previews need, scoped to
-`.pg-host`, with the ancestor inside `:where()` so it contributes no specificity. The rules weigh
-exactly as much as preflight's own element selectors (0,0,1), which keeps `.btn-sm` and friends
-winning, and nothing outside the playground is affected.
+Instead only the normalisation the previews need is applied, scoped to `.pg-host` with the ancestor
+inside `:where()` so it contributes no specificity. The rules then weigh exactly what preflight's
+own element selectors weigh (0,0,1), so `.btn-sm` and friends still win, and nothing outside the
+playground is affected.
 
-**2. Opting out of the console's viewport lock.** The shipped CSS contains
-`body, html { height: 100vh; overflow: hidden }`. That is right for the Fleetbase console, which
-fills the viewport and scrolls its sidebar and main pane independently — but the playground is an
-ordinary document that grows past the fold. Inheriting the lock made everything below it
-unreachable: the catalog measured 3080px inside a 720px, non-scrolling viewport. `app.css` restores
-`height: auto` and `overflow-y: auto`; `tests/dummy` loads after the addon stylesheet, so a
-same-specificity rule is enough — no `!important`, no selector hacks.
+**2. Theme on `<body>`.** The addon's dark and light rules are scoped to `body[data-theme='dark']`
+and `body[data-theme='light']` specifically, not to any ancestor. A `playground/theme-body` modifier
+mirrors the current theme onto `<body>` so the previewed components theme along with the chrome.
 
-Both are covered by `tests/acceptance/playground/styling-test.js`, which asserts the computed
-styles of a previewed Button and that nothing between the catalog and the document clips it.
+**3. Opting out of the viewport lock.** The shipped CSS contains
+`body, html { height: 100vh; overflow: hidden }`. That suits the Fleetbase console, which fills the
+viewport and scrolls its sidebar and main pane independently, but the playground is an ordinary
+document that grows past the fold. `app.css` restores `height: auto` and `overflow-y: auto`;
+`tests/dummy` loads after the addon stylesheet, so a same-specificity rule is enough — no
+`!important` and no selector hacks.
+
+Typography is set on `.pg-app` and `.pg-embed` rather than on `body`, because `#ember-testing` is
+inside the same document and a base font size there would reach every component integration test.
+
+`tests/acceptance/playground/styling-test.js` covers all of this: it asserts the computed styles of
+a previewed Button, that the theme reaches `<body>`, and that nothing between the catalog and the
+document clips it.
 
 ---
 
@@ -511,8 +515,6 @@ no uncaught error. A component added to the allowlist is covered the moment it i
 
 ## Coverage
 
-The playground does not change the coverage lifecycle. `scripts/stamp-coverage-run.js`, the
-`Testem.afterTests` upload in `tests/test-helper.js`, `config/coverage.js` and
-`scripts/check-coverage.js` are untouched — see `DEFECTS.md` for why that lifecycle is shaped the
-way it is. The gate scopes to first-party `addon/` source; the playground lives entirely under
-`tests/dummy/`.
+The coverage gate scopes to first-party `addon/` source, and the playground lives entirely under
+`tests/dummy/`, so none of it enters the coverage denominator. Adding a playground page therefore
+never moves the coverage numbers.

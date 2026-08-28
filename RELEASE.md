@@ -15,7 +15,7 @@
   function and line in the addon, enforced by a coverage gate in CI with Codecov
   upload. Every remaining `istanbul ignore` carries a reason naming the specific
   thing that makes its code unreachable.
-- **Defects fixed along the way** — the campaign surfaced and fixed real bugs,
+- **Defects fixed along the way** — the coverage work surfaced and fixed real bugs,
   including: popover arrows are now actually positioned against their target,
   popover's `hide()` no longer spins requestAnimationFrame forever, the conditions
   panel in the query builder opens only when there are selected columns to filter
