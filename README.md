@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/brand/fleetbase-icon.png" alt="Fleetbase" width="76" height="76">
+</p>
+
 <h1 align="center">Fleetbase Ember UI</h1>
 
 <p align="center">
