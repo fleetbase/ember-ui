@@ -335,7 +335,7 @@ module('Integration | Component | filters-picker', function (hooks) {
 
         assert.strictEqual(router.listeners.length, 0);
     });
-    // DEFECTS #11. `onColumn` was a parameter of the private #rebuildFilters(onColumn), and all
+    // `onColumn` was a parameter of the private #rebuildFilters(onColumn), and all
     // three call sites invoked it with no argument, so the guard ran on every column and the
     // callback never once. It reads this.args.onColumn now, which is the consumer-facing hook the
     // guard was clearly written for.

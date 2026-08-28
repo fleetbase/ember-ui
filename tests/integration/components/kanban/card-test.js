@@ -139,7 +139,7 @@ module('Integration | Component | kanban/card', function (hooks) {
         });
 
         // The default card body has no edit or delete control, so a custom template is the only
-        // route by which <Kanban>'s @onCardUpdate and @onCardDelete can ever fire — see DEFECTS #25.
+        // route by which <Kanban>'s @onCardUpdate and @onCardDelete can ever fire.
         test('a custom template can update and delete through the card', async function (assert) {
             this.owner.register(
                 'component:test-card-actions',

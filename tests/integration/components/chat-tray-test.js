@@ -745,7 +745,7 @@ module('Integration | Component | chat-tray socket handling', function (hooks) {
 
     // The badge has two sources: countUnread() sums the channels currently loaded, and
     // getUnreadCount() asks the server for the real total across every channel, including any
-    // paginated away. The server is authoritative when it answers. (DEFECTS #6)
+    // paginated away. The server is authoritative when it answers.
     module('the authoritative unread count', function () {
         test('the server count wins over the channels currently loaded', async function (assert) {
             serverUnreadCount = 9;

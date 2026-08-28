@@ -158,7 +158,7 @@ const DEFINITIONS = {
             control('saveDisabled', 'boolean', { label: 'Save disabled', default: false }),
         ],
         events: ['onClose', 'onPressCancel', 'onToggle'],
-        notes: 'The save task is deliberately unwired unless a consumer passes `@saveTask` — see DEFECTS.md. The preview passes a local no-op task so the button appears.',
+        notes: 'The save task is deliberately unwired unless a consumer passes `@saveTask`. The preview passes a local no-op task so the button appears.',
     },
     floating: {
         description: 'Floating-UI positioning primitive: anchors arbitrary content to a target element.',

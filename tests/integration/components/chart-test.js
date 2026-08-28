@@ -119,7 +119,7 @@ module('Integration | Component | chart', function (hooks) {
             );
         });
 
-        // Until DEFECTS.md #21 was fixed this case could not be written at all: the catch left
+        // Until this was fixed, the case could not be written at all: the catch left
         // the FUNCTION in `datasets`, Chart.js threw `datasets.forEach is not a function`, and
         // because the throw happens after an await inside {{did-insert}} it escaped as an
         // uncaught global error that aborted the whole QUnit run.

@@ -304,7 +304,7 @@ module('Integration | Component | coordinates-input', function (hooks) {
         });
     });
 
-    // Until DEFECTS.md #94 was fixed, mounting a live Leaflet map poisoned every LATER test in
+    // Until this was fixed, mounting a live Leaflet map poisoned every LATER test in
     // the run: the component kept a reference to the torn-down map, and the next coordinate
     // change called `setView` on it, throwing "Cannot read properties of undefined (reading
     // '_leaflet_pos')" as an uncaught global error that aborted QUnit. The ORDER of the tests

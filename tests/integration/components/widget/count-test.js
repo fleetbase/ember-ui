@@ -92,7 +92,7 @@ module('Integration | Component | widget/count', function (hooks) {
             assert.true(renderedValue().length > 0);
         });
 
-        // DEFECT (see DEFECTS.md #46): the `date` format calls
+        // DEFECT: the `date` format calls
         // `formatDate([value, dateFormat])`, handing date-fns an ARRAY. It throws during
         // render, taking the whole widget down. There is deliberately no test for that
         // branch — a throwing render cannot be asserted on without aborting the run.

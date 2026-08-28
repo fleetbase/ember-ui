@@ -68,7 +68,7 @@ module('Integration | Component | chat-window/attachment', function (hooks) {
 
         assert.strictEqual(downloads, 1, 'clicking the attachment triggers a download');
     });
-    // DEFECTS #1. getExtension() returns null for a filename with no dot, and getWithDefault
+    // getExtension() returns null for a filename with no dot, and getWithDefault
     // asserts on a null key rather than falling back — so the component threw during render and
     // an attachment named README could not be displayed at all.
     test('a filename with no extension renders rather than throwing', async function (assert) {

@@ -671,7 +671,7 @@ module('Integration | Component | layout/sidebar', function (hooks) {
             assert.strictEqual(sidebar.style.transition, originalTransition, 'the restore puts the caller’s transition back');
         });
     });
-    // DEFECTS #4. scheduleResizeFrame() defers through requestAnimationFrame, and both
+    // scheduleResizeFrame() defers through requestAnimationFrame, and both
     // flushResizeFrame() and teardown() cancel a frame that is still pending. Whether anything
     // IS pending at that moment depended on whether the browser happened to paint first, so those
     // two cancel branches were covered on some runs and not others — a ±2 statement wobble in the

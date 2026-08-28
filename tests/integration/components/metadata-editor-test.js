@@ -95,7 +95,7 @@ module('Integration | Component | metadata-editor', function (hooks) {
 
     // The template used to gate on {{#if @label}} and render @label directly, so the component's
     // own `label` getter — and the 'Metadata' default it encodes — was never consulted. It reads
-    // {{this.label}} now, which is what makes that default reachable. (DEFECTS #7)
+    // {{this.label}} now, which is what makes that default reachable.
     test('the heading falls back to Metadata when no label is supplied', async function (assert) {
         await render(TEMPLATE);
 

@@ -261,7 +261,7 @@ module('Integration | Component | kanban', function (hooks) {
             assert.dom('.kanban-board').exists();
         });
 
-        // Until DEFECTS.md #14 was fixed, `kanban.js` defined no `onColumnDragStart`, so
+        // Until this was fixed, `kanban.js` defined no `onColumnDragStart`, so
         // `column.js`'s `isDraggable` getter was permanently falsy and this whole path was
         // unreachable: columns were never draggable, `draggedColumn` was never set, and
         // `onColumnDrop` always early-returned.

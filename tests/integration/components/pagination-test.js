@@ -32,7 +32,7 @@ module('Integration | Component | pagination', function (hooks) {
         changes = [];
         this.set('meta', meta());
         // @currentPage must be supplied: the page-item list aliases args.currentPage, not
-        // the component's own defaulted property (see DEFECTS.md #44).
+        // the component's own defaulted property.
         this.set('currentPage', 1);
         this.set('onPageChange', (page) => changes.push(page));
     });

@@ -3,8 +3,8 @@
 /**
  * Prepares a coverage run.
  *
- * Two jobs, both aimed at DEFECTS.md #16 — coverage collection that fails
- * silently rather than loudly:
+ * Two jobs, both aimed at the same failure mode — coverage collection that
+ * fails silently rather than loudly:
  *
  *   1. Removes the previous `coverage/` directory. A run that leaves the old
  *      artifacts in place is indistinguishable from a run that produced them,

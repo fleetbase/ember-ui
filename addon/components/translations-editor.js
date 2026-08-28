@@ -18,8 +18,8 @@ let ROW_SEQUENCE = 0;
  *      render, mid-edit.
  *   2. Every edit builds a NEW structure and assigns it once. The previous version mutated
  *      `this.translations` in place and then reassigned the same reference, which wrote to a
- *      tracked property that the render was still consuming — the backtracking-rerender assertion
- *      recorded in DEFECTS.md #26.
+ *      tracked property that the render was still consuming, which raised the
+ *      backtracking-rerender assertion.
  *
  * The public surface is unchanged: `@value` in, `@onChange(translations)` out, both in the
  * `{ language: { key: value } }` shape, plus `@defaultKeys` and `@label`/`@labelClass`.

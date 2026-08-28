@@ -33,8 +33,7 @@ function removeButtons() {
 }
 
 // The fields are one-way and commit on `change`, which is what `fillIn` fires. No special
-// handling is needed any more — the editor no longer writes to state the render is consuming
-// (DEFECTS.md #26).
+// handling is needed any more — the editor no longer writes to state the render is consuming.
 async function editAndBlur(input, value) {
     await fillIn(input, value);
 }

@@ -271,7 +271,7 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
      * copy of the loop. Beyond the ordinary duplication hazard, that gave the stale-ID branch two
      * homes: one reached deterministically on render and one reached only if a ResizeObserver
      * happened to fire while a stale ID was present. The second made the suite's branch total vary
-     * between identical runs, which a 100% gate cannot tolerate. See DEFECTS.md #18.
+     * between identical runs, which a 100% gate cannot tolerate.
      *
      * @param {Array<string>} pinnedIds
      * @param {Array<object>} allItems

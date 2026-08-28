@@ -134,7 +134,7 @@ module('Integration | Component | chat-tray/compose-panel', function (hooks) {
         assert.deepEqual(events, ['close']);
     });
 
-    // DEFECT (see DEFECTS.md #133): four bindings went straight into `{{on}}`/`{{fn}}`, so the
+    // DEFECT: four bindings went straight into `{{on}}`/`{{fn}}`, so the
     // panel could not render unless every one of them was supplied.
     test('it renders and stays inert with no handler arguments at all', async function (assert) {
         this.set('selectedUsers', [user('ada', 'Ada Lovelace')]);

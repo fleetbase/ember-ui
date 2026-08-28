@@ -139,7 +139,7 @@ module('Integration | Component | countdown', function (hooks) {
             assert.true(cleared.includes(4242), 'the interval is cleared');
         });
 
-        // DEFECTS #8. restartCountdown() existed but nothing could reach it — not an @action, not
+        // restartCountdown() existed but nothing could reach it — not an @action, not
         // referenced by the template, never called from the class — so a countdown could only be
         // restarted by re-rendering the component. Both end callbacks now receive it as
         // `restartFn`.

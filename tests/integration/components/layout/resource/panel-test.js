@@ -167,7 +167,7 @@ module('Integration | Component | layout/resource/panel', function (hooks) {
             assert.strictEqual(opens[1].resource, this.resource);
         });
 
-        // DEFECTS #5. panel.hbs wired @onToggle={{this.onToggle}} to an action the class never
+        // panel.hbs wired @onToggle={{this.onToggle}} to an action the class never
         // defined, so the panel passed `undefined` to <Overlay> and could not forward a toggle at
         // all. The action now exists and forwards through contextComponentCallback, exactly as
         // onOpen and onClose do.

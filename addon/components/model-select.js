@@ -185,7 +185,7 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask searchModels = function* (term, options, initialLoad = false) {
-        /* istanbul ignore next -- DEFECTS: denying a permission also sets `disabled` in the
+        /* istanbul ignore next -- denying a permission also sets `disabled` in the
            constructor, and power-select refuses to open a disabled trigger, so neither task can
            run with this true. */
         if (this.doesntHavePermissions || this.disabled) {
@@ -215,7 +215,7 @@ export default class ModelSelectComponent extends Component {
     };
 
     @restartableTask loadModels = function* (term, createOption) {
-        /* istanbul ignore next -- DEFECTS: denying a permission also sets `disabled` in the
+        /* istanbul ignore next -- denying a permission also sets `disabled` in the
            constructor, and power-select refuses to open a disabled trigger, so neither task can
            run with this true. */
         if (this.doesntHavePermissions || this.disabled) {
@@ -320,7 +320,7 @@ export default class ModelSelectComponent extends Component {
 
                             // A record the store refuses is dropped, not kept as a hole: a null in
                             // this list takes power-select's option walker down with it, so one bad
-                            // record would empty the whole dropdown. See DEFECTS #28.
+                            // record would empty the whole dropdown.
                             resolve(records.filter(Boolean));
                         })
                         .catch(() => {

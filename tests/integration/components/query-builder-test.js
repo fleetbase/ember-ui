@@ -242,7 +242,7 @@ module('Integration | Component | query-builder', function (hooks) {
     // The conditions panel body is gated on the columns the query actually uses — its own
     // availableColumns, from @allSelectedColumns — not the columns it could use. Choosing a table
     // without selecting columns used to open the panel with an empty field dropdown; these tests
-    // pin the gate the other way (see DEFECTS #21, resolved this way).
+    // pin the gate the other way (resolved this way).
     module('the gate on the conditions panel', function () {
         const TEMPLATE = hbs`
             <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>

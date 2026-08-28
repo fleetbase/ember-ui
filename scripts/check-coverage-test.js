@@ -6,8 +6,8 @@
  *   node scripts/check-coverage-test.js
  *
  * Verifies the gate passes on a fully-covered summary and fails on partial
- * coverage, missing files, a missing summary, and — the DEFECTS.md #16 cases —
- * artifacts that are stale, absent, or unstamped.
+ * coverage, missing files, a missing summary, and artifacts that are stale,
+ * absent, or unstamped.
  */
 
 const assert = require('assert');
@@ -157,7 +157,7 @@ withFixture((root) => {
 });
 
 // ---------------------------------------------------------------------------
-// Artifact freshness (DEFECTS.md #16)
+// Artifact freshness
 // ---------------------------------------------------------------------------
 
 function writeArtifacts(root, mtimeMs) {

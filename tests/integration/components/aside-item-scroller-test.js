@@ -29,7 +29,7 @@ module('Integration | Component | aside-item-scroller', function (hooks) {
     });
 
     // An item whose title key resolves to nothing used to take the whole list down with it —
-    // the guard sat one line below the dereference. See DEFECTS #29.
+    // the guard sat one line below the dereference.
     test('an item with no title is skipped rather than fatal', async function (assert) {
         this.set('items', [{ name: 'Alpha' }, { name: undefined }, { name: 'Bravo' }]);
 

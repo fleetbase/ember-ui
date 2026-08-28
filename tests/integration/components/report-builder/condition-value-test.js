@@ -86,7 +86,7 @@ module('Integration | Component | report-builder/condition-value', function (hoo
         });
 
         // The component always exposed an `isBoolean` getter; the template had no boolean branch,
-        // so a boolean column was edited as free text. It gets a radio group now. (DEFECTS #3)
+        // so a boolean column was edited as free text. It gets a radio group now.
         test('a boolean column is edited with a radio group', async function (assert) {
             this.set('column', { type: 'boolean' });
 
@@ -177,8 +177,8 @@ module('Integration | Component | report-builder/condition-value', function (hoo
             assert.dom('input[type="text"]').exists('the editor survives');
         });
     });
-    // The boolean editor added for DEFECTS #3. A saved report round-trips through JSON and query
-    // params, so the value can come back as a string or a number rather than a boolean.
+    // A saved report round-trips through JSON and query params, so the value can come back
+    // as a string or a number rather than a boolean.
     module('the boolean editor', function () {
         function radios() {
             return findAll('.report-builder-boolean-value input[type="radio"]');

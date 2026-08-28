@@ -26,7 +26,7 @@ module('Integration | Component | full-calendar', function (hooks) {
 
     hooks.afterEach(function () {
         // FullCalendar attaches document-level listeners; destroying it keeps a later test in the
-        // same run from inheriting them (the failure mode logged as DEFECTS.md #94 for Leaflet).
+        // same run from inheriting them (the same failure mode seen with Leaflet).
         calendar?.destroy();
     });
 
@@ -165,7 +165,7 @@ module('Integration | Component | full-calendar', function (hooks) {
 
         assert.dom('.fc').exists('the calendar still initialises and renders');
     });
-    // The leak these cover (DEFECTS #17): nothing ever called destroyCalendarEventListeners, and
+    // The leak these cover: nothing ever called destroyCalendarEventListeners, and
     // even when called it re-bound the handler, so `off()` was handed a function `on()` had never
     // seen and FullCalendar removed nothing. Both tests fail against the pre-fix component — the
     // callback still fires after the component is gone.

@@ -100,7 +100,7 @@ module('Integration | Modifier | set-width', function (hooks) {
 
     // Viewport and percentage units cannot be converted to a pixel count here, so they are
     // handed to CSS untouched. Emitting the bare number as px is what turned the coordinates
-    // picker's `100vw` fullscreen size into a 100-PIXEL overlay (DEFECTS.md #35).
+    // picker's `100vw` fullscreen size into a 100-PIXEL overlay.
     test('percentage and viewport units are passed through untouched', async function (assert) {
         for (const width of ['100vw', '50%', '75vh', '10vmin', '20vmax', '8ch', '3ex']) {
             this.set('width', width);

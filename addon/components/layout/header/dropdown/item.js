@@ -42,7 +42,7 @@ export default class LayoutHeaderDropdownItemComponent extends Component {
     // `active` is read from exactly one place: the `isInteractive` branch of item.hbs. That
     // branch renders only when `item.onClick` is truthy, which also makes `item` non-blank — so
     // the old `currentRouteName.startsWith(@route)` fallback below it could never run. It went
-    // with the dead `onClick` dispatcher (see DEFECTS.md #95 and #116).
+    // with the dead `onClick` dispatcher.
     @computed('args.item.{section,slug,view}', 'isInteractive')
     get active() {
         const { item } = this.args;

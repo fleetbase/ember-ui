@@ -34,7 +34,7 @@ export default class AsideItemScrollerComponent extends Component {
             const title = get(item, titleKey);
 
             // The guard used to sit below `title[0]`, which threw on an item with no title
-            // before it could run. See DEFECTS #29.
+            // before it could run.
             if (!title) {
                 continue;
             }

@@ -94,7 +94,7 @@ module('Integration | Component | logo-icon', function (hooks) {
             });
         }
 
-        // DEFECT (see DEFECTS.md #48): rendering <LogoIcon /> WITHOUT an explicit @size
+        // DEFECT: rendering <LogoIcon /> WITHOUT an explicit @size
         // raises "You attempted to update `size` on `LogoIconComponent`, but it had already
         // been used previously in the same computation" and the component renders nothing.
         // There is deliberately no test for it — the assertion surfaces as an uncaught

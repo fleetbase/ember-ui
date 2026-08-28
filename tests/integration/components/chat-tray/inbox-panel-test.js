@@ -95,7 +95,7 @@ module('Integration | Component | chat-tray/inbox-panel', function (hooks) {
         assert.deepEqual(events, ['close', 'start', ['search', 'dispatch']]);
     });
 
-    // DEFECT (see DEFECTS.md #133): the close button and the search box bound their arguments
+    // DEFECT: the close button and the search box bound their arguments
     // straight into `{{on}}`, so the panel could not render without them.
     test('it renders and stays inert with no handler arguments at all', async function (assert) {
         await render(hbs`<ChatTray::InboxPanel @channels={{this.channels}} />`);

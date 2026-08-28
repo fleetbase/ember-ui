@@ -168,7 +168,7 @@ module('Integration | Component | dashboard/widget-card', function (hooks) {
             assert.deepEqual(events, ['hover', 'unhover', 'add']);
         });
 
-        // DEFECT (see DEFECTS.md #132): all three handlers were bound straight into `{{on}}`, which
+        // DEFECT: all three handlers were bound straight into `{{on}}`, which
         // throws on an undefined handler, so the card could not render without every one of them.
         test('it renders and stays inert with no handlers at all', async function (assert) {
             await render(hbs`<Dashboard::WidgetCard @widget={{this.widget}} />`);

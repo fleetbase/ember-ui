@@ -1435,7 +1435,7 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         // A result with children is only navigable when it carries a `path` through @items —
         // currentStack is rebuilt from @items on every read, so a stack entry it cannot match
         // there would be silently dropped. A provider result without a path therefore closes the
-        // search and deliberately stays where it is. See DEFECTS #26 (resolved this way).
+        // search and deliberately stays where it is. Resolved this way.
         test('opening a provider result with children but no path closes the search and stays put', async function (assert) {
             this.set('searchNavigation', () =>
                 Promise.resolve([

@@ -72,7 +72,7 @@ module('Integration | Component | notification-tray', function (hooks) {
         playCount = 0;
 
         // The tray constructs a real Audio element; keep it silent and, critically, keep
-        // play() from producing an unhandled rejection (see DEFECTS.md #31).
+        // play() from producing an unhandled rejection.
         originalPlay = window.HTMLMediaElement.prototype.play;
         window.HTMLMediaElement.prototype.play = function () {
             playCount++;

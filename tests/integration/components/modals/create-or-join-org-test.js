@@ -103,7 +103,7 @@ module('Integration | Component | modals/create-or-join-org', function (hooks) {
         });
     });
 
-    // DEFECT (see DEFECTS.md #53): rendering <Modals::CreateOrJoinOrg /> with no @options
+    // DEFECT: rendering <Modals::CreateOrJoinOrg /> with no @options
     // throws from the {{fn}} helper because `@options.changeAction` is undefined. That
     // surfaces as an uncaught global failure, so the case is deliberately untested.
     test('an options hash without a changeAction still renders both choices', async function (assert) {

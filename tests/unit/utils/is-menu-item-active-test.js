@@ -64,7 +64,7 @@ module('Unit | Utility | is-menu-item-active', function (hooks) {
         });
 
         // `slugOnly` is defined as `… && view === null`, so asking for a view takes the
-        // section-and-view path instead — see DEFECTS.md #152.
+        // section-and-view path instead.
         test('asking for a view falls through to the section rules', function (assert) {
             at('/dashboard/analytics');
 

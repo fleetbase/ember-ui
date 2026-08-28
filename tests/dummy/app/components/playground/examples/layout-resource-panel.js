@@ -4,7 +4,7 @@ import { ORDERS } from 'dummy/playground/fixtures';
 
 /**
  * The panel's save action is deliberately opt-in: it only appears when a consumer passes
- * `@saveTask` (see DEFECTS.md). A local no-op task is passed so the button is demonstrable.
+ * `@saveTask`. A local no-op task is passed so the button is demonstrable.
  */
 export default class PlaygroundExampleLayoutResourcePanelComponent extends Component {
     resource = ORDERS[0];

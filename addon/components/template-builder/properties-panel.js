@@ -206,7 +206,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     @action
     updateProp(prop, event) {
-        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it (DEFECTS #14) */
+        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it */
         const value = event?.target ? event.target.value : event;
         if (this.args.onUpdateElement && this.element) {
             this.args.onUpdateElement(this.element.uuid, { [prop]: value });
@@ -215,7 +215,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     @action
     updateNumericProp(prop, event) {
-        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it (DEFECTS #14) */
+        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it */
         const raw = event?.target ? event.target.value : event;
         const value = raw === '' ? null : parseFloat(raw);
         if (this.args.onUpdateElement && this.element) {
@@ -225,7 +225,7 @@ export default class TemplateBuilderPropertiesPanelComponent extends Component {
 
     @action
     updateTemplateProp(prop, event) {
-        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it (DEFECTS #14) */
+        /* istanbul ignore next -- every call site is a DOM {{on}} handler, so the event is always an Event; the one that looks like it passes a raw value passes `value=` to {{fn}}, which ignores it */
         const value = event?.target ? event.target.value : event;
         if (this.args.onUpdateTemplate) {
             this.args.onUpdateTemplate({ [prop]: value });

@@ -569,7 +569,7 @@ module('Integration | Component | attach/popover', function (hooks) {
             }
         });
     });
-    // DEFECTS #20. The component registers click/touchend and keydown handlers on `document`.
+    // The component registers click/touchend and keydown handlers on `document`.
     // removeEventListeners() was correct but nothing called it after setup, so those handlers
     // outlived every popover. These assert the observable consequence — the document is clean
     // afterwards — rather than that a method ran, which would pass either way.

@@ -31,7 +31,7 @@ module('Integration | Component | overlay/header', function (hooks) {
             assert.dom('.next-content-overlay-panel-title').hasText('Short...');
         });
 
-        // DEFECTS #2. The component always carried a `useEllipsis` getter encoding a 15-character
+        // The component always carried a `useEllipsis` getter encoding a 15-character
         // threshold, but nothing consulted it — the template truncated on @overlay.isMinimized
         // alone. @titleEllipsis opts a non-minimized header into the same truncation, and
         // @titleEllipsisLength makes the threshold configurable.

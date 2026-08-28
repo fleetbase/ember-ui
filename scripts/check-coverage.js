@@ -13,7 +13,7 @@
  *      the denominator.
  *   4. The artifacts on disk were actually produced by the run that just
  *      finished, rather than left behind by an earlier one. See
- *      `checkArtifactFreshness` and DEFECTS.md #16.
+ *      `checkArtifactFreshness`.
  */
 
 const fs = require('fs');
@@ -26,7 +26,7 @@ const METRICS = ['statements', 'branches', 'functions', 'lines'];
 /**
  * Confirms the coverage artifacts belong to the run that just finished.
  *
- * DEFECTS.md #16: a run can finish green and leave the PREVIOUS
+ * a run can finish green and leave the PREVIOUS
  * `coverage-final.json` in place, or write the summary and HTML report without
  * writing `coverage-final.json` at all. Neither announces itself. Reading
  * whichever files happen to be on disk then reports the last run's numbers as

@@ -28,7 +28,7 @@
                         {{on "paste" (fn this.onPaste index)}}
                         {{! keyup must go through onChange, which reads event.target.value —
                             handing the event straight to inputDatum wrote the KeyboardEvent
-                            itself into the array. See DEFECTS #27. }}
+                            itself into the array. }}
                         {{on "keyup" (fn this.onChange index)}}
                     />
                     <div class="absolute right-0 py-2.5 px-4">

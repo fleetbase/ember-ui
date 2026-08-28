@@ -98,7 +98,7 @@ module('Integration | Component | layout/header/smart-nav-menu/dropdown', functi
             assert.deepEqual(opened, ['customize']);
         });
 
-        // DEFECT (see DEFECTS.md #130): both buttons bound their argument straight into
+        // DEFECT: both buttons bound their argument straight into
         // `{{on "click" …}}`, which throws on an undefined handler, so the panel could not render
         // at all without them. Both are now guarded with `(or … (noop))`.
         test('it renders and stays inert with no handler arguments at all', async function (assert) {

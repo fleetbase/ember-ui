@@ -14,7 +14,7 @@
 >
     {{#if @template}}
         {{! The card's own actions are handed to a custom template: they are the only route by
-            which @onCardUpdate and @onCardDelete can ever fire — see DEFECTS #25. }}
+            which @onCardUpdate and @onCardDelete can ever fire. }}
         {{component @template card=this.card onUpdate=this.onUpdate onDelete=this.onDelete}}
     {{else}}
         <div class="kanban-card-content">
