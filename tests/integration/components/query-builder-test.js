@@ -239,38 +239,39 @@ module('Integration | Component | query-builder', function (hooks) {
         });
     });
 
-    // `this.columns` — every column the query COULD use — reaches Conditions only as the
-    // `{{#if @columns}}` gate on its panel body (see DEFECTS #21). These tests pin the gate,
-    // which is the one observable the getter still drives.
-    module('the available-column list behind the conditions panel', function () {
+    // The conditions panel body is gated on the columns the query actually uses — its own
+    // availableColumns, from @allSelectedColumns — not the columns it could use. Choosing a table
+    // without selecting columns used to open the panel with an empty field dropdown; these tests
+    // pin the gate the other way (see DEFECTS #21, resolved this way).
+    module('the gate on the conditions panel', function () {
         const TEMPLATE = hbs`
             <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
                 <qb.conditions />
             </QueryBuilder>
         `;
 
-        test('a joined table with no columns of its own contributes nothing to the list', async function (assert) {
-            this.set('initialQuery', { joins: [{ table: { name: 'audits' } }] });
-
-            await render(TEMPLATE);
-
-            assert.dom('.query-builder-panel-content .condition-group-container').doesNotExist('with nothing to offer, the panel body stays closed');
-        });
-
-        test('an unlabelled joined table and its unlabelled columns still contribute', async function (assert) {
-            this.set('initialQuery', { joins: [{ table: { name: 'shipments', columns: [{ name: 'tracking_number' }] } }] });
-
-            await render(TEMPLATE);
-
-            assert.dom('.query-builder-panel-content .condition-group-container').exists('a column named but not labelled is still a column');
-        });
-
-        test('an unlabelled column on the main table counts too', async function (assert) {
+        test('a table with columns available but none selected keeps the panel body closed', async function (assert) {
             this.set('initialQuery', { table: { name: 'invoices', columns: [{ name: 'amount_due' }] } });
 
             await render(TEMPLATE);
 
+            assert.dom('.query-builder-panel-content .condition-group-container').doesNotExist('no selected columns means no fields to condition on');
+        });
+
+        test('selecting a column on the main table opens the panel body', async function (assert) {
+            this.set('initialQuery', { table: ORDERS, columns: [selectedColumn(ORDERS, ORDERS.columns[0])] });
+
+            await render(TEMPLATE);
+
             assert.dom('.query-builder-panel-content .condition-group-container').exists();
+        });
+
+        test('columns selected only on a join open it too', async function (assert) {
+            this.set('initialQuery', { joins: [{ table: PRODUCTS, selectedColumns: [selectedColumn(PRODUCTS, PRODUCTS.columns[0])] }] });
+
+            await render(TEMPLATE);
+
+            assert.dom('.query-builder-panel-content .condition-group-container').exists('a join contributes its selected columns to the gate');
         });
     });
 

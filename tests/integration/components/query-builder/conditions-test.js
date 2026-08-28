@@ -29,14 +29,12 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
 
     hooks.beforeEach(function () {
         changes = [];
-        this.set('columns', COLUMNS);
         this.set('allSelectedColumns', COLUMNS);
         this.set('onChange', (flat, grouped) => changes.push({ flat, grouped }));
     });
 
     const TEMPLATE = hbs`
         <QueryBuilder::Conditions
-            @columns={{this.columns}}
             @allSelectedColumns={{this.allSelectedColumns}}
             @selectedColumns={{this.selectedColumns}}
             @joins={{this.joins}}
@@ -52,8 +50,8 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         assert.strictEqual(groups().length, 0);
     });
 
-    test('it renders nothing usable without columns', async function (assert) {
-        this.set('columns', undefined);
+    test('it renders nothing usable without selected columns', async function (assert) {
+        this.set('allSelectedColumns', undefined);
 
         await render(TEMPLATE);
 
@@ -339,7 +337,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
     });
 
     test('it renders with no onChange handler', async function (assert) {
-        await render(hbs`<QueryBuilder::Conditions @columns={{this.columns}} @allSelectedColumns={{this.allSelectedColumns}} />`);
+        await render(hbs`<QueryBuilder::Conditions @allSelectedColumns={{this.allSelectedColumns}} />`);
         await click(buttonWithText('Add condition'));
 
         assert.strictEqual(groups().length, 1, 'editing works without a callback');
@@ -365,8 +363,8 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         // The template hard-codes its own empty-state copy. The component used to carry
         // `conditionsMessage` and `canAddConditions` getters with competing wording that nothing
         // read; both were deleted (DEFECTS.md #93).
-        test('with no columns at all it explains what to do first', async function (assert) {
-            this.setProperties({ columns: undefined, allSelectedColumns: undefined });
+        test('with no selected columns it explains what to do first', async function (assert) {
+            this.setProperties({ allSelectedColumns: undefined });
 
             await render(TEMPLATE);
 
@@ -381,11 +379,8 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
                 table: { name: 'orders' },
             });
 
-            // The template gates the whole editor on @columns, so it must be supplied even
-            // when the offered fields are derived from @selectedColumns.
             await render(hbs`
                 <QueryBuilder::Conditions
-                    @columns={{this.selectedColumns}}
                     @selectedColumns={{this.selectedColumns}}
                     @table={{this.table}}
                     @onChange={{this.onChange}}
@@ -408,7 +403,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
                 table: { name: 'orders' },
             });
 
-            await render(hbs`<QueryBuilder::Conditions @columns={{this.selectedColumns}} @selectedColumns={{this.selectedColumns}} @table={{this.table}} @onChange={{this.onChange}} />`);
+            await render(hbs`<QueryBuilder::Conditions @selectedColumns={{this.selectedColumns}} @table={{this.table}} @onChange={{this.onChange}} />`);
             await addCondition();
 
             const options = await getDropdownItems(FIELD_SELECT);
@@ -429,7 +424,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
             });
 
             await render(hbs`
-                <QueryBuilder::Conditions @columns={{this.selectedColumns}} @selectedColumns={{this.selectedColumns}} @table={{this.table}} @joins={{this.joins}} @onChange={{this.onChange}} />
+                <QueryBuilder::Conditions @selectedColumns={{this.selectedColumns}} @table={{this.table}} @joins={{this.joins}} @onChange={{this.onChange}} />
             `);
             await addCondition();
 
@@ -449,7 +444,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
             });
 
             await render(hbs`
-                <QueryBuilder::Conditions @columns={{this.selectedColumns}} @selectedColumns={{this.selectedColumns}} @table={{this.table}} @joins={{this.joins}} @onChange={{this.onChange}} />
+                <QueryBuilder::Conditions @selectedColumns={{this.selectedColumns}} @table={{this.table}} @joins={{this.joins}} @onChange={{this.onChange}} />
             `);
             await addCondition();
 
@@ -457,8 +452,8 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
             assert.strictEqual(options.length, 1);
         });
 
-        test('the editor stays closed until columns are supplied, whatever the joins say', async function (assert) {
-            this.setProperties({ columns: undefined, allSelectedColumns: undefined, joins: [{ table: 'drivers', label: 'Driver' }] });
+        test('the editor stays closed until columns are selected, whatever the joins say', async function (assert) {
+            this.setProperties({ allSelectedColumns: undefined, joins: [{ table: 'drivers', label: 'Driver' }] });
 
             await render(TEMPLATE);
 
@@ -496,7 +491,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
 
     module('operators offered per field type', function () {
         async function operatorsFor(context, column) {
-            context.setProperties({ columns: [column], allSelectedColumns: [column] });
+            context.setProperties({ allSelectedColumns: [column] });
 
             await render(TEMPLATE);
             await addCondition();
@@ -567,7 +562,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
 
     module('the value editor', function () {
         async function conditionOn(context, column, operatorLabel) {
-            context.setProperties({ columns: [column], allSelectedColumns: [column] });
+            context.setProperties({ allSelectedColumns: [column] });
 
             await render(TEMPLATE);
             await addCondition();
@@ -681,7 +676,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
     });
 
     test('it forwards splattributes', async function (assert) {
-        await render(hbs`<QueryBuilder::Conditions @columns={{this.columns}} data-test-conditions="yes" />`);
+        await render(hbs`<QueryBuilder::Conditions data-test-conditions="yes" />`);
 
         assert.dom('.query-builder-panel').hasAttribute('data-test-conditions', 'yes');
     });
@@ -689,7 +684,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
     module('input types per field type', function () {
         async function inputTypeFor(context, type) {
             const column = { name: 'field', label: 'Field', type, full: 'orders.field' };
-            context.setProperties({ columns: [column], allSelectedColumns: [column] });
+            context.setProperties({ allSelectedColumns: [column] });
 
             await render(TEMPLATE);
             await click(buttonWithText('Add condition'));
@@ -760,7 +755,7 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
     module('resetting the value when the operator changes', function () {
         async function conditionWith(context, operatorLabel) {
             const column = { name: 'total', label: 'Total', type: 'number', full: 'orders.total' };
-            context.setProperties({ columns: [column], allSelectedColumns: [column] });
+            context.setProperties({ allSelectedColumns: [column] });
 
             await render(TEMPLATE);
             await click(buttonWithText('Add condition'));
@@ -932,7 +927,6 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         await render(hbs`
             <QueryBuilder::Conditions
                 @table={{this.table}}
-                @columns={{this.allSelectedColumns}}
                 @allSelectedColumns={{this.allSelectedColumns}}
                 @onChange={{this.onChange}}
             />

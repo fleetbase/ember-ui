@@ -12,7 +12,7 @@
     </div>
 
     <div class="query-builder-panel-content">
-        {{#if @columns}}
+        {{#if this.availableColumns.length}}
             <div class="condition-group-container">
                 {{#if this.conditionGroups.length}}
                     <DragSortList

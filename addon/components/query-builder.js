@@ -22,40 +22,6 @@ export default class QueryBuilderComponent extends Component {
         }
     }
 
-    get columns() {
-        const columns = [];
-
-        // Add columns from main table
-        if (this.table?.columns) {
-            this.table.columns.forEach((column) => {
-                columns.push({
-                    ...column,
-                    table: this.table.name,
-                    full: `${this.table.name}.${column.name}`,
-                    label: column.label || column.name,
-                });
-            });
-        }
-
-        // Add columns from joined tables
-        if (this.joins?.length) {
-            this.joins.forEach((join) => {
-                if (join.table?.columns) {
-                    join.table.columns.forEach((column) => {
-                        columns.push({
-                            ...column,
-                            table: join.table.name,
-                            full: `${join.table.name}.${column.name}`,
-                            label: `${join.table.label || join.table.name} - ${column.label || column.name}`,
-                        });
-                    });
-                }
-            });
-        }
-
-        return columns;
-    }
-
     get allSelectedColumns() {
         const allColumns = [];
 
