@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { visit, currentURL, click, fillIn, findAll, triggerKeyEvent } from '@ember/test-helpers';
+import { visit, currentURL, click, fillIn, find, findAll, triggerKeyEvent } from '@ember/test-helpers';
 import { setupApplicationTest } from 'dummy/tests/helpers';
 import REGISTRY from 'dummy/playground/registry';
 
@@ -167,6 +167,23 @@ module('Acceptance | playground | catalog', function (hooks) {
             await visit('/components');
 
             assert.dom('[data-test-docs-root]').hasAttribute('href', 'https://fleetbase.io/docs/ui');
+        });
+    });
+
+    module('search shortcut', function () {
+        test('cmd+K focuses the search field the affordance advertises', async function (assert) {
+            // The design puts a `⌘ K` chip in the search input; a hint for a shortcut that does
+            // nothing would be worse than no hint, so the binding is asserted here.
+            await visit('/components');
+
+            const input = find('[data-test-catalog-search]');
+
+            input.blur();
+            assert.notStrictEqual(document.activeElement, input, 'the field does not start focused');
+
+            await triggerKeyEvent(document, 'keydown', 'K', { metaKey: true });
+
+            assert.strictEqual(document.activeElement, input, 'the shortcut focused the search field');
         });
     });
 

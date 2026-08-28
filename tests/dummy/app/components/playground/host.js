@@ -17,7 +17,7 @@ import { summarizeArguments } from 'dummy/playground/event-sanitizer';
  */
 export default class PlaygroundHostComponent extends Component {
     @service router;
-    @service theme;
+    @service('playground-theme') playgroundTheme;
 
     /** Current control values, keyed by control key. */
     @tracked values = {};
@@ -33,9 +33,6 @@ export default class PlaygroundHostComponent extends Component {
 
     /** Selected scenario id, or null when the entry declares none. */
     @tracked scenario = null;
-
-    /** Preview theme — 'light' or 'dark'. Local to the playground. */
-    @tracked activeTheme = 'light';
 
     /**
      * The `state` value these values were decoded from. Not tracked: it exists to tell an
@@ -138,13 +135,25 @@ export default class PlaygroundHostComponent extends Component {
         return encodeState(this.entry.controls, this.currentValues);
     }
 
-    /** The iframe URL a documentation page would embed. */
+    /**
+     * The iframe URL a documentation page would embed.
+     *
+     * Built through the router rather than by hand, so it is correct under both location types:
+     * `/embed/button` while developing with history routing, and `/ember-ui/#/embed/button` in the
+     * hash-routed GitHub Pages build. Concatenating `location.pathname` with `#/embed/…` — which
+     * this used to do — only ever produced a valid URL in the second case, and yielded
+     * `/components/table#/embed/table` in development.
+     */
     get embedUrl() {
-        const base = `${window.location.origin}${window.location.pathname}`;
         const encoded = this.encodedState;
-        const hash = `#/embed/${this.entry.slug}${encoded ? `?state=${encoded}` : ''}`;
+        const options = encoded ? { queryParams: { state: encoded } } : {};
 
-        return `${base}${hash}`;
+        try {
+            return `${window.location.origin}${this.router.urlFor('embed', this.entry.slug, options)}`;
+        } catch {
+            // urlFor needs an initialised router; fall back to the plain path.
+            return `${window.location.origin}/embed/${this.entry.slug}`;
+        }
     }
 
     /** A copy-pasteable invocation reflecting the non-default values currently set. */
@@ -244,9 +253,18 @@ export default class PlaygroundHostComponent extends Component {
         this.seq = 0;
     }
 
+    /** Read through to the service, so the header toggle and the embed toggle agree. */
+    get activeTheme() {
+        return this.playgroundTheme.current;
+    }
+
     @action toggleTheme() {
-        this.activeTheme = this.activeTheme === 'light' ? 'dark' : 'light';
-        this.theme.setTheme(this.activeTheme);
+        this.playgroundTheme.toggle();
+    }
+
+    /** The scenario's display label, shown beside the theme in the preview header. */
+    get scenarioLabel() {
+        return this.entry.scenarios?.find((scenario) => scenario.id === this.scenario)?.label ?? null;
     }
 
     /**

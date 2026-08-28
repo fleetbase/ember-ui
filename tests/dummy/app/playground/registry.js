@@ -443,6 +443,10 @@ const DEFINITIONS = {
             control('sortable', 'boolean', { default: true }),
             control('resizable', 'boolean', { default: false }),
             control('pagination', 'boolean', { default: true }),
+            // Table's default pagination is a bar fixed to the viewport bottom, which is right for
+            // a full-page console but lands outside the preview panel here. `@useTfootPagination`
+            // moves it into the table footer, so it defaults on in the playground.
+            control('useTfootPagination', 'boolean', { label: 'Pagination in footer', default: true }),
             control('page', 'number', { default: 1, min: 1, max: 3 }),
             control('isFiltered', 'boolean', { label: 'Is filtered', default: false }),
         ],

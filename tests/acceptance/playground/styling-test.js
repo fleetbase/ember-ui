@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { visit, find } from '@ember/test-helpers';
+import { visit, find, click } from '@ember/test-helpers';
 import { setupApplicationTest } from 'dummy/tests/helpers';
 
 /**
@@ -40,6 +40,33 @@ module('Acceptance | playground | styling', function (hooks) {
             const styles = window.getComputedStyle(find('[data-test-preview] button.btn'));
 
             assert.notStrictEqual(styles.color, 'rgb(0, 0, 0)', 'the button is not falling back to the UA button colour');
+        });
+    });
+
+    module('dark theme reaches the previewed components', function () {
+        test('the theme is mirrored onto <body>, which is what the addon styles key off', async function (assert) {
+            // Regression: 1094 of the addon's rules are scoped to `body[data-theme='dark']`
+            // specifically, not to any ancestor. Setting the attribute only on the playground's own
+            // container themed the chrome and left every previewed component in its light colours —
+            // in dark mode that meant near-black text on a dark surface.
+            await visit('/components/button');
+
+            assert.strictEqual(document.body.getAttribute('data-theme'), 'light', 'it starts light');
+
+            await click('[data-test-theme-toggle]');
+
+            assert.strictEqual(document.body.getAttribute('data-theme'), 'dark', 'the addon sees the dark theme');
+            assert.dom('[data-test-playground-host="button"]').hasAttribute('data-test-theme', 'dark');
+        });
+
+        test('the embed mirrors it too', async function (assert) {
+            await visit('/embed/button');
+
+            assert.strictEqual(document.body.getAttribute('data-theme'), 'light');
+
+            await click('[data-test-theme-toggle]');
+
+            assert.strictEqual(document.body.getAttribute('data-theme'), 'dark');
         });
     });
 

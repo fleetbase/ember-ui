@@ -49,6 +49,21 @@ module('Acceptance | playground | embed', function (hooks) {
             assert.dom('[data-test-preview]').containsText('Delivered');
         });
 
+        test('the offered embed URL actually points at the embed route', async function (assert) {
+            // Regression: this was built by concatenating `location.pathname` with `#/embed/…`,
+            // which is only valid in the hash-routed production build. In development it produced
+            // `/components/badge#/embed/badge` — a link that goes nowhere. The old assertion only
+            // split the string on `state=`, so it never noticed.
+            await visit('/components/badge');
+
+            const url = find('[data-test-embed-url]').textContent.trim();
+            const { origin, pathname, hash } = new URL(url);
+
+            assert.strictEqual(origin, window.location.origin, 'it is absolute, on this origin');
+            assert.ok(`${pathname}${hash}`.includes('/embed/badge'), `it addresses the embed route: ${url}`);
+            assert.notOk(pathname.includes('/components/'), `it does not hang the embed off the component page: ${url}`);
+        });
+
         test('the embed and the full page share the same encoded state', async function (assert) {
             await visit('/components/badge');
             await fillIn('[data-test-control-input="text"]', 'Shared value');

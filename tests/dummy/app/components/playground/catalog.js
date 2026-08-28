@@ -39,7 +39,7 @@ export default class PlaygroundCatalogComponent extends Component {
             return entry.name.toLowerCase().includes(query) || entry.slug.toLowerCase().includes(query);
         });
 
-        return this.categories.map((name) => ({ name, entries: matches.filter((entry) => entry.category === name) })).filter((group) => group.entries.length > 0);
+        return this.categories.map((name) => ({ name, slug: anchorSlug(name), entries: matches.filter((entry) => entry.category === name) })).filter((group) => group.entries.length > 0);
     }
 
     get matchCount() {
@@ -53,4 +53,15 @@ export default class PlaygroundCatalogComponent extends Component {
     @action onCategory(event) {
         this.args.onCategory(event.target.value);
     }
+}
+
+/**
+ * Category names become anchor ids for the jump-to rail:
+ * "Layout & Structure" -> "layout-structure".
+ */
+function anchorSlug(name) {
+    return name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
 }

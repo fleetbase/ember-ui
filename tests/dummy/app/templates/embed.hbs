@@ -4,6 +4,12 @@
     The iframe view. No catalog navigation and no application header — preview first, then
     controls, then the event log, exactly as the documentation site embeds it.
 }}
-<div class="pg-embed" data-test-embed={{@model.slug}} {{playground/resize-reporter slug=@model.slug}}>
+<div
+    class="pg-embed"
+    data-theme={{this.playgroundTheme.current}}
+    data-test-embed={{@model.slug}}
+    {{playground/theme-body this.playgroundTheme.current}}
+    {{playground/resize-reporter slug=@model.slug}}
+>
     <Playground::Host @entry={{@model}} @state={{this.state}} @embedded={{true}} />
 </div>
