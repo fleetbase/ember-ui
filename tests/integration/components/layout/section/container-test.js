@@ -6,21 +6,16 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | layout/section/container', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it wraps its block in the section container', async function (assert) {
+        await render(hbs`<Layout::Section::Container><span class="inside">held</span></Layout::Section::Container>`);
 
-        await render(hbs`<Layout::Section::Container />`);
+        assert.dom('.next-view-section-container .inside').hasText('held');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Layout::Section::Container class="flex" data-test-container="yes" />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Layout::Section::Container>
-        template block text
-      </Layout::Section::Container>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.next-view-section-container').hasClass('flex');
+        assert.dom('.next-view-section-container').hasAttribute('data-test-container', 'yes');
     });
 });

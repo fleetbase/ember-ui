@@ -17,6 +17,9 @@ export default class WidgetReportComponent extends Component {
         this.loadReport.perform();
     }
 
+    /**
+     * The current report, in the shape the picker wants for its preselection.
+     */
     get selectedReports() {
         return this.report ? [this.report] : [];
     }

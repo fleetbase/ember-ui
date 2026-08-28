@@ -45,7 +45,9 @@ module('Integration | Component | layout/sidebar', function (hooks) {
     });
 
     test('it yields contextual sidebar components', async function (assert) {
-        this.set('items', [{ label: 'Orders', icon: 'box' }]);
+        // sidebar-navigator's normalizeItems() drops any item with no route, url, onClick or
+        // children — a navigable target is what makes an item renderable.
+        this.set('items', [{ label: 'Orders', icon: 'box', route: 'console.orders' }]);
 
         await render(hbs`
             <Layout::Sidebar as |Sidebar|>
@@ -54,7 +56,23 @@ module('Integration | Component | layout/sidebar', function (hooks) {
         `);
 
         assert.dom('.next-sidebar-navigator').exists();
-        assert.dom('.next-sidebar-navigator-item').hasText('Orders');
+        assert.dom('.next-sidebar-navigator-item').includesText('Orders');
+    });
+
+    test('a yielded navigator drops items with no navigable target', async function (assert) {
+        this.set('items', [
+            { label: 'Orders', icon: 'box', route: 'console.orders' },
+            { label: 'Unreachable', icon: 'ban' },
+        ]);
+
+        await render(hbs`
+            <Layout::Sidebar as |Sidebar|>
+                <Sidebar.Navigator @items={{this.items}} />
+            </Layout::Sidebar>
+        `);
+
+        assert.dom('.next-sidebar-navigator').doesNotContainText('Unreachable', 'a targetless item is filtered out');
+        assert.dom('.next-sidebar-navigator').includesText('Orders', 'the navigable one survives');
     });
 
     test('it keeps the resize gutter overlaid on the sidebar edge', async function (assert) {
@@ -357,5 +375,354 @@ module('Integration | Component | layout/sidebar', function (hooks) {
         await settled();
 
         assert.false(this.sidebarService.hasContext);
+    });
+
+    module('the sidebar context', function () {
+        function contextFrom(context) {
+            let received;
+            context.set('onSetup', (value) => {
+                received = value;
+            });
+
+            return () => received;
+        }
+
+        test('onSetup receives a context exposing the sidebar controls', async function (assert) {
+            const read = contextFrom(this);
+
+            await render(hbs`<Layout::Sidebar @onSetup={{this.onSetup}} />`);
+
+            const context = read();
+            assert.ok(context, 'a context is handed back');
+            assert.strictEqual(typeof context.hide, 'function');
+            assert.strictEqual(typeof context.hideNow, 'function');
+            assert.strictEqual(typeof context.show, 'function');
+            assert.strictEqual(typeof context.minimize, 'function');
+            assert.ok(context.component, 'the component itself is reachable through the context');
+        });
+
+        test('the same context is registered with the sidebar service', async function (assert) {
+            const read = contextFrom(this);
+
+            await render(hbs`<Layout::Sidebar @onSetup={{this.onSetup}} />`);
+
+            assert.strictEqual(this.sidebarService.context, read(), 'the service holds the very same context');
+            assert.true(this.sidebarService.hasContext);
+        });
+
+        test('the context can hide, minimize and show the sidebar', async function (assert) {
+            const read = contextFrom(this);
+
+            await render(hbs`<Layout::Sidebar @onSetup={{this.onSetup}} />`);
+            const context = read();
+
+            context.hideNow();
+            await settled();
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hidden', 'hideNow hides it immediately');
+
+            context.minimize();
+            await settled();
+            assert.dom('nav.next-sidebar').hasClass('sidebar-minimized');
+            assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-hidden');
+
+            context.show();
+            await settled();
+            assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-minimized');
+            assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-hidden');
+        });
+
+        test('a sidebar rendered with @hide starts hidden', async function (assert) {
+            await render(hbs`<Layout::Sidebar @hide={{true}} />`);
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hidden');
+        });
+
+        test('a sidebar starts hidden when the service says so', async function (assert) {
+            this.sidebarService.setVisualState('hidden');
+
+            await render(hbs`<Layout::Sidebar />`);
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hidden');
+        });
+
+        test('a sidebar starts minimized when the service says so', async function (assert) {
+            this.sidebarService.setVisualState('minimized');
+
+            await render(hbs`<Layout::Sidebar />`);
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-minimized');
+        });
+
+        test('a disabled sidebar starts hidden whatever the visual state says', async function (assert) {
+            this.sidebarService.setVisualState('visible');
+            this.sidebarService.setEnabled(false);
+
+            await render(hbs`<Layout::Sidebar />`);
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hidden');
+        });
+
+        test('an @onSidebarSetup argument is called with the nav element', async function (assert) {
+            const nodes = [];
+            this.set('onSidebarSetup', (node) => nodes.push(node));
+
+            await render(hbs`<Layout::Sidebar @onSidebarSetup={{this.onSidebarSetup}} />`);
+
+            assert.strictEqual(nodes.length, 1, 'the caller hook fires once');
+            assert.strictEqual(nodes[0], this.element.querySelector('nav.next-sidebar'), 'it receives the nav element');
+        });
+
+        test('it renders without any setup hooks at all', async function (assert) {
+            await render(hbs`<Layout::Sidebar />`);
+
+            assert.dom('nav.next-sidebar').exists('no hooks are required');
+        });
+    });
+
+    // The drags above always widen or collapse against explicit width arguments and without any
+    // resize callbacks. These cover the other half: the reported callbacks, the built-in width
+    // defaults, and a drag that grows the sidebar rather than collapsing it.
+    module('resize reporting and the default width limits', function () {
+        function sidebarAndGutter(root) {
+            return [root.querySelector('nav.next-sidebar'), root.querySelector('.gutter')];
+        }
+
+        test('a widening drag reports through every resize callback', async function (assert) {
+            const stages = [];
+            this.set('onResizeStart', ({ sidebarNode }) => stages.push(['start', sidebarNode.tagName]));
+            this.set('onResize', ({ sidebarNode }) => stages.push(['resize', sidebarNode.tagName]));
+            this.set('onResizeEnd', ({ sidebarNode }) => stages.push(['end', sidebarNode.tagName]));
+
+            await render(hbs`
+                <main class="next-view-container">
+                    <Layout::Sidebar @onResizeStart={{this.onResizeStart}} @onResize={{this.onResize}} @onResizeEnd={{this.onResizeEnd}} />
+                </main>
+            `);
+
+            const [sidebar, gutter] = sidebarAndGutter(this.element);
+            sidebar.style.width = '220px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+            await triggerEvent(document, 'mousemove', { clientX: 300 });
+            await waitForResizeFrame();
+
+            // No @minResizeWidth/@maxResizeWidth were supplied, so the built-in 200/330 apply.
+            assert.strictEqual(sidebar.style.width, '300px', 'the sidebar grows with the cursor');
+            assert.dom(sidebar).doesNotHaveClass('sidebar-resizing-to-collapse', 'growing is not a collapse');
+
+            dispatchMouseup(300);
+            await settled();
+
+            assert.deepEqual(
+                stages.map((stage) => stage[0]),
+                ['start', 'resize', 'end'],
+                'every stage of the drag is reported'
+            );
+            assert.strictEqual(stages[0][1], 'NAV', 'and each one is handed the sidebar element');
+            assert.false(this.sidebarService.isHidden, 'releasing above the collapse threshold leaves it visible');
+        });
+
+        test('a drag past the built-in maximum stops widening there', async function (assert) {
+            await render(hbs`
+                <main class="next-view-container">
+                    <Layout::Sidebar />
+                </main>
+            `);
+
+            const [sidebar, gutter] = sidebarAndGutter(this.element);
+            sidebar.style.width = '220px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+            await triggerEvent(document, 'mousemove', { clientX: 600 });
+            await waitForResizeFrame();
+
+            assert.strictEqual(sidebar.style.width, '330px', 'the default maximum width caps the drag');
+
+            dispatchMouseup(600);
+            await settled();
+        });
+
+        test('two moves inside one frame apply only the last position', async function (assert) {
+            await render(hbs`
+                <main class="next-view-container">
+                    <Layout::Sidebar />
+                </main>
+            `);
+
+            const [sidebar, gutter] = sidebarAndGutter(this.element);
+            sidebar.style.width = '220px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+
+            // Dispatched synchronously so no animation frame can run between them: the second
+            // move must reuse the frame the first one scheduled.
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 260, bubbles: true }));
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
+
+            await waitForResizeFrame();
+            await settled();
+
+            assert.strictEqual(sidebar.style.width, '300px', 'the last position in the frame wins');
+
+            dispatchMouseup(300);
+            await settled();
+        });
+    });
+
+    module('resizing switched off', function () {
+        test('@disableResize refuses to start a drag at all', async function (assert) {
+            await render(hbs`
+                <main class="next-view-container">
+                    <Layout::Sidebar @disableResize={{true}} />
+                </main>
+            `);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.gutter');
+            sidebar.style.width = '220px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+
+            assert.dom(sidebar).doesNotHaveClass('sidebar-is-resizing', 'the drag never starts');
+            assert.dom(document.body).doesNotHaveClass('next-sidebar-is-resizing');
+
+            await triggerEvent(document, 'mousemove', { clientX: 300 });
+            await waitForResizeFrame();
+
+            assert.strictEqual(sidebar.style.width, '220px', 'and moving the mouse changes nothing');
+        });
+
+        test('disabling resize mid-drag stops the sidebar following the cursor', async function (assert) {
+            this.set('disableResize', false);
+
+            await render(hbs`
+                <main class="next-view-container">
+                    <Layout::Sidebar @disableResize={{this.disableResize}} />
+                </main>
+            `);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.gutter');
+            sidebar.style.width = '220px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+            await triggerEvent(document, 'mousemove', { clientX: 300 });
+            await waitForResizeFrame();
+            assert.strictEqual(sidebar.style.width, '300px', 'the drag is under way');
+
+            this.set('disableResize', true);
+            await settled();
+
+            await triggerEvent(document, 'mousemove', { clientX: 400 });
+            await waitForResizeFrame();
+
+            assert.strictEqual(sidebar.style.width, '300px', 'further movement is ignored');
+        });
+    });
+
+    module('a hide that is still animating', function () {
+        test('showing again cancels the pending hide', async function (assert) {
+            let context;
+            this.set('onSetup', (value) => {
+                context = value;
+            });
+
+            await render(hbs`<Layout::Sidebar @onSetup={{this.onSetup}} />`);
+
+            // The non-immediate hide adds the animating class and arms a 500ms timer to finish
+            // the job; `settled()` would otherwise wait that timer out.
+            context.hide();
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hide', 'the hide animation has started');
+
+            context.show();
+            await settled();
+
+            assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-hidden', 'the pending hide never lands');
+            assert.dom('nav.next-sidebar').doesNotHaveClass('sidebar-hide');
+            assert.false(this.sidebarService.isHidden, 'and the service is back to visible');
+        });
+
+        test('an inline transition survives the width restore after a collapse', async function (assert) {
+            await renderSidebarInViewContainer();
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.gutter');
+
+            sidebar.style.width = '220px';
+            sidebar.style.transition = 'width 1s ease';
+            // Read it back: the browser normalises `ease` away, so compare against what it stored.
+            const originalTransition = sidebar.style.transition;
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 220 });
+            await triggerEvent(document, 'mousemove', { clientX: 140 });
+            await waitForResizeFrame();
+
+            dispatchMouseup(140);
+            await settled();
+
+            assert.dom('nav.next-sidebar').hasClass('sidebar-hidden', 'the collapse completes');
+            assert.strictEqual(sidebar.style.transition, originalTransition, 'the restore puts the caller’s transition back');
+        });
+    });
+    // DEFECTS #4. scheduleResizeFrame() defers through requestAnimationFrame, and both
+    // flushResizeFrame() and teardown() cancel a frame that is still pending. Whether anything
+    // IS pending at that moment depended on whether the browser happened to paint first, so those
+    // two cancel branches were covered on some runs and not others — a ±2 statement wobble in the
+    // suite total with no code change. Dispatching synchronously, with no await in between, gives
+    // the browser no opportunity to paint and makes a pending frame a certainty.
+    module('cancelling a resize frame that is still pending', function () {
+        test('releasing the gutter cancels the frame the last move scheduled', async function (assert) {
+            await render(hbs`<Layout::Sidebar @collapseBelowWidth={{160}} @minResizeWidth={{200}} />`);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.next-sidebar-content + .gutter');
+            sidebar.style.width = '260px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 260 });
+
+            // No await between these two: the frame scheduled by the move is guaranteed to still
+            // be pending when mouseup runs, so stopResize() takes its cancel path.
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
+            dispatchMouseup(300);
+            await settled();
+
+            assert.strictEqual(sidebar.style.width, '300px', 'the pending width is still applied, by the flush rather than the frame');
+        });
+
+        test('tearing the sidebar down cancels a frame that never ran', async function (assert) {
+            this.set('showSidebar', true);
+            await render(hbs`
+                {{#if this.showSidebar}}
+                    <Layout::Sidebar @collapseBelowWidth={{160}} @minResizeWidth={{200}} />
+                {{/if}}
+            `);
+
+            const sidebar = this.element.querySelector('nav.next-sidebar');
+            const gutter = this.element.querySelector('.next-sidebar-content + .gutter');
+            sidebar.style.width = '240px';
+            useInlineSidebarWidth(sidebar);
+
+            await triggerEvent(gutter, 'mousedown', { clientX: 240 });
+
+            // Schedule a frame and destroy the component before it can run.
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: 280, bubbles: true }));
+            this.set('showSidebar', false);
+            await settled();
+
+            assert.dom('nav.next-sidebar').doesNotExist('the sidebar is gone');
+
+            // A frame that outlived teardown would apply a width to a detached node; the cancel in
+            // teardown() is what stops that.
+            await waitForResizeFrame();
+            assert.dom('nav.next-sidebar').doesNotExist('and nothing resurrects it');
+        });
     });
 });

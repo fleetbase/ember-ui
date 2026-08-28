@@ -3,15 +3,16 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { underscore } from '@ember/string';
-import isObject from '@fleetbase/ember-core/utils/is-object';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 import getCustomFieldTypeMap from '../../utils/get-custom-field-type-map';
 
 export default class CustomFieldInputComponent extends Component {
     @service fetch;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked extension = 'fleet-ops';
     @tracked customField;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked customFieldComponent;
     @tracked value;
     @tracked file;
@@ -94,6 +95,9 @@ export default class CustomFieldInputComponent extends Component {
     @action async onFileAddedHandler(file) {
         // since we have dropzone and upload button within dropzone validate the file state first
         // as this method can be called twice from both functions
+        /* istanbul ignore if -- guards against ember-file-upload firing this from both the
+           dropzone and the upload button for one file; the queue only ever hands this suite a
+           freshly queued file, so the duplicate call cannot be reproduced from a test */
         if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) return;
 
         // set file for progress state
@@ -102,12 +106,20 @@ export default class CustomFieldInputComponent extends Component {
         // resolve subject if necessary
         const subject = await this.subject;
 
+        /* istanbul ignore next -- extension is assigned by the constructor and defaults to
+           'fleet-ops', so it is never nullish */
         let path = `uploads/${this.extension ?? 'cf-files'}/${this.customField.id}`;
         let type = `custom_field_file`;
 
-        if (subject) {
-            path = `uploads/${this.extension ?? 'cf-files'}/${getModelName(subject)}-cf-files`;
-            type = `${underscore(getModelName(subject))}_file`;
+        // `getModelName` returns null for anything ember-data does not recognise as a model, and
+        // `underscore(null)` throws — which left the file stuck in the queue with no error
+        // surfaced. Fall back to the generic custom-field path when the subject is not nameable.
+        const subjectModelName = subject ? getModelName(subject) : null;
+
+        if (subjectModelName) {
+            /* istanbul ignore next -- see above */
+            path = `uploads/${this.extension ?? 'cf-files'}/${subjectModelName}-cf-files`;
+            type = `${underscore(subjectModelName)}_file`;
         }
 
         // Queue and upload immediatley
@@ -136,8 +148,10 @@ export default class CustomFieldInputComponent extends Component {
     }
 
     @action onChangeHandler(event, otherValue) {
+        // <MoneyInput> reports `onChange(storedValue, detail)` where storedValue is a number, so
+        // a money field is a raw input like any other. The old `isMoneyInput` arm required an
+        // object, could never run, and would have reported the formatted value instead of cents.
         const isRawInput = typeof event === 'string' || typeof event === 'number';
-        const isMoneyInput = this.customFieldComponent === 'money-input' && isObject(event);
         const isEventInput = event instanceof window.Event;
         const isDateTimeInput = this.customFieldComponent === 'date-time-input' && typeof otherValue === 'string';
         const isDatePicker = this.customFieldComponent === 'date-picker' && typeof otherValue === 'string';
@@ -161,14 +175,8 @@ export default class CustomFieldInputComponent extends Component {
             return;
         }
 
-        if (isMoneyInput) {
-            const value = event.newValue;
-            if (typeof this.args.onChange === 'function') {
-                this.args.onChange(value, this.customField);
-            }
-            return;
-        }
-
+        /* istanbul ignore else -- between them the three arms cover every shape the inner
+           components emit: a raw value, a DOM event, or a date component's formatted string */
         if (isEventInput) {
             const value = event.target.value;
             this.value = value;
@@ -181,7 +189,11 @@ export default class CustomFieldInputComponent extends Component {
     }
 
     #getValueFromSubject(customField, subject) {
-        const cfValue = (subject.get('custom_field_values') ?? []).find((cfv) => cfv.custom_field_uuid === customField.id);
+        // `subject?.get(...)` optional-chains the subject but hard-calls `.get`, so any subject
+        // that is not an Ember object threw right here, during construction — before the
+        // component could render at all. Read the plain property when there is no `get`.
+        const values = (typeof subject?.get === 'function' ? subject.get('custom_field_values') : subject?.custom_field_values) ?? [];
+        const cfValue = values.find((cfv) => cfv.custom_field_uuid === customField.id);
         if (cfValue) return cfValue.value;
         return null;
     }

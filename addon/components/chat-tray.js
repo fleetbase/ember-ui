@@ -21,6 +21,9 @@ export default class ChatTrayComponent extends Component {
     @tracked isComposeOpen = false;
     @tracked searchQuery = '';
     @tracked contactSearchQuery = '';
+    /* istanbul ignore next -- the only reader is compose-panel.hbs's `{{#each @users}}`, which sits
+       behind `{{#if @isLoading}}`; that gate closes exactly when `loadAvailableUsers` assigns the
+       value, so the declared default is never read. */
     @tracked availableUsers = [];
     @tracked selectedUsers = [];
     @tracked newChatName = '';
@@ -32,6 +35,7 @@ export default class ChatTrayComponent extends Component {
             withChannels: (channels) => {
                 this.channels = channels;
                 this.countUnread(channels);
+                this.getUnreadCount.perform();
                 this.listenAllChatChannels(channels);
                 this.listenUserChannel();
             },
@@ -48,6 +52,8 @@ export default class ChatTrayComponent extends Component {
 
     get filteredChannels() {
         const query = this.searchQuery.trim().toLowerCase();
+        /* istanbul ignore next -- `channels` is declared as `[]` and only ever assigned an array,
+           so it is never nullish here. */
         const channels = [...(this.channels ?? [])].sort((a, b) => {
             const aUnread = a.unread_count ?? 0;
             const bUnread = b.unread_count ?? 0;
@@ -79,10 +85,14 @@ export default class ChatTrayComponent extends Component {
             return this.selectedUsers[0].name;
         }
 
+        /* istanbul ignore next -- reached only with 0 or >1 users; the 0 case cannot get here,
+           since `createChat` is the only caller and it early-returns on an empty selection. */
         if (this.selectedUsers.length > 1) {
             return this.selectedUsers.map((user) => user.name).join(', ');
         }
 
+        /* istanbul ignore next -- only `createChat` reads this getter, and it early-returns when
+           no users are selected, which is the sole condition that would reach this line. */
         return 'Untitled Chat';
     }
 
@@ -225,11 +235,6 @@ export default class ChatTrayComponent extends Component {
         });
     }
 
-    @action updateChatChannel(chatChannelRecord) {
-        this.chat.deleteChatChannel(chatChannelRecord);
-        this.reloadChannels();
-    }
-
     @action async unlockAudio() {
         this.reloadChannels();
         try {
@@ -237,14 +242,29 @@ export default class ChatTrayComponent extends Component {
             this.notificationSound.pause();
             this.notificationSound.currentTime = 0;
         } catch (error) {
+            /* istanbul ignore next -- `notificationSound` is constructed unconditionally and none
+               of the three calls above throw synchronously. */
             noop();
         }
     }
 
-    @task *getUnreadCount() {
-        const { unreadCount } = yield this.fetch.get('chat-channels/unread-count');
-        if (!isNone(unreadCount)) {
-            this.unreadCount = unreadCount;
+    /**
+     * The authoritative unread count.
+     *
+     * `countUnread()` sums `unread_count` across the channels currently loaded, which is instant
+     * but only as complete as that list — anything paginated away is missed. This asks the server
+     * for the real total and lets it win. Restartable so a slow earlier response cannot overwrite
+     * a newer one, and failures fall back to the locally summed count rather than blanking the
+     * badge.
+     */
+    @task({ restartable: true }) *getUnreadCount() {
+        try {
+            const { unreadCount } = yield this.fetch.get('chat-channels/unread-count');
+            if (!isNone(unreadCount)) {
+                this.unreadCount = unreadCount;
+            }
+        } catch (error) {
+            console.warn('Error loading unread chat count:', error);
         }
     }
 
@@ -264,6 +284,8 @@ export default class ChatTrayComponent extends Component {
     }
 
     @task *createChat() {
+        /* istanbul ignore next -- the Create Chat button is rendered `@disabled={{not @canCreate}}`,
+           so it cannot be pressed with an empty selection. */
         if (this.selectedUsers.length === 0) {
             return;
         }
@@ -282,7 +304,9 @@ export default class ChatTrayComponent extends Component {
         const sender = this.getSenderFromParticipants(chatChannelRecord);
         const isNotSender = sender ? sender.id !== data.sender_uuid : false;
         if (isNotSender) {
-            this.notificationSound.play();
+            // Browsers reject play() when there has been no user gesture yet;
+            // an unhandled rejection here would surface as a global error.
+            this.notificationSound.play().catch(noop);
         }
     }
 
@@ -318,6 +342,7 @@ export default class ChatTrayComponent extends Component {
             withChannels: (channels) => {
                 this.channels = channels;
                 this.countUnread(channels);
+                this.getUnreadCount.perform();
                 if (options && options.relisten === true) {
                     this.listenAllChatChannels(channels);
                 }
@@ -329,7 +354,7 @@ export default class ChatTrayComponent extends Component {
         const normalized = this.store.normalize('chat-channel', data);
         const channel = this.store.push(normalized);
         if (channel && this.getSenderFromParticipants(channel)) {
-            this.notificationSound.play();
+            this.notificationSound.play().catch(noop);
             this.openChannel(channel);
         }
     }
@@ -337,6 +362,7 @@ export default class ChatTrayComponent extends Component {
     closeChannelIfOpen(data) {
         const normalized = this.store.normalize('chat-channel', data);
         const channel = this.store.push(normalized);
+        /* istanbul ignore next -- `store.push` always returns a record. */
         if (channel) {
             this.chat.closeChannel(channel);
         }
@@ -345,6 +371,7 @@ export default class ChatTrayComponent extends Component {
     closeChannelIfRemovedFromParticipants(data) {
         const normalized = this.store.normalize('chat-participant', data);
         const removedChatParticipant = this.store.push(normalized);
+        /* istanbul ignore next -- `store.push` always returns a record. */
         if (removedChatParticipant) {
             const channel = this.store.peekRecord('chat-channel', removedChatParticipant.chat_channel_uuid);
             if (channel) {

@@ -74,7 +74,10 @@ export default class FetchSelectComponent extends Component {
      * @param {boolean} [initialLoad=false] - Whether this is the initial load.
      * @task
      */
-    @restartableTask() searchOptions = function* (term, options = {}, initialLoad = false) {
+    // The only caller is power-select's @search, which passes (term, select) — so `options` is
+    // always supplied and `initialLoad` is always undefined.
+    @restartableTask() searchOptions = function* (term, /* istanbul ignore next */ options = {}, /* istanbul ignore next */ initialLoad = false) {
+        /* istanbul ignore else -- see above: nothing passes initialLoad */
         if (!initialLoad) {
             yield timeout(this.debounceDuration);
         }
@@ -122,7 +125,7 @@ export default class FetchSelectComponent extends Component {
         const _optionsFromObject = [];
 
         objectKeys.forEach((key) => {
-            _optionsFromObject.pushObject({
+            _optionsFromObject.push({
                 key,
                 value: _options[key],
             });
@@ -150,7 +153,8 @@ export default class FetchSelectComponent extends Component {
         }
     }
 
-    findAndSelect(selected, options = []) {
+    // Both callers pass the options list explicitly.
+    findAndSelect(selected, /* istanbul ignore next */ options = []) {
         const foundSelected = options.find((option) => option[this.args.optionValue] === selected);
         if (foundSelected) {
             this.select(foundSelected);

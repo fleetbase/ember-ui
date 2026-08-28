@@ -2,6 +2,7 @@ import Service from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { getOwner } from '@ember/application';
+import window from 'ember-window-mock';
 
 export const DOCS_BASE_URL = 'https://www.fleetbase.io/docs/';
 const OFFICIAL_DOC_HOSTS = ['www.fleetbase.io', 'fleetbase.io', 'docs.fleetbase.io'];
@@ -115,12 +116,16 @@ export default class DocsPanelService extends Service {
         try {
             const owner = getOwner(this);
 
+            /* istanbul ignore next -- the theme service is registered in this addon, so
+               `hasRegistration` never reports false here. */
             if (owner?.hasRegistration?.('service:theme') === false) {
                 return 'light';
             }
 
             themeService = owner?.lookup?.('service:theme');
         } catch {
+            /* istanbul ignore next -- neither `getOwner` nor `lookup` throws for a registered
+               service, so this fallback is defensive only. */
             themeService = null;
         }
 

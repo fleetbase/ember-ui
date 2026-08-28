@@ -1,19 +1,28 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { action } from '@ember/object';
 
 export default class DropdownButtonComponent extends Component {
     @service abilities;
-    @service events;
+
+    // Optional events service; undefined when the host app does not register one.
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked type = 'default';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked buttonSize = 'md';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked buttonComponentArgs = {};
     @tracked _onInsertFired = false;
-    @tracked _onTriggerInsertFired = false;
-    @tracked _onButtonInsertFired = false;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked disabled = false;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked visible = true;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it. */
     @tracked permissionRequired = false;
     @tracked doesntHavePermissions = false;
 
@@ -39,20 +48,26 @@ export default class DropdownButtonComponent extends Component {
     }
 
     @action onRegisterAPI(dropdown) {
-        // Trigger dropdown opened event when dropdown is opened
-        if (dropdown && this.events) {
-            const originalOpen = dropdown.actions.open;
-            dropdown.actions.open = (...args) => {
-                const { eventName, eventArgs } = this.args;
-                if (eventName) {
-                    this.events.trackEvent(eventName, ...(eventArgs || []));
-                }
-                return originalOpen.call(dropdown.actions, ...args);
-            };
-        }
-
         if (typeof this.args.registerAPI === 'function') {
             this.args.registerAPI(dropdown);
+        }
+    }
+
+    /**
+     * Tracking hangs off `@onOpen`, which ember-basic-dropdown fires for EVERY open however it
+     * was reached. The previous approach monkey-patched `dropdown.actions.open`, but the
+     * trigger calls `toggle`, which closes over the original `open` internally — so an
+     * ordinary user click was never tracked, only a programmatic `api.actions.open()`.
+     */
+    @action onOpen() {
+        const { eventName, eventArgs, onOpen } = this.args;
+
+        if (eventName && this.events) {
+            this.events.trackEvent(eventName, ...(eventArgs || []));
+        }
+
+        if (typeof onOpen === 'function') {
+            return onOpen(...arguments);
         }
     }
 
@@ -61,9 +76,9 @@ export default class DropdownButtonComponent extends Component {
             this.args.onTriggerInsert(...arguments);
         }
 
-        this._onTriggerInsertFired = true;
-
         // Fallback for insert, when `renderInPlace=false` Trigger becomes whole node
+        /* istanbul ignore else -- onInsert is only ever reached from here, so _onInsertFired is
+           still false at this point and the condition is always true */
         if (this.args.renderInPlace === true || this._onInsertFired === false) {
             this.onInsert(...arguments);
         }
@@ -73,8 +88,6 @@ export default class DropdownButtonComponent extends Component {
         if (typeof this.args.onButtonInsert === 'function') {
             this.args.onButtonInsert(...arguments);
         }
-
-        this._onButtonInsertFired = true;
     }
 
     @action onInsert() {

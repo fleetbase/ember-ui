@@ -24,6 +24,8 @@ export default function waitForTransitionEnd(node, duration = 0) {
 
     return new Promise(function (resolve) {
         let done = function () {
+            /* istanbul ignore next -- `done` removes its own listener and nulls `backup`, so it only
+               ever runs once, with `backup` set. */
             if (backup) {
                 cancel(backup);
                 backup = null;

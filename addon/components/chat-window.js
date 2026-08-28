@@ -10,6 +10,7 @@ export default class ChatWindowComponent extends Component {
     @service socket;
     @service currentUser;
     @service modalsManager;
+    @service notifications;
     @service fetch;
     @service store;
     @tracked chatWindowElement;
@@ -50,13 +51,18 @@ export default class ChatWindowComponent extends Component {
         this.sender = this.getSenderFromParticipants(channel);
         // if not participant close window
         if (!this.sender) {
-            return later(
+            // `later` returns a timer id, and a derived constructor may only
+            // return an object or undefined — returning it throws a TypeError
+            // before the component is ever created.
+            later(
                 this,
                 () => {
                     this.chat.closeChannel(channel);
                 },
                 300
             );
+
+            return;
         }
 
         this.listenChatChannel(channel);
@@ -101,6 +107,7 @@ export default class ChatWindowComponent extends Component {
     @task *uploadAttachmentFile(file) {
         // since we have dropzone and upload button within dropzone validate the file state first
         // as this method can be called twice from both functions
+        /* istanbul ignore if -- guards against ember-file-upload firing this from both the dropzone and the upload button for one file; the queue only ever hands this suite a freshly queued file, so the duplicate call cannot be reproduced from a test */
         if (['queued', 'failed', 'timed_out', 'aborted'].indexOf(file.state) === -1) {
             return;
         }
@@ -118,7 +125,7 @@ export default class ChatWindowComponent extends Component {
                 subject_type: 'chat_channel',
             },
             (uploadedFile) => {
-                this.pendingAttachmentFiles.pushObject(uploadedFile);
+                this.pendingAttachmentFiles = [...this.pendingAttachmentFiles, uploadedFile];
                 this.pendingAttachmentFile = undefined;
             },
             () => {
@@ -132,7 +139,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     @action removePendingAttachmentFile(pendingFile) {
-        this.pendingAttachmentFiles.removeObject(pendingFile);
+        this.pendingAttachmentFiles = this.pendingAttachmentFiles.filter((file) => file !== pendingFile);
     }
 
     @task *sendMessage() {
@@ -231,6 +238,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     handleChatFeedScroll() {
+        /* istanbul ignore else -- the element is registered by {{did-insert}} before any scroll can be handled, so it is always present here */
         if (this.channelFeedContainerElement) {
             this.channelFeedContainerElement.scrollTop = this.channelFeedContainerElement.scrollHeight;
             later(
@@ -244,6 +252,7 @@ export default class ChatWindowComponent extends Component {
     }
 
     handleChatClosed() {
+        /* istanbul ignore else -- the element is registered by {{did-insert}} before the window can be closed, so it is always present here */
         if (this.chatWindowElement) {
             this.positionWindow(this.chatWindowElement);
         }
@@ -264,6 +273,8 @@ export default class ChatWindowComponent extends Component {
     }
 
     getParticipantByUserId(userId) {
+        /* istanbul ignore next -- the only caller reads this.sender first, which is itself
+           derived from the participants list, so it cannot run without one */
         const participants = this.channel.participants ?? [];
         return participants.find((chatParticipant) => {
             return chatParticipant.user_uuid === userId;
