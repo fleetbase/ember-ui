@@ -183,6 +183,34 @@ module('Integration | Component | floating', function (hooks) {
 
             assert.ok(panel(), 'neither registerAPI nor onPositionComputed is required');
         });
+
+        // The arrow middleware reports only the cross-axis coordinate — x for top/bottom
+        // placements, y for left/right — and the static side stays with the [x-placement] CSS.
+        test('the arrow is placed against the target on the cross axis', async function (assert) {
+            await render(hbs`
+                <div class="target">Target</div>
+                <Floating @target=".target" @arrow={{true}} class="floating-panel-under-test">Panel</Floating>
+            `);
+
+            const arrowNode = () => panel().querySelector('[x-arrow]');
+            await waitUntil(() => arrowNode()?.style.left);
+
+            assert.true(/px$/.test(arrowNode().style.left), 'the default bottom placement centers the arrow horizontally');
+            assert.strictEqual(arrowNode().style.top, '', 'the vertical side is left to the stylesheet');
+        });
+
+        test('a horizontal placement places the arrow vertically instead', async function (assert) {
+            await render(hbs`
+                <div class="target">Target</div>
+                <Floating @target=".target" @placement="right" @arrow={{true}} class="floating-panel-under-test">Panel</Floating>
+            `);
+
+            const arrowNode = () => panel().querySelector('[x-arrow]');
+            await waitUntil(() => arrowNode()?.style.top);
+
+            assert.true(/px$/.test(arrowNode().style.top), 'a right placement centers the arrow vertically');
+            assert.strictEqual(arrowNode().style.left, '', 'the horizontal side is left to the stylesheet');
+        });
     });
 
     test('offset does not accumulate when position is recomputed', async function (assert) {

@@ -9,6 +9,7 @@ const { assign } = Object;
 export default class FloatingComponent extends Component {
     @tracked element;
     @tracked target;
+    arrowNode;
 
     @computed('args.shiftOptions') get defaultOptions() {
         const { shiftOptions } = this.args;
@@ -94,13 +95,14 @@ export default class FloatingComponent extends Component {
             middleware.push(offset(offsetBy));
         }
 
-        if (displayArrow === true) {
-            const arrowNode = element.closest('[x-arrow]');
+        this.arrowNode = null;
 
-            /* istanbul ignore if -- closest() searches self and ancestors, and the arrow element
-               is a descendant of the floating element, so this never resolves. See DEFECTS #31. */
+        if (displayArrow === true) {
+            const arrowNode = element.querySelector('[x-arrow]');
+
             if (arrowNode instanceof Element) {
-                middleware.push(arrow(arrowNode));
+                this.arrowNode = arrowNode;
+                middleware.push(arrow({ element: arrowNode }));
             }
         }
 
@@ -144,7 +146,7 @@ export default class FloatingComponent extends Component {
             placement,
             strategy,
             middleware,
-        }).then(({ x, y }) => {
+        }).then(({ x, y, middlewareData }) => {
             assign(element.style, {
                 position: 'absolute',
                 pointerEvents: 'none',
@@ -153,6 +155,18 @@ export default class FloatingComponent extends Component {
                 left: '0',
                 transform: `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`,
             });
+
+            if (middlewareData.arrow) {
+                // The arrow middleware reports only the cross-axis coordinate: x for top/bottom
+                // placements, y for left/right. The static-side inset and rotation stay with the
+                // [x-placement] rules in attacher.css.
+                const { x: arrowX, y: arrowY } = middlewareData.arrow;
+
+                assign(this.arrowNode.style, {
+                    left: typeof arrowX === 'number' ? `${arrowX}px` : '',
+                    top: typeof arrowY === 'number' ? `${arrowY}px` : '',
+                });
+            }
 
             if (typeof onPositionComputed === 'function') {
                 onPositionComputed({
