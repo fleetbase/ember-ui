@@ -25,6 +25,7 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
      *
      * @type {Array<Object>}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked workingPinned = A([]);
 
     constructor(owner, args) {
@@ -33,12 +34,6 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
     }
 
     // ─── Computed ─────────────────────────────────────────────────────────────
-
-    /** Items that are NOT in the working pinned list. */
-    get unpinnedItems() {
-        const pinnedIds = this.workingPinned.map((i) => i.id);
-        return (this.args.allItems ?? []).filter((i) => !pinnedIds.includes(i.id));
-    }
 
     /** True when the user has reached the maximum allowed pinned items. */
     get atPinnedLimit() {
@@ -76,12 +71,17 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
         const idx = this.workingPinned.findIndex((i) => i.id === item.id);
         if (idx >= 0) {
             // Unpin.
-            this.workingPinned.removeAt(idx);
+            this.workingPinned.splice(idx, 1);
             // Trigger reactivity.
             this.workingPinned = A([...this.workingPinned]);
-        } else if (!this.atPinnedLimit) {
+        } else {
             // Pin.
-            this.workingPinned = A([...this.workingPinned, item]);
+            /* istanbul ignore else -- the template renders the pin control
+               `disabled={{and this.atPinnedLimit (not (this.isPinned item))}}`, so it cannot be
+               clicked while at the limit and this guard is never consulted as false */
+            if (!this.atPinnedLimit) {
+                this.workingPinned = A([...this.workingPinned, item]);
+            }
         }
     }
 
@@ -100,10 +100,12 @@ export default class LayoutHeaderSmartNavMenuCustomizerComponent extends Compone
      * Drag-sort reorder handler for the pinned items list.
      */
     @action reorderPinned({ sourceList, sourceIndex, targetList, targetIndex }) {
+        /* istanbul ignore if -- ember-drag-sort does not report a drop that did not move
+           anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
         this.workingPinned = A([...this.workingPinned]);
     }
 

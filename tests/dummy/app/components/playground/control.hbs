@@ -1,0 +1,84 @@
+{{!
+    One control row.
+
+    Booleans put the label and the checkbox on one line, as the design does; everything else
+    stacks label over input. The `data-test-control-input` hook stays on the real form control in
+    both shapes so `fillIn()` and `click()` keep working.
+}}
+<div
+    class="pg-control {{if (eq this.definition.type 'boolean') 'pg-control--inline'}} {{if @model.error 'pg-control--invalid'}}"
+    data-test-control={{this.definition.key}}
+>
+    <div class="pg-control__labelling">
+        <label class="pg-control__label" for={{this.inputId}}>{{this.definition.label}}</label>
+        {{#if this.definition.help}}
+            <span class="pg-control__help">{{this.definition.help}}</span>
+        {{/if}}
+    </div>
+
+    {{#if (eq this.definition.type "boolean")}}
+        <input
+            id={{this.inputId}}
+            type="checkbox"
+            class="pg-checkbox"
+            checked={{@model.value}}
+            data-test-control-input={{this.definition.key}}
+            {{on "change" this.onToggle}}
+        />
+    {{else if (eq this.definition.type "select")}}
+        <select
+            id={{this.inputId}}
+            class="pg-input"
+            aria-invalid={{if @model.error "true"}}
+            aria-describedby={{if @model.error this.errorId}}
+            data-test-control-input={{this.definition.key}}
+            {{on "change" this.onSelect}}
+        >
+            {{#each this.definition.options as |choice|}}
+                <option value={{choice.value}} selected={{eq choice.value @model.value}}>{{choice.label}}</option>
+            {{/each}}
+        </select>
+    {{else if (eq this.definition.type "number")}}
+        <input
+            id={{this.inputId}}
+            type="number"
+            class="pg-input"
+            value={{@model.value}}
+            min={{this.definition.min}}
+            max={{this.definition.max}}
+            step={{this.definition.step}}
+            aria-invalid={{if @model.error "true"}}
+            aria-describedby={{if @model.error this.errorId}}
+            data-test-control-input={{this.definition.key}}
+            {{on "input" this.onInput}}
+        />
+    {{else if (eq this.definition.type "json")}}
+        <textarea
+            id={{this.inputId}}
+            class="pg-input pg-input--code"
+            rows="4"
+            aria-invalid={{if @model.error "true"}}
+            aria-describedby={{if @model.error this.errorId}}
+            data-test-control-input={{this.definition.key}}
+            {{on "input" this.onInput}}
+        >{{this.textValue}}</textarea>
+    {{else}}
+        <input
+            id={{this.inputId}}
+            type={{if (eq this.definition.type "color") "color" (if (eq this.definition.type "date") "date" (if (eq this.definition.type "datetime") "datetime-local" "text"))}}
+            class="pg-input {{if (eq this.definition.type 'color') 'pg-input--color'}}"
+            value={{this.textValue}}
+            aria-invalid={{if @model.error "true"}}
+            aria-describedby={{if @model.error this.errorId}}
+            data-test-control-input={{this.definition.key}}
+            {{on "input" this.onInput}}
+        />
+    {{/if}}
+
+    {{#if @model.error}}
+        <p id={{this.errorId}} class="pg-control__error" role="alert" data-test-control-error={{this.definition.key}}>
+            <span class="pg-control__error-icon" aria-hidden="true">!</span>
+            {{@model.error}}
+        </p>
+    {{/if}}
+</div>

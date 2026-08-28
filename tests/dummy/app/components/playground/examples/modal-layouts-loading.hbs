@@ -1,0 +1,8 @@
+{{!
+    Modal::Layouts::Loading example adapter. Opened through `modalsManager.loader()`, which is how the
+    documentation instructs consumers to reach this layout.
+}}
+<div class="pg-fixture-anchor">
+    <Button @text="Open the loading dialog" @type="primary" @onClick={{this.open}} data-test-open-modal />
+    <p class="pg-fixture-note">Shown through <code>modalsManager.loader()</code>.</p>
+</div>

@@ -1,0 +1,26 @@
+{{!
+    Button example adapter.
+
+    Every argument is bound explicitly to the real addon <Button>. That explicitness is the point:
+    if a control stops being forwarded, the playground application test for that control fails.
+
+    Empty-string controls are passed through `or ... null` where Button distinguishes "absent"
+    from "empty" — `@icon=""` would otherwise render an empty icon wrapper.
+}}
+<Button
+    @text={{@values.text}}
+    @type={{@values.type}}
+    @size={{@values.size}}
+    @buttonType={{@values.buttonType}}
+    @disabled={{@values.disabled}}
+    @visible={{@values.visible}}
+    @isLoading={{@values.isLoading}}
+    @outline={{@values.outline}}
+    @responsive={{@values.responsive}}
+    @icon={{if @values.icon @values.icon null}}
+    @iconPrefix={{@values.iconPrefix}}
+    @helpText={{if @values.helpText @values.helpText null}}
+    @onClick={{fn (or @onEvent (noop)) "onClick"}}
+    @onInsert={{fn (or @onEvent (noop)) "onInsert"}}
+    data-test-example-button
+/>

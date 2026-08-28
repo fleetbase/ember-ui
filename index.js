@@ -14,6 +14,12 @@ const autoprefixer = require('autoprefixer');
 const tailwind = require('tailwindcss');
 
 const tailwindConfigPath = path.resolve(__dirname, 'tailwind.config.js');
+
+// signature_pad's `exports` map hands CommonJS consumers a UMD build, and ember-auto-import
+// resolves through a CJS entry. Webpack's interop then double wraps that UMD so the default
+// export comes back as `{ default: SignaturePad }` instead of the class. Point the alias
+// straight at the ESM build so `import SignaturePad from 'signature_pad'` resolves cleanly.
+const signaturePadPath = path.join(path.dirname(resolve.sync('signature_pad/package.json', { basedir: __dirname })), 'dist', 'signature_pad.js');
 const postcssOptions = {
     compile: {
         enabled: true,
@@ -37,14 +43,35 @@ const postcssOptions = {
     },
 };
 
+// Only require ember-cli-code-coverage (a devDependency) when coverage is
+// requested, so consuming applications never need it installed.
+function coverageBabelPlugin() {
+    if (process.env.COVERAGE === 'true') {
+        return require('ember-cli-code-coverage').buildBabelPlugin();
+    }
+
+    return [];
+}
+
 module.exports = {
     name,
 
     options: {
+        babel: {
+            plugins: [...coverageBabelPlugin()],
+        },
         autoImport: {
             publicAssetsURL: '/assets',
             alias: {
                 libphonenumber: 'intl-tel-input/build/js/utils.js',
+            },
+            webpack: {
+                resolve: {
+                    alias: {
+                        // exact match only, so subpath imports are left alone
+                        signature_pad$: signaturePadPath,
+                    },
+                },
             },
         },
         'ember-leaflet': {

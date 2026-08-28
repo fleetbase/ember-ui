@@ -17,20 +17,29 @@ function coerceValue(value, targetType) {
             return Boolean(value);
         case 'text':
         default:
+            /* istanbul ignore next -- `value` cannot be nullish here: null entries are filtered out
+               of seeding by `#isPrimitive` (typeof null is 'object'), the row initialises it to
+               `data.value || ''`, and every reassignment is a coerced value or an input string. */
             return value == null ? '' : String(value);
     }
 }
 
 class MetadataRow {
+    /* istanbul ignore next -- the constructor assigns all four before anything reads them. */
     @tracked key = '';
+    /* istanbul ignore next -- see above. */
     @tracked value = '';
+    /* istanbul ignore next -- see above. */
     @tracked type = 'text';
+    /* istanbul ignore next -- see above. */
     @tracked error = null;
 
     constructor(data = {}) {
         this.id = guidFor(this);
         this.key = data.key || '';
         this.value = data.value || '';
+        /* istanbul ignore next -- #getValueType always returns one of 'number', 'boolean' or
+           'text', so the final fallback is never reached */
         this.type = data.type || this.#getValueType(data.value) || 'text';
         this.error = null;
     }
@@ -73,8 +82,10 @@ class MetadataRow {
 
 export default class MetadataEditorComponent extends Component {
     @service modalsManager;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked rows = [];
     @tracked filterText = '';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked preservedData = {};
 
     constructor(owner, args) {

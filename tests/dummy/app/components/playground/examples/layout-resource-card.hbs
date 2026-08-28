@@ -1,0 +1,4 @@
+{{! Layout::Resource::Card example adapter: one row of the shared resource fixture. }}
+<Layout::Resource::Card @model={{this.model}} @index={{@values.index}}>
+    <div class="pg-fixture-block">{{this.model.reference}} · {{this.model.customer}}</div>
+</Layout::Resource::Card>

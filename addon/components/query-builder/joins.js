@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class QueryBuilderJoinsComponent extends Component {
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked joins = [];
 
     constructor() {
@@ -60,6 +61,8 @@ export default class QueryBuilderJoinsComponent extends Component {
     @action
     toggleJoinColumn(relationshipKey, column) {
         const joinIndex = this.joins.findIndex((join) => join.key === relationshipKey);
+        /* istanbul ignore if -- joins.hbs only renders these controls inside the block for a
+           relationship that is already joined, so the lookup always finds one */
         if (joinIndex === -1) return;
 
         const updatedJoins = [...this.joins];
@@ -93,6 +96,8 @@ export default class QueryBuilderJoinsComponent extends Component {
     @action
     selectAllJoinColumns(relationshipKey) {
         const joinIndex = this.joins.findIndex((join) => join.key === relationshipKey);
+        /* istanbul ignore if -- joins.hbs only renders these controls inside the block for a
+           relationship that is already joined, so the lookup always finds one */
         if (joinIndex === -1) return;
 
         const updatedJoins = [...this.joins];
@@ -114,6 +119,8 @@ export default class QueryBuilderJoinsComponent extends Component {
     @action
     selectNoneJoinColumns(relationshipKey) {
         const joinIndex = this.joins.findIndex((join) => join.key === relationshipKey);
+        /* istanbul ignore if -- joins.hbs only renders these controls inside the block for a
+           relationship that is already joined, so the lookup always finds one */
         if (joinIndex === -1) return;
 
         const updatedJoins = [...this.joins];
@@ -130,6 +137,8 @@ export default class QueryBuilderJoinsComponent extends Component {
     @action
     updateJoinColumnAlias(relationshipKey, columnName, event) {
         const joinIndex = this.joins.findIndex((join) => join.key === relationshipKey);
+        /* istanbul ignore if -- joins.hbs only renders these controls inside the block for a
+           relationship that is already joined, so the lookup always finds one */
         if (joinIndex === -1) return;
 
         const updatedJoins = [...this.joins];

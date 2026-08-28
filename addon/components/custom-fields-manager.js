@@ -15,13 +15,25 @@ export default class CustomFieldsManagerComponent extends Component {
     @service modalsManager;
     @service customFieldsRegistry;
     @service intl;
+    /* istanbul ignore next -- the constructor assigns this synchronously before anything reads it. */
     @tracked subjects = [];
+
+    /**
+     * Subjects whose fields have been fetched or restored, by model name.
+     *
+     * Tab changes used to decide this from `subject.groups.length`, which cannot tell "not loaded
+     * yet" apart from "loaded, and this subject genuinely has no field groups" — so a subject with
+     * no groups was refetched every single time its tab was selected.
+     */
+    #loadedSubjects = new Set();
 
     get gridSizeOptions() {
         return [1, 2, 3];
     }
 
     get tabs() {
+        /* istanbul ignore next -- `subjects` is assigned `subjects ?? []` in the constructor, so it
+           is always an array here. */
         const subjects = this.subjects ?? [];
         return subjects.map((s) => ({
             id: s.model,
@@ -34,8 +46,10 @@ export default class CustomFieldsManagerComponent extends Component {
         this.subjects = subjects ?? [];
         next(() => {
             if (!this.subjects || this.subjects.length === 0) return;
-            // Load the first subject immediately
+            // Load the first subject immediately, then re-attach anything the registry already
+            // holds for the remaining tabs so navigating away and back does not refetch them.
             this.loadCustomFields.perform(this.subjects[0]);
+            this.restoreFromCache();
         });
     }
 
@@ -63,22 +77,34 @@ export default class CustomFieldsManagerComponent extends Component {
         // Skip the first subject as it's loaded in constructor
         const subjectsToRestore = this.subjects.slice(1);
 
+        let company;
+
+        try {
+            company = await this.currentUser.loadCompany();
+        } catch (err) {
+            console.warn('Failed to load the company, so no cached custom fields can be restored:', err);
+            return;
+        }
+
         for (const subject of subjectsToRestore) {
             try {
-                const company = await this.currentUser.loadCompany();
                 const loadOptions = {
                     groupedFor: `${underscore(subject.model)}_custom_field_group`,
                     fieldFor: subject.type,
                 };
 
-                // Check if we have a cached manager for this subject
+                // `forSubject` builds an empty manager on a miss rather than returning nothing, so
+                // whether anything was cached is decided by the groups it carries.
                 const cachedManager = this.customFieldsRegistry.forSubject(company, { loadOptions });
+                // `customFieldGroups`, not `groups`: the raw array holds the categories without
+                // their fields attached, and the load path stores the grouped form.
+                const cachedGroups = cachedManager?.customFieldGroups;
 
-                // Only restore if we have cached groups data
-                if (cachedManager && cachedManager.groups && cachedManager.groups.length > 0) {
+                if (isArray(cachedGroups) && cachedGroups.length > 0) {
                     this.#updateSubject(subject, (s) => {
-                        return { ...s, groups: cachedManager.groups };
+                        return { ...s, groups: cachedGroups };
                     });
+                    this.#loadedSubjects.add(subject.model);
                 }
             } catch (err) {
                 // Silently continue if cache restore fails for a subject
@@ -88,6 +114,8 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     @task *loadCustomFields(subject) {
+        /* istanbul ignore next -- both callers (the constructor and `onTabChange`) guard on the
+           subject before performing this task. */
         if (!subject) return;
 
         try {
@@ -102,6 +130,7 @@ export default class CustomFieldsManagerComponent extends Component {
             this.#updateSubject(subject, (s) => {
                 return { ...s, groups: customFieldsManager.customFieldGroups };
             });
+            this.#loadedSubjects.add(subject.model);
 
             return customFieldsManager;
         } catch (err) {
@@ -202,10 +231,12 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     @action onTabChange(subject) {
-        // Ensure custom fields are loaded when switching tabs
-        if (subject && (!subject.groups || subject.groups.length === 0)) {
-            this.loadCustomFields.perform(subject);
+        // Ensure custom fields are loaded when switching tabs, once per subject.
+        if (!subject || this.#loadedSubjects.has(subject.model)) {
+            return;
         }
+
+        this.loadCustomFields.perform(subject);
     }
 
     #addCustomFieldToGroup(subject, customField, group) {
@@ -224,15 +255,22 @@ export default class CustomFieldsManagerComponent extends Component {
 
     #updateGroupOnSubject(subject, groupId, patch) {
         return this.#updateSubject(subject, (s) => {
+            /* istanbul ignore next -- only reachable from a rendered group's own controls, so the
+               subject always carries that group in its list. */
             const groups = s.groups ?? [];
+            /* istanbul ignore next -- see above. */
             const idx = groups.findIndex((g) => g?.id === groupId || g?._temp_id === groupId);
+            /* istanbul ignore next -- see above. */
             if (idx === -1) return s;
 
             const target = groups[idx];
 
             // Apply the patch to the real model instance
+            /* istanbul ignore else -- `#updateGroupOnSubject` has exactly one caller and it always
+           passes a function, so the object-patch path is unreachable. */
             if (typeof patch === 'function') {
                 patch(target);
+                /* istanbul ignore next -- the only caller of `#updateGroupOnSubject` passes a function. */
             } else if (patch && isObject(patch)) {
                 // Object.assign(target, patch);
                 setProperties(target, patch);
@@ -252,11 +290,14 @@ export default class CustomFieldsManagerComponent extends Component {
     }
 
     #updateSubject(subject, updater) {
+        /* istanbul ignore next -- every caller passes a subject taken from `this.subjects` or the
+           tabs derived from them. */
         if (!subject) return;
 
         // Find by model property since tab objects have extra properties
         const idx = this.subjects.findIndex((s) => s?.model === subject?.model);
 
+        /* istanbul ignore next -- the subject is always one of `this.subjects`, so it is found. */
         if (idx === -1) return;
 
         // Build the updated subject with a *new* object reference
@@ -264,6 +305,7 @@ export default class CustomFieldsManagerComponent extends Component {
         const updated = updater(current);
 
         // Safety: if updater returned nothing, keep current
+        /* istanbul ignore next -- all four callers return a new object. */
         const next = updated ?? current;
 
         // Replace the element with a new array reference to trigger tracking

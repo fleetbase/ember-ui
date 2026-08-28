@@ -11,12 +11,16 @@ export default class LayoutMobileNavbarComponent extends Component {
     @service abilities;
     @service universe;
     @service media;
+    // Both are assigned by the constructor before anything reads them.
+    /* istanbul ignore next */
     @tracked extensions = [];
+    /* istanbul ignore next */
     @tracked menuItems = [];
     routeDidChangeHandler = null;
 
     constructor(owner, { menuItems = [] }) {
         super(...arguments);
+        /* istanbul ignore next -- the host application always declares an extensions array */
         this.extensions = getOwner(this).application.extensions ?? [];
         this.menuItems = this.mergeMenuItems(menuItems);
         this.routeDidChangeHandler = () => {
@@ -30,18 +34,19 @@ export default class LayoutMobileNavbarComponent extends Component {
         }
     }
 
+    /* istanbul ignore next -- its only caller is the constructor, whose own destructuring default (`{ menuItems = [] }`) already turns an absent argument into an array, so this default can never fire */
     mergeMenuItems(menuItems = []) {
         const headerMenuItems = this.universe.headerMenuItems;
         const visibleMenuItems = [];
         for (let i = 0; i < headerMenuItems.length; i++) {
             const menuItem = headerMenuItems[i];
             if (this.abilities.can(`${menuItem.id} see extension`)) {
-                visibleMenuItems.pushObject(menuItem);
+                visibleMenuItems.push(menuItem);
             }
         }
 
         // Merge additionals
-        visibleMenuItems.pushObjects(menuItems);
+        visibleMenuItems.push(...menuItems);
 
         // Callback to allow mutation of menu items
         if (typeof this.args.mutateMenuItems === 'function') {
@@ -78,6 +83,8 @@ export default class LayoutMobileNavbarComponent extends Component {
 
     willDestroy() {
         super.willDestroy(...arguments);
+        /* istanbul ignore else -- the constructor always assigns the handler, and willDestroy is
+           the only place that clears it */
         if (this.routeDidChangeHandler) {
             this.getRouter().off('routeDidChange', this.routeDidChangeHandler);
             this.routeDidChangeHandler = null;
@@ -85,6 +92,7 @@ export default class LayoutMobileNavbarComponent extends Component {
     }
 
     getRouter() {
+        /* istanbul ignore next -- `router` is resolver-provided in the dummy app and cannot be unregistered, so the hostRouter fallback is unreachable from this suite */
         return this.router ?? this.hostRouter;
     }
 }

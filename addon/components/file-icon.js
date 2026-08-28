@@ -32,7 +32,9 @@ export default class FileIconComponent extends Component {
             return null;
         }
 
-        const extensionMatch = filename.match(/\.(.+)$/);
+        // Match the LAST dot-segment and never cross a path separator, so a CDN url such as
+        // https://example.test/uploads/manifest.pdf yields "pdf" rather than the whole tail.
+        const extensionMatch = filename.match(/\.([^./\\?#]+)(?:[?#].*)?$/);
         return extensionMatch ? extensionMatch[1] : null;
     }
 
@@ -48,8 +50,8 @@ export default class FileIconComponent extends Component {
                 xls: 'file-excel',
                 xlsb: 'file-excel',
                 xlsm: 'file-excel',
-                csv: 'file-spreadsheet',
-                tsv: 'file-spreadsheet',
+                csv: 'file-csv',
+                tsv: 'file-csv',
                 docx: 'file-word',
                 docm: 'file-word',
                 pdf: 'file-pdf',

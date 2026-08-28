@@ -1,177 +1,291 @@
-# 🛠️ Fleetbase Ember UI
+<p align="center">
+  <img src="docs/brand/fleetbase-icon.png" alt="Fleetbase" width="76" height="76">
+</p>
 
-This library contains a collection of reusable UI components that you can use in your application and extensions to create a consistent and cohesive user interface.
+<h1 align="center">Fleetbase Ember UI</h1>
+
+<p align="center">
+  The component library behind the Fleetbase console — layout, data, forms, calendars and modals
+  for Ember applications and Fleetbase extensions.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@fleetbase/ember-ui"><img alt="npm" src="https://img.shields.io/npm/v/@fleetbase/ember-ui.svg?color=1c6cc7"></a>
+  <a href="https://github.com/fleetbase/ember-ui/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/fleetbase/ember-ui/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://codecov.io/gh/fleetbase/ember-ui"><img alt="Coverage" src="https://codecov.io/gh/fleetbase/ember-ui/graph/badge.svg?flag=ember-ui"></a>
+  <a href="https://www.npmjs.com/package/@fleetbase/ember-ui"><img alt="Downloads" src="https://img.shields.io/npm/dm/@fleetbase/ember-ui.svg?color=1c6cc7"></a>
+  <a href="LICENSE.md"><img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg"></a>
+</p>
+
+<p align="center">
+  <a href="https://fleetbase.io/docs/ui"><strong>Documentation</strong></a> ·
+  <a href="https://fleetbase.github.io/ember-ui/">Playground</a> ·
+  <a href="PLAYGROUND.md">Playground guide</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
+
+---
+
+## Documentation
+
+The reference documentation lives at **[fleetbase.io/docs/ui](https://fleetbase.io/docs/ui)** — every
+argument, every yielded block, and the guidance on when to reach for which component.
+
+The **[playground](https://fleetbase.github.io/ember-ui/)** is its interactive companion: each
+documented component has a page where you change arguments and watch the real component react.
 
 ## Installation
 
-To install the Fleetbase Ember UI library, simply run the following command:
+```bash
+pnpm add @fleetbase/ember-ui
+```
 
-<code>npm install @fleetbase/ember-ui</code>
+Requires Node 18 or newer. The addon brings its own styles; no additional CSS import is needed.
 
 ## Usage
 
-Once you have installed the Fleetbase Components library, you can start using the components in your application. 
+Components resolve like any other Ember component once the addon is installed:
 
-For more information on how to use each component, please refer to the documentation.
+```hbs
+<Layout::Container>
+    <Layout::Header />
+    <Layout::Sidebar />
+    <Layout::Main>
+        <ContentPanel @title="Orders" @open={{true}}>
+            <Table @columns={{this.columns}} @rows={{this.orders}} @selectable={{true}} />
+        </ContentPanel>
+
+        <Button @type="primary" @text="New order" @icon="plus" @onClick={{this.createOrder}} />
+    </Layout::Main>
+</Layout::Container>
+```
+
+Services are injected the usual way:
+
+```js
+import { inject as service } from '@ember/service';
+
+export default class OrdersController extends Controller {
+    @service modalsManager;
+
+    @action confirmDelete(order) {
+        return this.modalsManager.confirm({
+            title: 'Delete this order?',
+            body: `${order.reference} will be removed permanently.`,
+            confirm: () => order.destroyRecord(),
+        });
+    }
+}
+```
 
 ## Components
 
-The following components are included in the Fleetbase Ember UI Components library:
+The documented surface is **63 components**. Each links to its reference page and to a live,
+editable example.
 
 <details>
-  <summary>Attach</summary>
-  
-  * [`popover`](./popover.md) A component for displaying content in a popup box that appears when the user clicks on an element.
-  * [`tooltip`](./tooltip.md) A component for displaying a brief description or explanation of an element when the user hovers over it.
-</details>
+<summary><strong>Layout & Structure</strong> — 17 components</summary>
 
-<details>
-    <summary>Filter</summary>
-  
-  * [`date-filter`](./date.md): A component for filtering a list of data based on a date range.
-  * [`model-filter`](./model.md): A component for filtering a list of data based on a model.
-  * [`multi-option-filter`](./multi-option.md):A component for filtering a list of data based on multiple options.
-  * [`select-filter`](./select.md): A component for filtering a list of data based on a single selected option.
-  * [`string-filter`](./string.md): A component for filtering a list of data based on a search string.
-</details>
-
-<details>
-    <summary>Filters Picker</summary>
-
-  * [`filters-picker-button`](./filters-picker-button.md):  A button component for opening and closing a dropdown list of filters.
-</details>
-
-<details>
-    <summary>Layout</summary>
-
-  * [`dropdown-header-item`](./dropdown-header-item.md): A component for displaying a single item in a dropdown list in the header.
-  
-  * [`dark-mode-toggle`](./dark-mode-toggle.md): A toggle button component for switching between light and dark mode.
-  * [`dropdown`](.dropdown.md):  A component for displaying a dropdown.
-  
-  * [`section-body`](./section-body.md):  A component for displaying the body of a section.
-  * [`section-container`](./section-container.md): A container component for a section..
-  * [`section-header`](./section-header.md):  A component for displaying the header of a section.
-  
-  * [`sidebar-item`](./sidebar-item.md): A component for displaying a single item in a sidebar.
-  * [`sidebar-panel`](./sidebar-panel.md): A component for displaying a panel in a sidebar.
-  
-  * [`layout-container`](./layout-container.md):   A container component for the layout.
-  * [`header`](./header.md):  A component for displaying the header of the page.
-  * [`main`](./main.md): A component for displaying the main content of the page.
-  * [`mobile-navbar`](./mobile-navbar.md): A component for displaying the navigation bar on mobile devices.
-  * [`section`](./section.md): A component for displaying a section on the page.
-  * [`sidebar`](./sidebar.md): A component for displaying a sidebar on the page.
-
-  
-</details>
-
-<details>
-    <summary>Modal</summary>
-
-   * [`modal-body-container`](./docs/components/modal/modal-body-container.md): A component that represents the body content of a modal dialog.
-  
-   * [`modal-header-close.md`](./docs/components/modal/modal-header-close.md): A component that represents the body content of a modal dialog.
-   * [`modal-header-title.md`](./docs/components/modal/modal-header-title.md): A component that represents the body content of a modal dialog.
-  
-   * [`modal-layout-alert`](./docs/components/modal/modal-layout-alert.md): A default template for a modal dialog that includes a header, body, and footer.
-   * [`modal-layout-bulk-action`](./docs/components/modal/modal-layout-bulk-action.md): A component that represents the entire modal dialog, including the header, body, and footer.
-   * [`modal-layout-confirm`](./docs/components/modal/modal-layout-confirm.md): A component that represents the footer content of a modal dialog.
-   * [`modal-layout-loading`](./docs/components/modal/modal-layout-loading.md): A component that represents the header content of a modal dialog.
-   * [`modal-layout-option-prompt`](./docs/components/modal/modal-layout-option-prompt.md): A component that represents the title and buttons in the header of a modal dialog.
-   * [`modal-layout-process`](./docs/components/modal/modal-layout-layout-process.md): A component that represents the title and buttons in the header of a modal dialog.
-  
-   * [`modal-default`](./docs/components/modal/modal-default.md): A default template for a modal dialog that includes a header, body, and footer.
-   * [`modal-dialog`](./docs/components/modal/modal-dialog.md): A component that represents the entire modal dialog, including the header, body, and footer.
-   * [`modal-footer`](./docs/components/modal/modal-footer.md): A component that represents the footer content of a modal dialog.
-   * [`modal-header`](./docs/components/modal/modal-header.md): A component that represents the header content of a modal dialog.
-   * [`modal-title-with-buttons`](./docs/components/modal/modal-title-with-buttons.md): A component that represents the title and buttons in the header of a modal dialog.
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<Layout::Container />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-container) |
+| `<Layout::Header />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-header) |
+| `<Layout::Sidebar />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-sidebar) |
+| `<Layout::Main />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-main) |
+| `<Layout::Section />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-section) |
+| `<Layout::MobileNavbar />` | [docs](https://fleetbase.io/docs/ui/layout/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-mobile-navbar) |
+| `<ContentPanel />` | [docs](https://fleetbase.io/docs/ui/layout/content-panel) | [try it](https://fleetbase.github.io/ember-ui/#/components/content-panel) |
+| `<Overlay />` | [docs](https://fleetbase.io/docs/ui/layout/overlay) | [try it](https://fleetbase.github.io/ember-ui/#/components/overlay) |
+| `<Drawer />` | [docs](https://fleetbase.io/docs/ui/layout/drawer) | [try it](https://fleetbase.github.io/ember-ui/#/components/drawer) |
+| `<Layout::Resource::Tabular />` | [docs](https://fleetbase.io/docs/ui/layout/resource-tabular) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-resource-tabular) |
+| `<Layout::Resource::Card />` | [docs](https://fleetbase.io/docs/ui/layout/resource-tabular) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-resource-card) |
+| `<Layout::Resource::CardsGrid />` | [docs](https://fleetbase.io/docs/ui/layout/resource-tabular) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-resource-cards-grid) |
+| `<Layout::Resource::Panel />` | [docs](https://fleetbase.io/docs/ui/layout/resource-tabular) | [try it](https://fleetbase.github.io/ember-ui/#/components/layout-resource-panel) |
+| `<Floating />` | [docs](https://fleetbase.io/docs/ui/layout/floating) | [try it](https://fleetbase.github.io/ember-ui/#/components/floating) |
+| `<Attach::Tooltip />` | [docs](https://fleetbase.io/docs/ui/layout/attach-tooltip) | [try it](https://fleetbase.github.io/ember-ui/#/components/attach-tooltip) |
+| `<Attach::Popover />` | [docs](https://fleetbase.io/docs/ui/layout/attach-popover) | [try it](https://fleetbase.github.io/ember-ui/#/components/attach-popover) |
+| `<Spacer />` | [docs](https://fleetbase.io/docs/ui/layout/spacer) | [try it](https://fleetbase.github.io/ember-ui/#/components/spacer) |
 
 </details>
 
 <details>
-    <summary>Model-Select</summary>
+<summary><strong>Navigation</strong> — 3 components</summary>
 
-  * [`options`](./options.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
-  * [`spinner`](./spinner.md):  A component for displaying content in a popup box that appears when the user clicks on an element.
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<TabNavigation />` | [docs](https://fleetbase.io/docs/ui/navigation/tab-navigation) | [try it](https://fleetbase.github.io/ember-ui/#/components/tab-navigation) |
+| `<Tabs />` | [docs](https://fleetbase.io/docs/ui/navigation/tabs) | [try it](https://fleetbase.github.io/ember-ui/#/components/tabs) |
+| `<DropdownButton />` | [docs](https://fleetbase.io/docs/ui/navigation/dropdown-button) | [try it](https://fleetbase.github.io/ember-ui/#/components/dropdown-button) |
 
 </details>
 
 <details>
-    <summary>Money-Input</summary>
+<summary><strong>Buttons & Actions</strong> — 3 components</summary>
 
-  * [`money-input/currency-dropdown`](./money-input/currency-dropdown.md): A component that renders a dropdown menu to select a currency for the money-input component.
-  * [`money-input/currency-handle:`](./money-input/currency-handle:.md): AA component that displays the selected currency for the money-input component.
-  
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<Button />` | [docs](https://fleetbase.io/docs/ui/actions/button) | [try it](https://fleetbase.github.io/ember-ui/#/components/button) |
+| `<ClickToCopy />` | [docs](https://fleetbase.io/docs/ui/actions/click-to-copy) | [try it](https://fleetbase.github.io/ember-ui/#/components/click-to-copy) |
+| `<ClickToReveal />` | [docs](https://fleetbase.io/docs/ui/actions/click-to-reveal) | [try it](https://fleetbase.github.io/ember-ui/#/components/click-to-reveal) |
+
 </details>
 
 <details>
-    <summary>Overlay</summary>
+<summary><strong>Forms & Inputs</strong> — 15 components</summary>
 
-  * [`overlay-body`](./overlay-body.md): A component that renders the body content for an overlay.
-  * [`overlay-footer`](./overlay-footer.md): A component that renders the footer content for an overlay.
-  * [`overlay-header`](./overlay-header.md): A component that renders the header content for an overlay.
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<InputGroup />` | [docs](https://fleetbase.io/docs/ui/inputs/input-group) | [try it](https://fleetbase.github.io/ember-ui/#/components/input-group) |
+| `<Checkbox />` | [docs](https://fleetbase.io/docs/ui/inputs/checkbox) | [try it](https://fleetbase.github.io/ember-ui/#/components/checkbox) |
+| `<Toggle />` | [docs](https://fleetbase.io/docs/ui/inputs/toggle) | [try it](https://fleetbase.github.io/ember-ui/#/components/toggle) |
+| `<Select />` | [docs](https://fleetbase.io/docs/ui/inputs/select) | [try it](https://fleetbase.github.io/ember-ui/#/components/select) |
+| `<MultiSelect />` | [docs](https://fleetbase.io/docs/ui/inputs/multi-select) | [try it](https://fleetbase.github.io/ember-ui/#/components/multi-select) |
+| `<ComboBox />` | [docs](https://fleetbase.io/docs/ui/inputs/combo-box) | [try it](https://fleetbase.github.io/ember-ui/#/components/combo-box) |
+| `<ModelSelect />` | [docs](https://fleetbase.io/docs/ui/inputs/model-select) | [try it](https://fleetbase.github.io/ember-ui/#/components/model-select) |
+| `<DatePicker />` | [docs](https://fleetbase.io/docs/ui/inputs/date-picker) | [try it](https://fleetbase.github.io/ember-ui/#/components/date-picker) |
+| `<DateTimeInput />` | [docs](https://fleetbase.io/docs/ui/inputs/date-time-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/date-time-input) |
+| `<PhoneInput />` | [docs](https://fleetbase.io/docs/ui/inputs/phone-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/phone-input) |
+| `<CoordinatesInput />` | [docs](https://fleetbase.io/docs/ui/inputs/coordinates-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/coordinates-input) |
+| `<ModelCoordinatesInput />` | [docs](https://fleetbase.io/docs/ui/inputs/model-coordinates-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/model-coordinates-input) |
+| `<UnitInput />` | [docs](https://fleetbase.io/docs/ui/inputs/unit-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/unit-input) |
+| `<MoneyInput />` | [docs](https://fleetbase.io/docs/ui/inputs/money-input) | [try it](https://fleetbase.github.io/ember-ui/#/components/money-input) |
+| `<FileUpload />` | [docs](https://fleetbase.io/docs/ui/inputs/file-upload) | [try it](https://fleetbase.github.io/ember-ui/#/components/file-upload) |
+
 </details>
 
 <details>
-    <summary>Table</summary>
+<summary><strong>Data Display</strong> — 9 components</summary>
 
-   * [`table-cell-anchor`](./table-cell-anchor.md): A component that renders an anchor element within a table cell.
-   * [`table-cell-base`](./table-cell-base.md): A base component for table cells.
-   * [`table-cell-checkbox`](./table-cell-checkbox.md): A component that renders a checkbox within a table cell.
-   * [`table-cell-country`](./table-cell-country.md): A component that renders a country flag within a table cell.
-   * [`table-cell-dropdown`](./table-cell-dropdown.md): A component that renders a dropdown menu within a table cell.
-   * [`table-cell-link-to`](./table-cell-link-to.md): A component that renders a link within a table cell.
-   * [`table-cell-media-name`](./table-cell-media-name.md): A component that renders the name of a media item within a table cell.</details>
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<Table />` | [docs](https://fleetbase.io/docs/ui/display/table) | [try it](https://fleetbase.github.io/ember-ui/#/components/table) |
+| `<Badge />` | [docs](https://fleetbase.io/docs/ui/display/badge) | [try it](https://fleetbase.github.io/ember-ui/#/components/badge) |
+| `<Pill />` | [docs](https://fleetbase.io/docs/ui/display/pill) | [try it](https://fleetbase.github.io/ember-ui/#/components/pill) |
+| `<ProgressBar />` | [docs](https://fleetbase.io/docs/ui/display/progress-bar) | [try it](https://fleetbase.github.io/ember-ui/#/components/progress-bar) |
+| `<Spinner />` | [docs](https://fleetbase.io/docs/ui/display/spinner) | [try it](https://fleetbase.github.io/ember-ui/#/components/spinner) |
+| `<Timeline />` | [docs](https://fleetbase.io/docs/ui/display/timeline) | [try it](https://fleetbase.github.io/ember-ui/#/components/timeline) |
+| `<ActivityLog />` | [docs](https://fleetbase.io/docs/ui/display/activity-log) | [try it](https://fleetbase.github.io/ember-ui/#/components/activity-log) |
+| `<File />` | [docs](https://fleetbase.io/docs/ui/display/file) | [try it](https://fleetbase.github.io/ember-ui/#/components/file) |
+| `<CommentThread />` | [docs](https://fleetbase.io/docs/ui/display/comment-thread) | [try it](https://fleetbase.github.io/ember-ui/#/components/comment-thread) |
+
+</details>
 
 <details>
-    <summary>Components</summary>
+<summary><strong>Calendars & Boards</strong> — 3 components</summary>
 
-   * [`app-container`](./app-container.md): A component for the main application container.
-   * [`badge`](./badge.md): A badge component.
-   * [`button`](./button.md): A button component.
-   * [`checkbox`](./checkbox.md): A checkbox component. 
-   * [`click-to-copy`](./click-to-copy.md): A component for copying text on click. 
-   * [`click-to-reveal`](./click-to-reveal.md): A component for revealing text on click. 
-   * [`content-panel`](./content-panel.md): A component that can be used to display content that can be toggled open or closed.   
-   * [`date-picker`](./date-picker.md): A component for selecting a date. 
-   * [`date-time-input`](./date-time-input.md): A component for selecting a date and time. 
-   * [`dropdown-button`](./dropdown-button.md): A button component that opens a dropdown menu.
-   * [`extensions-list`](./extensions-list.md): A component for displaying a list of file extensions.
-   * [`fetch-select`](./fetch-select.md): A component for selecting an item from a fetched list.
-   * [`file-upload`](./file-upload.md): : A component for uploading files. 
-   * [`filters-picker`](./filters-picker.md): A component for selecting filters.  
-   * [`floating`](./floating.md): A component for creating a floating element.  
-   * [`image`](./image.md): A component for displaying an image.  
-   * [`info-block`](./info-block.md): A component for selecting a country. 
-   * [`input-group`](./input-group.md): : A component that groups together multiple input components, such as a text input and a dropdown menu, and provides additional functionality such as label and error handling.
-   * [`input-info`](./input-info.md): A component that displays additional information about an input field, such as helper text or validation errors..  
-   * [`input-label`](.//input-label.md): A component that displays a label for an input field.  
-   * [`modal`](./modal.md):  A component that displays a modal window, which is a pop-up dialog box that requires user interaction before the user can return to the main application..  
-   * [`modals-container`](./modals-container.md): A component that manages the display of multiple modals, ensuring that only one is visible at a time. 
-   * [`model-select-multiple`](./model-select-multiple.md): A component that allows the user to select multiple items from a list of models.
-   * [`model-select`](./model-select.md): A component that allows the user to select a single item from a list of models.
-   * [`money-input`](./money-input.md): A component that allows the user to input monetary values, with additional functionality such as currency selection.
-   * [`multi-select`](./multi-select.md): A component that allows the user to select multiple items from a list.  
-   * [`overlay`](./overlay.md): A component that displays an overlay, which is a semi-transparent layer that covers the main application and is typically used to provide a modal-like user interface.  
-   * [`pagination`](./pagination.md): A component that displays pagination controls, allowing the user to navigate through a large list of items.  
-   * [`phone-input`](./phone-input.md): A component that allows the user to input phone numbers, with additional functionality such as international formatting. 
-   * [`scrollable`](./scrollable.md): A component that provides a scrollable container for other components, allowing the user to scroll through a large amount of content. 
-   * [`select`](./select.md): A component that allows the user to select a single item from a list of options.
-   * [`spinner`](./spinner.md): A component that displays a spinner, which is typically used to indicate that a task is in progress.
-   * [`table`](./table.md): A component that displays tabular data in a scrollable and sortable format, with support for pagination and filtering.
-   * [`toggle`](./toggle.md):  A component that displays a toggle switch, allowing the user to toggle a boolean value.
-   * [`upload-button`](./upload-button.md): A component that displays a button for uploading files, with additional functionality such as drag-and-drop support.
-   * [`toggle`](./toggle.md):  A component that allows the user to select which columns to display in a table.</details>
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<FullCalendar />` | [docs](https://fleetbase.io/docs/ui/scheduling/full-calendar) | [try it](https://fleetbase.github.io/ember-ui/#/components/full-calendar) |
+| `<EventCalendar />` | [docs](https://fleetbase.io/docs/ui/scheduling/event-calendar) | [try it](https://fleetbase.github.io/ember-ui/#/components/event-calendar) |
+| `<Kanban />` | [docs](https://fleetbase.io/docs/ui/scheduling/kanban) | [try it](https://fleetbase.github.io/ember-ui/#/components/kanban) |
 
+</details>
 
-We are continually adding new components, so be sure to check back for updates!
+<details>
+<summary><strong>Modals</strong> — 9 components</summary>
+
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<Modal::Default />` | [docs](https://fleetbase.io/docs/ui/modals/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-default) |
+| `<Modal::Layouts::Confirm />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-confirm) |
+| `<Modal::Layouts::Alert />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-alert) |
+| `<Modal::Layouts::Prompt />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-prompt) |
+| `<Modal::Layouts::BulkAction />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-bulk-action) |
+| `<Modal::Layouts::Progress />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-progress) |
+| `<Modal::Layouts::Process />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-process) |
+| `<Modal::Layouts::Loading />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-loading) |
+| `<Modal::Layouts::OptionPrompt />` | [docs](https://fleetbase.io/docs/ui/modals/modal-layouts) | [try it](https://fleetbase.github.io/ember-ui/#/components/modal-layouts-option-prompt) |
+
+</details>
+
+<details>
+<summary><strong>Dashboard</strong> — 1 component</summary>
+
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<Dashboard />` | [docs](https://fleetbase.io/docs/ui/dashboard/overview) | [try it](https://fleetbase.github.io/ember-ui/#/components/dashboard) |
+
+</details>
+
+<details>
+<summary><strong>Builders</strong> — 2 components</summary>
+
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<ReportBuilder />` | [docs](https://fleetbase.io/docs/ui/builders/report-builder) | [try it](https://fleetbase.github.io/ember-ui/#/components/report-builder) |
+| `<TemplateBuilder />` | [docs](https://fleetbase.io/docs/ui/builders/template-builder) | [try it](https://fleetbase.github.io/ember-ui/#/components/template-builder) |
+
+</details>
+
+<details>
+<summary><strong>Registry & Slots</strong> — 1 component</summary>
+
+| Component | Docs | Playground |
+| --- | --- | --- |
+| `<RegistryYield />` | [docs](https://fleetbase.io/docs/ui/registry/registry-yield) | [try it](https://fleetbase.github.io/ember-ui/#/components/registry-yield) |
+
+</details>
+
+The addon exports more components than this — table cells, chat internals, builder sub-components
+and other implementation details. Those are deliberately undocumented: they are internal to the
+components above and are not covered by the documentation, the playground, or any compatibility
+promise.
+
+## Playground
+
+Built from this addon's own dummy application, so it renders the real components through normal
+Ember resolution with the real addon styles.
+
+```bash
+pnpm start                    # http://localhost:4200
+pnpm run build:playground     # static GitHub Pages artifact into playground-dist/
+```
+
+| Route | Purpose |
+| --- | --- |
+| `/components` | Searchable, categorized catalog |
+| `/components/:slug` | Full page: controls, presets, event log, usage snippet |
+| `/embed/:slug` | Minimal iframe view, embedded by the documentation site |
+
+Argument state is carried in one encoded query parameter, so a configured example is a shareable
+link and the embed shows exactly what the full page shows.
+
+See **[PLAYGROUND.md](PLAYGROUND.md)** for the architecture, the registry schema, how to add an
+example, iframe integration and resize messaging, and how to update the documented allowlist when
+fleetbase.io/docs/ui changes.
+
+## Development
+
+```bash
+pnpm install --frozen-lockfile
+
+pnpm start                # serve the playground / dummy app
+pnpm test                 # lint + the full suite
+pnpm run test:ember       # the suite on its own
+pnpm run lint             # eslint, ember-template-lint, stylelint
+pnpm run build            # production build
+```
+
+Run a subset while working on one component:
+
+```bash
+pnpm exec ember test --filter="Integration | Component | button"
+```
+
+## Testing and coverage
+
+The suite runs in headless Chrome through Testem. Coverage is gated at **100% of first-party
+`addon/` source** — statements, branches, functions and lines — and enforced in CI:
+
+```bash
+pnpm run test:coverage       # run the suite with coverage
+pnpm run coverage:check      # enforce the gate
+```
 
 ## Contributing
 
-See the [Contributing](CONTRIBUTING.md) guide for details.
-
+See the [Contributing](CONTRIBUTING.md) guide.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE.md).
+Licensed under the [GNU Affero General Public License v3.0 or later](LICENSE.md).

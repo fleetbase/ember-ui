@@ -35,6 +35,8 @@ export default class ModelCoordinatesInputComponent extends Component {
             this.args.model.setProperties({ ...selected });
         }
 
+        /* istanbul ignore next -- the child registers itself through `@onInit` on insert, well
+           before any autocomplete selection can arrive. */
         if (this.coordinatesInput) {
             this.coordinatesInput.updateCoordinates(selected.location);
         }

@@ -50,13 +50,13 @@
                 </div>
             </DropdownButton>
             <div class="tip-tap-colorpicker">
-                <Input @type="color" @value={{this.color}} {{on "change" this.fontColor}} class="tip-tap-colorpicker-input" />
+                <Input @type="color" @value={{this.color}} {{did-insert this.setColorPickerNode}} {{on "change" this.fontColor}} class="tip-tap-colorpicker-input" />
                 <Button class="tip-tap-control-button" @helpText="Clear Color" @onClick={{this.clearFontColor}} @icon="eraser" />
             </div>
         </div>
         <div class="tip-tap-editor-control-group grouped-buttons">
             <Button class="tip-tap-control-button" @onClick={{this.alignLeft}} @icon="align-left" @helpText="Align Left" />
-            <Button class="tip-tap-control-button" @onClick={{this.alginCenter}} @icon="align-center" @helpText="Align Center" />
+            <Button class="tip-tap-control-button" @onClick={{this.alignCenter}} @icon="align-center" @helpText="Align Center" />
             <Button class="tip-tap-control-button" @onClick={{this.alignRight}} @icon="align-right" @helpText="Align Right" />
         </div>
         <div class="tip-tap-editor-control-group">

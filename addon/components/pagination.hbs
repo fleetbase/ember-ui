@@ -4,7 +4,9 @@
             href="#"
             id="fleetbase-pagination-previous-button"
             class="direction-button {{@directionButtonClass}} {{if this.cannotStepBackward 'disabled'}}"
-            disabled={{this.cannotStepBackward}}
+            {{!-- `disabled` is not a valid attribute on an anchor; aria-disabled is what
+                assistive technology actually reads. incrementPage still guards the boundary. --}}
+            aria-disabled={{if this.cannotStepBackward "true" "false"}}
             tabindex="-1"
             aria-label="Previous"
             {{on "click" (fn this.incrementPage -1)}}
@@ -15,7 +17,7 @@
             href="#"
             id="fleetbase-pagination-next-button"
             class="ml-3 direction-button {{@directionButtonClass}} {{if this.cannotStepForward 'disabled'}}"
-            disabled={{this.cannotStepForward}}
+            aria-disabled={{if this.cannotStepForward "true" "false"}}
             aria-label="Next"
             {{on "click" (fn this.incrementPage 1)}}
         >

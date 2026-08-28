@@ -42,6 +42,8 @@ module.exports = {
                     'autoprefixer',
                     'tailwindcss',
                     '@tailwindcss/forms',
+                    // Build-time only: required from index.js when COVERAGE=true.
+                    'ember-cli-code-coverage',
                 ],
             },
         ],
@@ -53,12 +55,15 @@ module.exports = {
                 './.eslintrc.js',
                 './.prettierrc.js',
                 './.stylelintrc.js',
-                './.template-lintrc.js',
                 './ember-cli-build.js',
                 './index.js',
                 './testem.js',
                 './blueprints/*/index.js',
                 './config/**/*.js',
+                './scripts/build-playground.js',
+                './scripts/check-coverage.js',
+                './scripts/check-coverage-test.js',
+                './scripts/stamp-coverage-run.js',
                 './tests/dummy/config/**/*.js',
             ],
             parserOptions: {
@@ -69,6 +74,19 @@ module.exports = {
                 node: true,
             },
             extends: ['plugin:n/recommended'],
+        },
+        // QUnit test files. `no-hooks-from-ancestor-modules` is the one that matters most here:
+        // a nested `module('…', function (hooks) { … })` shadows the outer hooks, which QUnit 3
+        // turns into a hard error. It is easy to reintroduce and the suite stays green when you do.
+        {
+            files: ['tests/**/*-test.js'],
+            plugins: ['qunit'],
+            extends: ['plugin:qunit/recommended'],
+            rules: {
+                // Opinionated and noisy for this suite: most tests assert an obvious, fixed number
+                // of things, and an expect() count that drifts is worse than none.
+                'qunit/require-expect': 'off',
+            },
         },
     ],
 };

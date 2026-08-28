@@ -1,0 +1,7 @@
+{{! Floating example adapter: anchored to a button rendered inside the preview. }}
+<div class="pg-fixture-anchor">
+    <Button @text="Anchor" id="pg-floating-anchor" />
+    <Floating @target="#pg-floating-anchor" @placement={{@values.placement}} @offset={{@values.offset}} @arrow={{@values.arrow}} @renderInPlace={{true}}>
+        <div class="pg-fixture-block">Floating content</div>
+    </Floating>
+</div>
