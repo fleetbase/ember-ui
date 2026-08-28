@@ -2,13 +2,18 @@ name: Ember CI
 
 on:
   push:
-    # `test/coverage-campaign` is a long-lived integration branch (PR #143). Without it here,
-    # pull requests targeting the campaign branch would run no checks at all.
-    branches: [main, test/coverage-campaign]
+    # `dev-v*` are the release integration branches (see release.yml, which tags when one merges
+    # to main). They are listed here so pull requests targeting a release branch run the full
+    # suite — without them those PRs would get no checks at all.
+    branches:
+      - main
+      - 'dev-v*'
     tags:
       - 'v*'
   pull_request:
-    branches: [main, test/coverage-campaign]
+    branches:
+      - main
+      - 'dev-v*'
 
 env:
   NODE_VERSION: 22.x

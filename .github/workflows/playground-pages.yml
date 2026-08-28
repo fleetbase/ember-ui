@@ -3,18 +3,18 @@ name: Playground (GitHub Pages)
 # Deploys the interactive component playground to GitHub Pages.
 #
 # Trigger scope is deliberately narrow:
-#   - Only pushes to `test/coverage-campaign`, the branch this work lands on while PR #143 is
-#     open. Pull request heads are NEVER deployed — a PR from a fork would otherwise be able to
-#     publish arbitrary content to the project's Pages site.
-#   - `workflow_dispatch` allows a manual redeploy without a push.
+#   - Only pushes to `main`, so the published site tracks the default branch and one branch owns
+#     the Pages site. Pull request heads are NEVER deployed — a PR from a fork would otherwise be
+#     able to publish arbitrary content to the project's Pages site.
+#   - `workflow_dispatch` allows a manual deploy from any branch, which is how to publish the
+#     playground before a release branch has merged.
 #
-# POST-MERGE: when the campaign branch merges into `main`, move (or add) `main` here and drop
-# `test/coverage-campaign`, so the published site tracks the default branch. Leaving both would
-# let two branches overwrite the same Pages site unpredictably. See PLAYGROUND.md.
+# Release branches (`dev-v*`) are deliberately NOT listed: letting a release branch and `main`
+# both deploy would let them overwrite the same site unpredictably. See PLAYGROUND.md.
 
 on:
   push:
-    branches: [test/coverage-campaign]
+    branches: [main]
     paths:
       - 'addon/**'
       - 'app/**'

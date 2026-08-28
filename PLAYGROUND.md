@@ -460,20 +460,25 @@ Deployment is `.github/workflows/playground-pages.yml`, using `actions/configure
 `id-token: write`, the `github-pages` environment and a `pages` concurrency group.
 
 **Pull request heads are never deployed.** A PR from a fork would otherwise be able to publish
-arbitrary content to the project's Pages site. The workflow triggers only on pushes to
-`test/coverage-campaign` (the branch this work lands on while PR #143 is open) and on
+arbitrary content to the project's Pages site. The workflow triggers on pushes to `main` and on
 `workflow_dispatch`.
 
-### Post-merge configuration
+Release branches (`dev-v*`) are deliberately not listed. `main` alone owns the Pages site, so two
+branches can never overwrite it unpredictably — a release publishes the playground when it merges.
+To publish before then, run the workflow manually from the branch you want:
 
-Two things are **not** done by this PR and need a human with repository access:
+```bash
+gh workflow run playground-pages.yml --ref dev-v0.4.0
+```
 
-1. **Set Pages source to "GitHub Actions"** in Settings → Pages. Until then the workflow builds and
-   uploads but has nothing to publish to. This repository setting was deliberately not mutated
-   here.
-2. **Move the trigger to `main`** when `test/coverage-campaign` merges, and drop the campaign
-   branch from the trigger list. Leaving both would let two branches overwrite the same Pages site
-   unpredictably.
+### Required repository setting
+
+One thing is **not** done by this repository and needs a human with repository access:
+
+**Set Pages source to "GitHub Actions"** in Settings → Pages. Until then the workflow builds and
+uploads the artifact successfully but has nothing to publish to, and
+<https://fleetbase.github.io/ember-ui/> returns 404. This repository setting was deliberately not
+mutated from here.
 
 ---
 
