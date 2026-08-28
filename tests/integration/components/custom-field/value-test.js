@@ -181,6 +181,17 @@ module('Integration | Component | custom-field/value', function (hooks) {
             assert.dom('.field-value').exists('the field is still listed');
         });
 
+        test('an expanded signature file without a url renders as a plain file', async function (assert) {
+            this.set('customField', signatureField());
+            // already-parsed file json, but the record carries no url to show inline
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_2', filename: 'signature.png' } }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').doesNotExist('nothing to render inline');
+            assert.dom('.custom-field-file').exists('the file fallback takes over');
+        });
+
         test('it survives a signature value that is not valid json', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: '{not json' }]));

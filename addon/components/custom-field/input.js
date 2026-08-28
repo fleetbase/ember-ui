@@ -203,6 +203,10 @@ export default class CustomFieldInputComponent extends Component {
      * @param {string} dataUrl
      */
     async uploadSignature(dataUrl) {
+        /* istanbul ignore if -- willDestroy cancels the debounce timer, so the destroyed arms
+           cannot fire; and while an upload runs the pad is rendered disabled
+           (input.hbs: @disabled={{this.isUploadingSignature}}), which detaches its pointer
+           handlers and disables the clear button, so no further change event can re-enter */
         if (this.isDestroying || this.isDestroyed || this.isUploadingSignature) {
             return;
         }

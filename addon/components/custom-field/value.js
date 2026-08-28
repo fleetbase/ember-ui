@@ -30,6 +30,9 @@ export default class CustomFieldValueComponent extends Component {
         }
 
         if (typeof value === 'string') {
+            /* istanbul ignore next -- #normalizeFileValue lets a string through only when it
+               starts with 'data:': file sentinels and unparseable json become null before the
+               value is ever stored, so the else arm cannot be reached */
             return value.startsWith('data:') ? value : null;
         }
 

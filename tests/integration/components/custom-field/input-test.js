@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, fillIn, find, findAll, settled, waitUntil } from '@ember/test-helpers';
+import { render, click, clearRender, fillIn, find, findAll, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { selectFiles } from 'ember-file-upload/test-support';
 import Model from '@ember-data/model';
@@ -28,7 +28,10 @@ function pointerEvent(type, { x, y, buttons }) {
     });
 }
 
-async function drawStroke(canvas, points = HORIZONTAL) {
+/** Dispatches a stroke synchronously, without settling — `settled()` waits out pending
+ *  run-loop timers, the upload debounce included, so tests about debouncing must control
+ *  when they settle. */
+function strokeSync(canvas, points = HORIZONTAL) {
     const rect = canvas.getBoundingClientRect();
     const toClient = ([fx, fy]) => ({ x: rect.left + rect.width * fx, y: rect.top + rect.height * fy });
     const [first, ...rest] = points.map(toClient);
@@ -39,7 +42,10 @@ async function drawStroke(canvas, points = HORIZONTAL) {
         window.dispatchEvent(pointerEvent('pointermove', { ...point, buttons: 1 }));
     }
     window.dispatchEvent(pointerEvent('pointerup', { ...last, buttons: 0 }));
+}
 
+async function drawStroke(canvas, points = HORIZONTAL) {
+    strokeSync(canvas, points);
     await settled();
 }
 
@@ -460,12 +466,13 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('subject', createSubject());
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
+            strokeSync(document.querySelector('canvas.signature-pad-canvas'));
 
-            assert.strictEqual(uploadCalls(this).length, 0, 'nothing uploads right after the stroke');
+            assert.strictEqual(uploadCalls(this).length, 0, 'nothing uploads synchronously — the default debounce is pending');
 
-            await waitUntil(() => uploadCalls(this).length > 0, { timeout: 3000 });
-            assert.strictEqual(uploadCalls(this).length, 1, 'the default 750ms debounce delivers the upload');
+            // settled() waits out the pending 750ms debounce timer.
+            await settled();
+            assert.strictEqual(uploadCalls(this).length, 1, 'the default debounce delivers the upload');
         });
 
         test('it debounces several strokes into a single upload', async function (assert) {
@@ -475,16 +482,15 @@ module('Integration | Component | custom-field/input', function (hooks) {
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{50}} />`);
 
             const canvas = document.querySelector('canvas.signature-pad-canvas');
-            await drawStroke(canvas, HORIZONTAL);
-            await drawStroke(canvas, [
+            strokeSync(canvas, HORIZONTAL);
+            strokeSync(canvas, [
                 [0.2, 0.2],
                 [0.5, 0.4],
                 [0.8, 0.3],
             ]);
-            await waitUntil(() => uploadCalls(this).length > 0);
             await settled();
 
-            assert.strictEqual(uploadCalls(this).length, 1, 'two strokes produced one upload');
+            assert.strictEqual(uploadCalls(this).length, 1, 'two strokes inside the debounce window produced one upload');
         });
 
         test('it renders the uploaded file after a successful upload', async function (assert) {
@@ -534,6 +540,162 @@ module('Integration | Component | custom-field/input', function (hooks) {
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
             assert.dom('canvas.signature-pad-canvas').exists('the pad still renders');
+        });
+
+        // The stored value arrives in several shapes; each maps to a different arm of the
+        // signature-url extraction.
+        test('it rehydrates from a raw data-url value', async function (assert) {
+            const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: RED_PNG }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            // hydration resolves on an untracked image load, so settled() is not enough
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
+
+            assert.dom('.signature-pad-placeholder').doesNotExist('the data url was hydrated into the pad');
+        });
+
+        test('it rehydrates from an already-expanded value object', async function (assert) {
+            const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_9', url: RED_PNG } }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            // hydration resolves on an untracked image load, so settled() is not enough
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
+
+            assert.dom('.signature-pad-placeholder').doesNotExist('the object url was hydrated into the pad');
+        });
+
+        test('a value object with no url leaves the pad empty', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_9' } }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('.signature-pad-placeholder').exists('there is no url to hydrate from');
+        });
+
+        test('stored file json with no url leaves the pad empty', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ uuid: 'file_9' }) }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('.signature-pad-placeholder').exists('parsed json without a url hydrates nothing');
+        });
+
+        test('a custom field with no name falls back to its id for the filename', async function (assert) {
+            this.set('customField', signatureField({ name: null }));
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
+            await waitUntil(() => uploadCalls(this).length > 0);
+
+            assert.strictEqual(uploadCalls(this)[0].args[0].name, 'signature-custom-field-1.png', 'the id stands in for the missing name');
+        });
+
+        // The pad is rendered @disabled while an upload runs, which detaches its pointer
+        // handlers — so a second stroke draws nothing and cannot start another upload.
+        test('the pad is disabled while the upload is in flight, so a second stroke starts nothing', async function (assert) {
+            let resolveUpload;
+            const performed = [];
+            const fetch = this.owner.lookup('service:fetch');
+            fetch.uploadFile.perform = (file, params, onSuccess) => {
+                performed.push(file);
+                return new Promise((resolve) => {
+                    resolveUpload = () => {
+                        onSuccess({ id: 'file-9', filename: file.name });
+                        resolve();
+                    };
+                });
+            };
+
+            this.set('customField', signatureField());
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+
+            const canvas = document.querySelector('canvas.signature-pad-canvas');
+            await drawStroke(canvas);
+            assert.strictEqual(performed.length, 1, 'the first stroke started its upload');
+
+            await drawStroke(canvas, [
+                [0.2, 0.2],
+                [0.5, 0.4],
+                [0.8, 0.3],
+            ]);
+            assert.strictEqual(performed.length, 1, 'the second stroke is ignored while the first upload runs');
+
+            resolveUpload();
+            await settled();
+            assert.dom('.custom-field-file').exists('the in-flight upload still lands');
+        });
+
+        test('destroying the field while the upload is in flight leaves nothing behind', async function (assert) {
+            let resolveUpload;
+            const performed = [];
+            const fetch = this.owner.lookup('service:fetch');
+            fetch.uploadFile.perform = (file) => {
+                performed.push(file);
+                return new Promise((resolve) => {
+                    // resolve without onSuccess: the upload "finishes" after the component is
+                    // gone, and nothing may touch its destroyed state.
+                    resolveUpload = resolve;
+                });
+            };
+
+            this.set('customField', signatureField());
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
+
+            await clearRender();
+            resolveUpload();
+            await settled();
+
+            assert.strictEqual(performed.length, 1, 'one upload ran, and its late completion was dropped cleanly');
+        });
+
+        test('re-signing destroys the record backing the previous upload', async function (assert) {
+            const destroyed = [];
+            let counter = 0;
+            const fetch = this.owner.lookup('service:fetch');
+            fetch.uploadFile.perform = (file, params, onSuccess) => {
+                counter += 1;
+                const label = `file_${counter}`;
+                // ember-data's Model prototype has an asserting `id` setter, so the stub record
+                // carries its identity in the closure instead.
+                const uploadedFile = Object.assign(Object.create(Model.prototype), {
+                    filename: file.name,
+                    destroyRecord: () => {
+                        destroyed.push(label);
+                        return Promise.resolve();
+                    },
+                });
+                onSuccess(uploadedFile);
+                return Promise.resolve(uploadedFile);
+            };
+
+            this.set('customField', signatureField());
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+
+            const canvas = document.querySelector('canvas.signature-pad-canvas');
+            await drawStroke(canvas);
+            assert.deepEqual(destroyed, [], 'the first signature has nothing to replace');
+
+            await drawStroke(canvas, [
+                [0.2, 0.2],
+                [0.5, 0.4],
+                [0.8, 0.3],
+            ]);
+
+            assert.deepEqual(destroyed, ['file_1'], 'the superseded upload is destroyed rather than orphaned');
         });
     });
 });

@@ -62,12 +62,17 @@ export default class SignaturePadComponent extends Component {
      * The canvas element the pad is mounted on.
      * @type {HTMLCanvasElement}
      */
+    /* istanbul ignore next -- tracked initializers are lazy, and setup() assigns this before any
+       read: the api escapes only via @onReady (called after assignment) and the toolbar yield,
+       whose actions cannot fire before {{did-insert}} has run */
     @tracked canvasEl = null;
 
     /**
      * The underlying SignaturePad instance.
      * @type {SignaturePad}
      */
+    /* istanbul ignore next -- same as canvasEl: setup() assigns this synchronously before its
+       first await, ahead of any possible read */
     @tracked signaturePad = null;
 
     /**
@@ -250,6 +255,8 @@ export default class SignaturePadComponent extends Component {
             this.resizeObserver = null;
         }
 
+        /* istanbul ignore else -- teardown runs at most once per canvas insertion, and setup()
+           assigns the pad synchronously before its first await, so it is always live here */
         if (this.signaturePad) {
             this.signaturePad.removeEventListener('beginStroke', this.handleBeginStroke);
             this.signaturePad.removeEventListener('endStroke', this.handleEndStroke);
@@ -379,6 +386,8 @@ export default class SignaturePadComponent extends Component {
      * @action
      */
     @action trackHeight() {
+        /* istanbul ignore if -- {{did-update}} only fires while the canvas is inserted, and
+           setup() stores the element from {{did-insert}} before any update can run */
         if (!this.canvasEl) {
             return;
         }
@@ -392,6 +401,8 @@ export default class SignaturePadComponent extends Component {
      * @action
      */
     @action trackDisabled() {
+        /* istanbul ignore if -- called from setup() after the pad is assigned, and from
+           {{did-update}}, which only fires while the canvas that setup() mounted is inserted */
         if (!this.signaturePad) {
             return;
         }
@@ -410,6 +421,8 @@ export default class SignaturePadComponent extends Component {
      * @action
      */
     @action trackOptions() {
+        /* istanbul ignore if -- {{did-update}} only fires while the canvas is inserted, and
+           setup() assigns the pad synchronously before any update can run */
         if (!this.signaturePad) {
             return;
         }
@@ -457,7 +470,9 @@ export default class SignaturePadComponent extends Component {
      * @param {Array} pointGroups
      * @returns {Promise<void>}
      */
-    async redraw(pointGroups = []) {
+    async redraw(pointGroups) {
+        /* istanbul ignore if -- both callers (resizeCanvas and undo) return unless the pad is
+           set, and call this synchronously after their own guard */
         if (!this.signaturePad) {
             return;
         }

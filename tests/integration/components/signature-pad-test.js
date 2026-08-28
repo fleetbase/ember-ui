@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { click, render, settled, waitUntil } from '@ember/test-helpers';
+import { click, clearRender, render, rerender, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 // An 8x8 opaque red png, used to exercise @value rehydration.
@@ -651,6 +651,134 @@ module('Integration | Component | signature-pad', function (hooks) {
             await drawStroke(canvas);
 
             assert.strictEqual(changes.length, 1, 'the detached canvas no longer reports changes');
+        });
+
+        // Flipping @readonly true tears the canvas down while the component stays alive, which
+        // is the one state where the yielded api outlives its pad.
+        test('the api degrades gracefully once the canvas is torn down', async function (assert) {
+            const state = trackReady(this);
+            this.set('readonly', false);
+
+            await render(hbs`<SignaturePad @readonly={{this.readonly}} @onReady={{this.onReady}} />`);
+            await waitUntil(() => state.api);
+
+            this.set('readonly', true);
+            await settled();
+
+            assert.true(state.api.isEmpty(), 'isEmpty answers empty with no pad');
+            assert.deepEqual(state.api.toData(), [], 'toData answers no strokes');
+            assert.strictEqual(state.api.instance(), null, 'instance is gone');
+            assert.strictEqual(state.api.toDataURL(), null, 'there is nothing to export');
+
+            state.api.clear();
+            await state.api.undo();
+            await state.api.resize();
+            await state.api.fromDataURL(RED_PNG);
+
+            assert.dom('.signature-pad-empty').hasText('No signature', 'every call is a no-op, and the default empty text shows');
+        });
+
+        // undo() awaits redraw(), which awaits fromDataURL() when a raster is hydrated — tear the
+        // component down inside that window and both destroyed-guards have to hold.
+        test('an undo in flight when the pad is destroyed emits nothing', async function (assert) {
+            const changes = [];
+            const state = trackReady(this);
+            this.set('value', RED_PNG);
+            this.set('onChange', (dataUrl) => changes.push(dataUrl));
+
+            await render(hbs`<SignaturePad @value={{this.value}} @throttle={{0}} @minDistance={{0}} @onReady={{this.onReady}} @onChange={{this.onChange}} />`);
+            await waitUntil(() => state.api);
+            await drawStroke(getCanvas());
+            assert.strictEqual(changes.length, 1, 'the stroke reported once before the teardown');
+
+            const pending = state.api.undo();
+            await clearRender();
+            await pending;
+
+            assert.strictEqual(changes.length, 1, 'the destroyed pad emitted nothing more');
+        });
+
+        // trackValue() awaits the image load; resolve it after the canvas is gone but while the
+        // component is alive, and syncState() runs against a missing pad.
+        test('a value applied while the pad is being replaced is dropped cleanly', async function (assert) {
+            const state = trackReady(this);
+            this.set('readonly', false);
+            this.set('value', null);
+
+            await render(hbs`<SignaturePad @readonly={{this.readonly}} @value={{this.value}} @onReady={{this.onReady}} />`);
+            await waitUntil(() => state.api);
+
+            this.set('value', RED_PNG);
+            await rerender();
+            this.set('readonly', true);
+            await rerender();
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            await settled();
+
+            assert.dom('.signature-pad-surface-readonly').exists('the readonly surface took over without an error');
+        });
+
+        // The same window, but the whole component goes away instead of just the canvas.
+        test('a value applied while the pad is being destroyed is dropped cleanly', async function (assert) {
+            const state = trackReady(this);
+            this.set('value', null);
+
+            await render(hbs`<SignaturePad @value={{this.value}} @onReady={{this.onReady}} />`);
+            await waitUntil(() => state.api);
+
+            this.set('value', RED_PNG);
+            await rerender();
+            await clearRender();
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            await settled();
+
+            assert.ok(true, 'the late value application returned before touching destroyed state');
+        });
+    });
+
+    module('sizing edge cases', function () {
+        test('a string @height is applied as-is', async function (assert) {
+            await render(hbs`<SignaturePad @height="12rem" />`);
+
+            assert.strictEqual(getCanvas().style.height, '12rem', 'non-numeric heights pass straight through');
+        });
+
+        test('changing @height refits the canvas', async function (assert) {
+            const state = trackReady(this);
+            this.set('height', 200);
+
+            await render(hbs`<SignaturePad @height={{this.height}} @onReady={{this.onReady}} />`);
+            await waitUntil(() => state.api);
+
+            this.set('height', 260);
+            await settled();
+
+            const canvas = getCanvas();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            assert.strictEqual(canvas.style.height, '260px', 'the surface takes the new height');
+            assert.strictEqual(canvas.height, Math.round(canvas.offsetHeight * ratio), 'the backing store is refit to it');
+        });
+
+        test('a browser reporting no devicePixelRatio falls back to 1', async function (assert) {
+            const original = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
+            Object.defineProperty(window, 'devicePixelRatio', { value: 0, configurable: true });
+
+            try {
+                const state = trackReady(this);
+                await render(hbs`<SignaturePad @height={{200}} @onReady={{this.onReady}} />`);
+                await waitUntil(() => state.api);
+
+                const canvas = getCanvas();
+                assert.strictEqual(canvas.width, canvas.offsetWidth, 'the backing store is sized at ratio 1');
+            } finally {
+                if (original) {
+                    Object.defineProperty(window, 'devicePixelRatio', original);
+                } else {
+                    delete window.devicePixelRatio;
+                }
+            }
         });
     });
 });
