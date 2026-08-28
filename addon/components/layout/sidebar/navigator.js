@@ -394,7 +394,14 @@ export default class LayoutSidebarNavigatorComponent extends Component {
         this.closeSearch();
 
         if (item.children?.length) {
-            this.transitionToStack(result.path ?? [...this.currentStack, item], 'forward');
+            // A result with children is only navigable when it carries a `path` through @items —
+            // static results always do. A provider result without one stays out of the stack:
+            // currentStack is rebuilt from @items on every read, so an entry it cannot match
+            // there would be silently dropped on the next read.
+            if (result.path) {
+                this.transitionToStack(result.path, 'forward');
+            }
+
             this.transitionDefaultRoute(item);
             return;
         }

@@ -1432,11 +1432,11 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
             assert.dom('.next-sidebar-navigator-search-popover').exists('the panel stays open rather than acting on nothing');
         });
 
-        // A provider result carries no path through the item tree, so opening one that has
-        // children falls back to [...currentStack, item]. currentStack is rebuilt by matching the
-        // view stack against @items, and a provider result is not in @items — so the descent is
-        // dropped and the navigator returns to its root. See DEFECTS #26.
-        test('opening a provider result with children closes the search and returns to the root', async function (assert) {
+        // A result with children is only navigable when it carries a `path` through @items —
+        // currentStack is rebuilt from @items on every read, so a stack entry it cannot match
+        // there would be silently dropped. A provider result without a path therefore closes the
+        // search and deliberately stays where it is. See DEFECTS #26 (resolved this way).
+        test('opening a provider result with children but no path closes the search and stays put', async function (assert) {
             this.set('searchNavigation', () =>
                 Promise.resolve([
                     {
@@ -1453,8 +1453,31 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
             await waitUntil(() => document.querySelector('.next-sidebar-navigator-search-result'), { timeout: 2000 });
             await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
 
-            assert.dom('.next-sidebar-navigator').includesText('Orders', 'the navigator is back at its top level');
-            assert.dom('.next-sidebar-navigator').doesNotIncludeText('Remote Child', 'the provider result is not in @items, so its children cannot be reached');
+            assert.dom('.next-sidebar-navigator').includesText('Orders', 'the navigator stays at its top level');
+            assert.dom('.next-sidebar-navigator').doesNotIncludeText('Remote Child', 'without a path through @items the result is not navigable');
+        });
+
+        // The contract that makes a provider result navigable: a `path` whose entries resolve
+        // through @items (matched by id/route/url/label/title).
+        test('opening a provider result with children and a path descends into that section', async function (assert) {
+            this.set('searchNavigation', () =>
+                Promise.resolve([
+                    {
+                        label: 'Workspace Settings',
+                        icon: 'gear',
+                        type: 'Section',
+                        children: [{ label: 'Anything' }],
+                        path: [{ label: 'Settings' }],
+                    },
+                ])
+            );
+
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} @searchProvider={{this.searchNavigation}} />`);
+            await fillIn('.next-sidebar-navigator-search input', 'workspace');
+            await waitUntil(() => document.querySelector('.next-sidebar-navigator-search-result'), { timeout: 2000 });
+            await triggerKeyEvent('.next-sidebar-navigator-search-popover', 'keydown', 'Enter');
+
+            assert.dom('.next-sidebar-navigator').includesText('Service Rates', 'the navigator opened the section the path names');
         });
 
         test('a rejection from a superseded query does not clear the current results', async function (assert) {
