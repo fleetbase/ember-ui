@@ -6,4 +6,9 @@ export default class Router extends EmberRouter {
     rootURL = config.rootURL;
 }
 
-Router.map(function () {});
+Router.map(function () {
+    // Route targets for TabNavigation's route-backed tab tests.
+    this.route('positions');
+    this.route('devices');
+    this.route('schedules');
+});

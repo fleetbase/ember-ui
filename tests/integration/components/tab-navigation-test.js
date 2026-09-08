@@ -220,6 +220,29 @@ module('Integration | Component | tab-navigation', function (hooks) {
         assert.dom('a[role="menuitem"][data-tab-id="index"]').hasAttribute('href', /view=details/);
     });
 
+    test('route-backed tabs declared without ids still overflow into the More menu', async function (assert) {
+        availableWidth = 142;
+        this.set('tabs', [
+            { route: 'index', label: 'Overview' },
+            { route: 'positions', label: 'Positions' },
+            { route: 'devices', label: 'Devices' },
+            { route: 'schedules', label: 'Schedules' },
+        ]);
+
+        await render(hbs`<TabNavigation @tabs={{this.tabs}} />`);
+
+        assert.dom('[role="tab"][data-tab-id="index"]').exists();
+        assert.dom('[role="tab"][data-tab-id="positions"]').exists();
+        assert.dom('[role="tab"][data-tab-id="devices"]').doesNotExist('tabs past the available width are not rendered inline');
+        assert.dom('[role="tab"][data-tab-id="schedules"]').doesNotExist();
+        assert.dom('[data-tab-navigation-more]').exists();
+
+        await click('[data-tab-navigation-more]');
+
+        assert.dom('a[role="menuitem"][data-tab-id="devices"]').exists();
+        assert.dom('a[role="menuitem"][data-tab-id="schedules"]').exists();
+    });
+
     test('yielded custom tab blocks are not overflow-managed', async function (assert) {
         availableWidth = 40;
 
