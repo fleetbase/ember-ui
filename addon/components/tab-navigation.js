@@ -4,6 +4,16 @@ import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { next, scheduleOnce } from '@ember/runloop';
 
+/**
+ * Tabs are keyed by `id`, but route-backed tabs are commonly declared with only a
+ * `route` (and yielded/menu tabs with a `key`). Overflow bookkeeping compares these
+ * identities, so a missing `id` must fall back to the next stable identifier rather
+ * than collapsing every tab onto `undefined`.
+ */
+function tabIdentity(tab) {
+    return tab?.id ?? tab?.route ?? tab?.key ?? null;
+}
+
 export default class TabNavigationComponent extends Component {
     @service universe;
     @tracked _activeTabId = null;
@@ -18,7 +28,7 @@ export default class TabNavigationComponent extends Component {
 
     constructor(owner, args) {
         super(owner, args);
-        this._activeTabId = args.activeTabId || (args.tabs?.[0]?.id ?? null);
+        this._activeTabId = args.activeTabId || tabIdentity(args.tabs?.[0]);
         next(() => {
             if (typeof this.args.contextApi === 'function') {
                 this.args.contextApi(this.context);
@@ -37,7 +47,7 @@ export default class TabNavigationComponent extends Component {
 
     get activeTab() {
         if (!this.args.tabs) return null;
-        return this.args.tabs.find((tab) => tab.id === this._activeTabId) || null;
+        return this.args.tabs.find((tab) => tabIdentity(tab) === this._activeTabId) || null;
     }
 
     get style() {
@@ -53,9 +63,11 @@ export default class TabNavigationComponent extends Component {
         if (!this.args.tabs) return [];
 
         return this.args.tabs.map((tab) => {
+            const id = tabIdentity(tab);
             const enhanced = {
                 ...tab,
-                isActive: tab.id === this._activeTabId,
+                id,
+                isActive: id === this._activeTabId,
                 isDisabled: !!tab.disabled,
                 hasIcon: !!tab.icon,
                 hasBadge: !!(tab.badge && tab.badge > 0),
@@ -141,8 +153,8 @@ export default class TabNavigationComponent extends Component {
     @action argsDidChange() {
         const tabs = this.args.tabs ?? [];
         const hasControlledActiveTab = this.args.activeTabId !== undefined;
-        const currentActiveTabExists = tabs.some((tab) => tab.id === this._activeTabId);
-        const nextActiveTabId = hasControlledActiveTab ? this.args.activeTabId : currentActiveTabExists ? this._activeTabId : (tabs[0]?.id ?? null);
+        const currentActiveTabExists = tabs.some((tab) => tabIdentity(tab) === this._activeTabId);
+        const nextActiveTabId = hasControlledActiveTab ? this.args.activeTabId : currentActiveTabExists ? this._activeTabId : tabIdentity(tabs[0]);
 
         if (nextActiveTabId !== this._activeTabId) {
             this._activeTabId = nextActiveTabId;
@@ -271,7 +283,7 @@ export default class TabNavigationComponent extends Component {
 
     @action handleKeyDown(tab, event) {
         const { key } = event;
-        const currentIndex = this.args.tabs.findIndex((t) => t.id === tab.id);
+        const currentIndex = this.args.tabs.findIndex((t) => tabIdentity(t) === tabIdentity(tab));
 
         let targetIndex = currentIndex;
 
@@ -304,7 +316,7 @@ export default class TabNavigationComponent extends Component {
         const targetTab = this.args.tabs[targetIndex];
         if (targetTab && !targetTab.disabled) {
             // Focus the target tab
-            const targetElement = document.querySelector(`[data-tab-id="${targetTab.id}"]`);
+            const targetElement = document.querySelector(`[data-tab-id="${tabIdentity(targetTab)}"]`);
             if (targetElement) {
                 targetElement.focus();
             }
