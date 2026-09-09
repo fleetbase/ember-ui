@@ -12,7 +12,9 @@ export default class FilterRangeComponent extends Component {
     }
 
     parseValue(value) {
-        const { filter } = this.args;
+        // Guard like the template does: every use in range.hbs defends with `or @filter.min 0`,
+        // so constructing without a @filter must not throw either.
+        const { filter = {} } = this.args;
         const { min = 0, max = 100 } = filter;
 
         if (typeof value === 'string' && value.includes(',')) {
@@ -62,7 +64,7 @@ export default class FilterRangeComponent extends Component {
     }
 
     @action clear() {
-        const { onClear, filter } = this.args;
+        const { onClear, filter = {} } = this.args;
 
         this.minValue = filter.min ?? 0;
         this.maxValue = filter.max ?? 100;

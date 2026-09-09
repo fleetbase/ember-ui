@@ -1,0 +1,16 @@
+{{! EventCalendar example adapter: fixed local events, no calendar service. }}
+<EventCalendar
+    @events={{this.events}}
+    @date={{this.date}}
+    @view={{@values.view}}
+    @editable={{@values.editable}}
+    @selectable={{@values.selectable}}
+    @nowIndicator={{@values.nowIndicator}}
+    @height={{@values.height}}
+    @onEventClick={{fn (or @onEvent (noop)) "onEventClick"}}
+    @onDateClick={{fn (or @onEvent (noop)) "onDateClick"}}
+    @onEventDrop={{fn (or @onEvent (noop)) "onEventDrop"}}
+    @onEventResize={{fn (or @onEvent (noop)) "onEventResize"}}
+    @onDatesSet={{fn (or @onEvent (noop)) "onDatesSet"}}
+    @onCalendarReady={{fn (or @onEvent (noop)) "onCalendarReady"}}
+/>

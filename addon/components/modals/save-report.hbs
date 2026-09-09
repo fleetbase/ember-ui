@@ -15,7 +15,7 @@
         {{#if @options.showScheduling}}
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                 <div class="flex items-center mb-3">
-                    <input type="checkbox" checked={{@options.isScheduled}} {{on "change" @options.toggleScheduling}} class="form-checkbox h-4 w-4 text-blue-600" />
+                    <input type="checkbox" checked={{@options.isScheduled}} {{on "change" (or @options.toggleScheduling (noop))}} class="form-checkbox h-4 w-4 text-blue-600" />
                     <label class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                         Schedule this report
                     </label>

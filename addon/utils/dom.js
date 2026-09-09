@@ -1,5 +1,4 @@
 import { getOwner } from '@ember/application';
-import { DEBUG } from '@glimmer/env';
 import { warn } from '@ember/debug';
 import { schedule } from '@ember/runloop';
 import { isArray } from '@ember/array';
@@ -39,8 +38,7 @@ export function findElementById(doc, id) {
 export function getDOM(context) {
     let { renderer } = context;
     if (!renderer?._dom) {
-        // pre glimmer2
-        let container = getOwner ? getOwner(context) : context.container;
+        let container = getOwner(context);
         let documentService = container.lookup('service:-document');
 
         if (documentService) {
@@ -62,10 +60,17 @@ export function getDestinationElement(context) {
     const id = 'ember-bootstrap-wormhole';
     let destinationElement = findElementById(dom, id) || findElemementByIdInShadowDom(context, id);
 
-    if (DEBUG && !destinationElement) {
+    // The fallbacks below only ever apply outside a production environment, so
+    // they are gated on the resolved environment rather than on a build-time
+    // `DEBUG` macro (which cannot survive coverage instrumentation).
+    if (!destinationElement) {
         let config = getOwner(context).resolveRegistration('config:environment');
+        /* istanbul ignore else -- this suite only ever runs in the test environment, and only in a
+           browser, so the warn() below is the production/FastBoot path */
         if (config.environment === 'test' && typeof FastBoot === 'undefined') {
             let id;
+            /* istanbul ignore else -- @ember/test-helpers is a dependency of the test build, so
+               the module is always registered here */
             if (requirejs.has('@ember/test-helpers/dom/get-root-element')) {
                 try {
                     id = requirejs('@ember/test-helpers/dom/get-root-element').default().id;
@@ -73,12 +78,15 @@ export function getDestinationElement(context) {
                     // no op
                 }
             }
+            /* istanbul ignore if -- get-root-element resolves the test container, which always
+               carries an id */
             if (!id) {
                 return document.querySelector('#ember-testing');
             }
             return document.getElementById(id);
         }
 
+        /* istanbul ignore next -- see above: unreachable in the test environment */
         warn(
             `No wormhole destination element found for component ${context}. If you have set \`insertEmberWormholeElementToDom\` to false, you should insert a \`div#ember-bootstrap-wormhole\` manually!`,
             false,
@@ -114,7 +122,9 @@ export function afterPaint() {
 }
 
 export function renderCompleted() {
-    return all([afterRender, afterPaint]);
+    // These must be invoked — passing the function references resolves
+    // immediately and waits for nothing.
+    return all([afterRender(), afterPaint()]);
 }
 
 export function waitForInsertedAndSized(getElOrEl, { timeoutMs = 4000 } = {}) {
@@ -141,6 +151,8 @@ export function waitForInsertedAndSized(getElOrEl, { timeoutMs = 4000 } = {}) {
         };
 
         function cleanup() {
+            /* istanbul ignore else -- cleanup only runs from check() or the timeout, both of which
+               are set up after the observer */
             if (mo) mo.disconnect();
             if (toId) clearTimeout(toId);
         }

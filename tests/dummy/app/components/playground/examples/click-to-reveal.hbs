@@ -1,0 +1,9 @@
+{{! ClickToReveal example adapter. The value is a fixture string, not a real credential. }}
+<ClickToReveal
+    @value={{@values.value}}
+    @text={{@values.text}}
+    @buttonText={{@values.buttonText}}
+    @size={{@values.size}}
+    @isLoading={{@values.isLoading}}
+    @onClick={{fn (or @onEvent (noop)) "onClick"}}
+/>

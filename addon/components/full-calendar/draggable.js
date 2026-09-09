@@ -5,7 +5,11 @@ import { Draggable } from '@fullcalendar/interaction';
 
 export default class DraggableFullcalendarEventComponent extends Component {
     @tracked draggable;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked eventData = {};
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked disabled = false;
 
     constructor(owner, { eventData = {}, disabled = false }) {

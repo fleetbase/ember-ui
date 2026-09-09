@@ -1,0 +1,12 @@
+{{! UnitInput example adapter. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <UnitInput
+        @value={{this.writableValue}}
+        @measurement={{@values.measurement}}
+        @canSelectUnit={{@values.canSelectUnit}}
+        @disabled={{@values.disabled}}
+        @readonly={{@values.readonly}}
+        @onChange={{this.update}}
+        @onUnitChange={{fn (or @onEvent (noop)) "onUnitChange"}}
+    />
+</div>

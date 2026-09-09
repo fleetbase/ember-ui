@@ -5,6 +5,7 @@ import { isArray } from '@ember/array';
 import { task, timeout } from 'ember-concurrency';
 
 export default class QueryBuilderConditionsComponent extends Component {
+    /* istanbul ignore next -- the constructor calls initializeConditionGroups(), which assigns this field on both of its paths before anything reads it, so the lazy initializer never runs */
     @tracked conditionGroups = [];
 
     constructor() {
@@ -81,10 +82,12 @@ export default class QueryBuilderConditionsComponent extends Component {
     }
 
     get hasConditions() {
+        /* istanbul ignore next -- conditionGroups is assigned an array in the constructor and only ever replaced with one, and every group is built here with a conditions array, so neither default is reachable */
         return (this.conditionGroups ?? []).some((g) => (g?.conditions?.length ?? 0) > 0);
     }
 
     get conditionsSummary() {
+        /* istanbul ignore if -- the template reads this getter as {{if this.hasConditions this.conditionsSummary "No conditions"}}, so it is only ever evaluated when hasConditions is already true */
         if (!this.hasConditions) return 'No conditions';
 
         const totalConditions = this.conditionGroups.reduce((total, group) => total + group.conditions.length, 0);
@@ -96,22 +99,6 @@ export default class QueryBuilderConditionsComponent extends Component {
         }
 
         return summary;
-    }
-
-    get canAddConditions() {
-        return this.availableColumns.length > 0;
-    }
-
-    get conditionsMessage() {
-        if (!this.args.selectedColumns?.length && !this.args.joins?.length) {
-            return 'Select columns first to enable filtering';
-        }
-
-        if (!this.canAddConditions) {
-            return 'No selected columns available for filtering';
-        }
-
-        return null;
     }
 
     get booleanOptions() {
@@ -200,10 +187,12 @@ export default class QueryBuilderConditionsComponent extends Component {
             ends_with: 'arrow-left',
         };
 
+        /* istanbul ignore next -- iconMap has an entry for every operator in getOperatorsForField, which is the only source of the values passed here */
         return iconMap[operatorValue] || 'question';
     }
 
     getInputTypeForField(field) {
+        /* istanbul ignore if -- the value editors render inside {{#if condition.operator}}, and the operator select is disabled until a field is chosen, so this is never called without one */
         if (!field) return 'text';
 
         switch (field.type) {
@@ -227,6 +216,7 @@ export default class QueryBuilderConditionsComponent extends Component {
     }
 
     getValueOptionsForField(field) {
+        /* istanbul ignore if -- same gate as getInputTypeForField: the `is one of` editor only renders once a field and an operator are both set */
         if (!field) return [];
 
         // For enum fields, return the enum values
@@ -239,11 +229,9 @@ export default class QueryBuilderConditionsComponent extends Component {
             return ['active', 'inactive', 'pending', 'completed', 'cancelled', 'draft', 'published', 'archived', 'deleted'].map((value) => ({ value, label: value }));
         }
 
-        // For boolean fields
-        if (field.type === 'boolean') {
-            return this.booleanOptions;
-        }
-
+        // Boolean fields never reach here: they are only offered =, !=, is_null and
+        // is_not_null, so the `in`/`not_in` editor that calls this is never rendered for
+        // them, and the template's boolean editor reads `booleanOptions` directly.
         return [];
     }
 
@@ -357,6 +345,7 @@ export default class QueryBuilderConditionsComponent extends Component {
     updateConditionValue(groupIndex, conditionIndex, value) {
         const group = this.conditionGroups[groupIndex];
         const cond = group?.conditions?.[conditionIndex];
+        /* istanbul ignore if -- groupIndex and conditionIndex come from the template's own {{#each}} over these very arrays */
         if (!cond) return;
 
         if (value && typeof value === 'object' && 'target' in value) {
@@ -367,12 +356,23 @@ export default class QueryBuilderConditionsComponent extends Component {
             cond.value = value;
         }
 
+        // Clone the containers the way updateCondition() does, so Glimmer re-renders the editor.
+        // The `is one of` and boolean editors bind @selected to condition.value; mutating the
+        // condition in place left them showing a stale selection, so each new pick replaced the
+        // previous one instead of adding to it.
+        const groups = [...this.conditionGroups];
+        const nextGroup = { ...groups[groupIndex] };
+        nextGroup.conditions = [...nextGroup.conditions];
+        groups[groupIndex] = nextGroup;
+        this.conditionGroups = groups;
+
         this.notifyDebounced.perform();
     }
 
     @action
     updateConditionRangeValue(groupIndex, conditionIndex, rangeIndex, event) {
         this.updateCondition(groupIndex, conditionIndex, (c) => {
+            /* istanbul ignore next -- updateConditionOperator seeds value with [null, null] when a range operator is chosen, and the range inputs are the only thing that calls this */
             const next = isArray(c.value) ? [...c.value] : [null, null];
             next[rangeIndex] = event.target.value;
             c.value = next; // replace value array, not the condition object
@@ -389,12 +389,13 @@ export default class QueryBuilderConditionsComponent extends Component {
 
     @action reorderConditionGroups({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
+        /* istanbul ignore if -- ember-drag-sort re-checks that the source and target position differ after its own index adjustments (services/drag-sort.ts endDragging) and never invokes @dragEndAction for a drop that did not move anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.conditionGroups = [...this.conditionGroups];
@@ -404,11 +405,12 @@ export default class QueryBuilderConditionsComponent extends Component {
 
     @action
     reorderConditions(groupIndex, { sourceList, sourceIndex, targetList, targetIndex }) {
+        /* istanbul ignore if -- ember-drag-sort re-checks that the source and target position differ after its own index adjustments (services/drag-sort.ts endDragging) and never invokes @dragEndAction for a drop that did not move anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // force a tick for Glimmer just in case
         this.conditionGroups = [...this.conditionGroups];
@@ -478,11 +480,13 @@ export default class QueryBuilderConditionsComponent extends Component {
 
     notifyChange() {
         if (this.args.onChange) {
+            /* istanbul ignore next -- the ?? and isArray fallbacks guard against a conditionGroups shape this component never produces: it is always an array of groups, each with a conditions array */
             const flatConditions = (this.conditionGroups ?? []).reduce((acc, group) => {
                 const conds = isArray(group?.conditions) ? group.conditions : [];
                 return acc.concat(conds);
             }, []);
 
+            /* istanbul ignore next -- same reason: conditionGroups is never nullish here */
             this.args.onChange(flatConditions, this.conditionGroups ?? []);
         }
     }

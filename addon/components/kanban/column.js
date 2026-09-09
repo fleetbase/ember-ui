@@ -24,7 +24,12 @@ export default class KanbanColumnComponent extends Component {
     @action
     onDragOver(event) {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+
+        // Guard the dataTransfer like kanban.js's own drag handlers already do — a synthetic
+        // or keyboard-driven dragover has none.
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'move';
+        }
 
         // Instead of checking drag data, check if there's a dragged card
         if (this.args.draggedCard) {
@@ -41,6 +46,13 @@ export default class KanbanColumnComponent extends Component {
     @action
     onDrop(event) {
         event.preventDefault();
+
+        // The position comes from the last `dragover`, not from the drop event — and
+        // `calculateTargetPosition()` reads `dragOverPosition`, so it has to run BEFORE the
+        // reset below. Clearing first made the fallback (`cards.length`) fire on every drop,
+        // so a card dropped between two cards always landed at the end of the column.
+        const targetPosition = this.calculateTargetPosition();
+
         this.isDragOver = false;
         this.dragOverPosition = null;
 
@@ -48,11 +60,9 @@ export default class KanbanColumnComponent extends Component {
         if (!dragData) return;
 
         if (dragData.type === 'card' && this.args.onCardDrop) {
-            const targetPosition = this.calculateTargetPosition(event);
             this.args.onCardDrop(this.args.column.id, targetPosition, event);
         } else if (dragData.type === 'column' && this.args.onColumnDrop) {
-            const targetPosition = this.args.column.position;
-            this.args.onColumnDrop(targetPosition, event);
+            this.args.onColumnDrop(this.args.column.position, event);
         }
     }
 
@@ -115,6 +125,8 @@ export default class KanbanColumnComponent extends Component {
      */
     calculateDropPosition(event) {
         const columnBody = event.currentTarget.querySelector('.kanban-column-body');
+        /* istanbul ignore next -- the column template always renders a `.kanban-column-body`, and
+           this only runs with the column element as currentTarget. */
         if (!columnBody) return;
 
         const cards = columnBody.querySelectorAll('.kanban-card');

@@ -23,11 +23,10 @@
                 @size="xs"
                 @horizontalPosition="left"
                 @calculatePosition={{@dropdownButtonCalculatePosition}}
-                @renderInPlace={{or @dropdownButtonRenderInPlace true}}
+                @renderInPlace={{if (is-empty @dropdownButtonRenderInPlace) true @dropdownButtonRenderInPlace}}
                 @wrapperClass={{concat @dropdownButtonWrapperClass " " "next-nav-item-dropdown-button"}}
                 @triggerClass={{@dropdownButtonTriggerClass}}
                 @registerAPI={{@registerAPI}}
-                @onInsert={{this.onDropdownButtonInsert}}
                 as |dd|
             >
                 <div class="next-dd-menu mt-0" role="menu">

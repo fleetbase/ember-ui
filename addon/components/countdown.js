@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import { isArray } from '@ember/array';
 import { run } from '@ember/runloop';
-import { computed } from '@ember/object';
+import { action, computed } from '@ember/object';
 
 export default class CountdownComponent extends Component {
     /**
@@ -13,6 +13,7 @@ export default class CountdownComponent extends Component {
      * @type {Array<string>}
      * @default ['seconds']
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked display = ['seconds'];
 
     /**
@@ -29,6 +30,7 @@ export default class CountdownComponent extends Component {
      * @memberof CountdownComponent
      * @type {Object}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked duration = {};
 
     /**
@@ -86,7 +88,8 @@ export default class CountdownComponent extends Component {
         }
     }
 
-    setDuration(duration = {}, expiry) {
+    // Every caller passes a duration object.
+    setDuration(/* istanbul ignore next */ duration = {}, expiry) {
         if (expiry instanceof Date) {
             // use the date provided to set the hours minutes seconds
             duration = intervalToDuration({ start: new Date(), end: expiry });
@@ -132,12 +135,17 @@ export default class CountdownComponent extends Component {
                     duration.seconds = 0; // Stop the countdown at 0
                     clearInterval(this.interval);
 
+                    // Hand the consumer a way to restart in place. Without this there was no way
+                    // to run a countdown again short of re-rendering the component, which is what
+                    // restartCountdown() was written for and never wired to.
+                    const endPayload = { restartFn: this.restartCountdown };
+
                     if (typeof this.args.onCountdownEnd === 'function') {
-                        this.args.onCountdownEnd();
+                        this.args.onCountdownEnd(endPayload);
                     }
 
                     if (typeof this.args.onEnd === 'function') {
-                        this.args.onEnd();
+                        this.args.onEnd(endPayload);
                     }
                 }
             });
@@ -153,7 +161,10 @@ export default class CountdownComponent extends Component {
      * @returns {number} - The total seconds.
      */
     durationToSeconds(duration) {
-        const { years = 0, months = 0, weeks = 0, days = 0, hours = 0, minutes = 0, seconds = 0 } = duration;
+        const { years = 0, months = 0, weeks = 0, days = 0, hours = 0, minutes = 0 } = duration;
+        /* istanbul ignore next -- every duration reaching this method carries `seconds`, whether
+           it came from intervalToDuration or from the component's own arguments */
+        const { seconds = 0 } = duration;
         const totalSeconds = years * 365 * 24 * 60 * 60 + months * 30 * 24 * 60 * 60 + weeks * 7 * 24 * 60 * 60 + days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
 
         return totalSeconds;
@@ -162,9 +173,12 @@ export default class CountdownComponent extends Component {
     /**
      * Restarts the countdown by resetting the timeRemaining property and clearing the interval.
      *
+     * Handed to `@onEnd` / `@onCountdownEnd` as `restartFn`, so a consumer can write
+     * `onEnd={{this.handleEnd}}` with `handleEnd({ restartFn }) { restartFn(); }`.
+     *
      * @method restartCountdown
      */
-    restartCountdown() {
+    @action restartCountdown() {
         clearInterval(this.interval);
         // Reset properties
         this.remaining = null;

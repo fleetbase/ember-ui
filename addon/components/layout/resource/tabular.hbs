@@ -155,10 +155,12 @@
         <Table
             @rows={{@data}}
             @columns={{this.columns}}
-            @selectable={{or @selectable true}}
-            @canSelectAll={{or @canSelectAll true}}
+            {{! These three default to true but must remain switchable off: `or` would treat
+                an explicit `false` exactly like an omitted argument. }}
+            @selectable={{if (is-empty @selectable) true @selectable}}
+            @canSelectAll={{if (is-empty @canSelectAll) true @canSelectAll}}
             @onSetup={{this.setupTable}}
-            @pagination={{or @pagination true}}
+            @pagination={{if (is-empty @pagination) true @pagination}}
             @paginationMeta={{@data.meta}}
             @page={{@page}}
             @onPageChange={{@onPageChange}}

@@ -1,0 +1,11 @@
+{{! Pill example adapter: builds a resource from the controls, as a consumer would. }}
+<Pill
+    @resource={{this.resource}}
+    @namePath="name"
+    @title={{@values.title}}
+    @subtitle={{@values.subtitle}}
+    @size={{@values.size}}
+    @showOnlineIndicator={{@values.showOnlineIndicator}}
+    @noTooltip={{@values.noTooltip}}
+    @onClick={{fn (or @onEvent (noop)) "onClick"}}
+/>

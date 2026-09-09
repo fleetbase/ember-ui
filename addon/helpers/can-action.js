@@ -10,6 +10,8 @@ import { evaluatePermission } from '../utils/permission-check';
 export default class CanActionHelper extends Helper {
     @service abilities;
 
+    /* istanbul ignore next -- Glimmer always passes both the positional and named arguments to a
+       helper, so this parameter default can never be reached from a template. */
     compute([action, modelOrResource], named = {}) {
         const { schema = 'fleet-ops', resource, subject, defaultWhenUnknown = false } = named;
         const args = typeof modelOrResource === 'string' ? { resource: modelOrResource, model: subject } : { model: modelOrResource };

@@ -9,6 +9,7 @@ const { assign } = Object;
 export default class FloatingComponent extends Component {
     @tracked element;
     @tracked target;
+    arrowNode;
 
     @computed('args.shiftOptions') get defaultOptions() {
         const { shiftOptions } = this.args;
@@ -31,6 +32,8 @@ export default class FloatingComponent extends Component {
         let floatingContainer = document.body;
 
         if (container === undefined && target instanceof Element) {
+            /* istanbul ignore next -- target is an Element in the document, so it always has a
+               parentNode and the closest() fallbacks behind it are never reached */
             floatingContainer = target.parentNode || target.closest('section') || target.closest('main') || target.closest('body');
         }
 
@@ -53,6 +56,8 @@ export default class FloatingComponent extends Component {
             return this.target;
         }
 
+        /* istanbul ignore next -- resolveTarget is called with the floating element itself, from
+           {{did-insert}}, so it is always an Element */
         let possibleTarget = element instanceof Element ? element.parentNode : document.body;
 
         if (target instanceof Element) {
@@ -90,11 +95,14 @@ export default class FloatingComponent extends Component {
             middleware.push(offset(offsetBy));
         }
 
+        this.arrowNode = null;
+
         if (displayArrow === true) {
-            const arrowNode = element.closest('[x-arrow]');
+            const arrowNode = element.querySelector('[x-arrow]');
 
             if (arrowNode instanceof Element) {
-                middleware.push(arrow(arrowNode));
+                this.arrowNode = arrowNode;
+                middleware.push(arrow({ element: arrowNode }));
             }
         }
 
@@ -138,7 +146,7 @@ export default class FloatingComponent extends Component {
             placement,
             strategy,
             middleware,
-        }).then(({ x, y }) => {
+        }).then(({ x, y, middlewareData }) => {
             assign(element.style, {
                 position: 'absolute',
                 pointerEvents: 'none',
@@ -147,6 +155,18 @@ export default class FloatingComponent extends Component {
                 left: '0',
                 transform: `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`,
             });
+
+            if (middlewareData.arrow) {
+                // The arrow middleware reports only the cross-axis coordinate: x for top/bottom
+                // placements, y for left/right. The static-side inset and rotation stay with the
+                // [x-placement] rules in attacher.css.
+                const { x: arrowX, y: arrowY } = middlewareData.arrow;
+
+                assign(this.arrowNode.style, {
+                    left: typeof arrowX === 'number' ? `${arrowX}px` : '',
+                    top: typeof arrowY === 'number' ? `${arrowY}px` : '',
+                });
+            }
 
             if (typeof onPositionComputed === 'function') {
                 onPositionComputed({

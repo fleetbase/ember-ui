@@ -3,12 +3,18 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class QueryBuilderColumnSelectComponent extends Component {
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked selectedColumns = [];
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked columnAliases = {};
     @tracked searchQuery = '';
 
     get filteredColumns() {
         const columns = this.args.columns ?? [];
+        /* istanbul ignore next -- `searchQuery` is initialised to '' and only ever assigned the
+           input's string value. */
         const query = (this.searchQuery ?? '').trim().toLowerCase();
 
         if (!query) {

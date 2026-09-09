@@ -1,0 +1,8 @@
+{{! PhoneInput example adapter. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <PhoneInput
+        @value={{this.writableValue}}
+        @onInit={{fn (or @onEvent (noop)) "onInit"}}
+        @onCountryChange={{fn (or @onEvent (noop)) "onCountryChange"}}
+    />
+</div>

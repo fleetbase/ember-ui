@@ -1,0 +1,8 @@
+{{! Layout::Header example adapter: backed by the dummy universe/current-user service stubs. }}
+<Layout::Header
+    @showSidebarToggle={{@values.showSidebarToggle}}
+    @size={{@values.size}}
+    @maxVisibleNavItems={{@values.maxVisibleNavItems}}
+    @onSidebarToggle={{fn (or @onEvent (noop)) "onSidebarToggle"}}
+    @onClickNotification={{fn (or @onEvent (noop)) "onClickNotification"}}
+/>

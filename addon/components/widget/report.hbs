@@ -1,5 +1,8 @@
 <div class="widget-report flex h-full min-h-0 flex-col" ...attributes>
     {{#if this.report}}
+        <div class="mb-2 flex items-center justify-end">
+            <Button @size="xs" @type="default" @text="Change Report" @icon="edit" @onClick={{this.selectReport}} data-test-widget-report-change />
+        </div>
         <div class="min-h-0 flex-1 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <Report::Data @resource={{this.report}} />
         </div>

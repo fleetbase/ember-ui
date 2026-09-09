@@ -2,15 +2,20 @@
 <div
     class={{this.cardClasses}}
     draggable={{this.isDraggable}}
-    {{on "dragstart" (or @onDragStart (noop))}}
-    {{on "dragend" (or @onDragEnd (noop))}}
+    {{!-- The component's own actions forward the CARD alongside the event and guard the
+        absent handler themselves; binding @onDragStart directly handed a direct consumer of
+        <Kanban::Card> only the raw event. --}}
+    {{on "dragstart" this.onDragStart}}
+    {{on "dragend" this.onDragEnd}}
     {{on "click" this.onClick}}
     data-card-id={{this.card.id}}
     role="button"
     tabindex="0"
 >
     {{#if @template}}
-        {{component @template card=this.card}}
+        {{! The card's own actions are handed to a custom template: they are the only route by
+            which @onCardUpdate and @onCardDelete can ever fire. }}
+        {{component @template card=this.card onUpdate=this.onUpdate onDelete=this.onDelete}}
     {{else}}
         <div class="kanban-card-content">
             <h4 class="kanban-card-title">{{this.card.title}}</h4>

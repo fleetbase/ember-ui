@@ -26,6 +26,13 @@ export default class ChatWindowAttachmentComponent extends Component {
     getIcon(chatAttachment) {
         this.extension = this.getExtension(chatAttachment);
 
+        // A filename with no dot (README, Dockerfile, LICENSE) has no extension, and
+        // getWithDefault asserts on a null key rather than falling back — so the component threw
+        // during render. file-icon.js guards the identical case the same way.
+        if (!this.extension) {
+            return 'file-alt';
+        }
+
         return getWithDefault(
             {
                 xlsx: 'file-excel',

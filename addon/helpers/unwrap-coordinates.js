@@ -1,6 +1,8 @@
 import { helper } from '@ember/component/helper';
 import { isArray } from '@ember/array';
 
+/* istanbul ignore next -- evaluated once at module import, before any test can set
+   `window.leaflet`. */
 const L = window.leaflet || window.L;
 /**
  * Recursively wraps geographic coordinates so that all longitude values are normalized

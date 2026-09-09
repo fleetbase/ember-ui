@@ -1,0 +1,5 @@
+{{! A second safe local component, so the registry example yields more than one thing. }}
+<div class="pg-widget">
+    <span class="pg-widget__label">Note</span>
+    <span class="pg-widget__value">{{or @options.text @text "Registered by an extension"}}</span>
+</div>

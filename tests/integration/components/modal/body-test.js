@@ -6,21 +6,16 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | modal/body', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it wraps its block in the modal body', async function (assert) {
+        await render(hbs`<Modal::Body><p class="inside">Are you sure?</p></Modal::Body>`);
 
-        await render(hbs`<Modal::Body />`);
+        assert.dom('.flb--modal-body .inside').hasText('Are you sure?');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Modal::Body class="p-0" data-test-body="yes" />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Modal::Body>
-        template block text
-      </Modal::Body>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.flb--modal-body').hasClass('p-0');
+        assert.dom('.flb--modal-body').hasAttribute('data-test-body', 'yes');
     });
 });

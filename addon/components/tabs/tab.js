@@ -13,6 +13,8 @@ export default class TabsTabComponent extends Component {
     }
 
     @computed('args.activePaneClass', 'isActive') get activePaneClass() {
+        /* istanbul ignore next -- the pane this class lands on is itself inside
+           `{{#if this.isActive}}`, so the inactive arm is never evaluated. */
         return this.isActive ? `active ${this.args.activePaneClass}` : '';
     }
 

@@ -1,6 +1,25 @@
 <div class="grid grid-cols-2 gap-2 coordinates-input" ...attributes>
-    <Input class="w-full form-input" @type="text" placeholder="Latitude" aria-label="Latitude" @value={{this.latitude}} disabled={{this.disabled}} />
-    <Input class="w-full form-input" @type="text" placeholder="Longitude" aria-label="Longitude" @value={{this.longitude}} disabled={{this.disabled}} />
+    {{!-- One-way inputs with explicit handlers. As two-way <Input @value=…> these updated the
+        component's own tracked properties but never called updateCoordinates, so typing a
+        coordinate by hand notified nobody — only the map picker and the geocoder worked. --}}
+    <input
+        type="text"
+        class="w-full form-input"
+        placeholder="Latitude"
+        aria-label="Latitude"
+        value={{this.latitude}}
+        disabled={{this.disabled}}
+        {{on "input" (pick "target.value" this.setLatitude)}}
+    />
+    <input
+        type="text"
+        class="w-full form-input"
+        placeholder="Longitude"
+        aria-label="Longitude"
+        value={{this.longitude}}
+        disabled={{this.disabled}}
+        {{on "input" (pick "target.value" this.setLongitude)}}
+    />
 </div>
 <div class="my-1">
     <BasicDropdown ...attributes @verticalPosition="top" @horizontalPosition="left" @onClose={{this.onClose}} @renderInPlace={{or @renderInPlace true}} @disabled={{this.disabled}} as |dd|>

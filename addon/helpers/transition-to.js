@@ -11,6 +11,8 @@ export default class TransitionToHelper extends Helper {
         return prefixMountPoint(mountPoint, routeName);
     }
 
+    /* istanbul ignore next -- Glimmer always passes both the positional and named arguments to a
+       helper, so this parameter default can never be reached from a template. */
     compute(params, hash = {}) {
         let [route, ...args] = params;
         const queryParams = hash.queryParams;
@@ -31,9 +33,9 @@ export default class TransitionToHelper extends Helper {
 }
 
 function prefixMountPoint(mountPoint, propValue) {
-    if (typeOf(propValue) !== 'string') {
-        assert('propValue argument must be an string', typeOf(propValue) !== 'string');
-    }
+    // The guard used to assert the same condition as the `if` that wrapped it, so it could never
+    // fire and a non-string route name was interpolated into the route instead of being rejected.
+    assert('propValue argument must be an string', typeOf(propValue) === 'string');
 
     if (typeOf(mountPoint) !== 'string' || isBlank(mountPoint)) {
         return propValue;

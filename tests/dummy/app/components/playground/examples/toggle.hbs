@@ -1,0 +1,9 @@
+{{! Toggle example adapter. }}
+<Toggle
+    @label={{@values.label}}
+    @isToggled={{@values.isToggled}}
+    @disabled={{@values.disabled}}
+    @size={{@values.size}}
+    @helpText={{if @values.helpText @values.helpText null}}
+    @onToggle={{fn (or @onEvent (noop)) "onToggle"}}
+/>

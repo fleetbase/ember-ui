@@ -6,21 +6,15 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | table/column', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders only its block', async function (assert) {
+        await render(hbs`<Table::Column><span class="inside">Driver</span></Table::Column>`);
 
-        await render(hbs`<Table::Column />`);
+        assert.dom('.inside').hasText('Driver');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><Table::Column /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <Table::Column>
-        template block text
-      </Table::Column>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.host').hasText('', 'the component contributes no markup of its own');
     });
 });

@@ -6,21 +6,17 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | table/wrap', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it wraps its block in the table wrapper element', async function (assert) {
+        await render(hbs`<Table::Wrap><table class="inner"><tbody><tr><td>cell</td></tr></tbody></table></Table::Wrap>`);
 
-        await render(hbs`<Table::Wrap />`);
+        assert.dom('.next-table-wrapper').exists();
+        assert.dom('.next-table-wrapper > table.inner td').hasText('cell');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Table::Wrap class="extra" data-test-wrap="yes" />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Table::Wrap>
-        template block text
-      </Table::Wrap>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.next-table-wrapper').hasClass('extra');
+        assert.dom('.next-table-wrapper').hasAttribute('data-test-wrap', 'yes');
     });
 });

@@ -24,14 +24,17 @@ export default class TableCellResizerComponent extends Component {
 
     @action setupResizerNode(resizerNode) {
         const table = this.getOwnerTable(resizerNode);
-        resizerNode.style.height = `${table.offsetHeight}px`;
+
+        if (table) {
+            resizerNode.style.height = `${table.offsetHeight}px`;
+        }
     }
 
     @action getOwnerTable(resizerNode) {
         while (resizerNode) {
             resizerNode = resizerNode.parentNode;
 
-            if (resizerNode.tagName.toLowerCase() === 'table') {
+            if (resizerNode && typeof resizerNode.tagName === 'string' && resizerNode.tagName.toLowerCase() === 'table') {
                 return resizerNode;
             }
         }

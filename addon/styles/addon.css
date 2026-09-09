@@ -59,6 +59,7 @@
 @import 'components/smart-nav-menu.css';
 @import 'components/template-builder.css';
 @import 'components/fleetbase-attribution.css';
+@import 'components/signature-pad.css';
 
 .fleetbase-docs-panel-body {
     position: relative;

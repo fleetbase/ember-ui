@@ -35,7 +35,7 @@ export default modifier(function increaseHeightBy(element, [increaseBy]) {
             }
 
             // Increase the height of the element by the calculated value
-            element.style.height = `${offsetHeight + numbersOnly(increaseByValue)}px`;
+            element.style.height = `${offsetHeight + Number(numbersOnly(increaseByValue) || 0)}px`;
         },
         600
     );

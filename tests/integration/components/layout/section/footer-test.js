@@ -1,26 +1,34 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | layout/section/footer', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block', async function (assert) {
+        await render(hbs`<Layout::Section::Footer><span class="inside">footer</span></Layout::Section::Footer>`);
 
-        await render(hbs`<Layout::Section::Footer />`);
+        assert.dom('.next-view-section-footer .inside').hasText('footer');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('a vertical offset is applied to the bottom edge', async function (assert) {
+        await render(hbs`<Layout::Section::Footer @verticalOffset={{48}} />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Layout::Section::Footer>
-        template block text
-      </Layout::Section::Footer>
-    `);
+        assert.strictEqual(find('.next-view-section-footer').style.bottom, '48px');
+    });
 
-        assert.dom(this.element).hasText('template block text');
+    test('a footer component can be rendered alongside the block', async function (assert) {
+        await render(hbs`<Layout::Section::Footer @footerComponent="spinner"><span class="inside">and yield</span></Layout::Section::Footer>`);
+
+        assert.dom('.next-view-section-footer .fleetbase-loader').exists('the named component renders');
+        assert.dom('.next-view-section-footer .inside').hasText('and yield');
+    });
+
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Layout::Section::Footer class="sticky" data-test-footer="yes" />`);
+
+        assert.dom('.next-view-section-footer').hasClass('sticky');
+        assert.dom('.next-view-section-footer').hasAttribute('data-test-footer', 'yes');
     });
 });

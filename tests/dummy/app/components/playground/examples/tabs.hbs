@@ -1,0 +1,9 @@
+{{! Tabs example adapter (template-only component): the preview supplies its own tab content. }}
+<Tabs @tagContentClass={{@values.tagContentClass}} as |tabs|>
+    <tabs.tab @title="Overview">
+        <div class="pg-fixture-block">Overview panel</div>
+    </tabs.tab>
+    <tabs.tab @title="Activity">
+        <div class="pg-fixture-block">Activity panel</div>
+    </tabs.tab>
+</Tabs>

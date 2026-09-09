@@ -37,7 +37,7 @@
             type="button"
             class="snm-dropdown-close"
             aria-label="Close"
-            {{on "click" @onClose}}
+            {{on "click" (or @onClose (noop))}}
         >
             <FaIcon @icon="xmark" @size="sm" />
         </button>
@@ -116,7 +116,7 @@
                                 class="snm-dropdown-pin-btn"
                                 title="Pin to navigation bar"
                                 aria-label="Pin {{item.title}} to navigation bar"
-                                {{on "click" (fn @onQuickPin item)}}
+                                {{on "click" (fn (or @onQuickPin (noop)) item)}}
                             >
                                 <FaIcon @icon="thumbtack" @size="xs" />
                             </button>
@@ -184,7 +184,7 @@
                                 class="snm-dropdown-pin-btn"
                                 title="Pin to navigation bar"
                                 aria-label="Pin {{item.title}} to navigation bar"
-                                {{on "click" (fn @onQuickPin item)}}
+                                {{on "click" (fn (or @onQuickPin (noop)) item)}}
                             >
                                 <FaIcon @icon="thumbtack" @size="xs" />
                             </button>
@@ -200,7 +200,7 @@
         <button
             type="button"
             class="snm-dropdown-customise-link"
-            {{on "click" @onOpenCustomizer}}
+            {{on "click" (or @onOpenCustomizer (noop))}}
         >
             <FaIcon @icon="sliders" @size="xs" class="mr-1.5" />
             Customise navigation

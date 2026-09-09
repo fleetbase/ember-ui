@@ -1,4 +1,6 @@
-<div class="query-builder-panel" ...attributes>
+{{! Re-validate when the caller narrows the column list: without this the panel keeps
+     sorting/grouping/filtering by columns that are no longer selected. }}
+<div class="query-builder-panel" {{did-update this.validateConditions @allSelectedColumns @selectedColumns}} ...attributes>
     <div class="query-builder-panel-header">
         <div class="query-builder-panel-title">
             <FaIcon @icon="filter" @size="sm" class="mr-2" />
@@ -10,7 +12,7 @@
     </div>
 
     <div class="query-builder-panel-content">
-        {{#if @columns}}
+        {{#if this.availableColumns.length}}
             <div class="condition-group-container">
                 {{#if this.conditionGroups.length}}
                     <DragSortList

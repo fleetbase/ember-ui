@@ -22,8 +22,10 @@ export default class LeafletService extends Service {
                     debug('Leaflet has been initialized.');
                     if (this.instance === undefined) {
                         this.setInstance(Leaflet);
-                        this.initialized = true;
                     }
+                    // `initialized` is assigned nowhere else, so leaving it false when an instance
+                    // was already set kept the polling interval running forever.
+                    this.initialized = true;
                 } else if (Leaflet !== this.instance && !this.instances.includes(Leaflet)) {
                     // Subsequent re-initializations
                     debug('Leaflet has been re-initialized!');

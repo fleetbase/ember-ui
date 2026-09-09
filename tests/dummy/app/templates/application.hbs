@@ -1,7 +1,41 @@
-{{page-title "Dummy"}}
+{{page-title "Fleetbase UI Playground"}}
 
-{{! The following component displays Ember's default welcome message. }}
-<WelcomePage />
-{{! Feel free to remove this! }}
+{{#if this.isEmbedded}}
+    {{outlet}}
+{{else}}
+    <div class="pg-app" data-theme={{this.playgroundTheme.current}} {{playground/theme-body this.playgroundTheme.current}}>
+        <header class="pg-app__header">
+            <LinkTo @route="components" class="pg-app__brand" data-test-brand>
+                <span class="pg-app__mark" aria-hidden="true">F</span>
+                <span class="pg-app__name">Fleetbase UI</span>
+                <span class="pg-app__sub">Playground</span>
+            </LinkTo>
 
-{{outlet}}
+            <nav class="pg-app__nav" aria-label="Playground">
+                <a href="https://fleetbase.io/docs/ui" class="pg-app__doclink" data-test-docs-root>
+                    Official documentation <span class="pg-ext" aria-hidden="true">↗</span>
+                </a>
+                {{!
+                    The theme lives in the application chrome now, so it is reachable from the
+                    catalog too. The embed renders its own toggle instead — the app header is not
+                    rendered there — so exactly one carries this hook on any given page.
+                }}
+                <button type="button" class="pg-btn pg-btn--theme" data-test-theme-toggle {{on "click" this.playgroundTheme.toggle}}>
+                    <span class="pg-dot" aria-hidden="true"></span>
+                    {{this.playgroundTheme.toggleLabel}}
+                </button>
+            </nav>
+        </header>
+
+        <main class="pg-app__main">
+            {{outlet}}
+        </main>
+    </div>
+{{/if}}
+
+{{!
+    The modal stack lives outside the route layout: `modalsManager.show()` pushes onto it, and this
+    is what renders it. Needed by both the full pages and the embed view, so it sits outside the
+    chrome conditional.
+}}
+<ModalsContainer />

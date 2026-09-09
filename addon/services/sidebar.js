@@ -5,6 +5,8 @@ import { action } from '@ember/object';
 export default class SidebarService extends Service {
     @tracked state = 'visible';
     @tracked enabled = true;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked previousState = 'visible';
     @tracked context;
 

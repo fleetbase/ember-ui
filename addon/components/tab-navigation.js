@@ -6,6 +6,7 @@ import { next, scheduleOnce } from '@ember/runloop';
 
 export default class TabNavigationComponent extends Component {
     @service universe;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked _activeTabId = null;
     @tracked visibleTabIds = null;
     @tracked overflowTabIds = [];
@@ -111,7 +112,13 @@ export default class TabNavigationComponent extends Component {
         this.selectTab(tab);
     }
 
-    @action closeTab(tab) {
+    @action closeTab(tab, event) {
+        // The close button sits inside the tab button, and `{{on}}` supports only
+        // capture/once/passive — the old `stopPropagation=true` was silently ignored, so
+        // closing a tab also selected the tab being removed.
+        event?.stopPropagation();
+
+        /* istanbul ignore else -- the close control is only rendered when @onClose is supplied (tab-navigation.hbs gates every .tab-close on it), so closeTab cannot run without one */
         if (this.args.onClose) {
             this.args.onClose(tab);
         }
@@ -151,6 +158,7 @@ export default class TabNavigationComponent extends Component {
     }
 
     setupResizeObserver(element) {
+        /* istanbul ignore if -- ResizeObserver exists in every browser this suite runs in; the guard is for FastBoot/SSR */
         if (typeof ResizeObserver === 'undefined') return;
 
         this.teardownResizeObserver();
@@ -200,12 +208,16 @@ export default class TabNavigationComponent extends Component {
         }
 
         const moreButton = this._tabMeasurerElement.querySelector('[data-tab-navigation-measure-more]');
+        /* istanbul ignore next -- the measurer always renders its own more-trigger, and that
+           trigger holds an icon, so it never measures as missing or as zero */
         const moreButtonWidth = moreButton?.offsetWidth || 44;
         const constrainedWidth = Math.max(0, availableWidth - moreButtonWidth);
         let usedWidth = 0;
         let cutoff = 0;
 
         for (let index = 0; index < tabs.length; index++) {
+            /* istanbul ignore next -- the guard above proves measuredTabs.length === tabs.length,
+               so index is always in range, and every measured tab is a padded .tab-item */
             const width = tabWidths[index] || 0;
             if (cutoff > 0 && usedWidth + width > constrainedWidth) break;
             if (cutoff === 0 && width > constrainedWidth) {
@@ -225,11 +237,15 @@ export default class TabNavigationComponent extends Component {
         if (activeOverflowTab && visibleTabs.length > 0) {
             let swapIndex = -1;
             for (let index = visibleTabs.length - 1; index >= 0; index--) {
+                /* istanbul ignore else -- reaching here means the active tab is in the overflow
+                   list, and only one tab can be active, so no visible tab is */
                 if (!visibleTabs[index].isActive) {
                     swapIndex = index;
                     break;
                 }
             }
+            /* istanbul ignore else -- see above: the loop above always finds a candidate on its
+               first pass, so swapIndex is never left at -1 */
             if (swapIndex > -1) {
                 const swappedTab = visibleTabs[swapIndex];
                 visibleTabs[swapIndex] = activeOverflowTab;

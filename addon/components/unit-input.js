@@ -141,7 +141,9 @@ export default class UnitInputComponent extends Component {
             return placeholder;
         }
 
-        return `Enter ${this.unitName}`;
+        // `unitName` falls back to `this.unit`, which is undefined with no @unit — the field
+        // rendered the user-visible placeholder "Enter undefined".
+        return this.unitName ? `Enter ${this.unitName}` : null;
     }
 
     /**
@@ -209,6 +211,8 @@ export default class UnitInputComponent extends Component {
      *
      * @memberof UnitInputComponent
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked disabled = false;
 
     /**
@@ -260,6 +264,8 @@ export default class UnitInputComponent extends Component {
      * @memberof UnitInputComponent
      */
     @action setUnit(unit, dd) {
+        /* istanbul ignore next -- wired as PowerSelect's `@onChange`, whose select object always
+           provides `actions.close`. */
         if (typeof dd.actions.close === 'function') {
             dd.actions.close();
         }

@@ -2,14 +2,21 @@
     <TagInput
         class="form-input"
         @placeholder={{@placeholder}}
-        @allowSpacesInTags={{or @allowSpacesInTags true}}
+        {{!-- "or" would make an explicit false indistinguishable from an omitted argument. --}}
+        @allowSpacesInTags={{if (is-empty @allowSpacesInTags) true @allowSpacesInTags}}
         @tags={{tags}}
         @addTag={{this.addTag}}
         @removeTagAtIndex={{this.removeTag}}
-        @disabled={{@disabled}}
+        {{!-- ember-tag-input exposes readOnly, not disabled: it is what renders the disabled
+            attribute on the input and adds emberTagInput--readOnly. --}}
+        @readOnly={{@disabled}}
         ...attributes
         as |tag|
     >
-        {{yield tag}}
+        {{#if (has-block)}}
+            {{yield tag}}
+        {{else}}
+            {{tag}}
+        {{/if}}
     </TagInput>
 {{/let}}

@@ -28,10 +28,12 @@
                                 type="text"
                                 class="w-full text-xs bg-white dark:bg-gray-700 border border-blue-400 rounded px-1 py-0 outline-none"
                                 value={{this.renameValue}}
-                                {{on "input" (fn (mut this.renameValue) value="target.value")}}
+                                {{!-- "fn" takes no named arguments, so the old
+                                    value="target.value" hash was ignored and the DOM Event
+                                    itself was stored in renameValue. --}}
+                                {{on "input" (pick "target.value" (fn (mut this.renameValue)))}}
                                 {{on "keydown" (fn this.handleRenameKeydown element)}}
                                 {{on "blur" (fn this.commitRename element)}}
-                                {{did-insert (fn (mut this.renameValue) this.renameValue)}}
                             />
                         {{else}}
                             <span

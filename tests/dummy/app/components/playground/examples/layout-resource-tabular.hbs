@@ -1,0 +1,18 @@
+{{! Layout::Resource::Tabular example adapter: a deterministic five-row local fixture. }}
+<Layout::Resource::Tabular
+    @title={{@values.title}}
+    @columns={{this.columns}}
+    @rows={{this.rows}}
+    @paginationMeta={{this.meta}}
+    @selectable={{@values.selectable}}
+    @isLoading={{@values.isLoading}}
+    @isFiltered={{@values.isFiltered}}
+    @withoutHeader={{@values.withoutHeader}}
+    @hideColumnsPicker={{@values.hideColumnsPicker}}
+    @onSearch={{fn (or @onEvent (noop)) "onSearch"}}
+    @onSort={{fn (or @onEvent (noop)) "onSort"}}
+    @onRowClick={{fn (or @onEvent (noop)) "onRowClick"}}
+    @onPageChange={{fn (or @onEvent (noop)) "onPageChange"}}
+    @onPressNew={{fn (or @onEvent (noop)) "onPressNew"}}
+    @onReload={{fn (or @onEvent (noop)) "onReload"}}
+/>

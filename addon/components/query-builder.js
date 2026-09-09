@@ -12,7 +12,6 @@ export default class QueryBuilderComponent extends Component {
     @tracked sortBy = [];
     @tracked limit = null;
     @tracked computedColumns = [];
-    @tracked showQueryPreview = false;
 
     constructor() {
         super(...arguments);
@@ -21,40 +20,6 @@ export default class QueryBuilderComponent extends Component {
         if (this.args.initialQuery) {
             this.loadFromQuery(this.args.initialQuery);
         }
-    }
-
-    get columns() {
-        const columns = [];
-
-        // Add columns from main table
-        if (this.table?.columns) {
-            this.table.columns.forEach((column) => {
-                columns.push({
-                    ...column,
-                    table: this.table.name,
-                    full: `${this.table.name}.${column.name}`,
-                    label: column.label || column.name,
-                });
-            });
-        }
-
-        // Add columns from joined tables
-        if (this.joins?.length) {
-            this.joins.forEach((join) => {
-                if (join.table?.columns) {
-                    join.table.columns.forEach((column) => {
-                        columns.push({
-                            ...column,
-                            table: join.table.name,
-                            full: `${join.table.name}.${column.name}`,
-                            label: `${join.table.label || join.table.name} - ${column.label || column.name}`,
-                        });
-                    });
-                }
-            });
-        }
-
-        return columns;
     }
 
     get allSelectedColumns() {
@@ -108,6 +73,8 @@ export default class QueryBuilderComponent extends Component {
                 break;
             case 'columns':
                 this.selectedColumns = value;
+                /* istanbul ignore else -- the only caller is column-select's notifyChange, which
+                   always passes its columnAliases, and that field is never anything but an object */
                 if (additionalArgs[0]) {
                     this.columnAliases = additionalArgs[0];
                 }
@@ -139,11 +106,6 @@ export default class QueryBuilderComponent extends Component {
     }
 
     @action
-    toggleQueryPreview() {
-        this.showQueryPreview = !this.showQueryPreview;
-    }
-
-    @action
     loadFromQuery(queryData) {
         if (queryData.table) this.table = queryData.table;
         if (queryData.columns) {
@@ -162,14 +124,6 @@ export default class QueryBuilderComponent extends Component {
         if (queryData.groupBy) this.groupBy = queryData.groupBy;
         if (queryData.sortBy) this.sortBy = queryData.sortBy;
         if (queryData.limit) this.limit = queryData.limit;
-    }
-
-    @action
-    exportQuery() {
-        return {
-            sql: this.generatedQuery,
-            object: this.queryObject,
-        };
     }
 
     @action onExecute() {
@@ -201,7 +155,6 @@ export default class QueryBuilderComponent extends Component {
         this.groupBy = [];
         this.sortBy = [];
         this.limit = null;
-        this.showQueryPreview = false;
 
         if (this.args.onChange) {
             this.args.onChange(this.queryObject);

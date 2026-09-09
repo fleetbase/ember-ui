@@ -6,21 +6,30 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | modals/loading', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    const TEMPLATE = hbs`<Modals::Loading @options={{this.options}} @onConfirm={{this.onConfirm}} @onDecline={{this.onDecline}} />`;
 
-        await render(hbs`<Modals::Loading />`);
+    test('it renders a centred spinner', async function (assert) {
+        this.set('options', {});
 
-        assert.dom(this.element).hasText('');
+        await render(TEMPLATE);
 
-        // Template block usage:
-        await render(hbs`
-      <Modals::Loading>
-        template block text
-      </Modals::Loading>
-    `);
+        assert.dom('.modal-body-container').exists();
+        assert.dom('.modal-body-container .fleetbase-loader').exists('a spinner is shown');
+    });
 
-        assert.dom(this.element).hasText('template block text');
+    test('a loading message from the options is displayed', async function (assert) {
+        this.set('options', { loadingMessage: 'Importing your orders' });
+
+        await render(TEMPLATE);
+
+        assert.dom(this.element).containsText('Importing your orders');
+    });
+
+    test('it renders without a loading message', async function (assert) {
+        this.set('options', {});
+
+        await render(TEMPLATE);
+
+        assert.dom(this.element).doesNotContainText('undefined');
     });
 });

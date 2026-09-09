@@ -9,7 +9,9 @@
                 </div>
             </div>
         {{else}}
-            {{#let (file-queue name="spreadsheets" onFileAdded=this.queueFile accept=(join "," @options.acceptedFileTypes)) as |queue|}}
+            {{!-- import-form is a template-only component, so `this.queueFile` was undefined and the
+                dropzone silently swallowed every drop. The parent supplies the handler. --}}
+            {{#let (file-queue name="spreadsheets" onFileAdded=@options.queueFile accept=(join "," @options.acceptedFileTypes)) as |queue|}}
                 <FileDropzone
                     @queue={{queue}}
                     class="min-h-56 dropzone w-full rounded px-4 py-8 min-h text-gray-900 dark:text-white text-center flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-indigo-500"
@@ -42,11 +44,13 @@
                                 @buttonText={{t "component.import-modal.button-text"}}
                                 @type="magic"
                                 @icon="file-import"
-                                @name={{t "component.import-modal.spreadsheets"}}
+                                {{!-- Same queue as the dropzone, and NO @onFileAdded here: the
+                                    enclosing file-queue is already listening to this name, and a
+                                    second listener would queue every file twice. --}}
+                                @name="spreadsheets"
                                 @for="spreadsheets"
                                 @accept={{join "," @options.acceptedFileTypes}}
                                 @multiple={{true}}
-                                @onFileAdded={{@options.queueFile}}
                                 class="w-72 justify-center"
                             />
                         </div>
@@ -75,7 +79,7 @@
                                         {{#each @options.fileQueueColumns as |column|}}
                                             <td>
                                                 {{#if (eq column.key "delete")}}
-                                                    <a href="javascript:;" {{on "click" (fn @options.removeFile file)}}>
+                                                    <a href="javascript:;" {{on "click" (fn (or @options.removeFile (noop)) file)}}>
                                                         <FaIcon @icon="trash" class="text-red-500" />
                                                     </a>
                                                 {{else if (eq column.key "type")}}
