@@ -1,13 +1,10 @@
-> v0.3.41 ~ "RELEASE_NOTES_PLACEHOLDER — replace this line with the release title"
+> v0.4.0 ~ "Tab navigation overflow fix"
 
 ---
 ## Highlights
 
-RELEASE_NOTES_PLACEHOLDER
-
-Describe what changed in this release. The first line above must name the version
-being released, and both placeholder markers must be gone, or the release workflow
-refuses to tag.
+- Route-backed tabs without explicit IDs remain accessible through the TabNavigation More menu when the tab bar overflows (#171).
+- Tab identity falls back from `id` to `route` to `key` for active state, overflow calculations, and keyboard navigation.
 
 ---
 ## Need help?
