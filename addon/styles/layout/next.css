@@ -2684,6 +2684,22 @@ a.text-danger:hover {
     @apply opacity-50;
 }
 
+.filter-model-multiple {
+    @apply relative;
+}
+
+.filter-model-multiple > .clear-button {
+    @apply dark:text-gray-500 text-gray-700 pl-2;
+}
+
+.filter-model-multiple > .clear-button:hover {
+    @apply opacity-50;
+}
+
+.filter-model-multiple > .clear-button:disabled {
+    @apply opacity-30;
+}
+
 .filter-range {
     @apply flex flex-col relative;
 }
