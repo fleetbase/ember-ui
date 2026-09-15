@@ -1,0 +1,64 @@
+<div class="resource-summary {{@class}}" data-test-resource-summary {{did-insert (perform this.hydrate)}} ...attributes>
+    <div class="resource-summary-header">
+        <div class="resource-summary-media">
+            {{#if this.image.component}}
+                {{component this.image.component resource=this.record}}
+            {{else if this.image.url}}
+                <Image src={{this.image.url}} @fallbackSrc={{this.image.fallback}} alt="" class="resource-summary-image" data-shape={{this.image.shape}} data-test-resource-summary-image />
+            {{else}}
+                <div class="resource-summary-icon {{this.image.iconClass}}" data-test-resource-summary-icon>
+                    <FaIcon @icon={{this.image.icon}} @size="lg" />
+                </div>
+            {{/if}}
+        </div>
+        <div class="resource-summary-heading">
+            <div class="resource-summary-title" data-test-resource-summary-title>{{this.title}}</div>
+            {{#if this.identifier}}
+                <div class="resource-summary-identifier" data-test-resource-summary-identifier>{{this.identifier}}</div>
+            {{/if}}
+            {{#if (or this.status this.hasOnline)}}
+                <div class="resource-summary-status">
+                    {{#if this.status}}
+                        <Badge @status={{this.status}} @size="xxs" data-test-resource-summary-status />
+                    {{/if}}
+                    {{#if this.hasOnline}}
+                        <span class="resource-summary-online {{if this.online 'is-online' 'is-offline'}}" data-test-resource-summary-online>
+                            <FaIcon @icon="circle" @size="2xs" />
+                            {{if this.online "Online" "Offline"}}
+                        </span>
+                    {{/if}}
+                </div>
+            {{/if}}
+        </div>
+    </div>
+    {{#if this.hydrate.isRunning}}
+        <div class="resource-summary-skeleton" data-test-resource-summary-skeleton>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    {{else if this.facts.length}}
+        <dl class="resource-summary-facts">
+            {{#each this.facts as |fact|}}
+                <div class="resource-summary-fact" data-test-resource-summary-fact>
+                    <dt>{{fact.label}}</dt>
+                    <dd>
+                        {{#if fact.pillComponent}}
+                            {{component fact.pillComponent resource=fact.related resourceType=fact.relatedType noPopover=true}}
+                        {{else}}
+                            {{fact.value}}
+                        {{/if}}
+                    </dd>
+                </div>
+            {{/each}}
+        </dl>
+    {{/if}}
+    {{#if this.showView}}
+        <div class="resource-summary-actions">
+            <button type="button" class="btn btn-default btn-xs resource-summary-view" {{on "click" this.view}} data-test-resource-summary-view>
+                <FaIcon @icon="eye" class="mr-1" />
+                {{this.viewLabel}}
+            </button>
+        </div>
+    {{/if}}
+</div>

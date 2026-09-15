@@ -1,0 +1,228 @@
+/*
+ * Resource identity: hover summaries, select options and identity tiles.
+ * Colours are set for light and dark so a card reads correctly wherever it
+ * floats, including above the resource context panel.
+ */
+
+/* ── Hover card (the floating element hosting a summary) ── */
+.ember-attacher.resource-hover-card {
+    z-index: 10000;
+}
+
+.resource-hover-card .resource-hover-card-inner {
+    @apply rounded-lg border border-gray-200 bg-white text-left text-gray-900 shadow-xl ring-1 ring-black/5;
+    padding: 0;
+    margin: 0;
+    max-width: min(24rem, calc(100vw - 2rem));
+}
+
+body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
+    @apply border-gray-700 bg-gray-900 text-gray-100 ring-white/10;
+}
+
+.resource-hover-card-anchor {
+    display: none;
+}
+
+/* ── Summary card ── */
+.resource-summary {
+    @apply flex flex-col gap-3 p-3 text-sm;
+    width: 20rem;
+}
+
+.resource-summary-header {
+    @apply flex items-start gap-3;
+}
+
+.resource-summary-media {
+    @apply flex-shrink-0;
+}
+
+.resource-summary-image,
+.resource-summary-icon {
+    @apply h-12 w-12 border border-gray-200 object-cover shadow-sm dark:border-gray-700;
+    border-radius: 0.5rem;
+}
+
+.resource-summary-image[data-shape='round'] {
+    border-radius: 9999px;
+}
+
+.resource-summary-icon {
+    @apply flex items-center justify-center bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400;
+}
+
+.resource-summary-heading {
+    @apply flex min-w-0 flex-col gap-0.5;
+}
+
+.resource-summary-title {
+    @apply truncate text-sm font-semibold leading-5 text-gray-900 dark:text-gray-100;
+}
+
+.resource-summary-identifier {
+    @apply truncate text-xs text-gray-500 dark:text-gray-400;
+}
+
+.resource-summary-status {
+    @apply mt-1 flex flex-wrap items-center gap-2;
+}
+
+.resource-summary-online {
+    @apply inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400;
+}
+
+.resource-summary-online.is-online {
+    @apply text-green-600 dark:text-green-400;
+}
+
+.resource-summary-facts {
+    @apply grid gap-x-3 gap-y-1.5 border-t border-gray-100 pt-3 dark:border-gray-800;
+    grid-template-columns: max-content minmax(0, 1fr);
+    margin: 0;
+}
+
+.resource-summary-fact {
+    display: contents;
+}
+
+.resource-summary-fact > dt {
+    @apply truncate text-xs leading-5 text-gray-500 dark:text-gray-400;
+}
+
+.resource-summary-fact > dd {
+    @apply min-w-0 truncate text-xs leading-5 text-gray-900 dark:text-gray-100;
+    margin: 0;
+}
+
+.resource-summary-fact > dd .fleetbase-pill {
+    @apply inline-block align-middle;
+}
+
+.resource-summary-fact > dd .fleetbase-pill img,
+.resource-summary-fact > dd .fleetbase-pill .resource-pill-icon {
+    @apply h-5 w-5;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.resource-summary-fact > dd .fleetbase-pill .text-xs {
+    display: none;
+}
+
+.resource-summary-skeleton {
+    @apply flex flex-col gap-2 border-t border-gray-100 pt-3 dark:border-gray-800;
+}
+
+.resource-summary-skeleton > span {
+    @apply block h-3 rounded bg-gray-200 dark:bg-gray-700;
+    animation: resource-summary-pulse 1.2s ease-in-out infinite;
+}
+
+.resource-summary-skeleton > span:nth-child(2) {
+    width: 70%;
+}
+
+.resource-summary-skeleton > span:nth-child(3) {
+    width: 50%;
+}
+
+@keyframes resource-summary-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.resource-summary-actions {
+    @apply flex justify-end border-t border-gray-100 pt-2 dark:border-gray-800;
+}
+
+/* ── Pill icon tile ── */
+.resource-pill-icon {
+    @apply flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400;
+}
+
+/* ── Select option: photo or icon, name, and a line of detail ── */
+.select-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    padding: 0.125rem 0;
+}
+
+.select-option__photo {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    border-radius: 9999px;
+    background-color: rgb(156 163 175 / 20%);
+}
+
+.select-option__photo[data-shape='square'] {
+    border-radius: 0.375rem;
+}
+
+.select-option__icon,
+.select-option__component {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(107 114 128);
+}
+
+.select-option__text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+}
+
+.select-option__title,
+.select-option__details {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select-option__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.select-option__details {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    opacity: 0.7;
+}
+
+/* In a closed select there is room for one line: a small photo, the name, then the detail. */
+.select-option--compact {
+    gap: 0.5rem;
+    padding: 0;
+}
+
+.select-option--compact .select-option__photo {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.select-option--compact .select-option__text {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.375rem;
+}
+
+.select-option--compact .select-option__title {
+    flex-shrink: 0;
+    max-width: 60%;
+    font-weight: 500;
+}

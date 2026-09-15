@@ -1,0 +1,21 @@
+<span class="resource-hover-card-anchor" hidden data-test-resource-hover-card-anchor {{did-insert this.setup}} {{will-destroy this.teardown}}>
+    {{#if this.armed}}
+        <Attach::Popover
+            @class="resource-hover-card {{@class}}"
+            @classNames="resource-hover-card-inner"
+            @animation="fade"
+            @floatingTarget={{this.target}}
+            @interactive={{true}}
+            @lazyRender={{true}}
+            @isShown={{true}}
+            @showDelay={{this.showDelay}}
+            @hideDelay={{this.hideDelay}}
+            @placement={{this.placement}}
+            @offset={{this.offset}}
+            @shiftOptions={{hash padding=12}}
+            @onChange={{this.onPopoverChange}}
+        >
+            {{component this.summaryComponent resource=@resource resourceType=@resourceType onView=@onView showView=@showView onClose=this.disarm}}
+        </Attach::Popover>
+    {{/if}}
+</span>
