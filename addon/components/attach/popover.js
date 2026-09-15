@@ -48,10 +48,21 @@ export default class AttachPopoverComponent extends Component {
         return `ember-attacher-${this.animation} ${showOrHideClass} ${arrowClass}`;
     }
 
-    @computed('style', 'transitionDuration', 'isShown') get computedStyle() {
-        const { style, transitionDuration, isShown } = this;
+    @computed('style', 'transitionDuration', 'isShown', 'interactive') get computedStyle() {
+        const { style, transitionDuration, isShown, interactive } = this;
 
-        return htmlSafe(`transition-duration: ${transitionDuration}ms; pointer-events: ${isShown ? 'auto' : 'none'}; ${style ?? ''}`);
+        // Only an interactive attachment may be entered: a plain tooltip stays
+        // transparent to the pointer so hovering it never steals the target's
+        // mouseleave. `isShown` is maintained by show()/hide().
+        return htmlSafe(`transition-duration: ${transitionDuration}ms; pointer-events: ${isShown && interactive ? 'auto' : 'none'}; ${style ?? ''}`);
+    }
+
+    /**
+     * The pointer-events value the floating element itself should carry so an
+     * interactive attachment can be entered while it is visible.
+     */
+    @computed('isShown', 'interactive') get floatingPointerEvents() {
+        return this.isShown && this.interactive ? 'auto' : 'none';
     }
 
     @computed('showOn') get showEvents() {
@@ -94,6 +105,10 @@ export default class AttachPopoverComponent extends Component {
         // apply default arguments
         this.setDefaultOptions();
 
+        // Whether the attachment should currently be visible; also driven by
+        // show()/hide() and, later, by updates to @isShown.
+        this.isShown = Boolean(this.args.isShown);
+
         // set last used capture arg
         this.lastUseCaptureArgumentValue = this.useCapture;
 
@@ -122,6 +137,18 @@ export default class AttachPopoverComponent extends Component {
         this.initializeAttacher();
     }
 
+    /**
+     * Follows later changes to `@isShown` so a parent can open or close the
+     * attachment after the initial render.
+     */
+    @action isShownArgumentChanged(element, [isShown]) {
+        if (isShown) {
+            this.show();
+        } else if (this.floatingElement) {
+            this.hide();
+        }
+    }
+
     @action initializeAttacher() {
         this.removeEventListeners();
 
@@ -143,6 +170,8 @@ export default class AttachPopoverComponent extends Component {
 
     @action hide() {
         const { floatingElement } = this;
+
+        this.isShown = false;
 
         if (!floatingElement) {
             this.animationTimeout = requestAnimationFrame(() => {
@@ -344,6 +373,7 @@ export default class AttachPopoverComponent extends Component {
         }
 
         this.mustRender = true;
+        this.isShown = true;
 
         // Make the attachment visible immediately so transition animations can take place
         this.setIsVisibleAfterDelay(true, 0);
@@ -417,6 +447,7 @@ export default class AttachPopoverComponent extends Component {
                     this.animationTimeout = requestAnimationFrame(() => {
                         if (!this.isDestroyed && !this.isDestroying) {
                             this.floatingElement.style.display = isVisible ? '' : 'none';
+                            this.floatingElement.style.pointerEvents = this.floatingPointerEvents;
 
                             // Prevent jank by making the attachment invisible until positioned.
                             // The visibility style will be toggled by this.startShowAnimation()
@@ -432,6 +463,7 @@ export default class AttachPopoverComponent extends Component {
             );
         } else {
             this.floatingElement.style.display = isVisible ? '' : 'none';
+            this.floatingElement.style.pointerEvents = this.floatingPointerEvents;
 
             // Prevent jank by making the attachment invisible until positioned.
             // The visibility style will be toggled by this.startShowAnimation()
