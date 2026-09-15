@@ -1,16 +1,25 @@
-<Pill
+<Resource::Pill
     @resource={{this.resource}}
-    @imageSrc={{avatar-url this.resource.avatar_url}}
+    @resourceType="user"
+    @title={{@title}}
     @titleFallback={{or @titleFallback "No user"}}
-    @subtitle={{n-a this.resource.email (if this.resource "No email" "-")}}
-    @fallbackImageType="userImage"
-    @noTooltip={{not this.resource}}
+    @subtitle={{this.subtitle}}
+    @showOnlineIndicator={{this.showOnlineIndicator}}
+    @online={{this.online}}
+    @noPopover={{@noPopover}}
+    @popoverPlacement={{@popoverPlacement}}
+    @static={{@static}}
     @onClick={{@onClick}}
+    @onView={{@onView}}
     @anchorClass={{@anchorClass}}
     @imageClass={{@imageClass}}
     @imageWrapperClass={{@imageWrapperClass}}
     @contentWrapperClass={{@contentWrapperClass}}
     @titleClass={{@titleClass}}
     @subtitleClass={{@subtitleClass}}
+    @useBlock={{has-block}}
     ...attributes
-/>
+    as |resource|
+>
+    {{yield resource}}
+</Resource::Pill>
