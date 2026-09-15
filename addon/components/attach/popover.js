@@ -378,6 +378,20 @@ export default class AttachPopoverComponent extends Component {
         // Make the attachment visible immediately so transition animations can take place
         this.setIsVisibleAfterDelay(true, 0);
         this.startShowAnimation();
+
+        // An interactive attachment that was opened programmatically (or whose
+        // target the pointer left before the listeners were bound) must still
+        // close once the pointer is away from both target and attachment.
+        if (this.interactive && this.hideEvents.includes('mouseleave')) {
+            this.hideOnMouseLeaveTarget();
+        }
+    }
+
+    willDestroy() {
+        super.willDestroy(...arguments);
+        cancel(this.delayedVisibilityToggle);
+        cancelAnimationFrame(this.animationTimeout);
+        this.removeEventListeners();
     }
 
     @action startShowAnimation() {
