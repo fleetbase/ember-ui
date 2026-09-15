@@ -27,7 +27,8 @@ export default class UserPillComponent extends Component {
             return Boolean(this.args.showOnlineIndicator);
         }
 
-        return typeof this.args.onlinePath === 'string';
+        // With an explicit path the dot is wanted; otherwise the descriptor decides.
+        return typeof this.args.onlinePath === 'string' ? true : undefined;
     }
 
     get online() {
