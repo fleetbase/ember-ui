@@ -31,7 +31,7 @@ module('Integration | Component | filter/model', function (hooks) {
 
     hooks.beforeEach(function () {
         this.owner.register('service:store', StoreStub);
-        this.owner.register('template:components/select-option/person', hbs`<span data-test-person-option data-compact={{@compact}}>{{@option.name}}</span>`);
+        this.owner.register('template:components/select-option/person', hbs`<span data-test-person-option data-compact={{if @compact "true"}}>{{@option.name}}</span>`);
         this.owner.register('template:components/custom-option', hbs`<span data-test-custom-option>{{@option.name}}!</span>`);
     });
 
@@ -45,7 +45,7 @@ module('Integration | Component | filter/model', function (hooks) {
         });
 
         await render(hbs`<Filter::Model @filter={{this.filter}} @onChange={{this.onChange}} />`);
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
 
         assert.dom('.ember-power-select-option [data-test-person-option]').exists({ count: 2 });
         assert.dom('.ember-power-select-option [data-test-person-option]').doesNotHaveAttribute('data-compact');
@@ -60,7 +60,7 @@ module('Integration | Component | filter/model', function (hooks) {
         this.set('filter', { model: 'person', filterOptionComponent: 'custom-option' });
 
         await render(hbs`<Filter::Model @filter={{this.filter}} />`);
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
 
         assert.dom('.ember-power-select-option [data-test-custom-option]').exists({ count: 2 });
         assert.dom('.ember-power-select-option [data-test-person-option]').doesNotExist();
@@ -70,7 +70,7 @@ module('Integration | Component | filter/model', function (hooks) {
         this.set('filter', { model: 'unknown-thing', modelNamePath: 'phone' });
 
         await render(hbs`<Filter::Model @filter={{this.filter}} />`);
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
 
         assert.dom('.ember-power-select-option').exists({ count: 2 });
         assert.dom('.ember-power-select-option').hasText('+1');
@@ -82,7 +82,7 @@ module('Integration | Component | filter/model', function (hooks) {
         this.set('onClear', (filter) => assert.strictEqual(filter, this.filter));
 
         await render(hbs`<Filter::Model @filter={{this.filter}} @value={{null}} @onClear={{this.onClear}} />`);
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
         await click('.ember-power-select-option');
         assert.dom('.ember-power-select-selected-item').hasText('Ada');
 

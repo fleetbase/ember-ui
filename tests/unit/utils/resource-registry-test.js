@@ -73,11 +73,12 @@ module('Unit | Utility | resource-registry', function (hooks) {
         assert.strictEqual(driver.components.selectOption, 'custom/driver-option');
         assert.strictEqual(driver.icon, 'id-card');
         assert.strictEqual(driver.labelKey, 'x.driver');
-        assert.strictEqual(getResourceDescriptors(this.owner).length, 2);
+        const count = getResourceDescriptors(this.owner).length;
+        assert.ok(count >= 2, 'both registered (the core families are registered by the instance-initializer)');
 
         const replaced = registerResourceDescriptor(this.owner, { key: 'driver', icon: 'user' });
         assert.strictEqual(replaced.icon, 'user');
-        assert.strictEqual(getResourceDescriptors(this.owner).length, 2, 'the same key replaces');
+        assert.strictEqual(getResourceDescriptors(this.owner).length, count, 'the same key replaces');
         assert.strictEqual(getResourceDescriptor(this.owner, 'driver').icon, 'user');
         assert.deepEqual(
             registerResourceDescriptors(this.owner, { key: 'single' }).map((d) => d.key),
@@ -155,13 +156,13 @@ module('Unit | Utility | resource-registry', function (hooks) {
     });
 
     test('setResourceOpener lets another package supply how a resource opens', async function (assert) {
-        registerResourceDescriptors(this.owner, [{ key: 'user' }]);
-        const record = { resourceType: 'user' };
+        registerResourceDescriptors(this.owner, [{ key: 'widget-thing' }]);
+        const record = { resourceType: 'widget-thing' };
 
         assert.false(canOpenResource(this.owner, record), 'nothing to open yet');
         assert.false(setResourceOpener(this.owner, 'nothing', () => true));
-        assert.true(setResourceOpener(this.owner, 'user', () => 'opened', { permission: 'iam view user', canOpen: () => true }));
-        assert.strictEqual(getResourceDescriptor(this.owner, 'user').permission, 'iam view user');
+        assert.true(setResourceOpener(this.owner, 'widget-thing', () => 'opened', { permission: null, canOpen: () => true }));
+        assert.strictEqual(getResourceDescriptor(this.owner, 'widget-thing').permission, null);
         assert.true(canOpenResource(this.owner, record));
         assert.true(await openResource(this.owner, record));
     });

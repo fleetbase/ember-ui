@@ -7,13 +7,17 @@ import { clickTrigger } from 'ember-power-select/test-support/helpers';
 module('Integration | Component | multi-select', function (hooks) {
     setupRenderingTest(hooks);
 
+    hooks.beforeEach(function () {
+        this.set('noop', () => {});
+    });
+
     test('it renders options and forwards the selected item component', async function (assert) {
         this.owner.register('template:components/test-selected', hbs`<span data-test-selected>{{@option.name}}</span>`);
         this.set('options', [{ name: 'Ada' }, { name: 'Bob' }]);
         this.set('selected', [this.options[0]]);
 
         await render(hbs`
-            <MultiSelect @options={{this.options}} @selected={{this.selected}} @selectedItemComponent={{component "test-selected"}} as |option|>
+            <MultiSelect @options={{this.options}} @selected={{this.selected}} @onChange={{this.noop}} @selectedItemComponent={{component "test-selected"}} as |option|>
                 {{option.name}}
             </MultiSelect>
         `);
@@ -29,6 +33,7 @@ module('Integration | Component | multi-select', function (hooks) {
             <MultiSelect
                 @options={{this.options}}
                 @selected={{this.selected}}
+                @onChange={{this.noop}}
                 @searchEnabled={{true}}
                 @searchField="name"
                 @searchFieldPosition="before-options"
@@ -39,7 +44,7 @@ module('Integration | Component | multi-select', function (hooks) {
             </MultiSelect>
         `);
 
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger();
         assert.dom('.ember-power-select-search-input').hasAttribute('placeholder', 'Find a person');
 
         await fillIn('.ember-power-select-search-input', 'bo');

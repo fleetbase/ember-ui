@@ -26,7 +26,7 @@ module('Integration | Component | resource identity smoke', function (hooks) {
         assert.dom('[data-test-resource-pill][data-resource-type="user"]').includesText('Ada Lovelace');
         assert.dom('[data-test-resource-pill][data-resource-type="user"]').includesText('ada@example.test');
         assert.dom('[data-test-resource-pill][data-resource-type="user"] [data-test-pill-online-indicator]').hasClass('text-green-500');
-        assert.dom('[data-test-resource-pill][data-resource-type="user"] .fleetbase-pill').hasClass('fleetbase-pill--static', 'no opener registered, so static');
+        assert.dom('[data-test-resource-pill][data-resource-type="user"]').hasClass('fleetbase-pill--static', 'no opener registered, so static');
         assert.dom('[data-test-resource-summary-title]').hasText('Ada Lovelace');
         assert.dom('[data-test-resource-summary-fact]').exists();
         assert.dom('[data-test-resource-summary-view]').doesNotExist();
@@ -64,7 +64,7 @@ module('Integration | Component | resource identity smoke', function (hooks) {
         const registry = this.owner.lookup('service:resource-registry');
         registry.setOpener('user', (record) => opened.push(record) && true);
 
-        await render(hbs`<User::Pill @user={{this.user}} /><Table::Cell::UserIdentity @row={{this.user}} @column={{hash}} />`);
+        await render(hbs`<User::Pill @user={{this.user}} /><Table::Cell::UserIdentity @row={{this.user}} @column={{hash label="User"}} />`);
         await click('[data-test-resource-pill] a');
         await click('[data-test-identity-button]');
 

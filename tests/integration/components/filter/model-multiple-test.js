@@ -42,7 +42,7 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
 
     hooks.beforeEach(function () {
         this.owner.register('service:store', StoreStub);
-        this.owner.register('template:components/select-option/person', hbs`<span data-test-person-option data-compact={{@compact}}>{{@option.name}}</span>`);
+        this.owner.register('template:components/select-option/person', hbs`<span data-test-person-option data-compact={{if @compact "true"}}>{{@option.name}}</span>`);
     });
 
     test('it restores chips from a comma-separated id value, peeking before fetching', async function (assert) {
@@ -82,11 +82,11 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
         this.set('onClear', (filter) => clears.push(filter));
 
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @onChange={{this.onChange}} @onClear={{this.onClear}} />`);
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
         assert.dom('.ember-power-select-option [data-test-person-option]').exists({ count: 3 });
 
         await click('.ember-power-select-option');
-        await clickTrigger('.ember-power-select-trigger');
+        await clickTrigger('.ember-model-select');
         await click('.ember-power-select-option:nth-child(2)');
         assert.deepEqual(changes, ['a', 'a,b']);
         assert.dom('.ember-power-select-multiple-option [data-test-person-option][data-compact="true"]').exists({ count: 2 });

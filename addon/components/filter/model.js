@@ -36,8 +36,14 @@ export default class FilterModelComponent extends Component {
 
         this.selectedModel = selectedModel;
 
+        // The select's own clear control selects null; report that as a clear
+        // so the filter is removed rather than set to an empty value.
+        if (!selectedModel) {
+            return this.clear();
+        }
+
         if (typeof onChange === 'function') {
-            onChange(filter, selectedModel?.id);
+            onChange(filter, selectedModel.id);
         }
     }
 
