@@ -489,9 +489,11 @@ async function loadCanonicalRecord(owner, descriptor, record) {
 
 /**
  * Whether the resource has an open path the current user may use.
+ * `options.resourceType` names the type of a record that cannot be
+ * resolved on its own.
  */
-export function canOpenResource(owner, input) {
-    const descriptor = getResourceDescriptor(owner, input);
+export function canOpenResource(owner, input, options = {}) {
+    const descriptor = getResourceDescriptor(owner, input) ?? getResourceDescriptor(owner, options.resourceType);
 
     if (!descriptor || typeof descriptor.open !== 'function') {
         return false;

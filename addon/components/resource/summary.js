@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { task } from 'ember-concurrency';
-import { getResourceDescriptor, canOpenResource, openResource, readDescriptor } from '../../utils/resource-registry';
+import { getResourceDescriptor, resolveResourceKey, canOpenResource, openResource, readDescriptor } from '../../utils/resource-registry';
 import { unwrapRecord, resourceTitle, resourceIdentifier, resourceImage, resourceOnline, resourceStatus, resourceFacts, makeTranslator } from '../../utils/resource-identity';
 
 /**
@@ -28,8 +28,12 @@ export default class ResourceSummaryComponent extends Component {
         return this.hydrated ?? unwrapRecord(this.args.resource);
     }
 
+    get key() {
+        return resolveResourceKey(this.owner, this.record) ?? resolveResourceKey(this.owner, this.args.resourceType);
+    }
+
     get descriptor() {
-        return getResourceDescriptor(this.owner, this.args.resourceType ?? this.record ?? this.args.resource);
+        return getResourceDescriptor(this.owner, this.key);
     }
 
     get title() {
@@ -69,7 +73,7 @@ export default class ResourceSummaryComponent extends Component {
     }
 
     get canOpen() {
-        return canOpenResource(this.owner, this.args.resourceType ?? this.record);
+        return canOpenResource(this.owner, this.record, { resourceType: this.args.resourceType });
     }
 
     get showView() {

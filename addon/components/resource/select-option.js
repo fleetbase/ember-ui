@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { getOwner } from '@ember/application';
-import { getResourceDescriptor } from '../../utils/resource-registry';
+import { getResourceDescriptor, resolveResourceKey } from '../../utils/resource-registry';
 import { unwrapRecord, resourceTitle, resourceImage, resourceSelectDetails } from '../../utils/resource-identity';
 
 /**
@@ -21,7 +21,7 @@ export default class ResourceSelectOptionComponent extends Component {
     }
 
     get descriptor() {
-        return getResourceDescriptor(this.owner, this.args.resourceType ?? this.record);
+        return getResourceDescriptor(this.owner, resolveResourceKey(this.owner, this.record) ?? this.args.resourceType);
     }
 
     get title() {

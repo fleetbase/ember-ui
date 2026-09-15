@@ -52,12 +52,13 @@ export default class TableCellIdentityComponent extends Component {
         return this.column.resourceType ?? this.args.resourceType;
     }
 
+    /** The record's own type wins; the column or wrapper type is the fallback. */
     get key() {
-        return resolveResourceKey(this.owner, this.resourceType ?? this.resource);
+        return resolveResourceKey(this.owner, this.resource) ?? resolveResourceKey(this.owner, this.resourceType);
     }
 
     get descriptor() {
-        return getResourceDescriptor(this.owner, this.resourceType ?? this.resource);
+        return getResourceDescriptor(this.owner, this.key);
     }
 
     get emptyText() {
@@ -179,11 +180,11 @@ export default class TableCellIdentityComponent extends Component {
     }
 
     get hasOpenPath() {
-        return this.hasHandler || canOpenResource(this.owner, this.resourceType ?? this.resource);
+        return this.hasHandler || canOpenResource(this.owner, this.resource, { resourceType: this.resourceType });
     }
 
     get showPopover() {
-        return this.column.popover !== false && Boolean(resourceComponentName(this.owner, 'summary', this.resourceType ?? this.resource));
+        return this.column.popover !== false && Boolean(resourceComponentName(this.owner, 'summary', this.key));
     }
 
     get wrapperClass() {

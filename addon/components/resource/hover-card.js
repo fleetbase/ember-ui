@@ -47,7 +47,7 @@ export default class ResourceHoverCardComponent extends Component {
     }
 
     get summaryComponent() {
-        return this.args.summaryComponent ?? resourceComponentName(getOwner(this), 'summary', this.args.resourceType ?? this.args.resource);
+        return this.args.summaryComponent ?? resourceComponentName(getOwner(this), 'summary', this.args.resource) ?? resourceComponentName(getOwner(this), 'summary', this.args.resourceType);
     }
 
     get isTouchDevice() {

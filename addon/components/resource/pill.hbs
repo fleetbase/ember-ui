@@ -47,7 +47,7 @@
             {{/if}}
         {{/if}}
         {{#if this.showPopover}}
-            <Resource::HoverCard @resource={{@resource}} @resourceType={{@resourceType}} @targetSelector=".fleetbase-pill" @placement={{@popoverPlacement}} @armDelay={{@popoverDelay}} @onView={{@onView}} />
+            <Resource::HoverCard @resource={{@resource}} @resourceType={{this.key}} @targetSelector=".fleetbase-pill" @placement={{@popoverPlacement}} @armDelay={{@popoverDelay}} @onView={{@onView}} />
         {{/if}}
     </:default>
 </Pill>

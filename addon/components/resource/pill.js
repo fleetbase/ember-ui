@@ -20,12 +20,17 @@ export default class ResourcePillComponent extends Component {
         return unwrapRecord(this.args.resource);
     }
 
+    /**
+     * The record's own type wins; `@resourceType` names the type of a record
+     * that does not resolve by itself (a POJO, or a polymorphic base whose
+     * concrete subtype is unknown here).
+     */
     get key() {
-        return resolveResourceKey(this.owner, this.args.resourceType ?? this.record);
+        return resolveResourceKey(this.owner, this.record) ?? resolveResourceKey(this.owner, this.args.resourceType);
     }
 
     get descriptor() {
-        return getResourceDescriptor(this.owner, this.args.resourceType ?? this.record);
+        return getResourceDescriptor(this.owner, this.key);
     }
 
     get title() {
@@ -70,7 +75,7 @@ export default class ResourcePillComponent extends Component {
     }
 
     get canOpen() {
-        return Boolean(this.record) && canOpenResource(this.owner, this.args.resourceType ?? this.record);
+        return Boolean(this.record) && canOpenResource(this.owner, this.record, { resourceType: this.args.resourceType });
     }
 
     get clickHandler() {
@@ -86,7 +91,7 @@ export default class ResourcePillComponent extends Component {
     }
 
     get showPopover() {
-        return !this.args.noPopover && Boolean(this.record) && Boolean(resourceComponentName(this.owner, 'summary', this.args.resourceType ?? this.record));
+        return !this.args.noPopover && Boolean(this.record) && Boolean(resourceComponentName(this.owner, 'summary', this.key));
     }
 
     @action open(resource, event) {
