@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, settled } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import Service from '@ember/service';
 import { A } from '@ember/array';
@@ -49,7 +49,6 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
         this.set('filter', { model: 'person' });
 
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value="a, b,gone," />`);
-        await settled();
 
         const store = this.owner.lookup('service:store');
         assert.deepEqual(store.peeked, ['a', 'b', 'gone']);
@@ -63,17 +62,14 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
         this.set('value', ['a', null]);
 
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value={{this.value}} />`);
-        await settled();
         assert.dom('.ember-power-select-multiple-option').exists({ count: 1 });
 
         this.set('value', '');
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value={{this.value}} />`);
-        await settled();
         assert.dom('.ember-power-select-multiple-option').doesNotExist();
 
         this.set('filter', {});
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value="a" />`);
-        await settled();
         assert.dom('.ember-power-select-multiple-option').doesNotExist('no model name means nothing to restore');
     });
 
@@ -109,7 +105,6 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
         this.set('onClear', (filter) => clears.push(filter));
 
         await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value="a" @onChange={{this.onChange}} @onClear={{this.onClear}} />`);
-        await settled();
         await click('.ember-power-select-multiple-remove-btn');
 
         assert.deepEqual(changes, []);

@@ -61,7 +61,6 @@ module('Integration | Component | attach/popover', function (hooks) {
         // Leave the target and move onto the popover: it must stay open.
         await triggerEvent('#target', 'mouseleave');
         await triggerEvent('#inside', 'mousemove');
-        await settled();
         assert.strictEqual(attacher().getAttribute('aria-hidden'), 'false', 'still shown while the pointer is over the popover');
 
         // Move away from both: it hides, and pointer events go back to none.
@@ -81,7 +80,9 @@ module('Integration | Component | attach/popover', function (hooks) {
 
     test('it hides on escape and follows later changes to @isShown', async function (assert) {
         this.set('shown', false);
-        await render(hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{this.shown}} @lazyRender={{true}} @showDuration={{0}} @hideDuration={{0}}>x</Attach::Popover></button>`);
+        await render(
+            hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{this.shown}} @lazyRender={{true}} @showDuration={{0}} @hideDuration={{0}}>x</Attach::Popover></button>`
+        );
 
         assert.notOk(attacher(), 'lazy popover renders nothing until it is shown');
 

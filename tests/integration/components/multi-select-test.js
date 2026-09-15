@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, fillIn, settled } from '@ember/test-helpers';
+import { render, fillIn } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { clickTrigger } from 'ember-power-select/test-support/helpers';
 
@@ -43,7 +43,6 @@ module('Integration | Component | multi-select', function (hooks) {
         assert.dom('.ember-power-select-search-input').hasAttribute('placeholder', 'Find a person');
 
         await fillIn('.ember-power-select-search-input', 'bo');
-        await settled();
         assert.dom('.ember-power-select-option').exists({ count: 1 });
         assert.dom('.ember-power-select-option').hasText('Bob');
     });

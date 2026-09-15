@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-get -- records and identity stubs are read by path, so `get` is the point */
 import { get } from '@ember/object';
 import ObjectProxy from '@ember/object/proxy';
 import { getResourceDescriptor, readDescriptor, safeIdentifier, resourceComponentName, relationValue } from './resource-registry';
@@ -188,7 +189,10 @@ export function resourceBadges(descriptor, record, context = {}) {
     const list = Array.isArray(badges) ? badges : [];
     const selfId = context.selfId ?? null;
 
-    return list.filter((badge) => badge && badge.label !== undefined && badge.label !== null && String(badge.label).trim() !== '' && !(selfId && badge.relatedId && String(badge.relatedId) === String(selfId)));
+    return list.filter(
+        (badge) =>
+            badge && badge.label !== undefined && badge.label !== null && String(badge.label).trim() !== '' && !(selfId && badge.relatedId && String(badge.relatedId) === String(selfId))
+    );
 }
 
 export function formatFactValue(value, format) {

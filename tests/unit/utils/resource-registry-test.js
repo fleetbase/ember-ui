@@ -49,7 +49,12 @@ module('Unit | Utility | resource-registry', function (hooks) {
 
     test('it normalizes descriptors on registration and rejects junk', function (assert) {
         const [vehicle, driver] = registerResourceDescriptors(this.owner, [
-            { key: 'vehicle', aliases: ['attachable-vehicle', ' '], modelNames: ['maintenance-subject-vehicle'], polymorphicTypes: ['fleet-ops:vehicle', 'Fleetbase\\FleetOps\\Models\\Vehicle'] },
+            {
+                key: 'vehicle',
+                aliases: ['attachable-vehicle', ' '],
+                modelNames: ['maintenance-subject-vehicle'],
+                polymorphicTypes: ['fleet-ops:vehicle', 'Fleetbase\\FleetOps\\Models\\Vehicle'],
+            },
             { key: 'driver', components: { pill: 'custom/driver-pill', 'select-option': 'custom/driver-option' }, icon: 'id-card', labelKey: 'x.driver' },
             { nokey: true },
             null,
@@ -74,7 +79,11 @@ module('Unit | Utility | resource-registry', function (hooks) {
         assert.strictEqual(replaced.icon, 'user');
         assert.strictEqual(getResourceDescriptors(this.owner).length, 2, 'the same key replaces');
         assert.strictEqual(getResourceDescriptor(this.owner, 'driver').icon, 'user');
-        assert.deepEqual(registerResourceDescriptors(this.owner, { key: 'single' }).map((d) => d.key), ['single'], 'a single descriptor is accepted');
+        assert.deepEqual(
+            registerResourceDescriptors(this.owner, { key: 'single' }).map((d) => d.key),
+            ['single'],
+            'a single descriptor is accepted'
+        );
         assert.strictEqual(registerResourceDescriptor(this.owner, null), null);
         assert.deepEqual(registerResourceDescriptors(null, [{ key: 'nowhere' }]), [], 'no owner, no registration');
     });

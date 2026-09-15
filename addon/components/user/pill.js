@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-get -- records and identity stubs are read by path, so `get` is the point */
 import Component from '@glimmer/component';
 import { get } from '@ember/object';
 

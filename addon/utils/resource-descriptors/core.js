@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-get -- records and identity stubs are read by path, so `get` is the point */
 import { get } from '@ember/object';
 import { relationValue, safeIdentifier } from '../resource-registry';
 
@@ -146,7 +147,13 @@ export function buildCoreResourceDescriptors() {
             },
             selectDetails: (company) => [first(company, 'country'), first(company, 'timezone')],
             facts: (company) => [
-                { labelKey: 'resource-summary.facts.owner', label: 'Owner', related: relationValue(company, 'owner'), relatedType: 'user', value: first(company, 'owner.name', 'owner_name') },
+                {
+                    labelKey: 'resource-summary.facts.owner',
+                    label: 'Owner',
+                    related: relationValue(company, 'owner'),
+                    relatedType: 'user',
+                    value: first(company, 'owner.name', 'owner_name'),
+                },
                 { labelKey: 'resource-summary.facts.members', label: 'Members', value: count(company, 'users', 'users_count') },
                 { labelKey: 'resource-summary.facts.country', label: 'Country', value: first(company, 'country') },
                 { labelKey: 'resource-summary.facts.timezone', label: 'Timezone', value: first(company, 'timezone') },
@@ -213,7 +220,13 @@ export function buildCoreResourceDescriptors() {
             facts: (file) => [
                 { labelKey: 'resource-summary.facts.type', label: 'Type', value: first(file, 'content_type', 'type') },
                 { labelKey: 'resource-summary.facts.size', label: 'Size', value: get(file, 'file_size'), format: 'bytes' },
-                { labelKey: 'resource-summary.facts.uploader', label: 'Uploaded by', related: relationValue(file, 'uploader'), relatedType: 'user', value: first(file, 'uploader.name', 'uploader_name') },
+                {
+                    labelKey: 'resource-summary.facts.uploader',
+                    label: 'Uploaded by',
+                    related: relationValue(file, 'uploader'),
+                    relatedType: 'user',
+                    value: first(file, 'uploader.name', 'uploader_name'),
+                },
                 { labelKey: 'resource-summary.facts.created', label: 'Uploaded', value: get(file, 'created_at'), format: 'date' },
             ],
             canOpen: (file) => present(get(file ?? {}, 'url')),
@@ -254,7 +267,13 @@ export function buildCoreResourceDescriptors() {
             },
             selectDetails: (category) => [first(category, 'for'), first(category, 'description')],
             facts: (category) => [
-                { labelKey: 'resource-summary.facts.parent', label: 'Parent', related: relationValue(category, 'parent'), relatedType: 'category', value: first(category, 'parent.name', 'parent_name') },
+                {
+                    labelKey: 'resource-summary.facts.parent',
+                    label: 'Parent',
+                    related: relationValue(category, 'parent'),
+                    relatedType: 'category',
+                    value: first(category, 'parent.name', 'parent_name'),
+                },
                 { labelKey: 'resource-summary.facts.for', label: 'For', value: first(category, 'for', 'owner_type') },
                 { labelKey: 'resource-summary.facts.icon', label: 'Icon', value: first(category, 'icon') },
                 { labelKey: 'resource-summary.facts.colour', label: 'Colour', value: first(category, 'icon_color') },
