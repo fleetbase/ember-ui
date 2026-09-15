@@ -8,6 +8,7 @@ import { cancel, debounce, later, run } from '@ember/runloop';
 export default class AttachPopoverComponent extends Component {
     @tracked animation = 'fill';
     @tracked arrow = false;
+    @tracked class = null;
     @tracked flip = null;
     @tracked hideDelay = 0;
     @tracked hideDuration = 300;

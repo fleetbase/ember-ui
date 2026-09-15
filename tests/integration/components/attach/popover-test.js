@@ -1,26 +1,38 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+
+function attacher() {
+    return document.querySelector('.ember-attacher');
+}
+
+function content() {
+    return document.querySelector('.ember-attacher > div');
+}
+
+async function waitForShown() {
+    await waitUntil(() => attacher()?.getAttribute('aria-hidden') === 'false', { timeout: 2000 });
+    await settled();
+}
 
 module('Integration | Component | attach/popover', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block once shown', async function (assert) {
+        await render(hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{true}}>popover text</Attach::Popover></button>`);
+        await waitForShown();
 
-        await render(hbs`<Attach::Popover />`);
+        assert.dom(attacher()).includesText('popover text');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it applies @class to the floating element', async function (assert) {
+        await render(hbs`<button type="button" id="target">Target <Attach::Popover @class="resource-hover-card" @classNames="inner-class" @isShown={{true}}>x</Attach::Popover></button>`);
+        await waitForShown();
 
-        // Template block usage:
-        await render(hbs`
-      <Attach::Popover>
-        template block text
-      </Attach::Popover>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom(attacher()).hasClass('ember-attacher');
+        assert.dom(attacher()).hasClass('resource-hover-card');
+        assert.dom(content()).hasClass('inner-class');
+        assert.dom(content()).doesNotHaveClass('resource-hover-card');
     });
 });

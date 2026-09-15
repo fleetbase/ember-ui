@@ -2,7 +2,7 @@
     {{#if (and this.currentTarget (or (not this.lazyRender) this.mustRender))}}
         <Floating
             id={{this.id}}
-            class="ember-attacher"
+            class="ember-attacher {{this.class}}"
             @ariaRole={{@ariaRole}}
             @placement={{this.placement}}
             @container={{this.floatingContainer}}
