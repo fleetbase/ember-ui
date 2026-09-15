@@ -43,7 +43,7 @@
         {{else}}
             <div class="text-sm truncate {{@titleClass}}" data-test-resource-pill-title>{{this.title}}</div>
             {{#if this.subtitle}}
-                <div class="text-xs text-gray-400 dark:text-gray-500 truncate {{@subtitleClass}}" data-test-resource-pill-subtitle>{{this.subtitle}}</div>
+                <div class="resource-pill-subtitle text-xs text-gray-400 dark:text-gray-500 truncate {{@subtitleClass}}" data-test-resource-pill-subtitle>{{this.subtitle}}</div>
             {{/if}}
         {{/if}}
         {{#if this.showPopover}}

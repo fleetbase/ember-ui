@@ -106,7 +106,7 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
     height: 1.25rem;
 }
 
-.resource-summary-fact > dd .fleetbase-pill .text-xs {
+.resource-summary-fact > dd .fleetbase-pill .resource-pill-subtitle {
     display: none;
 }
 
