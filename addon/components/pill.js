@@ -4,6 +4,20 @@ import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 
 export default class PillComponent extends Component {
     /* eslint-disable ember/no-get */
+    get isClickable() {
+        return typeof this.args.onClick === 'function';
+    }
+
+    get isOnline() {
+        if (this.args.online !== undefined) {
+            return Boolean(this.args.online);
+        }
+
+        const record = this.args.resource;
+
+        return record ? Boolean(get(record, this.args.onlinePath ?? 'online')) : false;
+    }
+
     get resourceName() {
         const record = this.args.resource;
         if (!record) return null;
