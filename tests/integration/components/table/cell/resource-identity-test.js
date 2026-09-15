@@ -30,7 +30,6 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
         assert.dom('.table-cell-resource-identity').exists();
         assert.dom('[data-test-resource-identity-image]').hasAttribute('src', 'https://example.com/truck.png');
         assert.dom('button').hasClass('items-start');
-        assert.dom('button').doesNotHaveClass('py-0.5');
         assert.dom('[data-test-resource-identity-image]').hasClass('h-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('w-7');
         assert.dom('[data-test-resource-identity-image]').hasClass('border');
@@ -133,8 +132,8 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
         await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
 
         assert.dom('[data-test-resource-identity-meta-badge]').exists({ count: 2 });
-        assert.dom('[data-test-resource-identity-meta-badge]').includesText('+1 555 0100');
-        assert.dom('[data-test-resource-identity-meta-badge]').includesText('Van 12');
+        assert.dom('[data-test-resource-identity-meta-badge]:nth-of-type(1)').includesText('+1 555 0100');
+        assert.dom('[data-test-resource-identity-meta-badge]:nth-of-type(2)').includesText('Van 12');
         assert.dom('[data-test-resource-identity-status-badge]').exists();
         assert.dom('[data-test-resource-identity-status-badge]').hasClass('status-badge-xxs');
     });

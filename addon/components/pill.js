@@ -1,6 +1,5 @@
 import Component from '@glimmer/component';
 import { action, get } from '@ember/object';
-import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 
 export default class PillComponent extends Component {
     /* eslint-disable ember/no-get */
@@ -28,7 +27,8 @@ export default class PillComponent extends Component {
             get(record, 'displayName') ??
             get(record, 'tracking') ??
             get(record, 'public_id') ??
-            getModelName(record)
+            get(record, 'constructor.modelName') ??
+            null
         );
     }
 
