@@ -1,0 +1,31 @@
+{{! One line: image or icon tile with the status dot, the name, then inline badges. }}
+<div class="relative flex h-5 w-5 flex-shrink-0 items-center justify-center">
+    {{#if @image.component}}
+        {{component @image.component resource=@resource}}
+    {{else if @image.icon}}
+        <div class="table-cell-identity-icon flex h-5 w-5 items-center justify-center rounded-md border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 {{@image.iconClass}}" data-test-identity-icon>
+            <FaIcon @icon={{@image.icon}} @size="xs" />
+        </div>
+    {{else}}
+        <Image src={{@image.url}} @fallbackSrc={{@image.fallback}} alt="" class="h-5 w-5 border border-gray-200 object-cover shadow-sm dark:border-gray-700 {{if (eq @image.shape 'round') 'rounded-full' 'rounded-md'}}" data-test-resource-identity-image />
+    {{/if}}
+    {{#if @hasStatusDot}}
+        <FaIcon @icon="circle" @size="2xs" class="absolute left-0 top-0 -ml-1 -mt-1 {{@statusDotClass}}" data-test-resource-identity-status-dot />
+    {{/if}}
+</div>
+<div class="min-w-0 truncate text-sm leading-4 text-gray-900 group-hover:text-blue-600 dark:text-gray-200 dark:group-hover:text-blue-300" data-test-identity-label>{{n-a @label}}</div>
+{{#each @badges as |badge|}}
+    <span
+        data-test-resource-identity-meta-badge
+        data-badge-key={{badge.key}}
+        class="inline-flex min-w-0 max-w-[12rem] flex-shrink items-center rounded-lg bg-gray-200 px-1 py-0 text-[10px] leading-4 text-gray-700 shadow-sm dark:bg-gray-800 dark:text-gray-300 {{badge.class}}"
+    >
+        {{#if badge.icon}}
+            <FaIcon @icon={{badge.icon}} @prefix={{or badge.iconPrefix "fas"}} @size="xs" class="mr-1 flex-shrink-0 {{badge.iconClass}}" />
+        {{/if}}
+        <span class="truncate">{{badge.label}}</span>
+    </span>
+{{/each}}
+{{#if @showPopover}}
+    <Resource::HoverCard @resource={{@resource}} @resourceType={{@resourceType}} @placement="bottom-start" />
+{{/if}}

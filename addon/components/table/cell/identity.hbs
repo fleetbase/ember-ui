@@ -1,0 +1,40 @@
+{{#if this.resource}}
+    <div class="table-cell-identity {{this.wrapperClass}}" data-resource-type={{this.key}} ...attributes>
+        {{#if this.hasOpenPath}}
+            <button
+                type="button"
+                disabled={{this.isDisabled}}
+                {{on "click" this.onClick}}
+                class="group flex w-full min-w-0 cursor-pointer items-center gap-2 py-0.5 text-left disabled:cursor-not-allowed disabled:opacity-60"
+                data-test-identity-cell
+                data-test-identity-button
+            >
+                <Table::Cell::Identity::Body
+                    @resource={{this.resource}}
+                    @resourceType={{this.resourceType}}
+                    @image={{this.image}}
+                    @label={{this.label}}
+                    @badges={{this.badges}}
+                    @hasStatusDot={{this.hasStatusDot}}
+                    @statusDotClass={{this.statusDotClass}}
+                    @showPopover={{this.showPopover}}
+                />
+            </button>
+        {{else}}
+            <div class="group flex w-full min-w-0 items-center gap-2 py-0.5 text-left" data-test-identity-cell data-test-identity-static>
+                <Table::Cell::Identity::Body
+                    @resource={{this.resource}}
+                    @resourceType={{this.resourceType}}
+                    @image={{this.image}}
+                    @label={{this.label}}
+                    @badges={{this.badges}}
+                    @hasStatusDot={{this.hasStatusDot}}
+                    @statusDotClass={{this.statusDotClass}}
+                    @showPopover={{this.showPopover}}
+                />
+            </div>
+        {{/if}}
+    </div>
+{{else}}
+    <div class="py-1 text-xs text-gray-400 dark:text-gray-500" data-test-identity-empty-text ...attributes>{{this.emptyText}}</div>
+{{/if}}
