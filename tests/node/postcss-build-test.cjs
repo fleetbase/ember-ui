@@ -83,3 +83,21 @@ test('JavaScript utility changes invalidate the Broccoli CSS cache', async () =>
         fs.rmSync(directory, { recursive: true, force: true });
     }
 });
+
+test('tooltip hide rules are flattened for modern targets and survive the production minifier', async () => {
+    // postcss-preset-env skips nesting for browsers that support it natively, but
+    // ember-cli's clean-css minifier cannot parse nesting, and a nested attacher
+    // block loses every rule that hides a tooltip until it is shown.
+    const from = path.resolve(__dirname, '../../addon/styles/components/attacher.css');
+    const { filtered } = await compile(fs.readFileSync(from, 'utf8'), from);
+    assert.doesNotMatch(filtered.css, /&/);
+    assert.match(filtered.css, /\.ember-attacher\[x-placement\^=['"]?top['"]?\]\s*>\s*\.ember-attacher-fill\s*\{[^}]*opacity:\s*0/);
+
+    const emberCli = path.dirname(require.resolve('ember-cli/package.json'));
+    const CleanCSS = require(require.resolve('clean-css', { paths: [emberCli] }));
+    const minified = new CleanCSS({}).minify(filtered.css);
+    assert.deepEqual(minified.errors, []);
+    assert.deepEqual(minified.warnings, []);
+    assert.match(minified.styles, /\.ember-attacher\[x-placement\^=['"]?top['"]?\]>\.ember-attacher-fill\{[^}]*opacity:0/);
+    assert.doesNotMatch(minified.styles, /\}&/);
+});
