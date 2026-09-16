@@ -1,0 +1,9 @@
+{{! A small set of exclusive choices, with "any" as the first one, drawn as radios so the state reads at a glance. }}
+<div class="filter-radio" role="radiogroup" data-test-filter-radio ...attributes>
+    {{#each this.choices as |choice|}}
+        <label class="filter-radio-option {{if (eq choice.value this.value) 'filter-radio-option--active'}}" data-test-filter-radio-option={{choice.value}}>
+            <input type="radio" name={{this.name}} value={{choice.value}} checked={{eq choice.value this.value}} {{on "change" (fn this.select choice.value)}} />
+            <span>{{choice.label}}</span>
+        </label>
+    {{/each}}
+</div>

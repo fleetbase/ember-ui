@@ -2651,6 +2651,28 @@ a.text-danger:hover {
     margin-top: 2rem;
 }
 
+.filter-radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    padding-top: 0.125rem;
+}
+
+.filter-radio-option {
+    @apply inline-flex cursor-pointer select-none items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300;
+    margin: 0;
+}
+
+.filter-radio-option--active {
+    @apply font-medium text-gray-900 dark:text-gray-100;
+}
+
+.filter-radio-option > input[type='radio'] {
+    @apply h-3.5 w-3.5 cursor-pointer;
+    accent-color: rgb(37 99 235);
+    margin: 0;
+}
+
 .filter-string {
     @apply flex flex-col relative;
 }
