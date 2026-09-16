@@ -34,7 +34,7 @@ module('Integration | Component | resource identity smoke', function (hooks) {
         assert.dom('[data-test-select-option-title]').hasText('Ada Lovelace');
         assert.dom('[data-test-identity-cell][data-test-identity-static]').exists();
         assert.dom('[data-test-identity-label]').hasText('Ada Lovelace');
-        assert.dom('[data-test-resource-identity-meta-badge]').hasText('Admin');
+        assert.dom('[data-test-resource-identity-meta-badge]').doesNotExist('core families carry no inline badges');
         assert.dom('[data-test-resource-identity-status-dot]').hasClass('text-green-500');
         assert.dom('[data-test-resource-pill][data-resource-type="file"] a[href]').exists('a file with a url opens');
         assert.dom('[data-test-resource-pill][data-resource-type="file"] [data-test-resource-pill-icon]').exists('non-image files get an icon tile');

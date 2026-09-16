@@ -101,8 +101,23 @@ export default class TableCellIdentityComponent extends Component {
         return image;
     }
 
+    /**
+     * A dot only where it means something: the column asks for one, names a
+     * path to read it from, or the resource reports an online state. A place
+     * or a contact has none, so it renders without a bulb.
+     */
     get hasStatusDot() {
-        return this.column.showStatusDot ?? this.column.showOnlineIndicator ?? true;
+        const explicit = this.column.showStatusDot ?? this.column.showOnlineIndicator;
+
+        if (explicit !== undefined && explicit !== null) {
+            return Boolean(explicit);
+        }
+
+        if (typeof this.column.onlinePath === 'string' || this.column.statusPath) {
+            return true;
+        }
+
+        return typeof resourceOnline(this.descriptor, this.resource) === 'boolean';
     }
 
     get statusValue() {

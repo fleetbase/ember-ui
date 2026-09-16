@@ -114,11 +114,6 @@ export function buildCoreResourceDescriptors() {
                 return typeof online === 'boolean' ? online : undefined;
             },
             status: (user) => first(user, 'status', 'session_status'),
-            badges: (user) => {
-                const role = first(user, 'role_name', 'role.name', 'type');
-
-                return role ? [{ key: 'role', icon: 'user-shield', label: role }] : [];
-            },
             selectDetails: (user) => [first(user, 'email'), first(user, 'phone')],
             facts: (user) => [
                 { labelKey: 'resource-summary.facts.email', label: 'Email', value: first(user, 'email') },
@@ -140,11 +135,6 @@ export function buildCoreResourceDescriptors() {
             identifier: (company) => safeIdentifier(first(company, 'public_id', 'slug')),
             image: (company) => ({ url: get(company, 'logo_url'), shape: 'square' }),
             status: (company) => first(company, 'status'),
-            badges: (company) => {
-                const plan = first(company, 'plan', 'type');
-
-                return plan ? [{ key: 'plan', icon: 'tag', label: plan }] : [];
-            },
             selectDetails: (company) => [first(company, 'country'), first(company, 'timezone')],
             facts: (company) => [
                 {
@@ -189,11 +179,6 @@ export function buildCoreResourceDescriptors() {
             title: (role) => first(role, 'name', 'public_id'),
             identifier: (role) => first(role, 'guard_name', 'type'),
             image: () => ({ icon: 'user-shield' }),
-            badges: (role) => {
-                const service = first(role, 'service');
-
-                return service ? [{ key: 'service', icon: 'cubes', label: service }] : [];
-            },
             selectDetails: (role) => [first(role, 'description'), first(role, 'guard_name')],
             facts: (role) => [
                 { labelKey: 'resource-summary.facts.description', label: 'Description', value: first(role, 'description') },
@@ -211,11 +196,6 @@ export function buildCoreResourceDescriptors() {
             title: (file) => first(file, 'original_filename', 'caption', 'url', 'public_id'),
             identifier: (file) => first(file, 'content_type', 'type'),
             image: (file) => (isImageFile(file) && present(get(file, 'url')) ? { url: get(file, 'url'), shape: 'square' } : { icon: fileIcon(file) }),
-            badges: (file) => {
-                const extension = fileExtension(file);
-
-                return extension ? [{ key: 'extension', icon: 'file', label: extension.toUpperCase() }] : [];
-            },
             selectDetails: (file) => [first(file, 'content_type', 'type'), typeof get(file, 'file_size') === 'number' ? get(file, 'file_size') : null].filter(present),
             facts: (file) => [
                 { labelKey: 'resource-summary.facts.type', label: 'Type', value: first(file, 'content_type', 'type') },
@@ -259,11 +239,6 @@ export function buildCoreResourceDescriptors() {
                 }
 
                 return present(url) ? { url, shape: 'square' } : { icon: 'folder' };
-            },
-            badges: (category) => {
-                const parent = first(category, 'parent.name', 'parent_name');
-
-                return parent ? [{ key: 'parent', icon: 'folder-tree', label: parent }] : [];
             },
             selectDetails: (category) => [first(category, 'for'), first(category, 'description')],
             facts: (category) => [
