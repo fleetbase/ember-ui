@@ -5,16 +5,9 @@ module.exports = {
         './app/**/*.{hbs,js}',
         './addon/**/*.{hbs,js}',
         './addon/**/*.css',
-        // All Fleetbase packages (both pnpm symlinked and normal installs)
-        './node_modules/@fleetbase+*/**/addon/**/*.{hbs,js}',
-        './node_modules/@fleetbase/**/addon/**/*.{hbs,js}',
-        // Explicit ember-ui paths
-        './node_modules/@fleetbase/ember-ui/addon/templates/**/*.{hbs,js}',
-        './node_modules/@fleetbase/ember-ui/addon/components/**/*.{hbs,js}',
-        // Explicit support for .pnpm paths (for unhoisted deps)
-        './node_modules/.pnpm/@fleetbase+*/**/addon/**/*.{hbs,js}',
-        // Engine packages
-        './node_modules/**/*-engine/addon/**/*.{hbs,js}',
+        // The addon also configures its host application, so resolve installed
+        // packages from the build cwd, matching the local app/addon paths above.
+        ...require('./lib/tailwind-content')(),
     ],
     safelist: [
         {
