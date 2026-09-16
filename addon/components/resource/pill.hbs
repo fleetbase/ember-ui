@@ -1,0 +1,53 @@
+<Pill
+    @resource={{this.record}}
+    @title={{this.title}}
+    @titleFallback={{@titleFallback}}
+    @subtitle={{this.subtitle}}
+    @noTooltip={{true}}
+    @onClick={{this.clickHandler}}
+    @anchorClass={{@anchorClass}}
+    @imageWrapperClass={{@imageWrapperClass}}
+    @contentWrapperClass="min-w-0 {{@contentWrapperClass}}"
+    @titleClass={{@titleClass}}
+    @subtitleClass={{@subtitleClass}}
+    class="resource-pill {{@class}}"
+    data-resource-type={{this.key}}
+    data-test-resource-pill
+    ...attributes
+>
+    <:image>
+        {{#if this.image.component}}
+            {{component this.image.component resource=this.record}}
+        {{else if this.image.icon}}
+            <div class="resource-pill-icon {{this.image.iconClass}} {{@imageClass}}" data-test-resource-pill-icon>
+                <FaIcon @icon={{this.image.icon}} @size="sm" />
+            </div>
+        {{else}}
+            <Image
+                src={{this.image.url}}
+                @fallbackSrc={{or this.image.fallback (config "defaultValues.placeholderImage")}}
+                width={{or @imageSize "28"}}
+                height={{or @imageSize "28"}}
+                class="w-7 h-7 rounded-full ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm object-cover {{@imageClass}}"
+                alt={{this.title}}
+                data-test-resource-pill-image
+            />
+        {{/if}}
+        {{#if this.showOnlineIndicator}}
+            <FaIcon @icon="circle" @size="2xs" class="resource-pill-online-dot absolute left-0 top-0 h-2 w-2 {{if this.online 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}" data-test-pill-online-indicator />
+        {{/if}}
+    </:image>
+    <:default as |resource|>
+        {{#if (and (has-block) (not-eq @useBlock false))}}
+            {{yield resource}}
+        {{else}}
+            <div class="text-sm truncate {{if this.record 'text-gray-900 dark:text-gray-100' 'text-gray-500 dark:text-gray-400'}} {{@titleClass}}" data-test-resource-pill-title>{{this.title}}</div>
+            {{#if this.subtitle}}
+                <div class="resource-pill-subtitle text-xs text-gray-400 dark:text-gray-500 truncate {{@subtitleClass}}" data-test-resource-pill-subtitle>{{this.subtitle}}</div>
+            {{/if}}
+        {{/if}}
+        {{#if this.showPopover}}
+            <Resource::HoverCard @resource={{@resource}} @resourceType={{this.key}} @targetSelector=".fleetbase-pill" @placement={{@popoverPlacement}} @armDelay={{@popoverDelay}} @onView={{@onView}} />
+        {{/if}}
+    </:default>
+</Pill>

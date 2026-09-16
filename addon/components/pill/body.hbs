@@ -1,0 +1,43 @@
+{{! The inside of a pill, shared by the clickable anchor and the static span. }}
+<div class="relative shrink-0 {{@imageWrapperClass}}">
+    {{#if @hasImageBlock}}
+        {{yield @resource to="image"}}
+    {{else}}
+        <Image
+            src={{@imageSrc}}
+            @fallbackSrc={{or @imageFallback (config (concat "defaultValues." @fallbackImageType)) (config "defaultValues.placeholderImage")}}
+            width={{or @imageSize @imageWidth "28"}}
+            height={{or @imageSize @imageHeight "28"}}
+            class="w-7 h-7 rounded-full ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm transition-shadow hover:shadow-md focus:shadow-md {{@imageClass}}"
+            alt={{or @imageAlt @resourceName}}
+        />
+        {{#if @showOnlineIndicator}}
+            <FaIcon @icon="circle" @size="2xs" class="absolute left-0 top-0 h-2 w-2 {{if @isOnline 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}" data-test-pill-online-indicator />
+        {{/if}}
+        {{yield @resource to="image"}}
+    {{/if}}
+</div>
+<div class={{@contentWrapperClass}}>
+    {{#if @hasDefaultBlock}}
+        {{yield @resource}}
+    {{else}}
+        <div class="text-sm {{@titleClass}}">{{or @title @resourceName @titleFallback "-"}}</div>
+        {{#if @subtitle}}
+            <div class="text-xs text-gray-400 dark:text-gray-500 {{@subtitleClass}}">{{n-a @subtitle}}</div>
+        {{/if}}
+        {{yield @resource}}
+    {{/if}}
+</div>
+{{#unless @noTooltip}}
+    {{#if @hasTooltipBlock}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+            <InputInfo>
+                {{yield @resource to="tooltip"}}
+            </InputInfo>
+        </Attach::Tooltip>
+    {{else if @tooltipComponent}}
+        <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
+            {{component @tooltipComponent resource=@resource}}
+        </Attach::Tooltip>
+    {{/if}}
+{{/unless}}

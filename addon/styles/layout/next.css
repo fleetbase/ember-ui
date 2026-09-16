@@ -2651,6 +2651,28 @@ a.text-danger:hover {
     margin-top: 2rem;
 }
 
+.filter-radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    padding-top: 0.125rem;
+}
+
+.filter-radio-option {
+    @apply inline-flex cursor-pointer select-none items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300;
+    margin: 0;
+}
+
+.filter-radio-option--active {
+    @apply font-medium text-gray-900 dark:text-gray-100;
+}
+
+.filter-radio-option > input[type='radio'] {
+    @apply h-3.5 w-3.5 cursor-pointer;
+    accent-color: rgb(37 99 235);
+    margin: 0;
+}
+
 .filter-string {
     @apply flex flex-col relative;
 }
@@ -2682,6 +2704,59 @@ a.text-danger:hover {
 
 .filter-multi-input > .clear-button:hover {
     @apply opacity-50;
+}
+
+.filter-model-multiple {
+    @apply relative;
+}
+
+.filter-model-multiple > .clear-button {
+    @apply absolute top-0 right-0 dark:text-gray-500 text-gray-700 pr-3 pt-2;
+}
+
+.filter-model-multiple > .clear-button:hover {
+    @apply opacity-50;
+}
+
+.filter-model-multiple > .clear-button:disabled {
+    @apply opacity-30 cursor-default;
+}
+
+.filter-model-multiple > .fleetbase-model-select,
+.filter-model-multiple > .fleetbase-model-select > .ember-basic-dropdown,
+.filter-model-multiple .ember-power-select-multiple-trigger {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+}
+
+/* The small form-input height clips the multiple trigger and turns it into a scroller
+   before anything is selected; let it start at the input height and grow with chips. */
+.filter-model-multiple .ember-power-select-multiple-trigger {
+    display: flex;
+    align-items: center;
+    height: auto !important;
+    min-height: 2.125rem;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+    padding-right: 2.5rem;
+}
+
+.filter-model-multiple .ember-power-select-multiple-options {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 0.125rem;
+}
+
+.filter-model-multiple .ember-power-select-multiple-option {
+    margin: 0.125rem 0.125rem 0.125rem 0;
+}
+
+.filter-model-multiple .ember-power-select-trigger-multiple-input {
+    height: 1.625rem;
+    min-width: 4rem;
 }
 
 .filter-range {

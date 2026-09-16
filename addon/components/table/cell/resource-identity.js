@@ -163,6 +163,10 @@ export default class TableCellResourceIdentityComponent extends Component {
         return this.column.wrapperClass ?? 'max-w-md';
     }
 
+    get hasMetaRow() {
+        return this.metaItems.length > 0 || Boolean(this.statusLabel);
+    }
+
     valueFromConfig(valueKey, pathKey, fallbackPathKey) {
         if (this.column[valueKey] !== undefined) {
             return typeof this.column[valueKey] === 'function' ? this.column[valueKey](this.row, this.column) : this.column[valueKey];

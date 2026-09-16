@@ -1,7 +1,7 @@
 <ModelSelect
     @modelName={{@filter.model}}
     @query={{@filter.query}}
-    @optionLabel={{or @filter.modelNamePath "name"}}
+    @optionLabel={{this.optionLabel}}
     @selectedModel={{this.selectedModel}}
     @placeholder={{@placeholder}}
     @triggerClass="form-select form-input form-input-sm flex-1"
@@ -10,4 +10,12 @@
     @onChange={{this.onChange}}
     @allowClear={{true}}
     @onClear={{this.clear}}
-/>
+    @selectedItemComponent={{if this.optionComponent (component this.optionComponent compact=true)}}
+    as |model|
+>
+    {{#if this.optionComponent}}
+        {{component this.optionComponent option=model}}
+    {{else}}
+        {{get model this.optionLabel}}
+    {{/if}}
+</ModelSelect>

@@ -1,8 +1,9 @@
-<div {{did-insert this.setupComponent}}>
+<div {{did-insert this.setupComponent}} {{did-update this.isShownArgumentChanged @isShown}}>
     {{#if (and this.currentTarget (or (not this.lazyRender) this.mustRender))}}
         <Floating
             id={{this.id}}
-            class="ember-attacher"
+            class="ember-attacher {{this.class}}"
+            @pointerEvents={{this.floatingPointerEvents}}
             @ariaRole={{@ariaRole}}
             @placement={{this.placement}}
             @container={{this.floatingContainer}}

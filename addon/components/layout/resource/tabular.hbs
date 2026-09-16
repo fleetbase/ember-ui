@@ -25,7 +25,7 @@
             @iconOnly={{true}}
         />
         {{#unless @hideColumnsPicker}}
-            <VisibleColumnPicker @columns={{this.columns}} @onChange={{fn (mut this.columns)}} @iconOnly={{true}} class={{@columnPickerButtonClass}} />
+            <VisibleColumnPicker @columns={{this.columns}} @onChange={{this.setColumns}} @iconOnly={{true}} class={{@columnPickerButtonClass}} />
         {{/unless}}
         {{#if (safe-has this.table "selectedRows")}}
             <DropdownButton

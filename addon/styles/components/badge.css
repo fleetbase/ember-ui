@@ -397,6 +397,205 @@
     @apply text-blue-300;
 }
 
+/* ── Fleet-Ops statuses ──
+   Every value the Fleet-Ops option lists can put on a badge (driver, vehicle,
+   vendor, contact, fleet, fuel report, inspection, work order, issue, place,
+   telematic, device, sensor, part, equipment and trailer statuses) has a
+   family here, so none renders as an unstyled chip. Underscored spellings
+   arrive dasherized through safe-dasherize. */
+
+.status-badge.on-duty-status-badge > span,
+.status-badge.healthy-status-badge > span,
+.status-badge.in-stock-status-badge > span,
+.status-badge.processed-status-badge > span,
+.status-badge.passed-status-badge > span,
+.status-badge.primary-status-badge > span,
+.status-badge.preferred-status-badge > span,
+.status-badge.prequalified-status-badge > span,
+.status-badge.configured-status-badge > span,
+.status-badge.fuel-provider-status-badge > span {
+    @apply bg-green-800 border-green-700 text-green-100;
+}
+
+.status-badge.on-duty-status-badge > span svg,
+.status-badge.healthy-status-badge > span svg,
+.status-badge.in-stock-status-badge > span svg,
+.status-badge.processed-status-badge > span svg,
+.status-badge.passed-status-badge > span svg,
+.status-badge.primary-status-badge > span svg,
+.status-badge.preferred-status-badge > span svg,
+.status-badge.prequalified-status-badge > span svg,
+.status-badge.configured-status-badge > span svg,
+.status-badge.fuel-provider-status-badge > span svg {
+    @apply text-green-300;
+}
+
+.status-badge.on-route-status-badge > span,
+.status-badge.in-use-status-badge > span,
+.status-badge.attached-status-badge > span,
+.status-badge.submitted-status-badge > span,
+.status-badge.scheduled-status-badge > span,
+.status-badge.equipped-status-badge > span,
+.status-badge.provisioning-status-badge > span {
+    @apply bg-blue-800 border-blue-700 text-blue-100;
+}
+
+.status-badge.on-route-status-badge > span svg,
+.status-badge.in-use-status-badge > span svg,
+.status-badge.attached-status-badge > span svg,
+.status-badge.submitted-status-badge > span svg,
+.status-badge.scheduled-status-badge > span svg,
+.status-badge.equipped-status-badge > span svg,
+.status-badge.provisioning-status-badge > span svg {
+    @apply text-blue-300;
+}
+
+.status-badge.on-break-status-badge > span,
+.status-badge.pre-shift-status-badge > span,
+.status-badge.training-status-badge > span,
+.status-badge.onboarding-status-badge > span,
+.status-badge.delayed-status-badge > span,
+.status-badge.pending-verification-status-badge > span,
+.status-badge.reserved-status-badge > span,
+.status-badge.staging-status-badge > span,
+.status-badge.cleaning-status-badge > span,
+.status-badge.inspection-due-status-badge > span,
+.status-badge.on-hold-status-badge > span,
+.status-badge.scaling-status-badge > span,
+.status-badge.downsizing-status-badge > span,
+.status-badge.seasonal-status-badge > span,
+.status-badge.pilot-status-badge > span,
+.status-badge.unmatched-status-badge > span,
+.status-badge.low-stock-status-badge > span,
+.status-badge.on-order-status-badge > span,
+.status-badge.needs-review-status-badge > span,
+.status-badge.awaiting-vendor-status-badge > span,
+.status-badge.quality-check-status-badge > span,
+.status-badge.requires-update-status-badge > span,
+.status-badge.new-status-badge > span,
+.status-badge.temp-closed-status-badge > span,
+.status-badge.under-construction-status-badge > span,
+.status-badge.permit-required-status-badge > span,
+.status-badge.approach-caution-status-badge > span,
+.status-badge.connecting-status-badge > span,
+.status-badge.paused-status-badge > span,
+.status-badge.under-review-status-badge > span,
+.status-badge.unverified-status-badge > span,
+.status-badge.sleeping-status-badge > span,
+.status-badge.long-offline-status-badge > span,
+.status-badge.imported-status-badge > span,
+.status-badge.ignored-status-badge > span {
+    @apply bg-yellow-700 border-yellow-700 text-yellow-100;
+}
+
+.status-badge.on-break-status-badge > span svg,
+.status-badge.pre-shift-status-badge > span svg,
+.status-badge.training-status-badge > span svg,
+.status-badge.onboarding-status-badge > span svg,
+.status-badge.delayed-status-badge > span svg,
+.status-badge.pending-verification-status-badge > span svg,
+.status-badge.reserved-status-badge > span svg,
+.status-badge.staging-status-badge > span svg,
+.status-badge.cleaning-status-badge > span svg,
+.status-badge.inspection-due-status-badge > span svg,
+.status-badge.on-hold-status-badge > span svg,
+.status-badge.scaling-status-badge > span svg,
+.status-badge.downsizing-status-badge > span svg,
+.status-badge.seasonal-status-badge > span svg,
+.status-badge.pilot-status-badge > span svg,
+.status-badge.unmatched-status-badge > span svg,
+.status-badge.low-stock-status-badge > span svg,
+.status-badge.on-order-status-badge > span svg,
+.status-badge.needs-review-status-badge > span svg,
+.status-badge.awaiting-vendor-status-badge > span svg,
+.status-badge.quality-check-status-badge > span svg,
+.status-badge.requires-update-status-badge > span svg,
+.status-badge.new-status-badge > span svg,
+.status-badge.temp-closed-status-badge > span svg,
+.status-badge.under-construction-status-badge > span svg,
+.status-badge.permit-required-status-badge > span svg,
+.status-badge.approach-caution-status-badge > span svg,
+.status-badge.connecting-status-badge > span svg,
+.status-badge.paused-status-badge > span svg,
+.status-badge.under-review-status-badge > span svg,
+.status-badge.unverified-status-badge > span svg,
+.status-badge.sleeping-status-badge > span svg,
+.status-badge.long-offline-status-badge > span svg,
+.status-badge.imported-status-badge > span svg,
+.status-badge.ignored-status-badge > span svg {
+    @apply text-yellow-300;
+}
+
+.status-badge.terminated-status-badge > span,
+.status-badge.suspended-status-badge > span,
+.status-badge.blacklisted-status-badge > span,
+.status-badge.blocked-status-badge > span,
+.status-badge.do-not-contact-status-badge > span,
+.status-badge.accident-hold-status-badge > span,
+.status-badge.no-show-status-badge > span,
+.status-badge.out-of-service-status-badge > span,
+.status-badge.inspection-failed-status-badge > span,
+.status-badge.accident-status-badge > span,
+.status-badge.compliance-hold-status-badge > span,
+.status-badge.stolen-status-badge > span,
+.status-badge.integration-error-status-badge > span,
+.status-badge.unsafe-status-badge > span,
+.status-badge.lost-status-badge > span,
+.status-badge.damaged-status-badge > span,
+.status-badge.out-of-stock-status-badge > span,
+.status-badge.failed-inspection-status-badge > span,
+.status-badge.breakdown-status-badge > span {
+    @apply bg-red-800 border-red-700 text-red-100;
+}
+
+.status-badge.terminated-status-badge > span svg,
+.status-badge.suspended-status-badge > span svg,
+.status-badge.blacklisted-status-badge > span svg,
+.status-badge.blocked-status-badge > span svg,
+.status-badge.do-not-contact-status-badge > span svg,
+.status-badge.accident-hold-status-badge > span svg,
+.status-badge.no-show-status-badge > span svg,
+.status-badge.out-of-service-status-badge > span svg,
+.status-badge.inspection-failed-status-badge > span svg,
+.status-badge.accident-status-badge > span svg,
+.status-badge.compliance-hold-status-badge > span svg,
+.status-badge.stolen-status-badge > span svg,
+.status-badge.integration-error-status-badge > span svg,
+.status-badge.unsafe-status-badge > span svg,
+.status-badge.lost-status-badge > span svg,
+.status-badge.damaged-status-badge > span svg,
+.status-badge.out-of-stock-status-badge > span svg,
+.status-badge.failed-inspection-status-badge > span svg,
+.status-badge.breakdown-status-badge > span svg {
+    @apply text-red-300;
+}
+
+.status-badge.off-duty-status-badge > span,
+.status-badge.on-leave-status-badge > span,
+.status-badge.retired-status-badge > span,
+.status-badge.detached-status-badge > span,
+.status-badge.decommissioning-status-badge > span,
+.status-badge.archived-status-badge > span,
+.status-badge.not-equipped-status-badge > span,
+.status-badge.discontinued-status-badge > span,
+.status-badge.unattached-status-badge > span,
+.status-badge.reviewed-status-badge > span {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+}
+
+.status-badge.off-duty-status-badge > span svg,
+.status-badge.on-leave-status-badge > span svg,
+.status-badge.retired-status-badge > span svg,
+.status-badge.detached-status-badge > span svg,
+.status-badge.decommissioning-status-badge > span svg,
+.status-badge.archived-status-badge > span svg,
+.status-badge.not-equipped-status-badge > span svg,
+.status-badge.discontinued-status-badge > span svg,
+.status-badge.unattached-status-badge > span svg,
+.status-badge.reviewed-status-badge > span svg {
+    @apply text-gray-300;
+}
+
 body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply shadow;
 }

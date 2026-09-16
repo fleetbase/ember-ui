@@ -1,26 +1,54 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, fillIn } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import { clickTrigger } from 'ember-power-select/test-support/helpers';
 
 module('Integration | Component | multi-select', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    hooks.beforeEach(function () {
+        this.set('noop', () => {});
+    });
 
-        await render(hbs`<MultiSelect />`);
+    test('it renders options and forwards the selected item component', async function (assert) {
+        this.owner.register('template:components/test-selected', hbs`<span data-test-selected>{{@option.name}}</span>`);
+        this.set('options', [{ name: 'Ada' }, { name: 'Bob' }]);
+        this.set('selected', [this.options[0]]);
 
-        assert.dom(this.element).hasText('');
-
-        // Template block usage:
         await render(hbs`
-      <MultiSelect>
-        template block text
-      </MultiSelect>
-    `);
+            <MultiSelect @options={{this.options}} @selected={{this.selected}} @onChange={{this.noop}} @selectedItemComponent={{component "test-selected"}} as |option|>
+                {{option.name}}
+            </MultiSelect>
+        `);
 
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('[data-test-selected]').hasText('Ada');
+    });
+
+    test('it forwards the search field, position and placeholder', async function (assert) {
+        this.set('options', [{ name: 'Ada' }, { name: 'Bob' }]);
+        this.set('selected', []);
+
+        await render(hbs`
+            <MultiSelect
+                @options={{this.options}}
+                @selected={{this.selected}}
+                @onChange={{this.noop}}
+                @searchEnabled={{true}}
+                @searchField="name"
+                @searchFieldPosition="before-options"
+                @searchPlaceholder="Find a person"
+                as |option|
+            >
+                {{option.name}}
+            </MultiSelect>
+        `);
+
+        await clickTrigger();
+        assert.dom('.ember-power-select-search-input').hasAttribute('placeholder', 'Find a person');
+
+        await fillIn('.ember-power-select-search-input', 'bo');
+        assert.dom('.ember-power-select-option').exists({ count: 1 });
+        assert.dom('.ember-power-select-option').hasText('Bob');
     });
 });

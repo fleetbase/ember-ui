@@ -1,50 +1,73 @@
-<div class="fleetbase-pill" ...attributes>
-    <a href="javascript:;" class="flex flex-row space-x-2 {{@anchorClass}}" {{on "click" this.handleClick}}>
-        <div class="relative shrink-0 {{@imageWrapperClass}}">
-            {{#if (has-block "image")}}
-                {{yield @resource to="image"}}
-            {{else}}
-                <Image
-                    src={{@imageSrc}}
-                    @fallbackSrc={{or @imageFallback (config (concat "defaultValues." @fallbackImageType)) (config "defaultValues.placeholderImage")}}
-                    width={{or @imageSize @imageWidth "28"}}
-                    height={{or @imageSize @imageHeight "28"}}
-                    class="w-7 h-7 rounded-full ring-2 ring-gray-800 dark:ring-gray-700 shadow transition-shadow hover:shadow-md focus:shadow-md {{@imageClass}}"
-                    alt={{or @imageAlt this.resourceName}}
-                />
-                {{#if @showOnlineIndicator}}
-                    <FaIcon
-                        @icon="circle"
-                        @size="2xs"
-                        class="absolute left-0 top-0 h-2 w-2 {{if (get @resource (or @onlinePath 'online')) 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}"
-                    />
-                {{/if}}
-                {{yield @resource to="image"}}
-            {{/if}}
-        </div>
-        <div class={{@contentWrapperClass}}>
-            {{#if (has-block)}}
-                {{yield @resource}}
-            {{else}}
-                <div class="text-sm {{@titleClass}}">{{or @title this.resourceName @titleFallback "-"}}</div>
-                {{#if @subtitle}}
-                    <div class="text-xs text-gray-400 dark:text-gray-500 {{@subtitleClass}}">{{n-a @subtitle}}</div>
-                {{/if}}
-                {{yield @resource}}
-            {{/if}}
-        </div>
-        {{#unless @noTooltip}}
-            {{#if (has-block "tooltip")}}
-                <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
-                    <InputInfo>
-                        {{yield @resource to="tooltip"}}
-                    </InputInfo>
-                </Attach::Tooltip>
-            {{else if @tooltipComponent}}
-                <Attach::Tooltip @class="clean" @animation="scale" @placement={{or @tooltipPosition "top"}}>
-                    {{component @tooltipComponent}}
-                </Attach::Tooltip>
-            {{/if}}
-        {{/unless}}
-    </a>
+<div class="fleetbase-pill {{unless this.isClickable 'fleetbase-pill--static'}}" ...attributes>
+    {{#if this.isClickable}}
+        <a href="javascript:;" class="fleetbase-pill-body flex flex-row space-x-2 {{@anchorClass}}" {{on "click" this.handleClick}}>
+            <Pill::Body
+                @resource={{@resource}}
+                @resourceName={{this.resourceName}}
+                @isOnline={{this.isOnline}}
+                @hasImageBlock={{has-block "image"}}
+                @hasDefaultBlock={{has-block}}
+                @hasTooltipBlock={{has-block "tooltip"}}
+                @imageSrc={{@imageSrc}}
+                @imageFallback={{@imageFallback}}
+                @fallbackImageType={{@fallbackImageType}}
+                @imageSize={{@imageSize}}
+                @imageWidth={{@imageWidth}}
+                @imageHeight={{@imageHeight}}
+                @imageAlt={{@imageAlt}}
+                @imageClass={{@imageClass}}
+                @imageWrapperClass={{@imageWrapperClass}}
+                @showOnlineIndicator={{@showOnlineIndicator}}
+                @onlineIndicatorClass={{@onlineIndicatorClass}}
+                @contentWrapperClass={{@contentWrapperClass}}
+                @title={{@title}}
+                @titleFallback={{@titleFallback}}
+                @titleClass={{@titleClass}}
+                @subtitle={{@subtitle}}
+                @subtitleClass={{@subtitleClass}}
+                @noTooltip={{@noTooltip}}
+                @tooltipPosition={{@tooltipPosition}}
+                @tooltipComponent={{@tooltipComponent}}
+            >
+                <:image as |resource|>{{yield resource to="image"}}</:image>
+                <:default as |resource|>{{yield resource}}</:default>
+                <:tooltip as |resource|>{{yield resource to="tooltip"}}</:tooltip>
+            </Pill::Body>
+        </a>
+    {{else}}
+        <span class="fleetbase-pill-body flex flex-row space-x-2 {{@anchorClass}}" data-test-pill-static>
+            <Pill::Body
+                @resource={{@resource}}
+                @resourceName={{this.resourceName}}
+                @isOnline={{this.isOnline}}
+                @hasImageBlock={{has-block "image"}}
+                @hasDefaultBlock={{has-block}}
+                @hasTooltipBlock={{has-block "tooltip"}}
+                @imageSrc={{@imageSrc}}
+                @imageFallback={{@imageFallback}}
+                @fallbackImageType={{@fallbackImageType}}
+                @imageSize={{@imageSize}}
+                @imageWidth={{@imageWidth}}
+                @imageHeight={{@imageHeight}}
+                @imageAlt={{@imageAlt}}
+                @imageClass={{@imageClass}}
+                @imageWrapperClass={{@imageWrapperClass}}
+                @showOnlineIndicator={{@showOnlineIndicator}}
+                @onlineIndicatorClass={{@onlineIndicatorClass}}
+                @contentWrapperClass={{@contentWrapperClass}}
+                @title={{@title}}
+                @titleFallback={{@titleFallback}}
+                @titleClass={{@titleClass}}
+                @subtitle={{@subtitle}}
+                @subtitleClass={{@subtitleClass}}
+                @noTooltip={{@noTooltip}}
+                @tooltipPosition={{@tooltipPosition}}
+                @tooltipComponent={{@tooltipComponent}}
+            >
+                <:image as |resource|>{{yield resource to="image"}}</:image>
+                <:default as |resource|>{{yield resource}}</:default>
+                <:tooltip as |resource|>{{yield resource to="tooltip"}}</:tooltip>
+            </Pill::Body>
+        </span>
+    {{/if}}
 </div>
