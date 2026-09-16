@@ -1,4 +1,4 @@
-> v0.4.2 ~ "An interactive component playground, signature pad, and verified 100% test coverage"
+> v0.4.3 ~ "An interactive component playground, signature pad, and verified 100% test coverage"
 
 ---
 ## Highlights
