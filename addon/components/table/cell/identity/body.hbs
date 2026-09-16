@@ -3,11 +3,11 @@
     {{#if @image.component}}
         {{component @image.component resource=@resource}}
     {{else if @image.icon}}
-        <div class="table-cell-identity-icon flex h-5 w-5 items-center justify-center rounded-md border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 {{@image.iconClass}}" data-test-identity-icon>
+        <div class="table-cell-identity-icon flex h-5 w-5 items-center justify-center rounded-full border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 {{@image.iconClass}}" data-test-identity-icon>
             <FaIcon @icon={{@image.icon}} @size="xs" />
         </div>
     {{else}}
-        <Image src={{@image.url}} @fallbackSrc={{@image.fallback}} alt="" class="h-5 w-5 border border-gray-200 object-cover shadow-sm dark:border-gray-700 {{if (eq @image.shape 'round') 'rounded-full' 'rounded-md'}}" data-test-resource-identity-image />
+        <Image src={{@image.url}} @fallbackSrc={{or @image.fallback (config "defaultValues.placeholderImage")}} alt="" class="h-5 w-5 rounded-full border border-gray-200 object-cover shadow-sm dark:border-gray-700" data-test-resource-identity-image />
     {{/if}}
     {{#if @hasStatusDot}}
         <FaIcon @icon="circle" @size="2xs" class="absolute left-0 top-0 -ml-1 -mt-1 {{@statusDotClass}}" data-test-resource-identity-status-dot />

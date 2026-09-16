@@ -8,7 +8,7 @@
             @fallbackSrc={{or @imageFallback (config (concat "defaultValues." @fallbackImageType)) (config "defaultValues.placeholderImage")}}
             width={{or @imageSize @imageWidth "28"}}
             height={{or @imageSize @imageHeight "28"}}
-            class="w-7 h-7 rounded-full ring-2 ring-gray-800 dark:ring-gray-700 shadow transition-shadow hover:shadow-md focus:shadow-md {{@imageClass}}"
+            class="w-7 h-7 rounded-full ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm transition-shadow hover:shadow-md focus:shadow-md {{@imageClass}}"
             alt={{or @imageAlt @resourceName}}
         />
         {{#if @showOnlineIndicator}}

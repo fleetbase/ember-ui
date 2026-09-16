@@ -25,10 +25,10 @@
         {{else}}
             <Image
                 src={{this.image.url}}
-                @fallbackSrc={{this.image.fallback}}
+                @fallbackSrc={{or this.image.fallback (config "defaultValues.placeholderImage")}}
                 width={{or @imageSize "28"}}
                 height={{or @imageSize "28"}}
-                class="w-7 h-7 ring-2 ring-gray-800 dark:ring-gray-700 shadow object-cover {{if (eq this.image.shape 'square') 'rounded-md' 'rounded-full'}} {{@imageClass}}"
+                class="w-7 h-7 rounded-full ring-1 ring-gray-200 dark:ring-gray-700 shadow-sm object-cover {{@imageClass}}"
                 alt={{this.title}}
                 data-test-resource-pill-image
             />
@@ -41,7 +41,7 @@
         {{#if (and (has-block) (not-eq @useBlock false))}}
             {{yield resource}}
         {{else}}
-            <div class="text-sm truncate {{@titleClass}}" data-test-resource-pill-title>{{this.title}}</div>
+            <div class="text-sm truncate {{if this.record 'text-gray-900 dark:text-gray-100' 'text-gray-500 dark:text-gray-400'}} {{@titleClass}}" data-test-resource-pill-title>{{this.title}}</div>
             {{#if this.subtitle}}
                 <div class="resource-pill-subtitle text-xs text-gray-400 dark:text-gray-500 truncate {{@subtitleClass}}" data-test-resource-pill-subtitle>{{this.subtitle}}</div>
             {{/if}}

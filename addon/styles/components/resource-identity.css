@@ -41,10 +41,6 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 .resource-summary-image,
 .resource-summary-icon {
     @apply h-9 w-9 border border-gray-200 object-cover dark:border-gray-700;
-    border-radius: 0.5rem;
-}
-
-.resource-summary-image[data-shape='round'] {
     border-radius: 9999px;
 }
 
@@ -89,7 +85,11 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 
 .resource-summary-fact > dd {
     @apply min-w-0 truncate text-xs leading-4 text-gray-900 dark:text-gray-100;
-    margin: 0;
+
+    /* Room inside the clipping box for a pill's hover padding, ring and dot,
+       which otherwise lose their left and top edges to the truncation. */
+    padding: 0.25rem 0 0.25rem 0.5rem;
+    margin: -0.25rem 0 -0.25rem -0.5rem;
 }
 
 .resource-summary-fact > dd .fleetbase-pill {
@@ -153,7 +153,7 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 
 /* ── Pill icon tile ── */
 .resource-pill-icon {
-    @apply flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400;
+    @apply flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-gray-100 text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400;
 }
 
 /* ── Select option: photo or icon, name, and a line of detail ── */

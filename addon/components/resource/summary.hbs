@@ -4,7 +4,7 @@
             {{#if this.image.component}}
                 {{component this.image.component resource=this.record}}
             {{else if this.image.url}}
-                <Image src={{this.image.url}} @fallbackSrc={{this.image.fallback}} alt="" class="resource-summary-image" data-shape={{this.image.shape}} data-test-resource-summary-image />
+                <Image src={{this.image.url}} @fallbackSrc={{or this.image.fallback (config "defaultValues.placeholderImage")}} alt="" class="resource-summary-image" data-shape={{this.image.shape}} data-test-resource-summary-image />
             {{else}}
                 <div class="resource-summary-icon {{this.image.iconClass}}" data-test-resource-summary-icon>
                     <FaIcon @icon={{this.image.icon}} />
