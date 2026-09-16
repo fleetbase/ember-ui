@@ -172,6 +172,12 @@ export default class AttachPopoverComponent extends Component {
         const { floatingElement } = this;
 
         this.isShown = false;
+        this.hidePending = false;
+
+        if (this.hideListenersOnDocumentByEvent.mousemove) {
+            delete this.hideListenersOnDocumentByEvent.mousemove;
+            document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+        }
 
         if (!floatingElement) {
             this.animationTimeout = requestAnimationFrame(() => {
@@ -221,13 +227,19 @@ export default class AttachPopoverComponent extends Component {
             return;
         }
 
-        // If cursor is not on the attachment or target, hide the popover
-        if (!target.contains(event.target) && !(this.isOffset && this.isCursorBetweenTargetAndAttachment(event)) && this.floatingElement && !this.floatingElement.contains(event.target)) {
-            // Remove this listener before hiding the attachment
-            delete this.hideListenersOnDocumentByEvent.mousemove;
-            document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+        const outside =
+            !target.contains(event.target) && !(this.isOffset && this.isCursorBetweenTargetAndAttachment(event)) && this.floatingElement && !this.floatingElement.contains(event.target);
 
-            this.hideAfterDelay();
+        if (outside) {
+            // Start the delayed hide once and keep listening, so re-entering the
+            // target or the attachment within the delay cancels it.
+            if (!this.hidePending) {
+                this.hidePending = true;
+                this.hideAfterDelay();
+            }
+        } else if (this.hidePending) {
+            cancel(this.delayedVisibilityToggle);
+            this.hidePending = false;
         }
     }
 
@@ -356,6 +368,7 @@ export default class AttachPopoverComponent extends Component {
 
     @action showAfterDelay() {
         cancel(this.delayedVisibilityToggle);
+        this.hidePending = false;
 
         this.mustRender = true;
         this.addListenersForHideEvents();
