@@ -10,14 +10,14 @@
 }
 
 .resource-hover-card .resource-hover-card-inner {
-    @apply rounded-lg border border-gray-200 bg-white text-left text-gray-900 shadow-xl ring-1 ring-black/5;
+    @apply rounded-lg border border-gray-200 bg-white text-left text-gray-900 shadow-lg;
     padding: 0;
     margin: 0;
-    max-width: min(24rem, calc(100vw - 2rem));
+    max-width: min(22rem, calc(100vw - 2rem));
 }
 
 body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
-    @apply border-gray-700 bg-gray-900 text-gray-100 ring-white/10;
+    @apply border-gray-700 bg-gray-900 text-gray-100;
 }
 
 .resource-hover-card-anchor {
@@ -26,21 +26,21 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 
 /* ── Summary card ── */
 .resource-summary {
-    @apply flex flex-col gap-3 p-3 text-sm;
-    width: 20rem;
+    @apply flex flex-col gap-2 p-2.5 text-xs;
+    width: 17rem;
 }
 
 .resource-summary-header {
-    @apply flex items-start gap-3;
+    @apply flex items-center gap-2.5;
 }
 
 .resource-summary-media {
-    @apply flex-shrink-0;
+    @apply relative flex-shrink-0;
 }
 
 .resource-summary-image,
 .resource-summary-icon {
-    @apply h-12 w-12 border border-gray-200 object-cover shadow-sm dark:border-gray-700;
+    @apply h-9 w-9 border border-gray-200 object-cover dark:border-gray-700;
     border-radius: 0.5rem;
 }
 
@@ -52,8 +52,13 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
     @apply flex items-center justify-center bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400;
 }
 
+/* Same corner as the identity cell and the pill: top-left, just outside the image. */
+.resource-summary-online-dot {
+    @apply absolute left-0 top-0 -ml-1 -mt-1 rounded-full bg-white dark:bg-gray-900;
+}
+
 .resource-summary-heading {
-    @apply flex min-w-0 flex-col gap-0.5;
+    @apply flex min-w-0 flex-1 flex-col;
 }
 
 .resource-summary-title {
@@ -61,23 +66,15 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 }
 
 .resource-summary-identifier {
-    @apply truncate text-xs text-gray-500 dark:text-gray-400;
+    @apply truncate text-xs leading-4 text-gray-500 dark:text-gray-400;
 }
 
 .resource-summary-status {
-    @apply mt-1 flex flex-wrap items-center gap-2;
-}
-
-.resource-summary-online {
-    @apply inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400;
-}
-
-.resource-summary-online.is-online {
-    @apply text-green-600 dark:text-green-400;
+    @apply ml-auto flex-shrink-0;
 }
 
 .resource-summary-facts {
-    @apply grid gap-x-3 gap-y-1.5 border-t border-gray-100 pt-3 dark:border-gray-800;
+    @apply grid gap-x-3 gap-y-1 border-t border-gray-100 pt-2 dark:border-gray-800;
     grid-template-columns: max-content minmax(0, 1fr);
     margin: 0;
 }
@@ -87,11 +84,11 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 }
 
 .resource-summary-fact > dt {
-    @apply truncate text-xs leading-5 text-gray-500 dark:text-gray-400;
+    @apply truncate text-xs leading-4 text-gray-500 dark:text-gray-400;
 }
 
 .resource-summary-fact > dd {
-    @apply min-w-0 truncate text-xs leading-5 text-gray-900 dark:text-gray-100;
+    @apply min-w-0 truncate text-xs leading-4 text-gray-900 dark:text-gray-100;
     margin: 0;
 }
 
@@ -101,21 +98,33 @@ body[data-theme='dark'] .resource-hover-card .resource-hover-card-inner {
 
 .resource-summary-fact > dd .fleetbase-pill img,
 .resource-summary-fact > dd .fleetbase-pill .resource-pill-icon {
-    @apply h-5 w-5;
-    width: 1.25rem;
-    height: 1.25rem;
+    @apply h-4 w-4;
+    width: 1rem;
+    height: 1rem;
 }
 
 .resource-summary-fact > dd .fleetbase-pill .resource-pill-subtitle {
     display: none;
 }
 
+/* The compact pill's image is 1rem, so its dot shrinks and sits just outside
+   the corner, the way the identity cell draws it. */
+.resource-summary-fact > dd .fleetbase-pill .fleetbase-pill-body {
+    @apply items-center;
+}
+
+.resource-summary-fact > dd .fleetbase-pill .resource-pill-online-dot {
+    @apply -ml-0.5 -mt-0.5 rounded-full bg-white dark:bg-gray-900;
+    width: 0.375rem;
+    height: 0.375rem;
+}
+
 .resource-summary-skeleton {
-    @apply flex flex-col gap-2 border-t border-gray-100 pt-3 dark:border-gray-800;
+    @apply flex flex-col gap-1.5 border-t border-gray-100 pt-2 dark:border-gray-800;
 }
 
 .resource-summary-skeleton > span {
-    @apply block h-3 rounded bg-gray-200 dark:bg-gray-700;
+    @apply block h-2.5 rounded bg-gray-200 dark:bg-gray-700;
     animation: resource-summary-pulse 1.2s ease-in-out infinite;
 }
 

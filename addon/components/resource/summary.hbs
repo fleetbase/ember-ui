@@ -7,8 +7,11 @@
                 <Image src={{this.image.url}} @fallbackSrc={{this.image.fallback}} alt="" class="resource-summary-image" data-shape={{this.image.shape}} data-test-resource-summary-image />
             {{else}}
                 <div class="resource-summary-icon {{this.image.iconClass}}" data-test-resource-summary-icon>
-                    <FaIcon @icon={{this.image.icon}} @size="lg" />
+                    <FaIcon @icon={{this.image.icon}} />
                 </div>
+            {{/if}}
+            {{#if this.hasOnline}}
+                <FaIcon @icon="circle" @size="2xs" class="resource-summary-online-dot {{if this.online 'text-green-500' 'text-yellow-200'}}" data-test-resource-summary-online data-online={{if this.online "true" "false"}} />
             {{/if}}
         </div>
         <div class="resource-summary-heading">
@@ -16,20 +19,10 @@
             {{#if this.identifier}}
                 <div class="resource-summary-identifier" data-test-resource-summary-identifier>{{this.identifier}}</div>
             {{/if}}
-            {{#if (or this.status this.hasOnline)}}
-                <div class="resource-summary-status">
-                    {{#if this.status}}
-                        <Badge @status={{this.status}} @size="xxs" data-test-resource-summary-status />
-                    {{/if}}
-                    {{#if this.hasOnline}}
-                        <span class="resource-summary-online {{if this.online 'is-online' 'is-offline'}}" data-test-resource-summary-online>
-                            <FaIcon @icon="circle" @size="2xs" />
-                            {{if this.online "Online" "Offline"}}
-                        </span>
-                    {{/if}}
-                </div>
-            {{/if}}
         </div>
+        {{#if this.status}}
+            <Badge @status={{this.status}} @size="xxs" class="resource-summary-status" data-test-resource-summary-status />
+        {{/if}}
     </div>
     {{#if this.hydrate.isRunning}}
         <div class="resource-summary-skeleton" data-test-resource-summary-skeleton>

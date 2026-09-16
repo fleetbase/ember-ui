@@ -4,6 +4,7 @@ import ObjectProxy from '@ember/object/proxy';
 import { getResourceDescriptor, readDescriptor, safeIdentifier, resourceComponentName, relationValue } from './resource-registry';
 import formatBytes from './format-bytes';
 import smartHumanize from './smart-humanize';
+import formatDate from './format-date';
 
 /**
  * Shared presentation logic for the resource identity components: everything
@@ -211,7 +212,7 @@ export function formatFactValue(value, format) {
     if (format === 'date' || value instanceof Date) {
         const date = value instanceof Date ? value : new Date(value);
 
-        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+        return Number.isNaN(date.getTime()) ? String(value) : formatDate(date, 'dd MMM yyyy, HH:mm');
     }
 
     if (format === 'bytes') {

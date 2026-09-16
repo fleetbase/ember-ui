@@ -69,7 +69,12 @@ export default class ResourceSummaryComponent extends Component {
     }
 
     get facts() {
-        return resourceFacts(this.owner, this.descriptor, this.record, { translate: this.translate });
+        const shown = new Set([this.title, this.identifier, this.status].filter((value) => value !== null && value !== undefined).map((value) => String(value).trim().toLowerCase()));
+
+        // A fact that only repeats the title, identifier or status is noise in a compact card.
+        return resourceFacts(this.owner, this.descriptor, this.record, { translate: this.translate }).filter(
+            (fact) => fact.pillComponent || !shown.has(String(fact.value).trim().toLowerCase())
+        );
     }
 
     get canOpen() {
@@ -116,14 +121,17 @@ export default class ResourceSummaryComponent extends Component {
         event?.preventDefault?.();
         event?.stopPropagation?.();
 
-        if (typeof this.args.onClose === 'function') {
-            this.args.onClose();
+        // Closing the card destroys this component, so read everything first
+        // and start the open before letting the host tear the popover down.
+        const { onView, onClose, resource, resourceType } = this.args;
+        const owner = this.owner;
+        const record = this.record;
+        const result = typeof onView === 'function' ? onView(record, event) : openResource(owner, resource, { event, resourceType });
+
+        if (typeof onClose === 'function') {
+            onClose();
         }
 
-        if (typeof this.args.onView === 'function') {
-            return this.args.onView(this.record, event);
-        }
-
-        return openResource(this.owner, this.args.resource, { event, resourceType: this.args.resourceType });
+        return result;
     }
 }
