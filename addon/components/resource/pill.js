@@ -50,12 +50,19 @@ export default class ResourcePillComponent extends Component {
     }
 
     get image() {
-        return resourceImage(this.descriptor, this.record, {
+        const image = resourceImage(this.descriptor, this.record, {
             url: this.args.imageSrc,
             fallback: this.args.imageFallback,
             shape: this.args.imageShape,
             icon: this.args.icon,
         });
+
+        // Nothing to show means an icon tile, never a broken image.
+        if (!image.url && !image.fallback && !image.icon && !image.component) {
+            image.icon = this.descriptor?.icon ?? 'cube';
+        }
+
+        return image;
     }
 
     get online() {

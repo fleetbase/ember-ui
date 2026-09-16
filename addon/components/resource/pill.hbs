@@ -34,7 +34,7 @@
             />
         {{/if}}
         {{#if this.showOnlineIndicator}}
-            <FaIcon @icon="circle" @size="2xs" class="absolute left-0 top-0 h-2 w-2 {{if this.online 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}" data-test-pill-online-indicator />
+            <FaIcon @icon="circle" @size="2xs" class="resource-pill-online-dot absolute left-0 top-0 h-2 w-2 {{if this.online 'text-green-500' 'text-yellow-200'}} {{@onlineIndicatorClass}}" data-test-pill-online-indicator />
         {{/if}}
     </:image>
     <:default as |resource|>
