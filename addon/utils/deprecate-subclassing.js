@@ -1,10 +1,16 @@
-import { DEBUG } from '@glimmer/env';
-import { deprecate } from '@ember/debug';
+import { deprecate, runInDebug } from '@ember/debug';
 import { next } from '@ember/runloop';
 
+// Returns a subclass that warns when *it* is subclassed, or `undefined` in
+// production builds — Babel's legacy class decorator output is
+// `decorator(Class) || Class`, so returning nothing keeps the original class.
+// `runInDebug` is used in preference to a build-time `DEBUG` macro because
+// macro substitution does not survive coverage instrumentation.
 export default function deprecateSubclassing(target) {
-    if (DEBUG) {
-        const wrapperClass = class extends target {
+    let wrapperClass;
+
+    runInDebug(() => {
+        wrapperClass = class extends target {
             constructor() {
                 super(...arguments);
                 // we need to delay the deprecation check, as the __ember-bootstrap_subclass class field will only be set *after* the constructor
@@ -23,7 +29,7 @@ export default function deprecateSubclassing(target) {
                 });
             }
         };
+    });
 
-        return wrapperClass;
-    }
+    return wrapperClass;
 }

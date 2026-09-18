@@ -6,21 +6,16 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | modal/header/title', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block as a heading', async function (assert) {
+        await render(hbs`<Modal::Header::Title>Delete order</Modal::Header::Title>`);
 
-        await render(hbs`<Modal::Header::Title />`);
+        assert.dom('h5.flb--modal-title').hasText('Delete order');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('it forwards splattributes, including an id the dialog can label itself with', async function (assert) {
+        await render(hbs`<Modal::Header::Title id="my-title" class="truncate">Title</Modal::Header::Title>`);
 
-        // Template block usage:
-        await render(hbs`
-      <Modal::Header::Title>
-        template block text
-      </Modal::Header::Title>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.flb--modal-title').hasAttribute('id', 'my-title');
+        assert.dom('.flb--modal-title').hasClass('truncate');
     });
 });

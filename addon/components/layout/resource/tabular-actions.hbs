@@ -29,7 +29,11 @@
     @iconOnly={{true}}
 />
 {{#unless @hideColumnsPicker}}
-    <VisibleColumnPicker @columns={{@columns}} @onChange={{this.setColumns}} @iconOnly={{true}} @size={{@columnPickerSize}} class={{@columnPickerButtonClass}} />
+    {{!-- There is nothing to pick when there are no columns, so the picker is withheld
+        entirely rather than offering an empty list. --}}
+    {{#if @columns}}
+        <VisibleColumnPicker @columns={{@columns}} @onChange={{this.setColumns}} @iconOnly={{true}} @size={{@columnPickerSize}} class={{@columnPickerButtonClass}} />
+    {{/if}}
 {{/unless}}
 {{#if (safe-has @table "selectedRows")}}
     <DropdownButton

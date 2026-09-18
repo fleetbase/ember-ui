@@ -1,0 +1,14 @@
+{{! Select example adapter: bare strings, or label/value objects, by scenario. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <Select
+        @options={{this.options}}
+        @optionLabel={{this.optionLabel}}
+        @optionValue={{this.optionValue}}
+        @value={{this.writableValue}}
+        @placeholder={{@values.placeholder}}
+        @humanize={{@values.humanize}}
+        @unstyled={{@values.unstyled}}
+        @onChange={{this.update}}
+        @onSelect={{fn (or @onEvent (noop)) "onSelect"}}
+    />
+</div>

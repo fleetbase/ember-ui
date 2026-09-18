@@ -31,7 +31,10 @@
                         {{#if dropzone.supported}}
                             <p class="text-sm my-5">{{t "component.dropzone.dropzone-supported-files"}}</p>
                         {{/if}}
-                        <FileUpload @name="files" @for="files" @accept={{this.acceptedFileTypes}} @multiple={{true}} @onFileAdded={{perform this.queueFile}}>
+                        {{!-- No @onFileAdded here: the enclosing (file-queue name="files") already listens to
+                            this queue, and FileUpload opens a SECOND listener on the same name, so every
+                            file would be queued and uploaded twice. --}}
+                        <FileUpload @name="files" @for="files" @accept={{this.acceptedFileTypes}} @multiple={{true}}>
                             <a tabindex={{0}} class="btn btn-magic cursor-pointer ml-1">{{t "component.dropzone.or-select-button-text"}}</a>
                         </FileUpload>
                     </div>

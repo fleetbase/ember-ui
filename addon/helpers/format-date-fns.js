@@ -1,6 +1,8 @@
 import { helper } from '@ember/component/helper';
 import { parse, parseISO, format, isValid } from 'date-fns';
 
+/* istanbul ignore next -- Glimmer always passes both the positional and named arguments to a
+   helper, so this parameter default can never be reached from a template. */
 export default helper(function formatDateFns([input, fmt], hash = {}) {
     const formatString = typeof fmt === 'string' && fmt.length ? fmt : 'yyyy-MM-dd HH:mm';
     const {

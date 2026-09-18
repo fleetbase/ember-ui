@@ -5,6 +5,14 @@
             <Badge @status={{if this.value "success" ""}}>{{if this.value "Yes" "No"}}</Badge>
         {{else if this.isFile}}
             <File @file={{this.value}} @onDownload={{this.downloadFile}} class="custom-field-file" />
+        {{else if this.isSignature}}
+            {{#if this.signatureUrl}}
+                <img src={{this.signatureUrl}} alt="Signature" class="custom-field-signature-image" />
+            {{else if this.value}}
+                <File @file={{this.value}} @onDownload={{this.downloadFile}} class="custom-field-file" />
+            {{else}}
+                {{n-a this.value}}
+            {{/if}}
         {{else}}
             {{n-a this.value}}
         {{/if}}

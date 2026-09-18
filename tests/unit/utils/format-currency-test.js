@@ -16,4 +16,15 @@ module('Unit | Utility | format-currency', function () {
         let result = formatCurrency(500, 'DEMOX');
         assert.strictEqual(result, 'DEMOX 5.00');
     });
+    test('a zero-decimal currency is not divided into cents', function (assert) {
+        // JPY has no decimal separator, so the amount is already in its main unit.
+        const yen = formatCurrency(1500, 'JPY');
+
+        assert.true(yen.includes('1,500'), `the amount is used as-is (${yen})`);
+        assert.false(yen.includes('15.00'), 'rather than treated as cents');
+    });
+
+    test('it formats nothing at all as zero in US dollars', function (assert) {
+        assert.strictEqual(formatCurrency(), '$0.00', 'both arguments default');
+    });
 });

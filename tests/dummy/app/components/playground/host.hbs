@@ -1,0 +1,139 @@
+{{!
+    Shared by the full component page and the embed view. `@embedded` only removes chrome —
+    the preview, controls, state and event log are the same implementation in both.
+}}
+<div
+    class="pg-host {{if this.embedded 'pg-host--embedded'}}"
+    data-theme={{this.activeTheme}}
+    data-test-playground-host={{@entry.slug}}
+    data-test-theme={{this.activeTheme}}
+    {{did-update this.onEntryChanged @entry}}
+    {{did-update this.onStateChanged @state}}
+>
+    {{#if this.warnings}}
+        <div class="pg-notice pg-notice--warning" role="status" data-test-state-warnings>
+            <span class="pg-notice__icon" aria-hidden="true">!</span>
+            <div class="pg-notice__body">
+                {{#each this.warnings as |warning|}}
+                    <p class="pg-notice__line">{{warning}}</p>
+                {{/each}}
+            </div>
+        </div>
+    {{/if}}
+
+    {{! ---------------------------------------------------------------- preview }}
+    <section class="pg-preview" aria-label="Component preview">
+        <div class="pg-panel__head">
+            <h2 class="pg-panel__title">Preview</h2>
+            <div class="pg-panel__meta">
+                <span class="pg-dot" aria-hidden="true"></span>
+                <span class="pg-panel__metaitem">{{this.activeTheme}}</span>
+                {{#if this.scenarioLabel}}
+                    <span class="pg-panel__sep" aria-hidden="true">·</span>
+                    <span class="pg-panel__metaitem">{{this.scenarioLabel}}</span>
+                {{/if}}
+            </div>
+        </div>
+        <div class="pg-preview__surface" data-test-preview>
+            {{#let (component @entry.example) as |Example|}}
+                <Example
+                    @values={{this.currentValues}}
+                    @scenario={{this.scenario}}
+                    @onEvent={{this.recordEvent}}
+                    @setControl={{this.setControl}}
+                    @embedded={{this.embedded}}
+                />
+            {{/let}}
+        </div>
+    </section>
+
+    {{! ---------------------------------------------------------------- controls }}
+    {{#if (or this.hasControls this.hasScenarios)}}
+        <div class="pg-controls">
+            <div class="pg-panel__head">
+                <h2 class="pg-panel__title">Controls</h2>
+                <div class="pg-panel__actions">
+                    {{#if this.embedded}}
+                        <button type="button" class="pg-btn pg-btn--mini" {{on "click" this.toggleTheme}} data-test-theme-toggle>
+                            {{this.playgroundTheme.shortToggleLabel}}
+                        </button>
+                    {{/if}}
+                    <button type="button" class="pg-btn pg-btn--mini" {{on "click" this.reset}} data-test-reset>Reset</button>
+                    {{#unless this.embedded}}
+                        <span class="pg-badge" aria-label="{{@entry.controls.length}} controls">{{@entry.controls.length}}</span>
+                    {{/unless}}
+                </div>
+            </div>
+
+            <div class="pg-controls__body">
+                {{#if this.hasScenarios}}
+                    <div class="pg-control" data-test-control="scenario">
+                        <label class="pg-control__label" for="pg-scenario-{{@entry.slug}}">Scenario</label>
+                        <select
+                            id="pg-scenario-{{@entry.slug}}"
+                            class="pg-input"
+                            data-test-scenario
+                            {{on "change" (pick "target.value" this.setScenario)}}
+                        >
+                            {{#each @entry.scenarios as |choice|}}
+                                <option value={{choice.id}} selected={{eq choice.id this.scenario}}>{{choice.label}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                {{/if}}
+
+                {{#each this.controlModels as |model|}}
+                    <Playground::Control @model={{model}} @slug={{@entry.slug}} @onChange={{this.setControl}} />
+                {{/each}}
+            </div>
+        </div>
+    {{/if}}
+
+    {{! ---------------------------------------------------------------- event log }}
+    {{#if this.hasEvents}}
+        <div class="pg-events">
+            <div class="pg-panel__head">
+                <h2 class="pg-panel__title">Events</h2>
+                <div class="pg-panel__actions">
+                    <button type="button" class="pg-btn pg-btn--mini" {{on "click" this.clearEvents}} data-test-clear-events>Clear</button>
+                </div>
+            </div>
+
+            {{#if this.recentEvents}}
+                <ol class="pg-events__list" data-test-event-log>
+                    {{#each this.recentEvents key="seq" as |event|}}
+                        <li class="pg-event" data-test-event={{event.name}}>
+                            <div class="pg-event__head">
+                                <span class="pg-event__seq">#{{event.seq}}</span>
+                                <span class="pg-event__name">{{event.name}}</span>
+                                <span class="pg-event__at">{{event.at}}</span>
+                            </div>
+                            {{#if event.args}}
+                                <ul class="pg-event__args">
+                                    {{#each event.args as |arg|}}
+                                        <li class="pg-event__arg">
+                                            <code>{{arg.text}}</code>
+                                            {{#if arg.fields}}
+                                                <span class="pg-event__fields">
+                                                    {{#each-in arg.fields as |key value|}}
+                                                        <span class="pg-event__field">{{key}}: {{value}}</span>
+                                                    {{/each-in}}
+                                                </span>
+                                            {{/if}}
+                                        </li>
+                                    {{/each}}
+                                </ul>
+                            {{/if}}
+                        </li>
+                    {{/each}}
+                </ol>
+            {{else}}
+                <p class="pg-events__empty" data-test-events-empty>
+                    Interact with the preview to record {{@entry.events.length}} callback(s).
+                </p>
+            {{/if}}
+        </div>
+    {{/if}}
+
+    {{yield (hash usageExample=this.usageExample embedUrl=this.embedUrl encodedState=this.encodedState)}}
+</div>

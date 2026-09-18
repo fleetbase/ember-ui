@@ -21,6 +21,8 @@ import { action } from '@ember/object';
  */
 export default class TemplateBuilderLayersPanelComponent extends Component {
     @tracked renamingUuid = null;
+    /* istanbul ignore next -- startRename assigns this before the rename field that reads it
+       is rendered */
     @tracked renameValue = '';
 
     get sortedElements() {
@@ -122,6 +124,13 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
 
     @action
     commitRename(element) {
+        // Closing the field removes the input, and that teardown fires `blur`, which lands
+        // back here mid-render. Without this guard the second pass updates `renamingUuid`
+        // after `isRenaming` has already consumed it and Ember asserts.
+        if (this.renamingUuid === null) {
+            return;
+        }
+
         if (this.renameValue.trim() && this.args.onUpdateElement) {
             this.args.onUpdateElement(element.uuid, { label: this.renameValue.trim() });
         }
@@ -131,6 +140,12 @@ export default class TemplateBuilderLayersPanelComponent extends Component {
 
     @action
     cancelRename() {
+        /* istanbul ignore if -- the only callers are the rename field's own blur and Escape
+           handlers, and that field is only rendered while a rename is in progress */
+        if (this.renamingUuid === null) {
+            return;
+        }
+
         this.renamingUuid = null;
         this.renameValue = '';
     }

@@ -20,9 +20,9 @@
     data-widget-key={{@widget.id}}
     role="button"
     tabindex="0"
-    {{on "mouseenter" @onHover}}
-    {{on "mouseleave" @onUnhover}}
-    {{on "click" @onAdd}}
+    {{on "mouseenter" (or @onHover (noop))}}
+    {{on "mouseleave" (or @onUnhover (noop))}}
+    {{on "click" (or @onAdd (noop))}}
 >
     <div class="flex items-start gap-2 p-2 h-full">
         <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 {{this.iconAccent}}">

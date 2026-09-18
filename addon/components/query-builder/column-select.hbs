@@ -27,11 +27,15 @@
                     {{#if (includes column.name (map-by "name" this.selectedColumns))}}
                         <div class="flex items-center space-x-1">
                             <label class="text-xs text-gray-600 dark:text-gray-400">Alias:</label>
-                            <Input
-                                @value={{get this.columnAliases column.name}}
+                            {{! One-way on purpose: a two-way `@value` wrote the raw text back
+                                AFTER updateAlias ran, undoing its trimming and mutating the
+                                aliases hash that had already been handed to `onChange`. }}
+                            <input
+                                type="text"
+                                value={{get this.columnAliases column.name}}
                                 placeholder={{column.name}}
                                 class="form-input form-input-sm column-alias-input"
-                                {{on "input" (fn this.updateAlias column.name)}}
+                                {{on "change" (fn this.updateAlias column.name)}}
                             />
                         </div>
                     {{/if}}

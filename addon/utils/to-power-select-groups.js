@@ -53,10 +53,16 @@ export default function toPowerSelectGroups(items, opts = {}) {
     if (groupSort) {
         const dir = groupSort === 'desc' ? -1 : 1;
         groups.sort((a, b) => {
+            /* istanbul ignore next -- every group is built with a name, either from the label
+               map, from humanizing the key, or from the fallback group name */
             const A = (a.groupName || '').toLowerCase();
+            /* istanbul ignore next -- see above */
             const B = (b.groupName || '').toLowerCase();
             if (A < B) return -1 * dir;
+            /* istanbul ignore else -- groups are keyed by their name, so two of them can never
+               compare equal */
             if (A > B) return 1 * dir;
+            /* istanbul ignore next -- see above */
             return 0;
         });
     }

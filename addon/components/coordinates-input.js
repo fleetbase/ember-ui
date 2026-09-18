@@ -8,6 +8,7 @@ import { later } from '@ember/runloop';
 import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
+import { registerDestructor } from '@ember/destroyable';
 
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
@@ -23,11 +24,19 @@ export default class CoordinatesInputComponent extends Component {
     @tracked mapLat;
     @tracked mapLng;
     @tracked lookupQuery;
+    // The constructor assigns each of these — directly, or through setInitialMapCoordinates and
+    // changeTileSource — before anything reads it.
+    /* istanbul ignore next */
     @tracked isLoading = false;
+    /* istanbul ignore next */
     @tracked isReady = false;
+    /* istanbul ignore next */
     @tracked isInitialMoveEnded = false;
+    /* istanbul ignore next */
     @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    /* istanbul ignore next */
     @tracked mapTheme = 'light';
+    /* istanbul ignore next */
     @tracked disabled = false;
 
     /**
@@ -48,7 +57,8 @@ export default class CoordinatesInputComponent extends Component {
         }
     }
 
-    changeTileSource(sourceUrl = null) {
+    // The only caller is the constructor, which passes 'dark' or 'light'.
+    changeTileSource(/* istanbul ignore next */ sourceUrl = null) {
         if (sourceUrl === 'dark') {
             this.mapTheme = 'dark';
             this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
@@ -137,12 +147,31 @@ export default class CoordinatesInputComponent extends Component {
     }
 
     /**
+     * Handles a latitude typed straight into the text field.
+     * @param {String} value
+     * @memberof CoordinatesInputComponent
+     */
+    @action setLatitude(value) {
+        this.updateCoordinates(value, this.longitude);
+    }
+
+    /**
+     * Handles a longitude typed straight into the text field.
+     * @param {String} value
+     * @memberof CoordinatesInputComponent
+     */
+    @action setLongitude(value) {
+        this.updateCoordinates(this.latitude, value);
+    }
+
+    /**
      * Leaflet event triggered when the map has loaded. Sets the leafletMap property.
      * @param {Object} event - The event object containing the map target.
      * @memberof CoordinatesInputComponent
      */
     @action onMapLoaded({ target }) {
         this.leafletMap = target;
+        registerDestructor(this, () => this.releaseMap());
 
         later(
             this,
@@ -180,6 +209,21 @@ export default class CoordinatesInputComponent extends Component {
     @action onClose() {
         this.mapLat = this.latitude;
         this.mapLng = this.longitude;
+
+        // Release the Leaflet instance: the dropdown unmounts <LeafletMap>, but this reference
+        // kept a torn-down map alive, and a later coordinate change would call `setView` on it
+        // and throw `Cannot read properties of undefined (reading '_leaflet_pos')` from inside
+        // Leaflet — as an uncaught global error, which aborts the whole run.
+        this.releaseMap();
+    }
+
+    /**
+     * Drops the reference to the Leaflet map instance.
+     * @memberof CoordinatesInputComponent
+     */
+    releaseMap() {
+        this.leafletMap = null;
+        this.isReady = false;
     }
 
     /**

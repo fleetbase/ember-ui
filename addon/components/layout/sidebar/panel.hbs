@@ -8,8 +8,11 @@
         @caretLeft={{true}}
         @caretIcon="caret"
         @open={{@open}}
-        @disabled={{@disabled}}
-        @permission={{this.permission}}
+        {{!-- this.disabled, not the raw argument: it also carries the permission verdict.
+            And the required permission is stored as permissionRequired — there is no
+            `permission` property on this component. --}}
+        @disabled={{this.disabled}}
+        @permission={{this.permissionRequired}}
         @doesntHavePermissions={{this.doesntHavePermissions}}
         @isLoading={{@isLoading}}
         @hideCaret={{@hideCaret}}

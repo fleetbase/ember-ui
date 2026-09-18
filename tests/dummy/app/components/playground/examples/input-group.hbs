@@ -1,0 +1,19 @@
+{{!
+    InputGroup example adapter.
+
+    The label comes from `@name` — `@labelText` is not read by the component (input-group.hbs:3).
+    InputGroup also exposes no change callback of its own, so the native input event is observed
+    through splattributes, which land on its inner <Input>.
+}}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <InputGroup
+        @name={{@values.name}}
+        @value={{this.writableValue}}
+        @placeholder={{@values.placeholder}}
+        @helpText={{if @values.helpText @values.helpText null}}
+        @required={{@values.required}}
+        @disabled={{@values.disabled}}
+        @hideLabel={{@values.hideLabel}}
+        {{on "input" this.update}}
+    />
+</div>

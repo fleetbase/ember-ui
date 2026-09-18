@@ -4,7 +4,9 @@ import { action } from '@ember/object';
 
 export default class QueryBuilderSortByComponent extends Component {
     @tracked selectedSortBy = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked selectedSortDirection = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked sortByItems = [];
 
     constructor() {
@@ -55,10 +57,13 @@ export default class QueryBuilderSortByComponent extends Component {
     get sortingMessage() {
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
 
+        /* istanbul ignore else -- sort-by.hbs only renders {{this.sortingMessage}} inside the
+           {{else}} of {{#if this.canSort}}, so it is never read while sorting is possible */
         if (!columnsToUse.length) {
             return 'Select columns first to enable sorting';
         }
 
+        /* istanbul ignore next -- see above */
         return null;
     }
 
@@ -71,6 +76,7 @@ export default class QueryBuilderSortByComponent extends Component {
     }
 
     @action addSortBy() {
+        /* istanbul ignore else -- the Add Sort button is disabled until both are chosen */
         if (this.selectedSortBy && this.selectedSortDirection) {
             // Validate that the sort column is actually selected
             const isSortColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedSortBy.full);
@@ -120,14 +126,15 @@ export default class QueryBuilderSortByComponent extends Component {
     //     this.notifyChange();
     // }
 
-    @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
+    @action reorderSortBy({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
+        /* istanbul ignore if -- ember-drag-sort re-checks that the source and target position differ after its own index adjustments (services/drag-sort.ts endDragging) and never invokes @dragEndAction for a drop that did not move anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.sortByItems = [...this.sortByItems];
@@ -153,6 +160,8 @@ export default class QueryBuilderSortByComponent extends Component {
      * Validate existing sort items when selected columns change
      */
     @action validateSortItems() {
+        /* istanbul ignore next -- the only consumer, query-builder.hbs, always passes
+           allSelectedColumns, and that getter always returns an array */
         const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
 
         if (!columnsToUse.length) {

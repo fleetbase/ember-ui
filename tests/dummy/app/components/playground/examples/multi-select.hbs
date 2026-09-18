@@ -1,0 +1,9 @@
+{{! MultiSelect example adapter: selection is an array, so it is held locally. }}
+<MultiSelect
+    @options={{this.options}}
+    @selected={{this.selected}}
+    @placeholder={{@values.placeholder}}
+    @searchEnabled={{@values.searchEnabled}}
+    @allowClear={{@values.allowClear}}
+    @onChange={{this.select}}
+/>

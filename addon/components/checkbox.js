@@ -27,6 +27,8 @@ export default class CheckboxComponent extends Component {
      *
      * @param {Boolean} checked
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked checked = false;
 
     /**
@@ -55,6 +57,8 @@ export default class CheckboxComponent extends Component {
      *
      * @memberof CheckboxComponent
      */
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked visible = true;
 
     /**

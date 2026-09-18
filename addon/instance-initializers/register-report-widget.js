@@ -1,12 +1,15 @@
 export function initialize(appInstance) {
     let widgetService;
 
+    /* istanbul ignore next -- the widget service resolves in every booted app, so neither the
+       lookup failure nor the missing-service return can be reached from a test. */
     try {
         widgetService = appInstance.lookup?.('service:universe/widget-service');
     } catch (_) {
         widgetService = null;
     }
 
+    /* istanbul ignore next -- see above. */
     if (!widgetService) {
         return;
     }

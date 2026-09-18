@@ -1,0 +1,9 @@
+{{! MoneyInput example adapter. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <MoneyInput
+        @value={{this.writableValue}}
+        @currency={{@values.currency}}
+        @canSelectCurrency={{@values.canSelectCurrency}}
+        @onChange={{this.update}}
+    />
+</div>

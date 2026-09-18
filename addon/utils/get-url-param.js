@@ -1,3 +1,4 @@
+import window from 'ember-window-mock';
 export default function getUrlParam(key) {
     const params = new URLSearchParams(window.location.search);
 

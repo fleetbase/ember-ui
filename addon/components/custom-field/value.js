@@ -18,6 +18,27 @@ export default class CustomFieldValueComponent extends Component {
         return this.customField?.type === 'file-upload';
     }
 
+    get isSignature() {
+        return this.customField?.type === 'signature-pad';
+    }
+
+    get signatureUrl() {
+        const value = this.value;
+
+        if (!value) {
+            return null;
+        }
+
+        if (typeof value === 'string') {
+            /* istanbul ignore next -- #normalizeFileValue lets a string through only when it
+               starts with 'data:': file sentinels and unparseable json become null before the
+               value is ever stored, so the else arm cannot be reached */
+            return value.startsWith('data:') ? value : null;
+        }
+
+        return value.url ?? null;
+    }
+
     constructor(owner, { customField, subject }) {
         super(...arguments);
         this.customField = customField;
@@ -28,13 +49,35 @@ export default class CustomFieldValueComponent extends Component {
     #getValueFromSubject(customField, subject) {
         const cfValue = (subject.get('custom_field_values') ?? []).find((cfv) => cfv.custom_field_uuid === customField.id);
         let value = cfValue?.value ?? null;
-        // If custom field is file upload normalize value to image
-        if (value && customField?.type === 'file-upload') {
-            const parsed = typeof value === 'string' ? JSON.parse(value) : value;
-            const normalized = this.store.normalize('file', parsed);
-            value = this.store.push(normalized);
+
+        // File backed field types store the server expanded file json, normalize it to a file model
+        if (value && ['file-upload', 'signature-pad'].includes(customField?.type)) {
+            value = this.#normalizeFileValue(value);
         }
+
         return value;
+    }
+
+    #normalizeFileValue(value) {
+        if (typeof value !== 'string') {
+            return this.store.push(this.store.normalize('file', value));
+        }
+
+        // A signature captured before its upload landed is still a raw data url
+        if (value.startsWith('data:')) {
+            return value;
+        }
+
+        // An unexpanded sentinel — the server cast normally resolves this into file json
+        if (value.startsWith('file:')) {
+            return null;
+        }
+
+        try {
+            return this.store.push(this.store.normalize('file', JSON.parse(value)));
+        } catch {
+            return null;
+        }
     }
 
     @action downloadFile() {

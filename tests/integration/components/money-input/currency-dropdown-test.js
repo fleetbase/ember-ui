@@ -6,21 +6,16 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | money-input/currency-dropdown', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it wraps its block in a plain container', async function (assert) {
+        await render(hbs`<div class="host"><MoneyInput::CurrencyDropdown><span class="inside">USD</span></MoneyInput::CurrencyDropdown></div>`);
 
-        await render(hbs`<MoneyInput::CurrencyDropdown />`);
+        assert.dom('.host > div > .inside').hasText('USD');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('with no block it renders an empty container', async function (assert) {
+        await render(hbs`<div class="host"><MoneyInput::CurrencyDropdown /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <MoneyInput::CurrencyDropdown>
-        template block text
-      </MoneyInput::CurrencyDropdown>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.host > div').exists();
+        assert.dom('.host').hasText('');
     });
 });

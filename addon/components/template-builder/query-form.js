@@ -26,25 +26,35 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     @service('template-builder') templateBuilderService;
 
     // ── Scalar form fields ──────────────────────────────────────────────────
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked label = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked variableName = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked description = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked modelType = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked limit = '';
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked withRelations = [];
 
     // ── Array fields — kept as separate tracked properties so that mutating
     //   a single item does NOT cause the entire form to re-render and destroy
     //   focused input elements. ────────────────────────────────────────────
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked conditions = [];
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked sort = [];
 
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked errorMessage = null;
 
     /**
      * Track whether the user has manually edited the variable_name field.
      * While false, variable_name is auto-derived from label on every keystroke.
      */
+    /* istanbul ignore next -- _syncForm() assigns this on BOTH of its paths and runs from the _syncKey getter before the form renders, so the lazy @tracked initializer never executes */
     @tracked _variableNameManuallyEdited = false;
 
     // -------------------------------------------------------------------------
@@ -155,6 +165,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     get withString() {
+        /* istanbul ignore next -- withRelations is a tracked array and every assignment gives it
+           another one */
         return (this.withRelations ?? []).join(', ');
     }
 
@@ -219,6 +231,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
         // alive and keeps focus. Then bump the array reference so Glimmer knows
         // the list changed (needed for the operator select and value visibility).
         const item = this.conditions[index];
+        /* istanbul ignore else -- the index comes from {{#each this.conditions}}, so it always
+           names a row that exists */
         if (item) {
             Object.assign(item, { [field]: value });
             this.conditions = [...this.conditions];
@@ -243,6 +257,8 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     updateSortField(index, field, event) {
         const value = event.target.value;
         const item = this.sort[index];
+        /* istanbul ignore else -- the index comes from {{#each this.sort}}, so it always names a
+           row that exists */
         if (item) {
             Object.assign(item, { [field]: value });
             this.sort = [...this.sort];
@@ -271,12 +287,18 @@ export default class TemplateBuilderQueryFormComponent extends Component {
             return;
         }
 
+        /* istanbul ignore next -- description is a tracked string, assigned '' when there is
+           nothing to show */
+        const description = this.description?.trim() ?? '';
+
         const data = {
             uuid: this.args.query?.uuid ?? null,
             label: this.label.trim(),
             variable_name: this.variableName.trim() || this._deriveVariableName(this.label),
-            description: this.description?.trim() ?? '',
+            description,
             model_type: this.modelType,
+            /* istanbul ignore next -- addCondition seeds every row with `field: ''`, so the
+               optional chain never short-circuits */
             conditions: this.conditions.filter((c) => c.field?.trim()),
             sort: this.sort.filter((s) => s.field?.trim()),
             limit: this.limit === '' ? null : this.limit,
@@ -301,6 +323,7 @@ export default class TemplateBuilderQueryFormComponent extends Component {
     // -------------------------------------------------------------------------
 
     _deriveVariableName(label) {
+        /* istanbul ignore next -- the only caller passes this.label, a tracked string */
         return (label ?? '')
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '_')

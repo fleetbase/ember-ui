@@ -1,0 +1,15 @@
+{{! ContentPanel example adapter. }}
+<ContentPanel
+    @title={{@values.title}}
+    @subtitle={{@values.subtitle}}
+    @open={{@values.open}}
+    @pad={{@values.pad}}
+    @titleStatus={{@values.titleStatus}}
+    @hideStatusDot={{@values.hideStatusDot}}
+    @isLoading={{@values.isLoading}}
+    @onToggle={{fn (or @onEvent (noop)) "onToggle"}}
+    @onClickPanelTitle={{fn (or @onEvent (noop)) "onClickPanelTitle"}}
+    @onClickCaret={{fn (or @onEvent (noop)) "onClickCaret"}}
+>
+    <div class="pg-fixture-block">Panel body content</div>
+</ContentPanel>

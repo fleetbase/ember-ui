@@ -13,25 +13,29 @@
     ...attributes
 >
     {{#if @headerComponent}}
-        {{component
-            @headerComponent
-            class="{{@headerClass}} resource-panel-header"
-            authSchema=this.authSchema
-            resource=this.resource
-            saveTask=@saveTask
-            saveDisabled=@saveDisabled
-            pojoResource=@pojoResource
-            onPressCancel=@onPressCancel
-            actionButtons=@actionButtons
-            headerClass=@headerClass
-            modelName=@modelName
-            saveOptions=@saveOptions
-            headerLeftClass=@headerLeftClass
-            headerLeftInnerClass=@headerLeftInnerClass
-            titleWrapperClass=@titleWrapperClass
-            titleClass=@titleClass
-            actionsWrapperClass=@actionsWrapperClass
-        }}
+        {{! Invoked with angle brackets so `class` lands as an ATTRIBUTE. In the curly form it
+            arrives as the `@class` argument, which a Glimmer component drops — losing both the
+            caller's @headerClass and the addon's own resource-panel-header styling hook. }}
+        {{#let (component @headerComponent) as |CustomHeader|}}
+            <CustomHeader
+                @authSchema={{this.authSchema}}
+                @resource={{this.resource}}
+                @saveTask={{@saveTask}}
+                @saveDisabled={{@saveDisabled}}
+                @pojoResource={{@pojoResource}}
+                @onPressCancel={{@onPressCancel}}
+                @actionButtons={{@actionButtons}}
+                @headerClass={{@headerClass}}
+                @modelName={{@modelName}}
+                @saveOptions={{@saveOptions}}
+                @headerLeftClass={{@headerLeftClass}}
+                @headerLeftInnerClass={{@headerLeftInnerClass}}
+                @titleWrapperClass={{@titleWrapperClass}}
+                @titleClass={{@titleClass}}
+                @actionsWrapperClass={{@actionsWrapperClass}}
+                class="{{@headerClass}} resource-panel-header"
+            />
+        {{/let}}
     {{else}}
         <Layout::Resource::Panel::Header
             @authSchema={{this.authSchema}}

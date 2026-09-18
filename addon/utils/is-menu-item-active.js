@@ -13,10 +13,8 @@ export default function isMenuItemActive(section, slug, view = null) {
     let slugMatch = segments.includes(slug);
     let viewMatch = segments.includes(view) || getUrlParam('view') === view;
 
-    if (slugOnly && view) {
-        return slugMatch && viewMatch;
-    }
-
+    // `slugOnly` already requires `view === null`, so a `slugOnly && view` branch could never
+    // run; a caller that passes a view falls through to the section rules below.
     if (slugOnly) {
         return slugMatch;
     }

@@ -114,7 +114,7 @@ export default class DashboardService extends Service {
             if (dashboard) {
                 this.notifications.success(this.intl.t('services.dashboard-service.create-dashboard-success-notification', { dashboardName: dashboard.name }));
                 this.selectDashboard.perform(dashboard);
-                this.dashboards.pushObject(dashboard);
+                this.dashboards = [...this.dashboards, dashboard];
             }
         } catch (err) {
             this.notifications.serverError(err);
@@ -127,13 +127,21 @@ export default class DashboardService extends Service {
      * @param {Object} [options={}] - Optional configuration options.
      */
     @task *deleteDashboard(dashboard, options = {}) {
+        let destroyFailed = false;
         yield dashboard.destroyRecord().catch((error) => {
-            this.notification.serverError(error);
+            destroyFailed = true;
 
+            // Call the caller hook FIRST: a failure inside the notification must not swallow it.
             if (typeof options.onError === 'function') {
                 options.onError(error, dashboard);
             }
+
+            this.notifications.serverError(error);
         });
+
+        if (destroyFailed) {
+            return;
+        }
 
         this.notifications.success(this.intl.t('services.dashboard-service.delete-dashboard-success-notification', { dashboardName: dashboard.name }));
         yield this.loadDashboards.perform(this.lastLoadOptions);
