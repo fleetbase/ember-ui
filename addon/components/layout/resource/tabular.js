@@ -23,6 +23,10 @@ export default class LayoutResourceTabularComponent extends Component {
         this.columns = columns;
     }
 
+    @action setColumns(columns) {
+        this.columns = columns;
+    }
+
     @action setupTable(table) {
         this.table = table;
         if (typeof this.args.setupTable === 'function') {

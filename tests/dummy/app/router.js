@@ -17,6 +17,11 @@ Router.map(function () {
         this.route('menu-item', { path: '/menu-item/:slug' });
     });
 
+    // Route targets for TabNavigation's route-backed tab tests.
+    this.route('positions');
+    this.route('devices');
+    this.route('schedules');
+
     // The playground. `/` redirects to the catalog. Catalog and detail are siblings rather than
     // parent/child so each owns its own model and query parameters cleanly.
     this.route('components');

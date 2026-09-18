@@ -8,10 +8,13 @@ import { cancel, debounce, later, run } from '@ember/runloop';
 export default class AttachPopoverComponent extends Component {
     @tracked animation = 'fill';
     @tracked arrow = false;
+    @tracked class = null;
     @tracked hideDelay = 0;
     @tracked hideDuration = 300;
     @tracked hideOn = 'mouseleave blur escapekey';
     @tracked interactive = false;
+    /* istanbul ignore next -- @tracked initializer: setupComponent assigns `isShown` from
+       @isShown before anything reads it, so this lazy initializer is never invoked. */
     @tracked isShown = false;
     @tracked lazyRender = false;
     @tracked placement = 'top';
@@ -43,10 +46,21 @@ export default class AttachPopoverComponent extends Component {
         return `ember-attacher-${this.animation} ${showOrHideClass} ${arrowClass}`;
     }
 
-    @computed('style', 'transitionDuration', 'isShown') get computedStyle() {
-        const { style, transitionDuration, isShown } = this;
+    @computed('style', 'transitionDuration', 'isShown', 'interactive') get computedStyle() {
+        const { style, transitionDuration, isShown, interactive } = this;
 
-        return htmlSafe(`transition-duration: ${transitionDuration}ms; pointer-events: ${isShown ? 'auto' : 'none'}; ${style ?? ''}`);
+        // Only an interactive attachment may be entered: a plain tooltip stays
+        // transparent to the pointer so hovering it never steals the target's
+        // mouseleave. `isShown` is maintained by show()/hide().
+        return htmlSafe(`transition-duration: ${transitionDuration}ms; pointer-events: ${isShown && interactive ? 'auto' : 'none'}; ${style ?? ''}`);
+    }
+
+    /**
+     * The pointer-events value the floating element itself should carry so an
+     * interactive attachment can be entered while it is visible.
+     */
+    @computed('isShown', 'interactive') get floatingPointerEvents() {
+        return this.isShown && this.interactive ? 'auto' : 'none';
     }
 
     @computed('showOn') get showEvents() {
@@ -91,6 +105,10 @@ export default class AttachPopoverComponent extends Component {
         // apply default arguments
         this.setDefaultOptions();
 
+        // Whether the attachment should currently be visible; also driven by
+        // show()/hide() and, later, by updates to @isShown.
+        this.isShown = Boolean(this.args.isShown);
+
         // set last used capture arg
         this.lastUseCaptureArgumentValue = this.useCapture;
 
@@ -119,6 +137,18 @@ export default class AttachPopoverComponent extends Component {
         this.initializeAttacher();
     }
 
+    /**
+     * Follows later changes to `@isShown` so a parent can open or close the
+     * attachment after the initial render.
+     */
+    @action isShownArgumentChanged(element, [isShown]) {
+        if (isShown) {
+            this.show();
+        } else if (this.floatingElement) {
+            this.hide();
+        }
+    }
+
     @action initializeAttacher() {
         this.removeEventListeners();
 
@@ -136,6 +166,14 @@ export default class AttachPopoverComponent extends Component {
 
     @action hide() {
         const { floatingElement } = this;
+
+        this.isShown = false;
+        this.hidePending = false;
+
+        if (this.hideListenersOnDocumentByEvent.mousemove) {
+            delete this.hideListenersOnDocumentByEvent.mousemove;
+            document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+        }
 
         if (!floatingElement) {
             // With @lazyRender the attachment is not in the DOM until it is first shown, and the
@@ -199,17 +237,22 @@ export default class AttachPopoverComponent extends Component {
             return;
         }
 
-        // If cursor is not on the attachment or target, hide the popover
-        // NOTE: this used to read `!(this.isOffset && this.isCursorBetweenTargetAndAttachment(event))`.
+        // NOTE: the `outside` test used to include `!(this.isOffset && this.isCursorBetweenTargetAndAttachment(event))`.
         // `isOffset` was never assigned from an argument or anywhere else, so it was permanently
         // false — and `isCursorBetweenTargetAndAttachment` does not exist on this component, so
         // had anything ever set the flag the popover would have thrown on every mousemove.
-        if (!target.contains(event.target) && this.floatingElement && !this.floatingElement.contains(event.target)) {
-            // Remove this listener before hiding the attachment
-            delete this.hideListenersOnDocumentByEvent.mousemove;
-            document.removeEventListener('mousemove', this.hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+        const outside = !target.contains(event.target) && this.floatingElement && !this.floatingElement.contains(event.target);
 
-            this.hideAfterDelay();
+        if (outside) {
+            // Start the delayed hide once and keep listening, so re-entering the
+            // target or the attachment within the delay cancels it.
+            if (!this.hidePending) {
+                this.hidePending = true;
+                this.hideAfterDelay();
+            }
+        } else if (this.hidePending) {
+            cancel(this.delayedVisibilityToggle);
+            this.hidePending = false;
         }
     }
 
@@ -252,26 +295,6 @@ export default class AttachPopoverComponent extends Component {
         } else if (!targetContainsFocus) {
             this.hideAfterDelay();
         }
-    }
-
-    /**
-     * Tear the listeners down when the component goes away.
-     *
-     * `removeEventListeners()` was already correct, but its only caller was the first line of
-     * `initializeAttacher()`, which runs once from `{{did-insert}}` — at which point the listener
-     * maps are still empty, so it removed nothing and its loops were dead code. Nothing else ever
-     * called it, so every popover that was rendered and destroyed left its `click`/`touchend` and
-     * (by default) `keydown` handlers on `document` for the lifetime of the page, still firing
-     * `hideOnClickOut` against a destroyed component.
-     *
-     * `useCapture` has to match between add and remove or the removal silently no-ops, so this
-     * uses the same tracked value the listeners were registered with — the component only reads it
-     * once, into `lastUseCaptureArgumentValue`, and never re-registers behind our back.
-     */
-    willDestroy() {
-        super.willDestroy(...arguments);
-
-        this.removeEventListeners();
     }
 
     @action removeEventListeners() {
@@ -368,6 +391,7 @@ export default class AttachPopoverComponent extends Component {
 
     @action showAfterDelay() {
         cancel(this.delayedVisibilityToggle);
+        this.hidePending = false;
 
         this.mustRender = true;
         this.addListenersForHideEvents();
@@ -388,10 +412,39 @@ export default class AttachPopoverComponent extends Component {
         }
 
         this.mustRender = true;
+        this.isShown = true;
 
         // Make the attachment visible immediately so transition animations can take place
         this.setIsVisibleAfterDelay(true, 0);
         this.startShowAnimation();
+
+        // An interactive attachment that was opened programmatically (or whose
+        // target the pointer left before the listeners were bound) must still
+        // close once the pointer is away from both target and attachment.
+        if (this.interactive && this.hideEvents.includes('mouseleave')) {
+            this.hideOnMouseLeaveTarget();
+        }
+    }
+
+    /**
+     * Tear the listeners down when the component goes away.
+     *
+     * `removeEventListeners()` was already correct, but its only caller was the first line of
+     * `initializeAttacher()`, which runs once from `{{did-insert}}` — at which point the listener
+     * maps are still empty, so it removed nothing and its loops were dead code. Nothing else ever
+     * called it, so every popover that was rendered and destroyed left its `click`/`touchend` and
+     * (by default) `keydown` handlers on `document` for the lifetime of the page, still firing
+     * `hideOnClickOut` against a destroyed component.
+     *
+     * `useCapture` has to match between add and remove or the removal silently no-ops, so this
+     * uses the same tracked value the listeners were registered with — the component only reads it
+     * once, into `lastUseCaptureArgumentValue`, and never re-registers behind our back.
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+        cancel(this.delayedVisibilityToggle);
+        cancelAnimationFrame(this.animationTimeout);
+        this.removeEventListeners();
     }
 
     @action startShowAnimation() {
@@ -446,6 +499,14 @@ export default class AttachPopoverComponent extends Component {
     @action setIsVisibleAfterDelay(isVisible, delay) {
         const { floatingElement } = this;
 
+        // The `!floatingElement` branch below re-enters this method from a requestAnimationFrame
+        // callback, and the component can be torn down between scheduling that frame and its
+        // firing. Reading `floatingPointerEvents` (a computed) on a destroyed component throws,
+        // so stop here rather than fall through to the visibility branches.
+        if (this.isDestroyed || this.isDestroying) {
+            return;
+        }
+
         if (!floatingElement) {
             this.animationTimeout = requestAnimationFrame(() => {
                 this.animationTimeout = this.setIsVisibleAfterDelay(isVisible, delay);
@@ -465,6 +526,7 @@ export default class AttachPopoverComponent extends Component {
                             /* istanbul ignore next -- a delay only ever accompanies isVisible
                                false: the two callers are (false, hideDuration) and (true, 0) */
                             this.floatingElement.style.display = isVisible ? '' : 'none';
+                            this.floatingElement.style.pointerEvents = this.floatingPointerEvents;
 
                             // Prevent jank by making the attachment invisible until positioned.
                             // The visibility style will be toggled by this.startShowAnimation()
@@ -481,6 +543,7 @@ export default class AttachPopoverComponent extends Component {
             );
         } else {
             this.floatingElement.style.display = isVisible ? '' : 'none';
+            this.floatingElement.style.pointerEvents = this.floatingPointerEvents;
 
             // Prevent jank by making the attachment invisible until positioned.
             // The visibility style will be toggled by this.startShowAnimation()

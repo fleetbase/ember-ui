@@ -307,4 +307,28 @@ module('Integration | Component | layout/resource/tabular', function (hooks) {
 
         assert.dom('.next-table-wrapper').hasClass('no-table-extra-spacing');
     });
+
+    module('the column picker', function () {
+        test('applying the picker puts the chosen columns back on the component', async function (assert) {
+            await render(TABLE);
+
+            const picker = findAll('button').find((button) => button.querySelector('svg.fa-sliders'));
+            assert.ok(picker, 'the column picker renders');
+
+            await click(picker);
+
+            // Hide the second column: the picker reports each toggle as it happens.
+            const toggles = findAll('.customize-columns-dropdown-body input[type="checkbox"]');
+            assert.strictEqual(toggles.length, 2, 'a toggle per labelled column');
+            await click(toggles[1]);
+
+            assert.deepEqual(
+                findAll('thead th')
+                    .map((th) => th.textContent.trim())
+                    .filter(Boolean),
+                ['Name'],
+                'the hidden column is gone from the table the component now renders'
+            );
+        });
+    });
 });

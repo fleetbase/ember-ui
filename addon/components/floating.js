@@ -149,7 +149,7 @@ export default class FloatingComponent extends Component {
         }).then(({ x, y, middlewareData }) => {
             assign(element.style, {
                 position: 'absolute',
-                pointerEvents: 'none',
+                pointerEvents: this.args.pointerEvents ?? 'none',
                 willChange: 'transform',
                 top: '0',
                 left: '0',

@@ -430,4 +430,21 @@ module('Integration | Component | table/cell/resource-identity', function (hooks
             assert.dom('button').hasClass('text-left');
         });
     });
+
+    test('it renders no meta row when there is nothing to put in it', async function (assert) {
+        this.set('row', { name: 'Bare Row' });
+        this.set('column', { labelPath: 'name' });
+
+        await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+        assert.dom('button').includesText('Bare Row');
+        assert.dom('[data-test-resource-identity-meta-row]').doesNotExist('no identifier, meta paths or status means no second line');
+
+        this.set('column', { labelPath: 'name', statusPath: 'status' });
+        this.set('row', { name: 'Bare Row', status: 'active' });
+        await render(hbs`<Table::Cell::ResourceIdentity @row={{this.row}} @column={{this.column}} />`);
+
+        assert.dom('[data-test-resource-identity-meta-row]').exists('a status brings the row back');
+        assert.dom('[data-test-resource-identity-meta-row]').includesText('Active');
+    });
 });

@@ -108,4 +108,57 @@ module('Integration | Component | user/pill', function (hooks) {
         assert.dom(this.element).containsText('Grace Hopper');
         assert.dom(this.element).doesNotContainText('Ada Lovelace');
     });
+
+    module('the arguments that override the user family defaults', function () {
+        test('an explicit @subtitle wins over the email and the placeholders', async function (assert) {
+            this.set('user', { name: 'Ada Lovelace', email: 'ada@example.com' });
+
+            await render(hbs`<User::Pill @user={{this.user}} @subtitle="Fleet manager" />`);
+
+            assert.dom(this.element).containsText('Fleet manager');
+            assert.dom(this.element).doesNotContainText('ada@example.com', 'the email is not shown as well');
+        });
+
+        test('an empty @subtitle is still an explicit choice', async function (assert) {
+            this.set('user', { name: 'Ada Lovelace', email: 'ada@example.com' });
+
+            await render(hbs`<User::Pill @user={{this.user}} @subtitle="" />`);
+
+            assert.dom(this.element).doesNotContainText('ada@example.com', 'an empty subtitle is not undefined, so the email is not used');
+        });
+
+        test('@showOnlineIndicator decides the dot when it is given', async function (assert) {
+            this.set('user', { name: 'Ada', email: 'ada@example.com', online: true });
+
+            await render(hbs`<User::Pill @user={{this.user}} @showOnlineIndicator={{true}} />`);
+            assert.dom('[data-test-pill-online-indicator]').exists('the dot is shown when asked for');
+
+            await render(hbs`<User::Pill @user={{this.user}} @showOnlineIndicator={{false}} />`);
+            assert.dom('[data-test-pill-online-indicator]').doesNotExist('and withheld when refused');
+        });
+
+        test('@onlinePath asks for the dot and reads the flag from that path', async function (assert) {
+            this.set('user', { name: 'Ada', email: 'ada@example.com', is_active: true, online: false });
+
+            await render(hbs`<User::Pill @user={{this.user}} @onlinePath="is_active" />`);
+
+            assert.dom('[data-test-pill-online-indicator]').exists('naming a path is enough to ask for the dot');
+            assert.dom('[data-test-pill-online-indicator]').hasClass('text-green-500', 'and the flag is read from that path, not the default one');
+        });
+
+        test('@onlinePath reports offline when the path is falsey', async function (assert) {
+            this.set('user', { name: 'Ada', email: 'ada@example.com', is_active: false, online: true });
+
+            await render(hbs`<User::Pill @user={{this.user}} @onlinePath="is_active" />`);
+
+            assert.dom('[data-test-pill-online-indicator]').hasClass('text-yellow-200', 'the named path wins over the default online flag');
+        });
+
+        test('@onlinePath with no user at all reports nothing rather than reading a path off nothing', async function (assert) {
+            await render(hbs`<User::Pill @onlinePath="is_active" />`);
+
+            assert.dom('[data-test-pill-online-indicator]').exists('the dot is still asked for');
+            assert.dom('[data-test-pill-online-indicator]').hasClass('text-yellow-200', 'and with no user it reads as offline');
+        });
+    });
 });

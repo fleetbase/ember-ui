@@ -4,44 +4,13 @@ const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
 const resolve = require('resolve');
 const path = require('path');
-const postcssImport = require('postcss-import');
-const postcssPresetEnv = require('postcss-preset-env');
-const postcssEach = require('postcss-each');
-const postcssMixins = require('postcss-mixins');
-const postcssConditionals = require('postcss-conditionals-renewed');
-const postcssAtRulesVariables = require('postcss-at-rules-variables');
-const autoprefixer = require('autoprefixer');
-const tailwind = require('tailwindcss');
-
-const tailwindConfigPath = path.resolve(__dirname, 'tailwind.config.js');
+const buildPostcssOptions = require('./lib/postcss-options');
 
 // signature_pad's `exports` map hands CommonJS consumers a UMD build, and ember-auto-import
 // resolves through a CJS entry. Webpack's interop then double wraps that UMD so the default
 // export comes back as `{ default: SignaturePad }` instead of the class. Point the alias
 // straight at the ESM build so `import SignaturePad from 'signature_pad'` resolves cleanly.
 const signaturePadPath = path.join(path.dirname(resolve.sync('signature_pad/package.json', { basedir: __dirname })), 'dist', 'signature_pad.js');
-const postcssOptions = {
-    compile: {
-        enabled: true,
-        cacheInclude: [/.*\.(css|scss|hbs)$/, /.*\/tailwind\/config\.js$/, /.*tailwind\.js$/],
-        plugins: [
-            postcssAtRulesVariables,
-            postcssImport({
-                path: ['node_modules', path.join(__dirname, 'addon/styles')],
-                plugins: [postcssAtRulesVariables, postcssImport],
-            }),
-            postcssMixins,
-            postcssPresetEnv({ stage: 1 }),
-            postcssEach,
-            tailwind(tailwindConfigPath),
-            autoprefixer,
-        ],
-    },
-    filter: {
-        enabled: true,
-        plugins: [postcssAtRulesVariables, postcssMixins, postcssEach, postcssConditionals, tailwind(tailwindConfigPath)],
-    },
-};
 
 // Only require ember-cli-code-coverage (a devDependency) when coverage is
 // requested, so consuming applications never need it installed.
@@ -79,12 +48,11 @@ module.exports = {
             excludeJS: true,
             excludeImages: true,
         },
-        postcssOptions,
     },
 
     treeForStyles: function () {
-        // Only provide styles to the root application, not to engines
-        // This prevents engines from trying to compile ember-ui styles
+        // Only expose the app styles tree to the root application. Addon styles
+        // are compiled separately by Ember's treeForAddon/compileStyles hooks.
         let parent = this.parent;
         while (parent) {
             const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
@@ -100,16 +68,18 @@ module.exports = {
     },
 
     included: function (app) {
+        // Configure the addon's compiler before its ember-cli-postcss child is
+        // included, including when this instance belongs to an engine.
+        const postcssOptions = buildPostcssOptions(this.project.targets && this.project.targets.browsers);
+        this.options.postcssOptions = postcssOptions;
         this._super.included.apply(this, arguments);
 
-        // Check if we're being included by an engine
-        // If so, skip setting postcssOptions to prevent engines from trying to compile our styles
+        // Nested engine instances configure their own compiler above, but must
+        // not overwrite host options or import the shared vendor assets again.
         let parent = this.parent;
         while (parent) {
             const isEngine = parent.lazyLoading === true || (parent.lazyLoading && parent.lazyLoading.enabled === true);
             if (isEngine) {
-                // We're in an engine - don't set postcssOptions
-                // The engine will inherit from the host app
                 return;
             }
             parent = parent.parent;

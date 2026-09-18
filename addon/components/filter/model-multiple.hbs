@@ -1,0 +1,24 @@
+<div class="filter-model-multiple flex flex-row items-center" ...attributes>
+    <ModelSelectMultiple
+        @modelName={{@filter.model}}
+        @query={{@filter.query}}
+        @optionLabel={{this.optionLabel}}
+        @selectedModel={{this.selectedModels}}
+        @placeholder={{@placeholder}}
+        @triggerClass="form-select form-input form-input-sm flex-1"
+        @infiniteScroll={{false}}
+        @renderInPlace={{true}}
+        @onChange={{this.onChange}}
+        @selectedItemComponent={{if this.optionComponent (component this.optionComponent compact=true)}}
+        as |model|
+    >
+        {{#if this.optionComponent}}
+            {{component this.optionComponent option=model}}
+        {{else}}
+            {{get model this.optionLabel}}
+        {{/if}}
+    </ModelSelectMultiple>
+    <button type="button" class="clear-button" disabled={{not this.selectedModels.length}} aria-label="Clear" {{on "click" this.clear}}>
+        <FaIcon @icon="times" />
+    </button>
+</div>

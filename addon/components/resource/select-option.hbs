@@ -1,0 +1,17 @@
+<div class="select-option {{if @compact 'select-option--compact'}}" data-test-select-option ...attributes>
+    {{#if this.image.component}}
+        <span class="select-option__photo select-option__component">{{component this.image.component resource=this.record}}</span>
+    {{else if this.icon}}
+        <span class="select-option__photo select-option__icon {{this.image.iconClass}}" data-test-select-option-icon>
+            <FaIcon @icon={{this.icon}} @size="xs" />
+        </span>
+    {{else if this.photo}}
+        <Image src={{this.photo}} @fallbackSrc={{or this.image.fallback (config "defaultValues.placeholderImage")}} alt="" class="select-option__photo" data-test-select-option-photo />
+    {{/if}}
+    <div class="select-option__text">
+        <span class="select-option__title" data-test-select-option-title>{{this.title}}</span>
+        {{#if this.details}}
+            <span class="select-option__details" data-test-select-option-details>{{this.details}}</span>
+        {{/if}}
+    </div>
+</div>

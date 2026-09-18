@@ -21,6 +21,16 @@ function isHidden() {
     return attacher()?.getAttribute('aria-hidden') === 'true';
 }
 
+async function waitForShown() {
+    await waitUntil(isShown, { timeout: 2000 });
+    await settled();
+}
+
+async function waitForHidden() {
+    await waitUntil(isHidden, { timeout: 2000 });
+    await settled();
+}
+
 module('Integration | Component | attach/popover', function (hooks) {
     setupRenderingTest(hooks);
 
@@ -161,7 +171,9 @@ module('Integration | Component | attach/popover', function (hooks) {
         await waitUntil(isShown);
 
         assert.true(isShown(), 'the attachment is visible without any user interaction');
-        assert.dom(attachment()).hasAttribute('style', /pointer-events: auto/, 'a shown attachment accepts pointer events');
+        // Only an @interactive attachment accepts the pointer; a plain one stays transparent so
+        // it never swallows clicks meant for what it covers.
+        assert.dom(attachment()).hasAttribute('style', /pointer-events: none/, 'a shown, non-interactive attachment stays transparent to the pointer');
     });
 
     test('it renders into the configured floating container when not rendered in place', async function (assert) {
@@ -822,6 +834,48 @@ module('Integration | Component | attach/popover', function (hooks) {
                 assert.dom('.ember-attacher').doesNotExist();
             });
 
+            test('a visibility retry frame that lands after teardown touches nothing', async function (assert) {
+                // setIsVisibleAfterDelay re-queues itself while the attachment has not been
+                // rendered yet. @lazyRender opens that window, and tearing the component down
+                // while the retry is held lands the callback on a destroyed component — where
+                // reading the floatingPointerEvents computed would throw.
+                this.set('visible', true);
+
+                await render(hbs`
+                {{#if this.visible}}
+                    <div class="popover-target">
+                        Hover me
+                        <Attach::Popover @renderInPlace={{true}} @lazyRender={{true}} @showOn="click" @hideOn="clickout" @hideDuration={{0}}>content</Attach::Popover>
+                    </div>
+                {{/if}}
+            `);
+
+                const frames = holdFrames();
+                let threw = null;
+
+                try {
+                    find('.popover-target').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+                    assert.true(frames.queued.length > 0, 'showing queues work for a later frame');
+
+                    this.set('visible', false);
+                    await settled();
+
+                    try {
+                        frames.flush();
+                        // Drain any retry the flush itself queued, still after teardown.
+                        frames.flush();
+                    } catch (error) {
+                        threw = error;
+                    }
+                } finally {
+                    frames.release();
+                }
+
+                assert.strictEqual(threw, null, 'the retry finds the component gone and stops');
+                assert.dom('.ember-attacher').doesNotExist();
+            });
+
             test('a hide frame that lands after teardown hides nothing', async function (assert) {
                 this.set('visible', true);
 
@@ -962,6 +1016,163 @@ module('Integration | Component | attach/popover', function (hooks) {
             await settled();
 
             assert.dom('.popover-target').doesNotExist();
+        });
+    });
+
+    module('the floating element and its options', function () {
+        test('it renders its block once shown', async function (assert) {
+            await render(hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{true}}>popover text</Attach::Popover></button>`);
+            await waitForShown();
+
+            assert.dom(attacher()).includesText('popover text');
+        });
+
+        test('it applies @class to the floating element', async function (assert) {
+            await render(
+                hbs`<button type="button" id="target">Target <Attach::Popover @class="resource-hover-card" @classNames="inner-class" @isShown={{true}}>x</Attach::Popover></button>`
+            );
+            await waitForShown();
+
+            assert.dom(attacher()).hasClass('ember-attacher');
+            assert.dom(attacher()).hasClass('resource-hover-card');
+            assert.dom(attachment()).hasClass('inner-class');
+            assert.dom(attachment()).doesNotHaveClass('resource-hover-card');
+        });
+
+        test('an interactive popover opened by hover accepts pointer events and can be entered', async function (assert) {
+            await render(hbs`
+                <button type="button" id="target">Target
+                    <Attach::Popover @interactive={{true}} @hideDelay={{0}} @hideDuration={{0}} @showDuration={{0}}>
+                        <span id="inside">inside</span>
+                    </Attach::Popover>
+                </button>
+            `);
+
+            assert.notStrictEqual(attacher()?.getAttribute('aria-hidden'), 'false', 'hidden before hover');
+
+            await triggerEvent('#target', 'mouseenter');
+            await waitForShown();
+
+            assert.strictEqual(getComputedStyle(attachment()).pointerEvents, 'auto', 'the content accepts pointer events while shown');
+            assert.strictEqual(attacher().style.pointerEvents, 'auto', 'the floating element accepts pointer events while shown');
+
+            // Leave the target and move onto the popover: it must stay open.
+            await triggerEvent('#target', 'mouseleave');
+            await triggerEvent('#inside', 'mousemove');
+            assert.strictEqual(attacher().getAttribute('aria-hidden'), 'false', 'still shown while the pointer is over the popover');
+
+            // Move away from both: it hides, and pointer events go back to none.
+            await triggerEvent(document.body, 'mousemove');
+            await waitForHidden();
+            assert.strictEqual(getComputedStyle(attachment()).pointerEvents, 'none', 'transparent to the pointer once hidden');
+            assert.strictEqual(attacher().style.pointerEvents, 'none');
+        });
+
+        test('a non-interactive popover stays transparent to the pointer while shown', async function (assert) {
+            await render(hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{true}} @showDuration={{0}}>x</Attach::Popover></button>`);
+            await waitForShown();
+
+            assert.strictEqual(getComputedStyle(attachment()).pointerEvents, 'none');
+            assert.strictEqual(attacher().style.pointerEvents, 'none');
+        });
+
+        test('it hides on escape and follows later changes to @isShown', async function (assert) {
+            this.set('shown', false);
+            await render(
+                hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{this.shown}} @lazyRender={{true}} @showDuration={{0}} @hideDuration={{0}}>x</Attach::Popover></button>`
+            );
+
+            assert.notOk(attacher(), 'lazy popover renders nothing until it is shown');
+
+            this.set('shown', true);
+            await waitForShown();
+            assert.strictEqual(attacher().getAttribute('aria-hidden'), 'false', 'shown after @isShown becomes true');
+
+            this.set('shown', false);
+            await waitForHidden();
+            assert.strictEqual(attacher().getAttribute('aria-hidden'), 'true', 'hidden after @isShown becomes false');
+
+            this.set('shown', true);
+            await waitForShown();
+            await triggerKeyEvent(document, 'keydown', 'Escape');
+            await waitForHidden();
+            assert.strictEqual(attacher().getAttribute('aria-hidden'), 'true', 'hidden after escape');
+        });
+
+        test('setting @isShown to false before anything rendered is a no-op', async function (assert) {
+            this.set('shown', undefined);
+            await render(hbs`<button type="button" id="target">Target <Attach::Popover @isShown={{this.shown}} @lazyRender={{true}}>x</Attach::Popover></button>`);
+
+            this.set('shown', false);
+            await settled();
+
+            assert.notOk(attacher(), 'nothing rendered and nothing thrown');
+        });
+    });
+
+    module('an interactive attachment, with the pointer moving in and out', function () {
+        // These dispatch events directly rather than through triggerEvent: awaiting settled()
+        // would drain the `later()` the delayed hide is waiting on, closing the very window
+        // being tested.
+        function move(element) {
+            element.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+        }
+
+        async function openInteractivePopover() {
+            await render(hbs`
+                <div class="popover-target">
+                    Hover me
+                    <Attach::Popover @renderInPlace={{true}} @interactive={{true}} @hideDelay={{5000}} @hideDuration={{0}} @showDuration={{0}}>
+                        <span class="inside">content</span>
+                    </Attach::Popover>
+                </div>
+            `);
+
+            await triggerEvent('.popover-target', 'mouseenter');
+            await waitUntil(isShown, { timeout: 2000 });
+        }
+
+        test('a second move outside does not restart the delayed hide', async function (assert) {
+            await openInteractivePopover();
+
+            // Leaving the target arms the document-level mousemove watcher.
+            find('.popover-target').dispatchEvent(new MouseEvent('mouseleave'));
+
+            move(document.body);
+            assert.true(isShown(), 'the hide is only pending, the attachment is still up');
+
+            // The second move finds a hide already pending and leaves it alone.
+            move(document.body);
+            assert.true(isShown(), 'and it is still pending rather than restarted');
+        });
+
+        test('moving back onto the attachment cancels the pending hide', async function (assert) {
+            await openInteractivePopover();
+
+            find('.popover-target').dispatchEvent(new MouseEvent('mouseleave'));
+
+            move(document.body);
+            assert.true(isShown(), 'a hide is pending');
+
+            // Coming back inside the attachment takes the hide back off the table.
+            move(find('.inside'));
+            assert.true(isShown(), 'the attachment stays open');
+
+            // Nothing is pending any more, so a later move outside starts a fresh hide.
+            move(document.body);
+            assert.true(isShown(), 'and the new hide is pending rather than immediate');
+        });
+
+        test('moving back onto the target itself also cancels the pending hide', async function (assert) {
+            await openInteractivePopover();
+
+            find('.popover-target').dispatchEvent(new MouseEvent('mouseleave'));
+
+            move(document.body);
+            assert.true(isShown(), 'a hide is pending');
+
+            move(find('.popover-target'));
+            assert.true(isShown(), 'returning to the target keeps the attachment open');
         });
     });
 });

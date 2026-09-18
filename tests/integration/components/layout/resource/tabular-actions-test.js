@@ -229,4 +229,30 @@ module('Integration | Component | layout/resource/tabular-actions', function (ho
         assert.ok(buttonWithIcon('sliders'), 'so does the column picker');
         assert.strictEqual(find(SEARCH), null, 'and nothing optional is rendered');
     });
+
+    module('the column picker', function () {
+        test('applying the picker reports the columns through @onColumnsChange', async function (assert) {
+            const reported = [];
+            this.set('onColumnsChange', (columns) => reported.push(columns));
+
+            await render(hbs`
+                <Layout::Resource::TabularActions @title="vehicle" @columns={{this.columns}} @onColumnsChange={{this.onColumnsChange}} />
+            `);
+
+            await click(buttonWithIcon('sliders'));
+            await click('.customize-columns-dropdown-body input[type="checkbox"]');
+
+            assert.strictEqual(reported.length, 1, 'toggling a column reports the change');
+            assert.deepEqual(reported[0], this.columns, 'and it hands back the column list');
+        });
+
+        test('applying the picker with no handler behind it is harmless', async function (assert) {
+            await render(hbs`<Layout::Resource::TabularActions @title="vehicle" @columns={{this.columns}} />`);
+
+            await click(buttonWithIcon('sliders'));
+            await click('.customize-columns-dropdown-body input[type="checkbox"]');
+
+            assert.ok(buttonWithIcon('sliders'), 'the picker is still there and nothing threw');
+        });
+    });
 });

@@ -5,7 +5,7 @@ import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { tracked } from '@glimmer/tracking';
 import { timeout, restartableTask, dropTask } from 'ember-concurrency';
-import generateUuid from '@fleetbase/ember-core/utils/generate-uuid';
+import generateUuid from '../utils/generate-uuid';
 import config from 'ember-get-config';
 
 const getConfigOption = (key, defaultValue) => {
