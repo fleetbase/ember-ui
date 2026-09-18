@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { setupRenderingTest } from 'dummy/tests/helpers';
+import { setupRenderingTest, setupPointerDevice } from 'dummy/tests/helpers';
 import { render, triggerEvent, settled, waitUntil, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { registerResourceDescriptor } from '@fleetbase/ember-ui/utils/resource-registry';
@@ -18,6 +18,7 @@ async function waitForCard() {
 
 module('Integration | Component | resource/hover-card', function (hooks) {
     setupRenderingTest(hooks);
+    setupPointerDevice(hooks);
 
     hooks.beforeEach(function () {
         this.owner.register('template:components/widget/summary', hbs`<span data-test-widget-summary>{{@resource.name}}</span>`);
