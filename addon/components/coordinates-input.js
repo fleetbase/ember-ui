@@ -12,6 +12,16 @@ import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
 
+/**
+ * The keyless OpenStreetMap tile server, the same default Fleet-Ops uses. CARTO's
+ * `basemaps.cartocdn.com` raster tiles now require an API key and show an "API key
+ * required" watermark without one, and Stadia Maps needs a key outside localhost.
+ * OpenStreetMap has no dark style, so the dark themes use the same tiles. Pass any
+ * other `https://` XYZ URL (a keyed provider, say) to use it instead.
+ */
+export const DEFAULT_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+export const DEFAULT_TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
 export default class CoordinatesInputComponent extends Component {
     @service fetch;
     @service currentUser;
@@ -26,7 +36,8 @@ export default class CoordinatesInputComponent extends Component {
     @tracked isLoading = false;
     @tracked isReady = false;
     @tracked isInitialMoveEnded = false;
-    @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    @tracked tileSourceUrl = DEFAULT_TILE_URL;
+    tileAttribution = DEFAULT_TILE_ATTRIBUTION;
     @tracked mapTheme = 'light';
     @tracked disabled = false;
 
@@ -49,21 +60,15 @@ export default class CoordinatesInputComponent extends Component {
     }
 
     changeTileSource(sourceUrl = null) {
-        if (sourceUrl === 'dark') {
-            this.mapTheme = 'dark';
-            this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
-        } else if (sourceUrl === 'dark_all') {
-            this.mapTheme = 'dark_all';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        } else if (sourceUrl === 'light') {
-            this.mapTheme = 'light';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+        if (sourceUrl === 'dark' || sourceUrl === 'dark_all') {
+            this.mapTheme = sourceUrl;
+            this.tileSourceUrl = DEFAULT_TILE_URL;
         } else if (typeof sourceUrl === 'string' && sourceUrl.startsWith('https://')) {
             this.mapTheme = 'custom';
             this.tileSourceUrl = sourceUrl;
         } else {
             this.mapTheme = 'light';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+            this.tileSourceUrl = DEFAULT_TILE_URL;
         }
     }
 
