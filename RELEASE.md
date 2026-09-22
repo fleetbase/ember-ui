@@ -1,12 +1,12 @@
-> v0.4.2 ~ "Restore the hidden state of tooltips and popovers in production builds"
+> v0.4.3 ~ "A shared sign-in page button style"
 
 ---
 ## Highlights
 
-- **Fix: every tooltip and popover rendered visible in production** — v0.4.1 started forwarding the host's browser targets to `postcss-preset-env`, which then skipped flattening CSS nesting for browsers that support it natively. The attacher styles that hold an `Attach::Tooltip` or `Attach::Popover` at `opacity: 0` until it is shown are written nested, and ember-cli's production minifier (clean-css) cannot parse nesting: it emitted those rules as top-level `& > …` selectors that match nothing, so every attachment appeared at full opacity without a hover. Development builds were unaffected because the browser parsed the nested block itself. The preset now always flattens nesting, whatever the targets.
-- **Regression test** — `tests/node/postcss-build-test.cjs` compiles the attacher styles for the console's targets, asserts the flat hide rule is present, and minifies the result with clean-css to prove it survives a production build.
+- **`btn-auth`, a neutral button style for sign-in pages** — an opt-in wrapper class (`@wrapperClass="btn-block btn-auth"`) that gives the console's "Continue with ..." provider buttons and the extension buttons below them (Customer Portal, Track Order) one look: white with a gray-300 border in light mode, gray-900 with a gray-700 border in dark, and a hover that shifts the background and strengthens the border. It replaces each extension's own styling, whose hover faded the button to half opacity. Colours are custom properties on the wrapper, so a single button can be re-coloured, a provider's brand colour say, and keep the same border, hover and transition.
 
 ---
 ## Need help?
 - [GitHub Discussions](https://github.com/fleetbase/fleetbase/discussions)
 - [Discord](https://discord.gg/HnTqQ6zAVn)
+---
