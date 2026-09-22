@@ -20,7 +20,7 @@
                     @doubleClickZoom={{false}}
                     as |layers|
                 >
-                    <layers.tile @url={{this.tileSourceUrl}} />
+                    <layers.tile @url={{this.tileSourceUrl}} @attribution={{this.tileAttribution}} />
                 </LeafletMap>
                 <div class="coordinates-input-zoom-controls {{@zoomControlClass}}">
                     <div class="coordinates-input-zoom-controls-container {{@zoomControlContainerClass}}">

@@ -8,6 +8,7 @@ import { later } from '@ember/runloop';
 import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
+import leafletTileSource, { DEFAULT_TILE_URL, DEFAULT_TILE_ATTRIBUTION } from '../utils/leaflet-tile-source';
 
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
@@ -26,7 +27,8 @@ export default class CoordinatesInputComponent extends Component {
     @tracked isLoading = false;
     @tracked isReady = false;
     @tracked isInitialMoveEnded = false;
-    @tracked tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    @tracked tileSourceUrl = DEFAULT_TILE_URL;
+    tileAttribution = DEFAULT_TILE_ATTRIBUTION;
     @tracked mapTheme = 'light';
     @tracked disabled = false;
 
@@ -49,22 +51,9 @@ export default class CoordinatesInputComponent extends Component {
     }
 
     changeTileSource(sourceUrl = null) {
-        if (sourceUrl === 'dark') {
-            this.mapTheme = 'dark';
-            this.tileSourceUrl = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
-        } else if (sourceUrl === 'dark_all') {
-            this.mapTheme = 'dark_all';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        } else if (sourceUrl === 'light') {
-            this.mapTheme = 'light';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-        } else if (typeof sourceUrl === 'string' && sourceUrl.startsWith('https://')) {
-            this.mapTheme = 'custom';
-            this.tileSourceUrl = sourceUrl;
-        } else {
-            this.mapTheme = 'light';
-            this.tileSourceUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-        }
+        const { theme, url } = leafletTileSource(sourceUrl);
+        this.mapTheme = theme;
+        this.tileSourceUrl = url;
     }
 
     /**
