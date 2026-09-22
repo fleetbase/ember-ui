@@ -586,3 +586,50 @@ body .btn-wrapper.btn-auth > button.btn:focus {
     border-color: var(--btn-auth-border-hover);
     color: var(--btn-auth-text);
 }
+
+/*
+ * Sign-in provider buttons (<OauthProviderButton>): btn-auth, re-coloured where a
+ * provider's guidelines call for it. Google and Microsoft keep btn-auth's neutral white
+ * (their logos are full colour and belong on white). Apple is black (Human Interface
+ * Guidelines) and GitHub near-black (its mark is only shown in black or white). In dark
+ * mode every provider uses btn-auth's gray-900: the dark rule above outranks these.
+ */
+.btn-wrapper.btn-auth.oauth-provider-apple {
+    --btn-auth-bg: #000000;
+    --btn-auth-bg-hover: #262626;
+    --btn-auth-border: #000000;
+    --btn-auth-border-hover: #262626;
+    --btn-auth-text: #ffffff;
+}
+
+.btn-wrapper.btn-auth.oauth-provider-github {
+    --btn-auth-bg: #24292f;
+    --btn-auth-bg-hover: #3a4149;
+    --btn-auth-border: #24292f;
+    --btn-auth-border-hover: #3a4149;
+    --btn-auth-text: #ffffff;
+}
+
+.oauth-provider-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.oauth-provider-logo svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Google requires its "G" on white, so on a dark button it sits on a white disc. */
+body[data-theme='dark'] .oauth-provider-logo-google {
+    background-color: #ffffff;
+    border-radius: 9999px;
+    padding: 2px;
+}
+
+body[data-theme='dark'] .oauth-provider-logo-google svg {
+    width: 14px;
+    height: 14px;
+}
