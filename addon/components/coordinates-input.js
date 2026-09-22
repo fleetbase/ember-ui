@@ -8,19 +8,10 @@ import { later } from '@ember/runloop';
 import { debug } from '@ember/debug';
 import { task } from 'ember-concurrency';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
+import leafletTileSource, { DEFAULT_TILE_URL, DEFAULT_TILE_ATTRIBUTION } from '../utils/leaflet-tile-source';
 
 const DEFAULT_LATITUDE = 1.3521;
 const DEFAULT_LONGITUDE = 103.8198;
-
-/**
- * The keyless OpenStreetMap tile server, the same default Fleet-Ops uses. CARTO's
- * `basemaps.cartocdn.com` raster tiles now require an API key and show an "API key
- * required" watermark without one, and Stadia Maps needs a key outside localhost.
- * OpenStreetMap has no dark style, so the dark themes use the same tiles. Pass any
- * other `https://` XYZ URL (a keyed provider, say) to use it instead.
- */
-export const DEFAULT_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-export const DEFAULT_TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 export default class CoordinatesInputComponent extends Component {
     @service fetch;
@@ -60,16 +51,9 @@ export default class CoordinatesInputComponent extends Component {
     }
 
     changeTileSource(sourceUrl = null) {
-        if (sourceUrl === 'dark' || sourceUrl === 'dark_all') {
-            this.mapTheme = sourceUrl;
-            this.tileSourceUrl = DEFAULT_TILE_URL;
-        } else if (typeof sourceUrl === 'string' && sourceUrl.startsWith('https://')) {
-            this.mapTheme = 'custom';
-            this.tileSourceUrl = sourceUrl;
-        } else {
-            this.mapTheme = 'light';
-            this.tileSourceUrl = DEFAULT_TILE_URL;
-        }
+        const { theme, url } = leafletTileSource(sourceUrl);
+        this.mapTheme = theme;
+        this.tileSourceUrl = url;
     }
 
     /**

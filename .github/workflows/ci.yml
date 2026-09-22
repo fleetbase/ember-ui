@@ -56,6 +56,9 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
+    # The suite takes about three minutes. A hang (a test run that never exits) should
+    # fail fast, not run until someone cancels it.
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v4
 
