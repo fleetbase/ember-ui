@@ -1,11 +1,12 @@
 name: Ember CI
 
+# Pushes run only for main and tags (tags publish). A release or dev branch always
+# has a pull request, and pull_request already runs on every push to it; triggering
+# on push too ran the whole suite twice for each commit.
 on:
   push:
     branches:
       - main
-      - 'release/v*'
-      - 'dev-v*'
     tags:
       - 'v*'
   pull_request:
@@ -13,6 +14,12 @@ on:
       - main
       - 'release/v*'
       - 'dev-v*'
+
+# A newer push to the same pull request or branch makes the running check stale.
+# Every tag is its own ref, so a publish run is never cancelled by another push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: 22.x
