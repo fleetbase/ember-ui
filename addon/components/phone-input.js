@@ -7,11 +7,18 @@ import { registerDestructor } from '@ember/destroyable';
 import intlTelInput from 'intl-tel-input';
 import lookupUserIp from '@fleetbase/ember-core/utils/lookup-user-ip';
 
+// Digits, a leading plus, and the separators libphonenumber formats with.
+const DISALLOWED_PHONE_CHARACTERS = /[^0-9+\s().-]/g;
+
 export default class PhoneInputComponent extends Component {
     @service fetch;
     @tracked iti;
 
     @action setupIntlTelInput(element) {
+        // Registered before intl-tel-input so its formatter only ever sees a clean value.
+        element.addEventListener('beforeinput', this.blockNonNumericInput);
+        element.addEventListener('input', this.stripDisallowedCharacters);
+
         this.iti = intlTelInput(element, {
             containerClass: `w-full ${this.args.wrapperClass ?? ''}`,
             initialCountry: 'auto',
@@ -55,6 +62,36 @@ export default class PhoneInputComponent extends Component {
             element.removeEventListener('countrychange', this.args.onCountryChange);
             this.iti?.destroy();
         });
+    }
+
+    @action blockNonNumericInput(event) {
+        // Typed characters arrive as insertText; pasted and autofilled text is cleaned up on input.
+        const { inputType, data, target } = event;
+        if (inputType !== 'insertText' || !data || !/[^0-9]/.test(data)) {
+            return;
+        }
+
+        event.preventDefault();
+
+        // Dictation and some keyboards insert several characters at once, so keep the digits among them.
+        const digits = data.replace(/[^0-9]/g, '');
+        if (digits) {
+            target.setRangeText(digits, target.selectionStart, target.selectionEnd, 'end');
+            target.dispatchEvent(new InputEvent('input', { inputType: 'insertText', data: digits, bubbles: true }));
+        }
+    }
+
+    @action stripDisallowedCharacters({ target }) {
+        const { value, selectionStart } = target;
+        const sanitized = value.replace(DISALLOWED_PHONE_CHARACTERS, '');
+        if (sanitized === value) {
+            return;
+        }
+
+        // A tel input always reports its caret; the fallback is for input types that have none.
+        const caret = value.slice(0, /* istanbul ignore next */ selectionStart ?? value.length).replace(DISALLOWED_PHONE_CHARACTERS, '').length;
+        target.value = sanitized;
+        target.setSelectionRange(caret, caret);
     }
 
     @action onInput() {

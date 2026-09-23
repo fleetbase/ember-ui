@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+import { DEFAULT_TILE_URL } from 'dummy/utils/leaflet-tile-source';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { render, click, settled, waitUntil, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
@@ -401,7 +402,7 @@ module('Integration | Component | coordinates-input', function (hooks) {
     });
 
     module('the tile source', function () {
-        test('dark mode selects the stadiamaps dark tiles', async function (assert) {
+        test('dark mode keeps the dark theme on the keyless OpenStreetMap tiles', async function (assert) {
             let component;
             this.set('onInit', (instance) => {
                 component = instance;
@@ -409,11 +410,12 @@ module('Integration | Component | coordinates-input', function (hooks) {
 
             await render(hbs`<CoordinatesInput @darkMode={{true}} @onInit={{this.onInit}} />`);
 
+            // OpenStreetMap has no dark style, so every theme shares its keyless tiles.
             assert.strictEqual(component.mapTheme, 'dark');
-            assert.true(component.tileSourceUrl.includes('alidade_smooth_dark'));
+            assert.strictEqual(component.tileSourceUrl, DEFAULT_TILE_URL);
         });
 
-        test('each named source maps to its own tiles', async function (assert) {
+        test('each named source sets its theme on the OpenStreetMap tiles', async function (assert) {
             let component;
             this.set('onInit', (instance) => {
                 component = instance;
@@ -423,11 +425,11 @@ module('Integration | Component | coordinates-input', function (hooks) {
 
             component.changeTileSource('dark_all');
             assert.strictEqual(component.mapTheme, 'dark_all');
-            assert.true(component.tileSourceUrl.includes('dark_all'));
+            assert.strictEqual(component.tileSourceUrl, DEFAULT_TILE_URL);
 
             component.changeTileSource('light');
             assert.strictEqual(component.mapTheme, 'light');
-            assert.true(component.tileSourceUrl.includes('light_all'));
+            assert.strictEqual(component.tileSourceUrl, DEFAULT_TILE_URL);
         });
 
         test('an https url is used verbatim as a custom source', async function (assert) {
@@ -455,7 +457,7 @@ module('Integration | Component | coordinates-input', function (hooks) {
             component.changeTileSource('nonsense');
 
             assert.strictEqual(component.mapTheme, 'light');
-            assert.true(component.tileSourceUrl.includes('light_all'));
+            assert.strictEqual(component.tileSourceUrl, DEFAULT_TILE_URL);
         });
     });
     test('a successful lookup with no @onGeocode handler still moves the coordinates', async function (assert) {

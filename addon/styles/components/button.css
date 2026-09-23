@@ -537,3 +537,99 @@ button.btn.btn-is-loading > .btn-loading-icon-wrapper > .fleetbase-loader-wrappe
     padding: 0 !important;
     margin: 0 !important;
 }
+
+/*
+ * btn-auth: the neutral block button used on sign-in pages, e.g. the console's
+ * "Continue with ..." provider buttons and the extension buttons below them
+ * (Customer Portal, Track Order). Opt in with `@wrapperClass="btn-block btn-auth"`.
+ *
+ *   Light  white, gray-300 border, gray-800 text; hover gray-100 with a gray-400 border.
+ *   Dark   gray-900, gray-700 border, gray-100 text; hover gray-800 with a gray-600 border.
+ *
+ * Colours are custom properties on the wrapper, so a caller can re-colour one button
+ * (a provider's brand colour, say) and keep the same border, hover and transition.
+ * `body` in each selector outranks this file's `body[data-theme='dark'] .btn.btn-default`
+ * rules, hover and focus included.
+ */
+.btn-wrapper.btn-auth {
+    --btn-auth-bg: #ffffff;
+    --btn-auth-bg-hover: #f3f4f6;
+    --btn-auth-border: #d1d5db;
+    --btn-auth-border-hover: #9ca3af;
+    --btn-auth-text: #1f2937;
+}
+
+body[data-theme='dark'] .btn-wrapper.btn-auth {
+    --btn-auth-bg: #111827;
+    --btn-auth-bg-hover: #1f2937;
+    --btn-auth-border: #374151;
+    --btn-auth-border-hover: #4b5563;
+    --btn-auth-text: #f3f4f6;
+}
+
+body .btn-wrapper.btn-auth > button.btn {
+    background-color: var(--btn-auth-bg);
+    border: 1px solid var(--btn-auth-border);
+    color: var(--btn-auth-text);
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease;
+}
+
+body .btn-wrapper.btn-auth > button.btn:hover:not(:disabled) {
+    background-color: var(--btn-auth-bg-hover);
+    border-color: var(--btn-auth-border-hover);
+    color: var(--btn-auth-text);
+}
+
+body .btn-wrapper.btn-auth > button.btn:focus {
+    border-color: var(--btn-auth-border-hover);
+    color: var(--btn-auth-text);
+}
+
+/*
+ * Sign-in provider buttons (<OauthProviderButton>): btn-auth, re-coloured where a
+ * provider's guidelines call for it. Google and Microsoft keep btn-auth's neutral white
+ * (their logos are full colour and belong on white). Apple is black (Human Interface
+ * Guidelines) and GitHub near-black (its mark is only shown in black or white). In dark
+ * mode every provider uses btn-auth's gray-900: the dark rule above outranks these.
+ */
+.btn-wrapper.btn-auth.oauth-provider-apple {
+    --btn-auth-bg: #000000;
+    --btn-auth-bg-hover: #262626;
+    --btn-auth-border: #000000;
+    --btn-auth-border-hover: #262626;
+    --btn-auth-text: #ffffff;
+}
+
+.btn-wrapper.btn-auth.oauth-provider-github {
+    --btn-auth-bg: #24292f;
+    --btn-auth-bg-hover: #3a4149;
+    --btn-auth-border: #24292f;
+    --btn-auth-border-hover: #3a4149;
+    --btn-auth-text: #ffffff;
+}
+
+.oauth-provider-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.oauth-provider-logo svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Google requires its "G" on white, so on a dark button it sits on a white disc. */
+body[data-theme='dark'] .oauth-provider-logo-google {
+    background-color: #ffffff;
+    border-radius: 9999px;
+    padding: 2px;
+}
+
+body[data-theme='dark'] .oauth-provider-logo-google svg {
+    width: 14px;
+    height: 14px;
+}
