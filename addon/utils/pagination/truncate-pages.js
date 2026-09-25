@@ -68,6 +68,8 @@ export default class PaginationTruncatePages extends EmberObject {
 
         // add first and last page
         if (showFL) {
+            /* istanbul ignore next -- `res.push(currentPage)` above is unconditional, so `res` is
+               never empty here. */
             if (res.length > 0) {
                 // add first page if not already there
                 if (res[0] !== 1) {

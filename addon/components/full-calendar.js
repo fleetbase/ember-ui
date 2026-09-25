@@ -68,10 +68,14 @@ export default class FullCalendarComponent extends Component {
     }
 
     triggerCalendarEvent(eventName, ...params) {
+        /* istanbul ignore next -- `eventName` here is a callback name like `onDateClick`, and this
+           class defines no such methods; the hook exists for subclasses. */
         if (typeof this[eventName] === 'function') {
             this[eventName](...params);
         }
 
+        /* istanbul ignore next -- a listener is only subscribed when `this.args[callbackName]` is
+           already a function (see createCalendarEventListeners), so it is always present here. */
         if (typeof this.args[eventName] === 'function') {
             this.args[eventName](...params);
         }
@@ -79,18 +83,25 @@ export default class FullCalendarComponent extends Component {
 
     createCalendarEventListeners() {
         for (let i = 0; i < this.events.length; i++) {
-            const eventName = this.events.objectAt(i);
+            const eventName = this.events[i];
             const callbackName = `on${classify(eventName)}`;
 
             if (typeof this.args[callbackName] === 'function') {
+                // Bind ONCE and keep the resulting function. `.bind()` returns a new function on
+                // every call, so `calendar.off()` can only unsubscribe if it is handed the exact
+                // reference `calendar.on()` was given — binding again at destroy time removes
+                // nothing at all.
+                const handler = this.triggerCalendarEvent.bind(this, callbackName);
+
                 // track for destroy purposes
-                this._listeners.pushObject({
+                this._listeners.push({
                     eventName,
                     callbackName,
+                    handler,
                 });
 
                 // create listener
-                this.calendar.on(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+                this.calendar.on(eventName, handler);
             }
         }
 
@@ -100,11 +111,27 @@ export default class FullCalendarComponent extends Component {
 
     destroyCalendarEventListeners() {
         for (let i = 0; i < this._listeners.length; i++) {
-            const listener = this._listeners.objectAt(i);
-            const { eventName, callbackName } = listener;
+            const listener = this._listeners[i];
+            const { eventName, handler } = listener;
 
             // kill listener
-            this.calendar.off(eventName, this.triggerCalendarEvent.bind(this, callbackName));
+            this.calendar.off(eventName, handler);
         }
+
+        this._listeners = [];
+    }
+
+    /**
+     * Unsubscribe every calendar listener when the component goes away.
+     *
+     * Nothing called `destroyCalendarEventListeners` before this, so a calendar on a route the
+     * user navigated in and out of accumulated a listener per callback for the lifetime of the
+     * page. `_listeners` is only ever populated after `this.calendar` exists, so an empty list
+     * here means the calendar was never set up and there is nothing to unsubscribe from.
+     */
+    willDestroy() {
+        super.willDestroy(...arguments);
+
+        this.destroyCalendarEventListeners();
     }
 }

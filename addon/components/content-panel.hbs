@@ -1,4 +1,4 @@
-<div class="next-content-panel-wrapper {{if this.isOpen 'is-open' 'is-closed'}} {{@wrapperClass}} {{if @isLoading 'is-loading'}}" {{did-update this.handleArgsChange @open}}>
+<div class="next-content-panel-wrapper {{if this.isOpen 'is-open' 'is-closed'}} {{@wrapperClass}} {{if @isLoading 'is-loading'}}" {{did-update this.handleArgsChange @open}} ...attributes>
     <div class="next-content-panel-container {{if this.isOpen 'is-open' 'is-closed'}} {{@containerClass}}">
         <div class="next-content-panel {{if this.isOpen 'next-content-panel-is-open' 'next-content-panel-is-closed'}} {{@panelClass}} {{if @isLoading 'is-loading'}}">
             <div

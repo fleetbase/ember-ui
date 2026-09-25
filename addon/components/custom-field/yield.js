@@ -5,7 +5,7 @@ import { debug } from '@ember/debug';
 import { next } from '@ember/runloop';
 import { action } from '@ember/object';
 import { task } from 'ember-concurrency';
-import { underscore } from '@ember/string';
+import { dasherize, underscore } from '@ember/string';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 import isObject from '@fleetbase/ember-core/utils/is-object';
 import isThenable from '@fleetbase/ember-core/utils/is-thenable';
@@ -17,15 +17,20 @@ export default class CustomFieldYieldComponent extends Component {
     @tracked extension = this.args.extension ?? 'fleet-ops';
     @tracked customFields = null;
 
-    get modelName() {
+    get baseModelName() {
         // prefer explicit modelType arg; else infer from subject
-        const base = this.args.modelType ?? getModelName(this.args.subject);
-        return underscore(base);
+        return this.args.modelType ?? getModelName(this.args.subject);
     }
 
+    // Underscored name, used for the category key: "<model_name>_custom_field_group".
+    get modelName() {
+        return underscore(this.baseModelName);
+    }
+
+    // Hyphenated subject type, matching how custom fields are saved: "<ext>:<model-name>".
     get modelType() {
-        // follow fleetbase & ember conventions: "<ext>:<type>"
-        return this.extension ? `${this.extension}:${this.modelName}` : this.modelName;
+        const type = dasherize(this.baseModelName);
+        return this.extension ? `${this.extension}:${type}` : type;
     }
 
     get defaultLoadOptions() {
@@ -49,7 +54,6 @@ export default class CustomFieldYieldComponent extends Component {
     }
 
     @task *loadCustomFields() {
-        // const subject = yield this.resolveSubject();
         const owner = yield this.resolveOwner();
 
         try {
@@ -66,10 +70,6 @@ export default class CustomFieldYieldComponent extends Component {
         }
     }
 
-    @action toggleGroupEdit(group) {
-        group.isEditing = !group.isEditing;
-    }
-
     @action cancelEditing(group) {
         group.isEditing = false;
     }
@@ -82,15 +82,6 @@ export default class CustomFieldYieldComponent extends Component {
         if (typeof this.args.onChange === 'function') {
             this.args.onChange();
         }
-    }
-
-    async resolveSubject() {
-        let subject = this.args.subject;
-        if (isThenable(subject)) {
-            subject = await subject;
-        }
-
-        return subject;
     }
 
     async resolveOwner() {

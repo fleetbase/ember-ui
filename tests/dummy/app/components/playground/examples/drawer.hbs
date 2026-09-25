@@ -1,0 +1,10 @@
+{{! Drawer example adapter. }}
+<Drawer
+    @notchEnabled={{@values.notchEnabled}}
+    @fullHeight={{@values.fullHeight}}
+    @onOpen={{fn (or @onEvent (noop)) "onOpen"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+    @onLoad={{fn (or @onEvent (noop)) "onLoad"}}
+>
+    <div class="pg-fixture-block">{{@values.bodyText}}</div>
+</Drawer>

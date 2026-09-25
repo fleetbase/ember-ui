@@ -71,6 +71,14 @@
                                     {{/each}}
                                 </tr>
                             {{/each}}
+                            {{#if this.tableSourceCaption}}
+                                <tr>
+                                    <td
+                                        class="tb-table-source-caption border px-2 py-1 text-gray-400 text-center italic truncate"
+                                        colspan={{this.tableColumns.length}}
+                                    >{{this.tableSourceCaption}}</td>
+                                </tr>
+                            {{/if}}
                         {{/if}}
                     </tbody>
                 {{else}}

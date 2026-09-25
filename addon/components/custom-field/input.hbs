@@ -85,8 +85,33 @@
                     {{/if}}
                 </div>
                 {{#if this.uploadedFile}}
-                    <File @file={{this.uploadedFile}} @onDelete={{this.removeFile}} class="custom-field-file" />
+                    <File @file={{this.uploadedFile}} @onDelete={{this.removeFile}} @onDownload={{this.downloadFile}} class="custom-field-file" />
                 {{/if}}
+            </InputGroup>
+        {{else if (eq this.customFieldComponent "signature-pad")}}
+            <InputGroup @name={{this.customField.label}} @required={{this.customField.required}} @helpText={{this.customField.help_text}}>
+                <SignaturePad
+                    @value={{this.signatureDataUrl}}
+                    @height={{or this.customField.meta.height 200}}
+                    @disabled={{this.isUploadingSignature}}
+                    @onChange={{this.onSignatureChange}}
+                    @onDone={{this.onSignatureDone}}
+                >
+                    <:status>
+                        {{#if this.file}}
+                            <span class="custom-field-signature-status custom-field-signature-status-uploading inline-flex items-center text-xs dark:text-blue-400 text-blue-900">
+                                <Spinner class="dark:text-blue-400 text-blue-900" />
+                                <span class="ml-2">Uploading {{round this.file.progress}}%</span>
+                            </span>
+                        {{else if this.uploadedFile}}
+                            <span class="custom-field-signature-status custom-field-signature-status-saved inline-flex items-center text-xs text-green-600 dark:text-green-400">
+                                <FaIcon @icon="check" @size="sm" class="mr-1" />
+                                Saved
+                            </span>
+                            <Button @type="default" @size="xs" @icon="download" @text={{t "common.download"}} @onClick={{this.downloadFile}} class="custom-field-signature-download" />
+                        {{/if}}
+                    </:status>
+                </SignaturePad>
             </InputGroup>
         {{/if}}
     </div>

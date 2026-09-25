@@ -72,6 +72,7 @@ export default class TemplateBuilderElementRendererComponent extends Component {
 
     @action
     handleDestroy() {
+        /* istanbul ignore else -- handleInsert always assigns _interactable (interact() never returns a falsy value) and will-destroy runs once, so the null case cannot be reached */
         if (this._interactable) {
             try {
                 this._interactable.unset();
@@ -135,7 +136,9 @@ export default class TemplateBuilderElementRendererComponent extends Component {
                         let y = pos.y + event.dy / zoom;
 
                         // Clamp so the element cannot leave the canvas.
+                        /* istanbul ignore next -- the wrapper renders `width: <n>px` from this same element data, so parseFloat only fails for a zero-width element, and the `?? 100` tail is unreachable outright: a nullish width is rendered as 100px and parses fine */
                         const elW = parseFloat(el.style.width) || (this.args.element.width ?? 100);
+                        /* istanbul ignore next -- same as elW above: the rendered height always parses */
                         const elH = parseFloat(el.style.height) || (this.args.element.height ?? 30);
                         x = Math.max(0, Math.min(x, canvas.w - elW));
                         y = Math.max(0, Math.min(y, canvas.h - elH));
@@ -329,6 +332,24 @@ export default class TemplateBuilderElementRendererComponent extends Component {
 
     get tableRows() {
         return this.args.element?.rows ?? [];
+    }
+
+    /**
+     * Caption drawn under the placeholder grid of a table that has no rows of its
+     * own. Nothing here resolves a data source — the builder stores intent and
+     * something downstream renders it — so without this a variable- or
+     * query-backed table looks exactly like an empty one on the canvas. Only read
+     * from the table arm of the template, where `isTable` proves the element.
+     */
+    get tableSourceCaption() {
+        const el = this.args.element;
+        if (el.data_source_mode === 'variable') {
+            return el.data_source ? `Rows from ${el.data_source}` : 'Rows from a variable';
+        }
+        if (el.data_source_mode === 'query') {
+            return el.query_endpoint ? `Rows from ${el.query_endpoint}` : 'Rows from a query';
+        }
+        return null;
     }
 
     get tableBorderStyle() {

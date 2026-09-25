@@ -1,4 +1,4 @@
-<ul role="listbox" ...attributes>
+<ul role="listbox" {{did-insert this.watchForScrollEnd}} ...attributes>
     <li>
         <PowerSelect::Options
             @loadingMessage={{@loadingMessage}}
@@ -16,10 +16,8 @@
     </li>
 
     {{#if this.showLoader}}
-        <li>
-            <InfinityLoader @infinityModel={{@infiniteModel}} @hideOnInfinity={{true}} @scrollable={{concat "#ember-basic-dropdown-content-" @select.uniqueId}}>
-                <ModelSelect::Spinner />
-            </InfinityLoader>
+        <li class="ember-model-select__loading-more">
+            <ModelSelect::Spinner />
         </li>
     {{/if}}
 </ul>

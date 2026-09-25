@@ -110,4 +110,50 @@ module('Integration | Component | filter/model-multiple', function (hooks) {
         assert.deepEqual(changes, []);
         assert.deepEqual(clears, [this.filter]);
     });
+
+    module('without the optional handlers', function () {
+        test('a column may name its own option component', async function (assert) {
+            registerResourceDescriptor(this.owner, { key: 'person', modelNames: ['person'] });
+            this.owner.register('template:components/custom-option', hbs`<span data-test-custom-option>{{@option.name}}</span>`);
+            this.set('filter', { model: 'person', filterOptionComponent: 'custom-option' });
+
+            await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} />`);
+            await clickTrigger('.ember-model-select');
+
+            assert.dom('.ember-power-select-option [data-test-custom-option]').exists({ count: 3 }, 'the column component wins over the registered one');
+            assert.dom('.ember-power-select-option [data-test-person-option]').doesNotExist();
+        });
+
+        test('choosing with no @onChange behind it still keeps the chip', async function (assert) {
+            this.set('filter', { model: 'person' });
+
+            await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} />`);
+            await clickTrigger('.ember-model-select');
+            await click('.ember-power-select-option');
+
+            assert.dom('.ember-power-select-multiple-option').exists({ count: 1 }, 'the selection is kept with nothing to report to');
+        });
+
+        test('removing the last chip with no @onClear behind it still empties the selection', async function (assert) {
+            this.set('filter', { model: 'person' });
+
+            await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value="a" />`);
+            assert.dom('.ember-power-select-multiple-option').exists({ count: 1 });
+
+            await click('.ember-power-select-multiple-remove-btn');
+
+            assert.dom('.ember-power-select-multiple-option').doesNotExist('the chip is gone with nothing to report to');
+        });
+
+        test('the clear button with no @onClear behind it still empties the selection', async function (assert) {
+            this.set('filter', { model: 'person' });
+
+            await render(hbs`<Filter::ModelMultiple @filter={{this.filter}} @value="a" />`);
+
+            await click('.clear-button');
+
+            assert.dom('.ember-power-select-multiple-option').doesNotExist();
+            assert.dom('.clear-button').isDisabled();
+        });
+    });
 });

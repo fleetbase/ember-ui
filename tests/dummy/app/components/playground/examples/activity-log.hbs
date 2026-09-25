@@ -1,0 +1,13 @@
+{{! ActivityLog example adapter: rows come from the seeded dummy store, never from an API. }}
+<ActivityLog
+    @density={{@values.density}}
+    @showHeader={{@values.showHeader}}
+    @showControls={{@values.showControls}}
+    @showAvatars={{@values.showAvatars}}
+    @showBadges={{@values.showBadges}}
+    @isLoading={{@values.isLoading}}
+    @maxVisibleActivities={{@values.maxVisibleActivities}}
+    @onSelect={{fn (or @onEvent (noop)) "onSelect"}}
+    @onCauserClick={{fn (or @onEvent (noop)) "onCauserClick"}}
+    @onSubjectClick={{fn (or @onEvent (noop)) "onSubjectClick"}}
+/>

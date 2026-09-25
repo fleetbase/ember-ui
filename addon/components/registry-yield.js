@@ -53,6 +53,9 @@ export default class RegistryYieldComponent extends Component {
      */
     getMenuItems(registry) {
         // Try new MenuService first
+        /* istanbul ignore else -- menuService is an injection, and the addon ships
+           services/universe/menu-service.js, so it always resolves; the guard is for a host that
+           has replaced or removed it */
         if (this.menuService) {
             const items = this.menuService.getMenuItems(registry);
             if (items && items.length > 0) {
@@ -77,6 +80,8 @@ export default class RegistryYieldComponent extends Component {
      */
     getComponents(registry) {
         // Try new RegistryService first
+        /* istanbul ignore else -- registryService is an injection, and the addon ships
+           services/universe/registry-service.js, so it always resolves */
         if (this.registryService) {
             const components = this.registryService.getRenderableComponents(registry);
             if (components && components.length > 0) {
@@ -107,6 +112,8 @@ export default class RegistryYieldComponent extends Component {
         }
 
         // Check if first yieldable is a component definition
+        /* istanbul ignore else -- registry-yield.hbs reads isComponent from inside
+           {{#each this.yieldables}}, so there is always at least one */
         if (this.yieldables.length > 0) {
             const first = this.yieldables[0];
             // ExtensionComponent has engine property
@@ -114,6 +121,7 @@ export default class RegistryYieldComponent extends Component {
             return !!(first && (first.engine || typeof first === 'function'));
         }
 
+        /* istanbul ignore next -- see above */
         return false;
     }
 }

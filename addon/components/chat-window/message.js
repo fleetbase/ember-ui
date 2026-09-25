@@ -19,6 +19,8 @@ export default class ChatWindowMessageComponent extends Component {
     }
 
     willDestroy() {
+        /* istanbul ignore else -- trackVisibility runs from {{did-insert}}, so the observer
+           exists for the whole life of a rendered message */
         if (this.observer) {
             this.observer.disconnect();
         }
@@ -45,6 +47,8 @@ export default class ChatWindowMessageComponent extends Component {
         this.observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
+                    /* istanbul ignore else -- the observer is created with a threshold that only
+                       reports an entry once it is intersecting */
                     if (entry.isIntersecting) {
                         this.createReadReceipt.perform();
                     }
@@ -61,6 +65,8 @@ export default class ChatWindowMessageComponent extends Component {
     }
 
     getChannelFeedContainerElement() {
+        /* istanbul ignore if -- the element is registered by {{did-insert}} on the feed
+           container, which wraps every message, so it is always set by the time a message asks */
         if (this.channelFeedContainerElement) {
             return this.channelFeedContainerElement;
         }

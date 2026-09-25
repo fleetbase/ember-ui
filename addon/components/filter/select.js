@@ -12,6 +12,7 @@ export default class FilterSelectComponent extends Component {
     @tracked optionLabel;
     @tracked optionValue;
     @tracked placeholder;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked options = [];
 
     constructor(owner, { value, options = [], fetchUri, fetchParams = {} }) {
@@ -34,7 +35,9 @@ export default class FilterSelectComponent extends Component {
         }
     }
 
-    @task *fetchOptions(uri, params = {}) {
+    // The only caller is the constructor, which has already defaulted fetchParams while
+    // destructuring.
+    @task *fetchOptions(uri, /* istanbul ignore next */ params = {}) {
         if (!uri) return;
 
         const { fetchParams } = this.args;

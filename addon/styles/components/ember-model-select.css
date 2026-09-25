@@ -25,6 +25,14 @@
     animation: ember-model-select-spin 1s infinite linear;
 }
 
+/* The row that carries the spinner while a further page of options is being fetched. */
+.ember-model-select__loading-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+}
+
 .ember-model-select__spinner > circle {
     stroke-opacity: 0.1;
 }

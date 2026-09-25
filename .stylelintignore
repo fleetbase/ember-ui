@@ -3,6 +3,8 @@
 
 # compiled output
 /dist/
+/playground-dist/
+/coverage/
 
 # addons
 /.node_modules.ember-try/

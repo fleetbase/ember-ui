@@ -25,24 +25,41 @@
             </div>
         {{/if}}
         <div class="space-y-2">
-            {{#each-in this.loadedTranslations as |key value|}}
+            {{! Keyed on the row id, not the translation key: renaming a key must not tear down and
+                rebuild the input the user is typing in. The fields are one-way and commit on
+                `change`, so nothing writes back while an edit is in flight. }}
+            {{#each this.rows key="id" as |row|}}
                 <div class="flex flex-row">
                     <div class="flex-1">
-                        <Input @value={{key}} {{on "blur" (fn this.setTranslationKey key)}} aria-label="Translation Key" placeholder={{key}} class="form-input w-full" />
+                        <input
+                            type="text"
+                            value={{row.key}}
+                            {{on "change" (fn this.setTranslationKey row.id)}}
+                            aria-label="Translation Key"
+                            placeholder={{row.key}}
+                            class="form-input w-full"
+                        />
                     </div>
                     <div class="flex items-center justify-center">
                         <FaIcon @icon="equals" @prefix="fas" class="text-gray-500 mx-2" />
                     </div>
                     <div class="flex-1">
-                        <Input @value={{value}} {{on "blur" (fn this.setTranslationValue key)}} aria-label="Translation Value" placeholder={{key}} class="form-input w-full" />
+                        <input
+                            type="text"
+                            value={{row.value}}
+                            {{on "change" (fn this.setTranslationValue row.id)}}
+                            aria-label="Translation Value"
+                            placeholder={{row.key}}
+                            class="form-input w-full"
+                        />
                     </div>
                     <div class="flex items-center justify-center">
-                        <a href="javascript:;" class="text-danger" {{on "click" (fn this.removeTranslation key)}}>
+                        <a href="javascript:;" class="text-danger" {{on "click" (fn this.removeTranslation row.id)}}>
                             <FaIcon @icon="times" @prefix="fas" class="text-red-500 ml-2" />
                         </a>
                     </div>
                 </div>
-            {{/each-in}}
+            {{/each}}
         </div>
     </div>
 </div>

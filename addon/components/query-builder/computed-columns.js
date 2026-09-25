@@ -34,7 +34,7 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
 
         // Initialize with provided computed columns
         if (this.args.computedColumns) {
-            this.computedColumns = [...this.args.computedColumns];
+            this.computedColumns = this.args.computedColumns.filter(Boolean);
         }
     }
 
@@ -55,9 +55,11 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
                 const editorComponent = modal.getOption('modalComponentInstance');
                 if (editorComponent) {
                     const isValid = await editorComponent.validateExpression();
-                    if (isValid) {
-                        const computedColumn = editorComponent.save();
-                        this.saveComputedColumn(computedColumn);
+                    // save() returns nothing while a required field is missing; the editor then
+                    // says which, and the modal stays open.
+                    const saved = isValid ? editorComponent.save() : null;
+                    if (saved) {
+                        this.saveComputedColumn(saved, computedColumn?.name);
                         return modal.done();
                     }
                 }
@@ -75,13 +77,14 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         this.openEditor(computedColumn);
     }
 
-    @action saveComputedColumn(computedColumn) {
-        // Check if we're editing an existing column
-        const existingIndex = this.computedColumns.findIndex((col) => col.name === computedColumn.name);
+    @action saveComputedColumn(computedColumn, originalName = computedColumn.name) {
+        // Check if we're editing an existing column (by the name it had when the editor opened,
+        // so renaming a column replaces it rather than adding a copy)
+        const existingIndex = this.computedColumns.findIndex((col) => col.name === originalName);
 
         if (existingIndex >= 0) {
-            // Update existing
-            this.computedColumns[existingIndex] = computedColumn;
+            // Update existing (a new array, so the panels that list computed columns update)
+            this.computedColumns = this.computedColumns.map((col, index) => (index === existingIndex ? computedColumn : col));
         } else {
             // Add new
             this.computedColumns = [...this.computedColumns, computedColumn];
@@ -91,6 +94,13 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         if (this.args.onChange) {
             this.args.onChange(this.computedColumns);
         }
+    }
+
+    /**
+     * Follow the query builder when it replaces the list, e.g. on a table change or reset.
+     */
+    @action syncComputedColumns() {
+        this.computedColumns = (this.args.computedColumns ?? []).filter(Boolean);
     }
 
     @action removeComputedColumn(computedColumn) {

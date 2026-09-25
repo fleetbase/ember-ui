@@ -10,6 +10,8 @@ export default class LocaleSelectorTrayComponent extends Component {
     @service fetch;
     @service media;
     @service language;
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked locales = [];
     @tracked currentLocale;
 

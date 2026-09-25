@@ -28,7 +28,6 @@ export default class DashboardWidgetPanelComponent extends Component {
 
     @tracked searchQuery = '';
     @tracked activeTab = TAB_ALL;
-    @tracked hoveredWidget = null;
 
     get defaultDashboardId() {
         return this.args.widgetSourceDashboardId ?? this.args.defaultDashboardId ?? 'dashboard';
@@ -123,14 +122,6 @@ export default class DashboardWidgetPanelComponent extends Component {
 
     @action clearSearch() {
         this.searchQuery = '';
-    }
-
-    @action onHover(widget) {
-        this.hoveredWidget = widget;
-    }
-
-    @action onUnhover() {
-        this.hoveredWidget = null;
     }
 
     @action onPressClose() {

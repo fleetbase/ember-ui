@@ -1,26 +1,28 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | model-select/spinner', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
-
+    test('it renders an svg spinner', async function (assert) {
         await render(hbs`<ModelSelect::Spinner />`);
 
-        assert.dom(this.element).hasText('');
+        assert.dom('svg.ember-model-select__spinner').exists();
+        assert.dom('svg.ember-model-select__spinner').hasAttribute('viewBox', '0 0 38 38');
+    });
 
-        // Template block usage:
-        await render(hbs`
-      <ModelSelect::Spinner>
-        template block text
-      </ModelSelect::Spinner>
-    `);
+    test('it draws a track circle and an arc', async function (assert) {
+        await render(hbs`<ModelSelect::Spinner />`);
 
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('svg circle').hasAttribute('r', '17', 'the track is drawn');
+        assert.dom('svg path').exists('the moving arc is drawn');
+    });
+
+    test('the fill is suppressed so only the stroke shows', async function (assert) {
+        await render(hbs`<ModelSelect::Spinner />`);
+
+        assert.true(find('svg').getAttribute('style').includes('fill:none'));
     });
 });

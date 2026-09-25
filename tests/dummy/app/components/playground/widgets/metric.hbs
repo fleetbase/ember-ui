@@ -1,0 +1,5 @@
+{{! A deliberately tiny, safe widget used by the Dashboard and RegistryYield examples. }}
+<div class="pg-widget">
+    <span class="pg-widget__label">{{or @options.label @label "Metric"}}</span>
+    <span class="pg-widget__value">{{or @options.value @value "—"}}</span>
+</div>
