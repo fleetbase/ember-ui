@@ -80,6 +80,16 @@
     gap: 0.5rem;
 }
 
+/* The consumer's status block sits at the left; the pad's own buttons stay right-aligned. */
+.signature-pad-toolbar-status {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: auto;
+    min-width: 0;
+}
+
 .signature-pad-is-disabled .signature-pad-canvas {
     cursor: not-allowed;
 }
@@ -118,10 +128,12 @@ body[data-theme="dark"] .signature-pad-is-disabled .signature-pad-surface {
     opacity: 0.6;
 }
 
+/* Fills whatever column the field is laid out in: the full panel on a one-column grid,
+   a single cell otherwise. The cap keeps a stretched signature at the pad's own height. */
 .custom-field-signature-image {
     display: block;
-    max-width: 12rem;
-    max-height: 6rem;
+    width: 100%;
+    max-height: 12.5rem;
     object-fit: contain;
     border: 1px solid #e5e7eb;
     border-radius: 0.375rem;

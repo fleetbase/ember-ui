@@ -146,18 +146,21 @@ module('Integration | Component | money-input', function (hooks) {
     });
 
     module('changing currency', function () {
-        test('a new currency argument reformats the field and is reported', async function (assert) {
+        test('a new currency argument reformats the field without echoing it back', async function (assert) {
             this.set('currency', 'USD');
             this.set('value', 1500);
 
             await render(TEMPLATE);
             const before = currencyChanges.length;
+            const formattedBefore = input().value;
 
             this.set('currency', 'JPY');
             await settled();
 
-            assert.true(currencyChanges.length > before, 'the change is reported');
-            assert.strictEqual(currencyChanges[currencyChanges.length - 1][0], 'JPY');
+            assert.notStrictEqual(input().value, formattedBefore, 'the amount is reformatted for the new currency');
+            // The consumer set it; writing it back to their model mid-render trips Ember's
+            // "already used in the same computation" assertion.
+            assert.strictEqual(currencyChanges.length, before, 'the change is not reported back');
         });
 
         test('it renders without an onCurrencyChange handler', async function (assert) {

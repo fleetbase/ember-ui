@@ -45,11 +45,12 @@ export default class ResourceContextPanelComponent extends Component {
     };
 
     /**
-     * Checks if there are any overlays open.
-     * @type {Boolean}
+     * The top-most overlay, or null. Read here rather than calling the service method from the
+     * template: a method invoked as a template helper runs without its `this`.
+     * @type {OverlayDefinition|null}
      */
-    get hasOverlays() {
-        return this.resourceContextPanel.overlays.length > 0;
+    get activeOverlay() {
+        return this.resourceContextPanel.getActive();
     }
 
     /**

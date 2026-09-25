@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, findAll } from '@ember/test-helpers';
+import { render, click, clearRender, findAll, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
@@ -84,12 +84,37 @@ module('Integration | Component | custom-field/value', function (hooks) {
         await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
 
         const store = this.owner.lookup('service:store');
-        const normalizeCall = store.calls.find((call) => call.method === 'normalize');
-        assert.ok(normalizeCall, 'the file payload is normalized into the store');
-        assert.strictEqual(normalizeCall.args[0], 'file');
-        assert.strictEqual(normalizeCall.args[1].id, 'file-1');
+        assert.strictEqual(store.calls.length, 0, 'the file json is used as-is; nothing is pushed into the store from a render');
         assert.dom('.custom-field-file').exists('the file is rendered');
         assert.dom('.custom-field-file').containsText('invoice-2024.pdf');
+    });
+
+    test('it follows the subject: a value that appears after a save shows without a re-render of the panel', async function (assert) {
+        this.set('customField', createCustomField());
+        this.set('subject', createSubject());
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+        assert.dom('.field-value').hasText('-');
+
+        this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'High' }]));
+        await settled();
+
+        assert.dom('.field-value').hasText('High');
+    });
+
+    test('the persisted record wins over the unsaved twin a save leaves behind', async function (assert) {
+        this.set('customField', signatureField());
+        this.set(
+            'subject',
+            createSubject([
+                { custom_field_uuid: 'custom-field-1', value: 'file:file_1', isNew: true },
+                { custom_field_uuid: 'custom-field-1', value: JSON.stringify({ uuid: 'file_1', url: 'https://files.test/signature.png' }), isNew: false },
+            ])
+        );
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+        assert.dom('img.custom-field-signature-image').hasAttribute('src', 'https://files.test/signature.png', 'the expanded value, not the sentinel');
     });
 
     test('a subject whose values have not loaded yet renders the fallback', async function (assert) {
@@ -162,6 +187,27 @@ module('Integration | Component | custom-field/value', function (hooks) {
             assert.dom('.field-name').hasText('Signature');
         });
 
+        test('a stored signature can be downloaded through the fetch service', async function (assert) {
+            this.set('customField', signatureField());
+            this.set(
+                'subject',
+                createSubject([
+                    {
+                        custom_field_uuid: 'custom-field-1',
+                        value: JSON.stringify({ id: 'file_1', uuid: 'file_1', filename: 'signature-signature.png', content_type: 'image/png', url: 'https://files.test/signature.png' }),
+                    },
+                ])
+            );
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+            await click('.custom-field-signature-download');
+
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.ok(download, 'the download goes through the fetch service');
+            assert.deepEqual(download.args[1], { file: 'file_1' });
+            assert.deepEqual(download.args[2], { fileName: 'signature-signature.png', mimeType: 'image/png' });
+        });
+
         test('it renders a signature still held as a raw data url', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: RED_PNG }]));
@@ -169,16 +215,65 @@ module('Integration | Component | custom-field/value', function (hooks) {
             await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
 
             assert.dom('img.custom-field-signature-image').hasAttribute('src', RED_PNG);
+            assert.dom('.custom-field-signature-download').doesNotExist('a data url has no file record to download');
         });
 
-        test('it renders nothing for an unexpanded file sentinel', async function (assert) {
+        // After a save the edited value record still holds the `file:<uuid>` reference locally
+        // (the parent's response does not overwrite a changed attribute), so the reference is
+        // resolved through the store rather than shown as a dash until the next reload.
+        test('an unexpanded file reference is loaded through the store and rendered', async function (assert) {
+            const store = this.owner.lookup('service:store');
+            store.createRecord('file', { id: 'file_1', original_filename: 'signature.png', content_type: 'image/png', url: 'https://files.test/signature.png' });
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_1' }]));
 
             await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
 
-            assert.dom('img.custom-field-signature-image').doesNotExist('there is no url to render yet');
-            assert.dom('.field-value').exists('the field is still listed');
+            const lookups = store.calls.filter((call) => call.method === 'findRecord');
+            assert.deepEqual(lookups.map((call) => call.args.slice(0, 2)), [['file', 'file_1']], 'the file is looked up once, by its uuid');
+            assert.dom('img.custom-field-signature-image').hasAttribute('src', 'https://files.test/signature.png');
+
+            await click('.custom-field-signature-download');
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.deepEqual(download.args[2], { fileName: 'signature.png', mimeType: 'image/png' }, 'the download uses the loaded record');
+        });
+
+        test('a file reference that cannot be loaded renders the fallback', async function (assert) {
+            const store = this.owner.lookup('service:store');
+            store.findRecord = () => Promise.reject(new Error('gone'));
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_1' }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('img.custom-field-signature-image').doesNotExist();
+            assert.dom('.field-value').hasText('-');
+        });
+
+        test('a file reference resolving after the field is gone is dropped', async function (assert) {
+            const store = this.owner.lookup('service:store');
+            let deliver;
+            store.findRecord = () => new Promise((resolve) => (deliver = () => resolve({ id: 'file_1', url: 'https://files.test/late.png' })));
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_1' }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+            await clearRender();
+            deliver();
+            await settled();
+
+            assert.ok(deliver, 'the late record touched nothing');
+        });
+
+        test('a file upload reference is resolved the same way and shown as a file', async function (assert) {
+            const store = this.owner.lookup('service:store');
+            store.createRecord('file', { id: 'file_2', original_filename: 'invoice.pdf', content_type: 'application/pdf', url: 'https://files.test/invoice.pdf' });
+            this.set('customField', createCustomField({ type: 'file-upload' }));
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_2' }]));
+
+            await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('.custom-field-file').containsText('invoice.pdf');
         });
 
         test('an expanded signature file without a url renders as a plain file', async function (assert) {

@@ -387,6 +387,117 @@ module('Integration | Component | signature-pad', function (hooks) {
         });
     });
 
+    module('done', function () {
+        test('there is no done button unless @onDone is given', async function (assert) {
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} />`);
+
+            assert.dom('.signature-pad-toolbar').exists('the clear and undo toolbar is still there');
+            assert.dom('.signature-pad-done-button').doesNotExist();
+        });
+
+        test('done is disabled until something is signed, then hands the signature to @onDone', async function (assert) {
+            const ready = trackReady(this);
+            const done = [];
+            this.set('onDone', (dataUrl, api) => done.push({ dataUrl, api }));
+
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @onDone={{this.onDone}} @onReady={{this.onReady}} />`);
+
+            assert.dom('.signature-pad-done-button').hasText('Done');
+            assert.dom('.signature-pad-done-button').isDisabled('nothing to finish while the pad is empty');
+
+            await drawStroke(getCanvas());
+            assert.dom('.signature-pad-done-button').isNotDisabled();
+            assert.strictEqual(done.length, 0, 'a stroke alone does not finish the signature');
+
+            await click('.signature-pad-done-button');
+
+            assert.strictEqual(done.length, 1, 'done fires once per press');
+            assert.true(done[0].dataUrl.startsWith('data:image/png'), 'the finished signature is handed over as a png');
+            assert.strictEqual(done[0].api, ready.api, 'along with the stable api');
+            assert.dom('.signature-pad-done-button').isDisabled('nothing has changed since Done');
+
+            await drawStroke(getCanvas(), DIAGONAL);
+            assert.dom('.signature-pad-done-button').isNotDisabled('a new stroke is a change to finish');
+        });
+
+        test('a value applied from outside is the saved state, not a change', async function (assert) {
+            this.set('onDone', () => {});
+            this.set('value', RED_PNG);
+
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @value={{this.value}} @onDone={{this.onDone}} />`);
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
+
+            assert.dom('.signature-pad-done-button').isDisabled('the loaded signature has nothing new to finish');
+
+            await drawStroke(getCanvas());
+            assert.dom('.signature-pad-done-button').isNotDisabled();
+
+            this.set('value', null);
+            await settled();
+            assert.dom('.signature-pad-done-button').isDisabled('a new outside value resets the change state');
+        });
+
+        test('undo counts as a change', async function (assert) {
+            this.set('onDone', () => {});
+
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @onDone={{this.onDone}} />`);
+            const canvas = getCanvas();
+            await drawStroke(canvas);
+            await drawStroke(canvas, DIAGONAL);
+            await click('.signature-pad-done-button');
+            assert.dom('.signature-pad-done-button').isDisabled();
+
+            await click('.signature-pad-undo-button');
+
+            assert.dom('.signature-pad-done-button').isNotDisabled('removing a stroke changes the signature');
+        });
+
+        test('a status block renders at the left of the toolbar, even with the actions hidden', async function (assert) {
+            await render(hbs`
+                <SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @showActions={{false}}>
+                    <:status as |pad|>
+                        <button type="button" class="my-status" {{on "click" pad.clear}}>reset</button>
+                    </:status>
+                </SignaturePad>
+            `);
+
+            assert.dom('.signature-pad-toolbar .signature-pad-toolbar-status .my-status').exists('the block renders inside the toolbar');
+            assert.dom('.signature-pad-clear-button').doesNotExist('the built-in actions stay hidden');
+
+            const canvas = getCanvas();
+            await drawStroke(canvas);
+            await click('.my-status');
+            assert.true(canvasIsBlank(canvas), 'the block receives the api');
+        });
+
+        test('done is disabled while the pad is disabled', async function (assert) {
+            this.set('onDone', () => {});
+
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @onDone={{this.onDone}} @disabled={{true}} />`);
+
+            assert.dom('.signature-pad-done-button').isDisabled();
+        });
+
+        test('it uses @doneLabel', async function (assert) {
+            this.set('onDone', () => {});
+
+            await render(hbs`<SignaturePad @throttle={{0}} @minDistance={{0}} @onDone={{this.onDone}} @doneLabel="Listo" />`);
+
+            assert.dom('.signature-pad-done-button').hasText('Listo');
+        });
+
+        test('done still renders when the clear and undo actions are hidden', async function (assert) {
+            this.set('onDone', () => {});
+
+            await render(hbs`<SignaturePad @throttle={{0}} @minDistance={{0}} @showActions={{false}} @onDone={{this.onDone}} />`);
+
+            assert.dom('.signature-pad-toolbar').exists();
+            assert.dom('.signature-pad-clear-button').doesNotExist();
+            assert.dom('.signature-pad-undo-button').doesNotExist();
+            assert.dom('.signature-pad-done-button').exists();
+        });
+    });
+
     module('@value rehydration', function () {
         test('it renders an existing signature', async function (assert) {
             const state = trackReady(this);
@@ -414,6 +525,25 @@ module('Integration | Component | signature-pad', function (hooks) {
             await waitUntil(() => !canvasIsBlank(canvas));
 
             assert.true(canvasHasColor(canvas, [255, 0, 0]), 'the new value was painted');
+        });
+
+        test('a value that arrives after the user started drawing keeps their strokes and their change', async function (assert) {
+            const ready = trackReady(this);
+            this.set('value', null);
+            this.set('onDone', () => {});
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @value={{this.value}} @onDone={{this.onDone}} @onReady={{this.onReady}} />`);
+
+            const canvas = getCanvas();
+            await drawStroke(canvas);
+            assert.strictEqual(ready.api.toData().length, 1);
+
+            // the stored signature lands late, as the asynchronous download does in the app
+            this.set('value', RED_PNG);
+            await waitUntil(() => canvasHasColor(canvas, [255, 0, 0]));
+            await settled();
+
+            assert.strictEqual(ready.api.toData().length, 1, 'the stroke is not wiped by the late value');
+            assert.dom('.signature-pad-done-button').isNotDisabled('and it still counts as a change to finish');
         });
 
         test('it clears when @value is set to null', async function (assert) {

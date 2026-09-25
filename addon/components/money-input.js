@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { isNone } from '@ember/utils';
+import { next } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 import getCurrency from '../utils/get-currency';
 import AutoNumeric from 'autonumeric';
@@ -35,9 +36,19 @@ export default class MoneyInputComponent extends Component {
 
         this.autonumeric = new AutoNumeric(element, amount, this.getCurrencyFormatOptions(currency));
 
-        // default the currency from currency data
+        // Default the consumer's currency from ours, but after this render: {{did-insert}} runs
+        // inside the render that already read @currency, and writing it back there is the
+        // "already used in the same computation" assertion.
         if (typeof onCurrencyChange === 'function') {
-            onCurrencyChange(currency.code, currency);
+            next(() => {
+                /* istanbul ignore if -- render() settles the run loop, so this fires before any
+                   test can tear the component down */
+                if (this.isDestroying || this.isDestroyed) {
+                    return;
+                }
+
+                this.#reportCurrency(currency);
+            });
         }
 
         // Use rawValueModified for better change detection
@@ -53,9 +64,16 @@ export default class MoneyInputComponent extends Component {
         });
     }
 
+    /**
+     * The user picked a currency: apply it and tell the consumer.
+     * @action
+     */
     @action setCurrency(currency) {
-        const { onCurrencyChange } = this.args;
+        this.#applyCurrency(currency);
+        this.#reportCurrency(currency);
+    }
 
+    #applyCurrency(currency) {
         /* istanbul ignore else -- autoNumerize runs from {{did-insert}} on the amount field, so
            the instance exists before the currency selector can be reached */
         if (this.autonumeric) {
@@ -67,9 +85,11 @@ export default class MoneyInputComponent extends Component {
 
         this.currency = currency.code;
         this.currencyData = currency;
+    }
 
-        if (typeof onCurrencyChange === 'function') {
-            onCurrencyChange(currency.code, currency);
+    #reportCurrency(currency) {
+        if (typeof this.args.onCurrencyChange === 'function') {
+            this.args.onCurrencyChange(currency.code, currency);
         }
     }
 
@@ -101,7 +121,13 @@ export default class MoneyInputComponent extends Component {
         return options;
     }
 
+    /**
+     * `@currency` changed from outside: reformat, but do not echo it back. The consumer set
+     * it, and writing to their model from inside a render is the "already used in the same
+     * computation" assertion (seen after a save, when the server's value replaced the local one).
+     * @action
+     */
     @action handleCurrencyChanges(el, [currency]) {
-        this.setCurrency(getCurrency(currency));
+        this.#applyCurrency(getCurrency(currency));
     }
 }

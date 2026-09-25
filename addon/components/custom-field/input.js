@@ -3,16 +3,19 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { underscore } from '@ember/string';
-import { debounce, cancel } from '@ember/runloop';
+import { debug } from '@ember/debug';
 import { UploadFile, FileSource, DEFAULT_QUEUE } from 'ember-file-upload';
-import isObject from '@fleetbase/ember-core/utils/is-object';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 import getCustomFieldTypeMap from '../../utils/get-custom-field-type-map';
+import fetchFileAsDataUrl from '../../utils/fetch-file-as-data-url';
+import findCustomFieldValue from '../../utils/find-custom-field-value';
+import fileSentinelId from '../../utils/file-sentinel-id';
 
 export default class CustomFieldInputComponent extends Component {
     @service fetch;
     @service fileQueue;
+    @service store;
     /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked extension = 'fleet-ops';
     @tracked customField;
@@ -25,16 +28,10 @@ export default class CustomFieldInputComponent extends Component {
     @tracked isUploadingSignature = false;
 
     /**
-     * Pending debounce timer for the signature upload.
+     * The file record a stored signature was hydrated from. It belongs to the saved value, so
+     * clearing or re-signing must not destroy it before the resource itself is saved.
      */
-    signatureUploadTimer = null;
-
-    /**
-     * How long to wait after the last stroke before uploading a signature.
-     */
-    get signatureUploadDelay() {
-        return this.args.uploadDelay ?? 750;
-    }
+    storedFile = null;
 
     get acceptedFileTypes() {
         return [
@@ -96,15 +93,47 @@ export default class CustomFieldInputComponent extends Component {
         this.extension = extension;
         this.customFieldComponent = typeof customField.component === 'string' ? customField.component : 'input';
         this.signatureDataUrl = this.#getSignatureUrlFromValue(this.value);
+
+        // A signature stored on the subject is already uploaded: show its saved state and
+        // download control, as after an upload in this session, and draw it onto the pad.
+        if (this.customFieldComponent === 'signature-pad') {
+            this.storedFile = this.#getStoredFileFromValue(this.value) ?? null;
+            this.uploadedFile = this.storedFile ?? undefined;
+
+            if (this.storedFile?.id) {
+                this.#hydrateStoredSignature(this.storedFile);
+            }
+        }
     }
 
-    willDestroy() {
-        super.willDestroy(...arguments);
-        cancel(this.signatureUploadTimer);
+    /**
+     * Draws a stored signature onto the pad. The file's own URL cannot be used: it points at
+     * object storage, which does not answer CORS for the console, so the canvas image load
+     * fails and the pad stays blank. The bytes come through the API instead, as a data URL.
+     * If that fails the pad stays empty, and the saved status still offers the download.
+     * @param {Object} file
+     */
+    async #hydrateStoredSignature(file) {
+        try {
+            const dataUrl = await fetchFileAsDataUrl(this.fetch, file.id);
+
+            if (!this.isDestroying && !this.isDestroyed) {
+                this.signatureDataUrl = dataUrl;
+            }
+        } catch (error) {
+            debug(`Unable to load the stored signature for custom field ${this.customField?.id}: ${error.message}`);
+        }
+    }
+
+    @action downloadFile() {
+        const file = this.uploadedFile;
+        return this.fetch.download('files/download', { file: file.id }, { fileName: file.original_filename ?? file.filename, mimeType: file.content_type });
     }
 
     @action removeFile() {
-        if (isModel(this.uploadedFile)) {
+        // Only a file uploaded in this session is ours to destroy; a stored one is still
+        // referenced by the saved value until the resource is saved without it.
+        if (isModel(this.uploadedFile) && this.uploadedFile !== this.storedFile) {
             this.uploadedFile.destroyRecord();
         }
 
@@ -173,26 +202,29 @@ export default class CustomFieldInputComponent extends Component {
     }
 
     /**
-     * Handles a signature change emitted from `<SignaturePad>`.
-     *
-     * Uploads are debounced rather than fired per stroke: a signature is typically
-     * several discrete strokes over a couple of seconds and uploading each one would
-     * leave that many orphaned file records behind. A trailing debounce collapses a
-     * whole signing gesture into a single upload while keeping the field self saving.
+     * Tracks the ink on the `<SignaturePad>` as the user signs. Nothing is uploaded from
+     * here: a signature is several strokes, so the upload waits for the pad's Done button
+     * (`onSignatureDone`). Clearing the pad removes an already uploaded signature.
      *
      * @param {string|null} dataUrl
      * @action
      */
     @action onSignatureChange(dataUrl) {
         this.signatureDataUrl = dataUrl;
-        cancel(this.signatureUploadTimer);
 
         if (!dataUrl) {
             this.removeFile();
-            return;
         }
+    }
 
-        this.signatureUploadTimer = debounce(this, this.uploadSignature, dataUrl, this.signatureUploadDelay);
+    /**
+     * The user pressed Done on the pad: upload the finished signature.
+     *
+     * @param {string} dataUrl
+     * @action
+     */
+    @action onSignatureDone(dataUrl) {
+        return this.uploadSignature(dataUrl);
     }
 
     /**
@@ -203,10 +235,10 @@ export default class CustomFieldInputComponent extends Component {
      * @param {string} dataUrl
      */
     async uploadSignature(dataUrl) {
-        /* istanbul ignore if -- willDestroy cancels the debounce timer, so the destroyed arms
-           cannot fire; and while an upload runs the pad is rendered disabled
-           (input.hbs: @disabled={{this.isUploadingSignature}}), which detaches its pointer
-           handlers and disables the clear button, so no further change event can re-enter */
+        /* istanbul ignore if -- only the pad's Done button reaches this, and it is gone once the
+           field is destroyed; while an upload runs the pad is rendered disabled
+           (input.hbs: @disabled={{this.isUploadingSignature}}), which disables that button, so
+           the upload cannot re-enter */
         if (this.isDestroying || this.isDestroyed || this.isUploadingSignature) {
             return;
         }
@@ -225,7 +257,7 @@ export default class CustomFieldInputComponent extends Component {
         try {
             await this.onFileAddedHandler(file);
 
-            if (isModel(previousFile) && previousFile !== this.uploadedFile) {
+            if (isModel(previousFile) && previousFile !== this.uploadedFile && previousFile !== this.storedFile) {
                 previousFile.destroyRecord();
             }
         } finally {
@@ -276,37 +308,51 @@ export default class CustomFieldInputComponent extends Component {
         }
     }
 
-    #getSignatureUrlFromValue(value) {
+    /**
+     * The file record behind a stored file-backed value: the server expands the `file:` sentinel
+     * into the file's json. A raw data url or an unexpanded sentinel has no record yet.
+     * @param {string|Object|null} value
+     * @returns {Object|undefined}
+     */
+    #getStoredFileFromValue(value) {
         if (!value) {
-            return null;
+            return undefined;
         }
 
-        if (isObject(value)) {
-            return value.url ?? null;
+        // A `file:<uuid>` reference not yet expanded (the value record was edited in this
+        // session): the id is all the hydration and the download need.
+        const fileId = fileSentinelId(value);
+        if (fileId) {
+            return { id: fileId };
         }
 
-        if (typeof value !== 'string' || value.startsWith('file:')) {
-            return null;
+        let json = value;
+        if (typeof value === 'string') {
+            if (!value.startsWith('{')) {
+                return undefined;
+            }
+
+            try {
+                json = JSON.parse(value);
+            } catch {
+                return undefined;
+            }
         }
 
-        if (value.startsWith('data:')) {
-            return value;
-        }
+        return this.store.push(this.store.normalize('file', json));
+    }
 
-        try {
-            return JSON.parse(value).url ?? null;
-        } catch {
-            return null;
-        }
+    /**
+     * Only a signature still held as a raw data url is drawn straight onto the pad; a stored
+     * file is fetched through the API by #hydrateStoredSignature.
+     * @param {*} value
+     * @returns {string|null}
+     */
+    #getSignatureUrlFromValue(value) {
+        return typeof value === 'string' && value.startsWith('data:') ? value : null;
     }
 
     #getValueFromSubject(customField, subject) {
-        // `subject?.get(...)` optional-chains the subject but hard-calls `.get`, so any subject
-        // that is not an Ember object threw right here, during construction — before the
-        // component could render at all. Read the plain property when there is no `get`.
-        const values = (typeof subject?.get === 'function' ? subject.get('custom_field_values') : subject?.custom_field_values) ?? [];
-        const cfValue = values.find((cfv) => cfv.custom_field_uuid === customField.id);
-        if (cfValue) return cfValue.value;
-        return null;
+        return findCustomFieldValue(subject, customField)?.value ?? null;
     }
 }

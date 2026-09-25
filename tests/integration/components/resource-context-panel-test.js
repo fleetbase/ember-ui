@@ -18,7 +18,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
             activeTabs: {},
             closed: [],
             activeTabCalls: [],
-            active: null,
         };
 
         this.owner.unregister('service:resourceContextPanel');
@@ -31,8 +30,10 @@ module('Integration | Component | resource-context-panel', function (hooks) {
                 get activeTabs() {
                     return panel.activeTabs;
                 }
+                // Reads through `this`, as the real service does: the template must not call this
+                // unbound (a method invoked as a helper has no `this`).
                 getActive() {
-                    return panel.active;
+                    return this.overlays.length > 0 ? this.overlays[this.overlays.length - 1] : null;
                 }
                 close(id) {
                     panel.closed.push(id);
@@ -247,7 +248,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
     module('closing', function () {
         test('a dismissible overlay gets a click-away backdrop', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Dismissible', dismissible: true }];
-            panel.active = panel.overlays[0];
 
             await render(TEMPLATE);
 
@@ -256,7 +256,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
 
         test('an overlay that is not dismissible gets no backdrop', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Pinned', dismissible: false }];
-            panel.active = panel.overlays[0];
 
             await render(TEMPLATE);
 
@@ -277,7 +276,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
 
         test('escape closes a dismissible overlay', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Dismissible', dismissible: true }];
-            panel.active = panel.overlays[0];
 
             await render(TEMPLATE);
             await triggerKeyEvent(document, 'keydown', 'Escape');
@@ -287,7 +285,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
 
         test('escape leaves a non-dismissible overlay alone', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Sticky', dismissible: false }];
-            panel.active = panel.overlays[0];
 
             await render(TEMPLATE);
             await triggerKeyEvent(document, 'keydown', 'Escape');
@@ -297,7 +294,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
 
         test('another key never closes anything', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Dismissible', dismissible: true }];
-            panel.active = panel.overlays[0];
 
             await render(TEMPLATE);
             await triggerKeyEvent(document, 'keydown', 'Enter');
@@ -307,7 +303,6 @@ module('Integration | Component | resource-context-panel', function (hooks) {
 
         test('escape after teardown is ignored', async function (assert) {
             panel.overlays = [{ id: 'ov_1', title: 'Dismissible', dismissible: true }];
-            panel.active = panel.overlays[0];
             this.set('show', true);
 
             await render(hbs`{{#if this.show}}<ResourceContextPanel />{{/if}}`);

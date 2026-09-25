@@ -41,7 +41,7 @@ import SignaturePad from 'signature_pad';
  *   @readonly          — renders @value as a static image instead of a canvas
  *   @autoResize        — observe the canvas and refit it on resize (default true)
  *   @showActions       — show the Clear/Undo toolbar (default true)
- *   @clearLabel @undoLabel @placeholder @emptyText @alt
+ *   @clearLabel @undoLabel @doneLabel @placeholder @emptyText @alt
  *                      — user facing copy; plain strings so the addon carries no translation keys
  *   @wrapperClass @canvasClass @toolbarClass
  *                      — extra classes for the wrapper, canvas and toolbar
@@ -51,6 +51,16 @@ import SignaturePad from 'signature_pad';
  *   @onBegin(detail, api)     — the signature_pad `beginStroke` detail
  *   @onEnd(dataUrl, api, detail) — the signature_pad `endStroke`, only for real strokes
  *   @onClear(api)             — after the pad is cleared
+ *   @onDone(dataUrl, api)     — when the user presses Done; passing it renders the button.
+ *                               Signing is several strokes, so a consumer that persists the
+ *                               signature should do it here rather than on every @onChange.
+ *                               Done is enabled only while there is ink that has changed since
+ *                               the last Done or the last @value applied from outside
+ *
+ * Blocks:
+ *   <:status>  — rendered at the left of the toolbar, for the consumer's own state (saving,
+ *                saved, a download control); receives the api like the default block
+ *   <:default> — rendered after the buttons; receives the api
  *   @onReady(api)             — once the pad is mounted, sized and hydrated
  *
  * The `api` object keeps a stable identity for the lifetime of the component and is
@@ -86,6 +96,13 @@ export default class SignaturePadComponent extends Component {
      * @type {boolean}
      */
     @tracked canUndo = false;
+
+    /**
+     * Whether the ink has changed since the last Done or the last `@value` applied from
+     * outside. Gates the Done button so an unchanged signature cannot be finished twice.
+     * @type {boolean}
+     */
+    @tracked isDirty = false;
 
     /**
      * Observes the canvas so the backing store can be refit when it resizes.
@@ -142,6 +159,10 @@ export default class SignaturePadComponent extends Component {
         return this.args.undoLabel ?? 'Undo';
     }
 
+    get doneLabel() {
+        return this.args.doneLabel ?? 'Done';
+    }
+
     get placeholder() {
         return this.args.placeholder ?? 'Sign here';
     }
@@ -160,6 +181,22 @@ export default class SignaturePadComponent extends Component {
 
     get hasActions() {
         return this.showActions && !this.isReadonly;
+    }
+
+    /**
+     * Whether the Done button is rendered: only when a consumer asked to be told.
+     * @type {boolean}
+     */
+    get showDone() {
+        return typeof this.args.onDone === 'function';
+    }
+
+    get hasToolbar() {
+        return this.hasActions || this.showDone;
+    }
+
+    get canDone() {
+        return !this.isEmpty && this.isDirty;
     }
 
     /**
@@ -325,6 +362,7 @@ export default class SignaturePadComponent extends Component {
 
         this.signaturePad.clear();
         this.hydratedDataUrl = null;
+        this.isDirty = true;
         this.syncState();
 
         if (typeof this.args.onClear === 'function') {
@@ -332,6 +370,16 @@ export default class SignaturePadComponent extends Component {
         }
 
         this.emitChange();
+    }
+
+    /**
+     * Hands the finished signature to `@onDone`. The button that calls this is only rendered
+     * when `@onDone` is set and is disabled while the pad is empty or disabled.
+     * @action
+     */
+    @action done() {
+        this.isDirty = false;
+        this.args.onDone(this.currentDataURL(), this.api);
     }
 
     /**
@@ -357,6 +405,7 @@ export default class SignaturePadComponent extends Component {
             return;
         }
 
+        this.isDirty = true;
         this.syncState();
         this.emitChange();
     }
@@ -372,12 +421,23 @@ export default class SignaturePadComponent extends Component {
             return;
         }
 
-        await this.applyValue(value);
+        // A stored signature can arrive after the user has already started drawing (it is
+        // fetched asynchronously). Keep their strokes on top of it, and keep them counted as
+        // a change; only a value that replaces an untouched pad resets that.
+        const strokes = this.signaturePad ? this.signaturePad.toData() : [];
+
+        if (strokes.length > 0 && value) {
+            this.hydratedDataUrl = value;
+            await this.redraw(strokes);
+        } else {
+            await this.applyValue(value);
+        }
 
         if (this.isDestroying || this.isDestroyed) {
             return;
         }
 
+        this.isDirty = strokes.length > 0;
         this.syncState();
     }
 
@@ -450,6 +510,7 @@ export default class SignaturePadComponent extends Component {
      * @action
      */
     @action handleEndStroke(event) {
+        this.isDirty = true;
         this.syncState();
 
         const dataUrl = this.currentDataURL();

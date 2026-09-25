@@ -9,6 +9,15 @@ import Service from '@ember/service';
 export default class FetchService extends Service {
     calls = [];
 
+    /** What `fetch-file-as-data-url` reads to address the API directly. */
+    host = 'https://api.test';
+    namespace = 'int/v1';
+    credentials = 'include';
+
+    getHeaders() {
+        return { Authorization: 'Bearer test-token' };
+    }
+
     /** Map of path -> canned response used by `get` and `post`. */
     responses = {};
 

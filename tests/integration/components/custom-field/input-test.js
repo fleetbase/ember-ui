@@ -28,9 +28,7 @@ function pointerEvent(type, { x, y, buttons }) {
     });
 }
 
-/** Dispatches a stroke synchronously, without settling — `settled()` waits out pending
- *  run-loop timers, the upload debounce included, so tests about debouncing must control
- *  when they settle. */
+/** Dispatches a stroke synchronously, without settling. */
 function strokeSync(canvas, points = HORIZONTAL) {
     const rect = canvas.getBoundingClientRect();
     const toClient = ([fx, fy]) => ({ x: rect.left + rect.width * fx, y: rect.top + rect.height * fy });
@@ -269,6 +267,18 @@ module('Integration | Component | custom-field/input', function (hooks) {
             assert.ok(find('.custom-field-file a.text-red-600'), 'a delete action is offered');
         });
 
+        test('the uploaded file can be downloaded through the fetch service', async function (assert) {
+            await uploadOne(this);
+            await click('.custom-field-file .ember-basic-dropdown-trigger');
+            await click(findAll('.custom-field-file a').find((anchor) => anchor.textContent.toLowerCase().includes('download')));
+
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.ok(download, 'the download goes through the fetch service');
+            assert.strictEqual(download.args[0], 'files/download');
+            assert.deepEqual(download.args[1], { file: 'test-file-1' });
+            assert.deepEqual(download.args[2], { fileName: 'notes.txt', mimeType: 'text/plain' });
+        });
+
         test('deleting the file clears the value and reports it', async function (assert) {
             const changes = [];
             this.set('onChange', (value, customField) => changes.push({ value, customField }));
@@ -410,13 +420,45 @@ module('Integration | Component | custom-field/input', function (hooks) {
         });
     });
 
-    module('signature fields', function () {
+    module('signature fields', function (hooks) {
+        const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+        let originalFetch;
+        let downloads;
+
+        // A stored signature is drawn by downloading its bytes through the API (window.fetch),
+        // so the suite stubs it: offline by default, or serving the red png on request.
+        hooks.beforeEach(function () {
+            originalFetch = window.fetch;
+            downloads = [];
+            window.fetch = (url) => {
+                downloads.push(url);
+                return Promise.reject(new Error('offline'));
+            };
+        });
+
+        hooks.afterEach(function () {
+            window.fetch = originalFetch;
+        });
+
+        function serveStoredFile({ status = 200 } = {}) {
+            const bytes = Uint8Array.from(atob(RED_PNG.split(',')[1]), (char) => char.charCodeAt(0));
+            window.fetch = (url) => {
+                downloads.push(url);
+                return Promise.resolve(new Response(new Blob([bytes], { type: 'image/png' }), { status }));
+            };
+        }
+
         function signatureField(overrides = {}) {
             return createCustomField({ name: 'signature', label: 'Signature', type: 'signature-pad', component: 'signature-pad', ...overrides });
         }
 
         function uploadCalls(context) {
             return context.owner.lookup('service:fetch').calls.filter((call) => call.method === 'uploadFile.perform');
+        }
+
+        async function signAndFinish(points = HORIZONTAL) {
+            await drawStroke(document.querySelector('canvas.signature-pad-canvas'), points);
+            await click('.signature-pad-done-button');
         }
 
         test('it renders a signature pad for the signature-pad field type', async function (assert) {
@@ -444,10 +486,8 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('subject', createSubject());
             this.set('onChange', (value, customField) => changes.push([value, customField]));
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} @onChange={{this.onChange}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
-            await waitUntil(() => uploadCalls(this).length > 0);
-            await settled();
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @onChange={{this.onChange}} />`);
+            await signAndFinish();
 
             const uploads = uploadCalls(this);
             assert.strictEqual(uploads.length, 1, 'the signature was uploaded once');
@@ -461,48 +501,146 @@ module('Integration | Component | custom-field/input', function (hooks) {
             assert.strictEqual(changes[0][1], this.customField, 'the custom field was passed through');
         });
 
-        test('with no @uploadDelay the upload waits out the default debounce', async function (assert) {
+        test('signing alone uploads nothing; the upload waits for Done', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
-            strokeSync(document.querySelector('canvas.signature-pad-canvas'));
+            assert.dom('.signature-pad-done-button').isDisabled('there is nothing to finish before signing');
 
-            assert.strictEqual(uploadCalls(this).length, 0, 'nothing uploads synchronously — the default debounce is pending');
+            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
 
-            // settled() waits out the pending 750ms debounce timer.
-            await settled();
-            assert.strictEqual(uploadCalls(this).length, 1, 'the default debounce delivers the upload');
+            assert.strictEqual(uploadCalls(this).length, 0, 'a stroke is not an upload');
+            assert.dom('.signature-pad-done-button').isNotDisabled('the user confirms when the signature is complete');
+            assert.dom('.custom-field-signature-status').doesNotExist('nothing to report before Done');
         });
 
-        test('it debounces several strokes into a single upload', async function (assert) {
+        test('several strokes then Done produce a single upload', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{50}} />`);
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
             const canvas = document.querySelector('canvas.signature-pad-canvas');
-            strokeSync(canvas, HORIZONTAL);
-            strokeSync(canvas, [
+            await drawStroke(canvas, HORIZONTAL);
+            await drawStroke(canvas, [
                 [0.2, 0.2],
                 [0.5, 0.4],
                 [0.8, 0.3],
             ]);
-            await settled();
+            await click('.signature-pad-done-button');
 
-            assert.strictEqual(uploadCalls(this).length, 1, 'two strokes inside the debounce window produced one upload');
+            assert.strictEqual(uploadCalls(this).length, 1, 'the whole signature is one upload');
         });
 
-        test('it renders the uploaded file after a successful upload', async function (assert) {
+        test('after the upload the toolbar reports saved and offers a download, with no file chip', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
-            await waitUntil(() => uploadCalls(this).length > 0);
-            await settled();
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await signAndFinish();
 
-            assert.dom('.custom-field-file').exists('the uploaded signature is shown');
+            assert.dom('.signature-pad-toolbar-status .custom-field-signature-status-saved').containsText('Saved');
+            assert.dom('.signature-pad-toolbar-status .custom-field-signature-download').exists('the saved signature can be downloaded');
+            assert.dom('.custom-field-file').doesNotExist('a transparent signature is unreadable as a thumbnail, so no chip');
+            assert.dom('.signature-pad-done-button').isDisabled('nothing new to finish once saved');
+        });
+
+        test('a stored signature opens in the saved state with a download control', async function (assert) {
+            this.set('customField', signatureField());
+            this.set(
+                'subject',
+                createSubject([
+                    {
+                        custom_field_uuid: 'custom-field-1',
+                        value: JSON.stringify({ id: 'file_9', uuid: 'file_9', filename: 'signature-signature.png', content_type: 'image/png', url: 'https://files.test/existing.png' }),
+                    },
+                ])
+            );
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('.custom-field-signature-status-saved').exists();
+            await click('.custom-field-signature-download');
+
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.deepEqual(download.args[1], { file: 'file_9' });
+            assert.deepEqual(download.args[2], { fileName: 'signature-signature.png', mimeType: 'image/png' });
+        });
+
+        // The dummy store hands back plain objects, which `isModel` rejects; these two tests need a
+        // record that passes it so the destroy guard is actually exercised.
+        function modelLikeFile(attrs) {
+            return Object.assign(Object.create(Model.prototype), attrs);
+        }
+
+        test('clearing a stored signature does not destroy its file before the resource is saved', async function (assert) {
+            const destroyed = [];
+            const stored = modelLikeFile({ id: 'file_9', filename: 'signature.png', url: 'https://files.test/existing.png', destroyRecord: () => destroyed.push('file_9') });
+            this.owner.lookup('service:store').push = () => stored;
+            serveStoredFile();
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', url: 'https://files.test/existing.png' }) }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
+            await click('.signature-pad-clear-button');
+
+            assert.deepEqual(destroyed, [], 'the stored file still backs the saved value');
+            assert.dom('.custom-field-signature-status-saved').doesNotExist('but the field no longer reports it as saved');
+        });
+
+        test('re-signing over a stored signature keeps the stored file and destroys only session uploads', async function (assert) {
+            const destroyed = [];
+            const stored = modelLikeFile({ id: 'file_9', filename: 'signature.png', url: 'https://files.test/existing.png', destroyRecord: () => destroyed.push('file_9') });
+            this.owner.lookup('service:store').push = () => stored;
+            serveStoredFile();
+            const fetch = this.owner.lookup('service:fetch');
+            let counter = 0;
+            fetch.uploadFile.perform = (file, params, onSuccess) => {
+                counter += 1;
+                const label = `upload_${counter}`;
+                const uploadedFile = modelLikeFile({ filename: file.name, destroyRecord: () => destroyed.push(label) });
+                onSuccess(uploadedFile);
+                return Promise.resolve(uploadedFile);
+            };
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', url: 'https://files.test/existing.png' }) }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
+
+            await signAndFinish();
+            assert.deepEqual(destroyed, [], 'the first re-sign leaves the stored file alone');
+
+            await signAndFinish([
+                [0.2, 0.2],
+                [0.5, 0.4],
+                [0.8, 0.3],
+            ]);
+            assert.deepEqual(destroyed, ['upload_1'], 'the second re-sign destroys only the superseded session upload');
+        });
+
+        test('stored file json that does not parse is not treated as a saved file', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: '{not json' }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+
+            assert.dom('.custom-field-signature-status').doesNotExist();
+        });
+
+        test('the uploaded signature can be downloaded', async function (assert) {
+            this.set('customField', signatureField());
+            this.set('subject', createSubject());
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await signAndFinish();
+            await click('.custom-field-signature-download');
+
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.deepEqual(download.args[1], { file: 'test-file-1' });
+            assert.deepEqual(download.args[2], { fileName: 'signature-signature.png', mimeType: 'image/png' });
         });
 
         test('it clears the value when the signature is cleared', async function (assert) {
@@ -511,41 +649,52 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('subject', createSubject());
             this.set('onChange', (value) => changes.push(value));
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} @onChange={{this.onChange}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
-            await waitUntil(() => uploadCalls(this).length > 0);
-            await settled();
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @onChange={{this.onChange}} />`);
+            await signAndFinish();
 
             await click('.signature-pad-clear-button');
 
             assert.strictEqual(changes[changes.length - 1], undefined, 'the value was cleared');
-            assert.dom('.custom-field-file').doesNotExist('the uploaded signature was removed');
+            assert.dom('.custom-field-signature-status-saved').doesNotExist('the saved state is gone with the file');
             assert.strictEqual(uploadCalls(this).length, 1, 'clearing does not trigger another upload');
         });
 
-        test('it rehydrates an existing signature from the stored file json', async function (assert) {
+        test('a stored signature is downloaded through the API and drawn onto the pad', async function (assert) {
+            serveStoredFile();
             this.set('customField', signatureField());
-            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ uuid: 'file_9', url: 'https://files.test/existing.png' }) }]));
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', uuid: 'file_9', url: 'https://bucket.test/existing.png' }) }]));
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
 
-            assert.dom('canvas.signature-pad-canvas').exists('the pad is rendered for an existing value');
+            assert.strictEqual(downloads.length, 1, 'the bytes are fetched once');
+            assert.true(downloads[0].endsWith('/files/download?file=file_9'), 'through the API, not the storage url the canvas cannot load');
+            assert.dom('.signature-pad-placeholder').doesNotExist('the stored signature is on the pad');
+            assert.dom('.signature-pad-done-button').isDisabled('and counts as saved, not as a change');
             assert.strictEqual(uploadCalls(this).length, 0, 'rendering an existing value does not upload anything');
         });
 
-        test('it does not rehydrate from an unexpanded file sentinel', async function (assert) {
+        // The value record edited in this session keeps its `file:<uuid>` reference after the
+        // parent saves, so reopening the editor must treat the reference as the stored file.
+        test('an unexpanded file reference is hydrated by its id and shown as saved', async function (assert) {
+            serveStoredFile();
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: 'file:file_9' }]));
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
 
-            assert.dom('canvas.signature-pad-canvas').exists('the pad still renders');
+            assert.true(downloads[0].endsWith('/files/download?file=file_9'), 'the reference is enough to fetch the image');
+            assert.dom('.custom-field-signature-status-saved').exists();
+            assert.dom('.signature-pad-done-button').isDisabled('the stored signature is not a change');
+
+            await click('.custom-field-signature-download');
+            const download = this.owner.lookup('service:fetch').calls.find((call) => call.method === 'download');
+            assert.deepEqual(download.args[1], { file: 'file_9' });
         });
 
-        // The stored value arrives in several shapes; each maps to a different arm of the
-        // signature-url extraction.
-        test('it rehydrates from a raw data-url value', async function (assert) {
-            const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+        // The stored value arrives in several shapes.
+        test('it rehydrates from a raw data-url value without touching the network', async function (assert) {
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: RED_PNG }]));
 
@@ -554,52 +703,75 @@ module('Integration | Component | custom-field/input', function (hooks) {
             await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
 
             assert.dom('.signature-pad-placeholder').doesNotExist('the data url was hydrated into the pad');
+            assert.deepEqual(downloads, [], 'nothing was fetched');
+            assert.dom('.custom-field-signature-status').doesNotExist('a data url is not a stored file');
         });
 
-        test('it rehydrates from an already-expanded value object', async function (assert) {
-            const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
+        test('a value that arrives already parsed is downloaded by its id too', async function (assert) {
+            serveStoredFile();
             this.set('customField', signatureField());
-            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_9', url: RED_PNG } }]));
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { id: 'file_9', uuid: 'file_9' } }]));
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
-            // hydration resolves on an untracked image load, so settled() is not enough
             await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
 
-            assert.dom('.signature-pad-placeholder').doesNotExist('the object url was hydrated into the pad');
+            assert.true(downloads[0].endsWith('/files/download?file=file_9'));
+            assert.dom('.custom-field-signature-status-saved').exists();
         });
 
-        test('a value object with no url leaves the pad empty', async function (assert) {
+        test('a stored signature whose download fails leaves the pad empty but keeps the saved status', async function (assert) {
+            serveStoredFile({ status: 404 });
             this.set('customField', signatureField());
-            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: { uuid: 'file_9' } }]));
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', uuid: 'file_9' }) }]));
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
-            assert.dom('.signature-pad-placeholder').exists('there is no url to hydrate from');
+            assert.strictEqual(downloads.length, 1, 'the download was attempted');
+            assert.dom('.signature-pad-placeholder').exists('nothing could be drawn');
+            assert.dom('.custom-field-signature-status-saved').exists('the file still exists and can be downloaded');
+            assert.dom('.custom-field-signature-download').exists();
         });
 
-        test('stored file json with no url leaves the pad empty', async function (assert) {
+        test('a stored signature download that lands after the field is gone is dropped cleanly', async function (assert) {
+            let deliver;
+            const bytes = Uint8Array.from(atob(RED_PNG.split(',')[1]), (char) => char.charCodeAt(0));
+            window.fetch = () => new Promise((resolve) => (deliver = () => resolve(new Response(new Blob([bytes], { type: 'image/png' }), { status: 200 }))));
+            this.set('customField', signatureField());
+            this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', uuid: 'file_9' }) }]));
+
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await clearRender();
+
+            deliver();
+            await settled();
+
+            assert.ok(deliver, 'the late download completed without touching the destroyed field');
+        });
+
+        test('a stored file record without an id is shown as saved but not fetched', async function (assert) {
+            this.owner.lookup('service:store').push = () => ({ filename: 'signature.png' });
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ uuid: 'file_9' }) }]));
 
             await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
-            assert.dom('.signature-pad-placeholder').exists('parsed json without a url hydrates nothing');
+            assert.deepEqual(downloads, [], 'there is no id to download by');
+            assert.dom('.signature-pad-placeholder').exists();
         });
 
         test('a custom field with no name falls back to its id for the filename', async function (assert) {
             this.set('customField', signatureField({ name: null }));
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
-            await waitUntil(() => uploadCalls(this).length > 0);
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await signAndFinish();
 
             assert.strictEqual(uploadCalls(this)[0].args[0].name, 'signature-custom-field-1.png', 'the id stands in for the missing name');
         });
 
         // The pad is rendered @disabled while an upload runs, which detaches its pointer
-        // handlers — so a second stroke draws nothing and cannot start another upload.
-        test('the pad is disabled while the upload is in flight, so a second stroke starts nothing', async function (assert) {
+        // handlers and disables Done — so nothing can start another upload.
+        test('the pad and its Done button are disabled while the upload is in flight', async function (assert) {
             let resolveUpload;
             const performed = [];
             const fetch = this.owner.lookup('service:fetch');
@@ -616,22 +788,26 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
             const canvas = document.querySelector('canvas.signature-pad-canvas');
-            await drawStroke(canvas);
-            assert.strictEqual(performed.length, 1, 'the first stroke started its upload');
+            await signAndFinish();
+            assert.strictEqual(performed.length, 1, 'Done started the upload');
+            assert.dom('.signature-pad-done-button').isDisabled('Done cannot be pressed again while it runs');
+            assert.dom('.custom-field-signature-status-uploading').exists('the toolbar reports the upload');
 
             await drawStroke(canvas, [
                 [0.2, 0.2],
                 [0.5, 0.4],
                 [0.8, 0.3],
             ]);
-            assert.strictEqual(performed.length, 1, 'the second stroke is ignored while the first upload runs');
+            assert.strictEqual(performed.length, 1, 'a stroke during the upload starts nothing');
 
             resolveUpload();
             await settled();
-            assert.dom('.custom-field-file').exists('the in-flight upload still lands');
+            assert.dom('.custom-field-signature-status-saved').exists('the in-flight upload still lands');
+            assert.dom('.custom-field-signature-status-uploading').doesNotExist();
+            assert.dom('.signature-pad-done-button').isDisabled('the stroke drawn while disabled never registered, so there is nothing new');
         });
 
         test('destroying the field while the upload is in flight leaves nothing behind', async function (assert) {
@@ -650,8 +826,8 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
-            await drawStroke(document.querySelector('canvas.signature-pad-canvas'));
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await signAndFinish();
 
             await clearRender();
             resolveUpload();
@@ -683,13 +859,12 @@ module('Integration | Component | custom-field/input', function (hooks) {
             this.set('customField', signatureField());
             this.set('subject', createSubject());
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @uploadDelay={{0}} />`);
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
 
-            const canvas = document.querySelector('canvas.signature-pad-canvas');
-            await drawStroke(canvas);
+            await signAndFinish();
             assert.deepEqual(destroyed, [], 'the first signature has nothing to replace');
 
-            await drawStroke(canvas, [
+            await signAndFinish([
                 [0.2, 0.2],
                 [0.5, 0.4],
                 [0.8, 0.3],

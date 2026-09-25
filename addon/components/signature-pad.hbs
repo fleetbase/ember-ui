@@ -29,8 +29,13 @@
                 </div>
             {{/if}}
         </div>
-        {{#if (or this.hasActions (has-block))}}
+        {{#if (or this.hasToolbar (has-block) (has-block "status"))}}
             <div class="signature-pad-toolbar {{@toolbarClass}}">
+                {{#if (has-block "status")}}
+                    <div class="signature-pad-toolbar-status">
+                        {{yield this.api to="status"}}
+                    </div>
+                {{/if}}
                 {{#if this.hasActions}}
                     <Button
                         @type="default"
@@ -51,6 +56,18 @@
                         @onClick={{this.clear}}
                         class="signature-pad-clear-button"
                         data-test-signature-pad-clear
+                    />
+                {{/if}}
+                {{#if this.showDone}}
+                    <Button
+                        @type="primary"
+                        @size="xs"
+                        @icon="check"
+                        @text={{this.doneLabel}}
+                        @disabled={{or this.isDisabled (not this.canDone)}}
+                        @onClick={{this.done}}
+                        class="signature-pad-done-button"
+                        data-test-signature-pad-done
                     />
                 {{/if}}
                 {{yield this.api}}

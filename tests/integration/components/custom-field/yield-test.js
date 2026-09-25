@@ -97,6 +97,34 @@ module('Integration | Component | custom-field/yield', function (hooks) {
         assert.strictEqual(lastWrite.customField, group.customFields[0]);
     });
 
+    module('the group grid', function () {
+        function renderGroup(context, group) {
+            const registry = context.owner.lookup('service:custom-fields-registry');
+            registry.loadSubjectCustomFields = { perform: () => Promise.resolve({ customFieldGroups: [group], writeFieldValue: () => {} }) };
+            context.set('subject', createSubject());
+            return render(hbs`<CustomField::Yield @subject={{this.subject}} @modelType="order" />`);
+        }
+
+        test('a group with no stored grid size is a single column, as the manager shows it', async function (assert) {
+            await renderGroup(this, createGroup({ meta: {} }));
+
+            assert.dom('.grid').hasClass('lg:grid-cols-1');
+            assert.dom('.grid').hasClass('gap-2');
+        });
+
+        test('a stored grid size sets the column count', async function (assert) {
+            await renderGroup(this, createGroup({ meta: { grid_size: 3 } }));
+
+            assert.dom('.grid').hasClass('lg:grid-cols-3');
+        });
+
+        test('a field with a column span spans it', async function (assert) {
+            await renderGroup(this, createGroup({ meta: { grid_size: 2 }, customFields: [createCustomField({ meta: { colSpan: 2 } })] }));
+
+            assert.dom('.grid > .col-span-2').exists();
+        });
+    });
+
     test('it renders read-only values in view mode', async function (assert) {
         const registry = this.owner.lookup('service:custom-fields-registry');
         const manager = { customFieldGroups: [createGroup()], writeFieldValue: () => {} };
@@ -201,8 +229,18 @@ module('Integration | Component | custom-field/yield', function (hooks) {
 
             assert.deepEqual(
                 this.loads[0].options.loadOptions,
-                { groupedFor: 'work_order_custom_field_group', fieldFor: 'fleet-ops:work_order' },
-                'the model name is underscored into both keys'
+                { groupedFor: 'work_order_custom_field_group', fieldFor: 'fleet-ops:work-order' },
+                'the group key is underscored and the field type stays hyphenated'
+            );
+        });
+
+        test('an underscored model type is hyphenated in the field type', async function (assert) {
+            await render(hbs`<CustomField::Yield @subject={{this.subject}} @modelType="fuel_report" />`);
+
+            assert.deepEqual(
+                this.loads[0].options.loadOptions,
+                { groupedFor: 'fuel_report_custom_field_group', fieldFor: 'fleet-ops:fuel-report' },
+                'both spellings resolve to the keys the settings page saves'
             );
         });
 
