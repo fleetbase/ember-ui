@@ -25,6 +25,44 @@ module('Integration | Component | modal/default', function (hooks) {
         assert.ok(buttonWithText('Confirm'), 'a default accept button is rendered');
     });
 
+    // The default modal's own rules used to force the dialog to the viewport height and centre the
+    // content in it, which pushed a tall modal's header above the viewport and its footer below.
+    test('content taller than the viewport opens at the top, keeps its margins, and the overlay scrolls', async function (assert) {
+        this.set('options', { title: 'Tall' });
+
+        await render(hbs`
+            <Modal::Default @modalIsOpened={{true}} @options={{this.options}}>
+                <div style="height: 4000px">tall</div>
+            </Modal::Default>
+        `);
+        await settled();
+
+        const q = (selector) => document.querySelector(selector);
+        const rect = (selector) => q(selector).getBoundingClientRect();
+        const overlay = q('.flb--modal');
+        const dialog = q('.flb--modal-dialog');
+        const margin = parseFloat(getComputedStyle(dialog).marginTop);
+
+        assert.true(overlay.scrollHeight > overlay.clientHeight, 'the overlay scrolls');
+        assert.strictEqual(overlay.scrollTop, 0, 'it opens at the top');
+        assert.true(rect('.flb--modal-header').top >= rect('.flb--modal').top, 'the header is in view');
+        assert.true(margin > 0 && overlay.scrollHeight >= dialog.offsetHeight + 2 * margin - 1, 'the space below the footer matches the space above the header');
+        assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
+    });
+
+    test('content that fits is centred and not made scrollable', async function (assert) {
+        this.set('options', { title: 'Short' });
+
+        await render(hbs`<Modal::Default @modalIsOpened={{true}} @options={{this.options}}><p>short</p></Modal::Default>`);
+        await settled();
+
+        assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
+        const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+        const modal = rect('.flb--modal');
+        const content = rect('.flb--modal-content');
+        assert.true(Math.abs(content.top - modal.top - (modal.bottom - content.bottom)) < 2, 'the content sits in the vertical middle');
+    });
+
     test('@modalIsOpened does not gate rendering — the modal is open whenever it is rendered', async function (assert) {
         // <Modal> takes its visibility from `@arg open = true` and never reads
         // `@modalIsOpened`, so the argument Modal::Default forwards is inert.

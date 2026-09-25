@@ -66,8 +66,8 @@
     transform: scale(1.02);
 }
 
-/* A dialog taller than the viewport (the modal adds this class when it measures one) is held to the
-   viewport minus the vertical margins: header and footer stay in view and the body scrolls. */
+/* Opt-in (@scrollable): the dialog is held to the viewport minus the vertical margins, the header
+   and footer stay in view and the body scrolls. By default a tall dialog grows and the overlay scrolls. */
 .flb--modal-dialog-scrollable {
     height: calc(100% - var(--flb-modal-margin-y) * 2);
 }
@@ -377,15 +377,29 @@
     @apply fixed inset-0 w-screen h-screen overflow-hidden overflow-y-auto;
 }
 
+/* The dialog centres a modal that fits. It used to be forced to the viewport height (`h-full`) with
+   the content centred inside it, so a modal taller than the viewport had its top and bottom pushed
+   out of reach and lost its bottom margin. With a minimum height instead, a taller dialog grows,
+   keeps its margins, and the overlay scrolls (or, with @scrollable, is held to the viewport). */
 .flb--modal.flb--default-modal > .flb--modal-dialog {
     animation: expandIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    @apply flex items-center justify-center w-full h-full mx-auto;
+    min-height: calc(100% - var(--flb-modal-margin-y) * 2);
+    @apply flex items-center justify-center w-full mx-auto;
 }
 
 .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content {
     width: 40rem;
     overflow: visible;
     @apply inline-block text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl opacity-100;
+}
+
+/* @scrollable: the content becomes the column its header, body and footer expect, the body scrolls,
+   and the rounded corners clip it. */
+.flb--modal.flb--default-modal > .flb--modal-dialog.flb--modal-dialog-scrollable > .flb--modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 .flb--modal.flb--default-modal > .flb--modal-dialog > .flb--modal-content > .flb--modal-header {
