@@ -336,6 +336,20 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         });
     });
 
+    test('summary columns are not offered as condition fields', async function (assert) {
+        this.set('allSelectedColumns', [...COLUMNS, { name: 'total_orders', label: 'Total Orders', type: 'integer', aggregate: true }]);
+
+        await render(TEMPLATE);
+        await click(buttonWithText('Add condition'));
+        const options = await getDropdownItems('.condition-field');
+
+        assert.strictEqual(options.length, 2, 'only the per-row columns are offered');
+        assert.false(
+            options.some((option) => option.includes('Total Orders')),
+            'a summary value cannot filter rows'
+        );
+    });
+
     test('it renders with no onChange handler', async function (assert) {
         await render(hbs`<QueryBuilder::Conditions @allSelectedColumns={{this.allSelectedColumns}} />`);
         await click(buttonWithText('Add condition'));

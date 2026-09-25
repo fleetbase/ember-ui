@@ -36,13 +36,16 @@ export default class QueryBuilderConditionsComponent extends Component {
     get availableColumns() {
         // Use allSelectedColumns from parent if available, otherwise fall back to existing logic
         if (this.args.allSelectedColumns?.length) {
-            return this.args.allSelectedColumns.map((column) => ({
-                ...column,
-                table: column.table || this.args.table?.name,
-                full: column.full || `${column.table || this.args.table?.name}.${column.name}`,
-                label: column.label || column.name,
-                source: 'main',
-            }));
+            // Summary columns (e.g. "Total Orders") aggregate rows, so they cannot filter them
+            return this.args.allSelectedColumns
+                .filter((column) => column.aggregate !== true)
+                .map((column) => ({
+                    ...column,
+                    table: column.table || this.args.table?.name,
+                    full: column.full || `${column.table || this.args.table?.name}.${column.name}`,
+                    label: column.label || column.name,
+                    source: 'main',
+                }));
         }
 
         // Existing fallback logic

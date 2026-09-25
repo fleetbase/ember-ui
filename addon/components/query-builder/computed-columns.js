@@ -80,8 +80,8 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         const existingIndex = this.computedColumns.findIndex((col) => col.name === computedColumn.name);
 
         if (existingIndex >= 0) {
-            // Update existing
-            this.computedColumns[existingIndex] = computedColumn;
+            // Update existing (a new array, so the panels that list computed columns update)
+            this.computedColumns = this.computedColumns.map((col, index) => (index === existingIndex ? computedColumn : col));
         } else {
             // Add new
             this.computedColumns = [...this.computedColumns, computedColumn];
@@ -91,6 +91,13 @@ export default class QueryBuilderComputedColumnsComponent extends Component {
         if (this.args.onChange) {
             this.args.onChange(this.computedColumns);
         }
+    }
+
+    /**
+     * Follow the query builder when it replaces the list, e.g. on a table change or reset.
+     */
+    @action syncComputedColumns() {
+        this.computedColumns = [...(this.args.computedColumns ?? [])];
     }
 
     @action removeComputedColumn(computedColumn) {

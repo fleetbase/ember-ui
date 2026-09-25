@@ -57,6 +57,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
         return [
             // Date/Time Functions
             'DATEDIFF',
+            'DATE',
             'DATE_ADD',
             'DATE_SUB',
             'NOW',
@@ -163,6 +164,14 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             // Type Conversion
             'CAST',
             'CONVERT',
+            'DECIMAL',
+
+            // JSON Functions
+            'JSON_EXTRACT',
+            'JSON_UNQUOTE',
+            'JSON_VALUE',
+            'JSON_LENGTH',
+            'JSON_CONTAINS',
 
             // Other Utility Functions
             'INTERVAL',
@@ -185,6 +194,21 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
                 name: 'Conditional Value',
                 expression: "CASE WHEN amount > 100 THEN 'High' ELSE 'Low' END",
                 description: 'Return different values based on conditions',
+            },
+            {
+                name: 'Read a JSON Value',
+                expression: "CAST(JSON_UNQUOTE(JSON_EXTRACT(meta, '$.total')) AS DECIMAL(15,2)) / 100",
+                description: 'Read a number stored in a JSON column, e.g. a storefront order total in cents, as a decimal',
+            },
+            {
+                name: 'Group by Month',
+                expression: "DATE_FORMAT(created_at, '%Y-%m')",
+                description: 'Bucket rows by month; use it as a Group By column',
+            },
+            {
+                name: 'Related Column',
+                expression: 'payload.entities.quantity * payload.entities.price',
+                description: 'Reference related columns by their path, as listed in the column picker',
             },
             {
                 name: 'Safe Division',

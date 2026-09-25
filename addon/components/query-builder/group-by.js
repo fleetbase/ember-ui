@@ -2,6 +2,17 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
+/**
+ * How the query builder panels identify a column: joined columns carry a `full` path,
+ * table and computed columns are identified by name.
+ */
+const columnKey = (column) => column.full ?? column.name;
+
+/**
+ * Whether a column is a summary value (e.g. "Total Orders") that aggregates on its own.
+ */
+const isSummaryColumn = (column) => column.aggregate === true;
+
 export default class QueryBuilderGroupByComponent extends Component {
     @tracked selectedGroupBy = null;
     @tracked selectedAggregateFn = null;
@@ -17,6 +28,7 @@ export default class QueryBuilderGroupByComponent extends Component {
     get aggregateFunctions() {
         return [
             { value: 'count', label: 'Count', icon: 'hashtag' },
+            { value: 'count_distinct', label: 'Count Distinct', icon: 'fingerprint' },
             { value: 'sum', label: 'Sum', icon: 'plus' },
             { value: 'avg', label: 'Average', icon: 'chart-line' },
             { value: 'min', label: 'Minimum', icon: 'arrow-down' },
@@ -39,8 +51,9 @@ export default class QueryBuilderGroupByComponent extends Component {
 
         // Filter to only show selected columns that are not aggregated
         return columnsToUse.filter((column) => {
-            // Don't allow grouping by columns that are already aggregated
-            const isAggregated = column.aggregate && column.aggregate !== 'none';
+            // Don't allow grouping by columns that are already aggregated (summary columns
+            // such as "Total Orders" are flagged `aggregate: true`)
+            const isAggregated = isSummaryColumn(column) || (typeof column.aggregate === 'string' && column.aggregate !== 'none');
             return !isAggregated;
         });
     }
@@ -53,11 +66,17 @@ export default class QueryBuilderGroupByComponent extends Component {
 
         /* istanbul ignore next -- with neither list there are no columns to group by either, so
            canGroup is false and group-by.hbs never renders the control that reads this */
-        const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
+        const allColumns = this.args.allSelectedColumns || this.args.selectedColumns || [];
+        // A summary column is already an aggregate and cannot be aggregated again
+        const columnsToUse = allColumns.filter((column) => !isSummaryColumn(column));
         const fn = this.selectedAggregateFn.value;
 
         if (fn === 'count') {
             return [{ name: '*', label: 'All Records', type: 'count', full: '*' }, ...columnsToUse];
+        }
+
+        if (fn === 'count_distinct') {
+            return columnsToUse;
         }
 
         if (fn === 'sum' || fn === 'avg') {
@@ -153,7 +172,7 @@ export default class QueryBuilderGroupByComponent extends Component {
            three are chosen, so there is nothing to press before then */
         if (this.selectedGroupBy && this.selectedAggregateFn && this.selectedAggregateBy) {
             // Validate that the groupBy column is actually selected
-            const isGroupByColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedGroupBy.full);
+            const isGroupByColumnSelected = this.availableGroupByColumns.some((col) => columnKey(col) === columnKey(this.selectedGroupBy));
 
             if (!isGroupByColumnSelected) {
                 console.warn('Cannot group by column that is not selected:', this.selectedGroupBy);
@@ -208,7 +227,11 @@ export default class QueryBuilderGroupByComponent extends Component {
      * Validate existing group by items when selected columns change
      */
     @action validateGroupByItems() {
-        if (!this.args.selectedColumns?.length) {
+        /* istanbul ignore next -- the only consumer, query-builder.hbs, always passes
+           allSelectedColumns, and that getter always returns an array */
+        const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
+
+        if (!columnsToUse.length) {
             // Clear all grouping if no columns selected
             if (this.groupByItems.length > 0) {
                 this.groupByItems = [];
@@ -219,7 +242,7 @@ export default class QueryBuilderGroupByComponent extends Component {
 
         // Remove group by items for columns that are no longer selected
         const validGroupByItems = this.groupByItems.filter((item) => {
-            return this.args.selectedColumns.some((col) => col.full === item.groupBy.full);
+            return columnsToUse.some((col) => columnKey(col) === columnKey(item.groupBy));
         });
 
         if (validGroupByItems.length !== this.groupByItems.length) {

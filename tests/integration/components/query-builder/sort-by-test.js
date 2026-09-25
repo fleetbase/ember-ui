@@ -185,20 +185,19 @@ module('Integration | Component | query-builder/sort-by', function (hooks) {
             assert.strictEqual(changes[changes.length - 1][0].direction.value, 'desc');
         });
 
-        test('sorting by a column that is not selected is refused', async function (assert) {
+        test('sorting by a column deselected after it was chosen is refused', async function (assert) {
             const originalWarn = console.warn;
             const warnings = [];
             console.warn = (...args) => warnings.push(args.map(String).join(' '));
 
             try {
-                // The column list is built from allSelectedColumns, but addSortBy validates
-                // against selectedColumns — so a column present only in the former is
-                // offered yet rejected on add.
-                this.set('allSelectedColumns', COLUMNS);
-                this.set('selectedColumns', [COLUMNS[1]]);
-
                 await render(TEMPLATE);
                 await selectChoose(COLUMN_SELECT, 'Status');
+
+                // The chosen column leaves the query before the sort is added.
+                this.set('allSelectedColumns', [COLUMNS[1]]);
+                this.set('selectedColumns', [COLUMNS[1]]);
+                await settled();
                 await click(addButton());
 
                 assert.strictEqual(changes.length, 0, 'nothing is reported');
@@ -367,5 +366,88 @@ module('Integration | Component | query-builder/sort-by', function (hooks) {
 
         assert.strictEqual(sortItems().length, 0);
         assert.deepEqual(changes[changes.length - 1], [], 'the empty list is reported');
+    });
+
+    module('aggregate results and summary columns', function (hooks) {
+        const AGGREGATES = [
+            { name: 'sum_total', full: 'sum_total', label: 'Sum of Total', type: 'decimal', aggregateResult: true },
+            { name: 'count_all', full: 'count_all', label: 'Count of All Records', type: 'integer', aggregateResult: true },
+        ];
+
+        const WITH_AGGREGATES = hbs`
+            <QueryBuilder::SortBy
+                @selectedColumns={{this.selectedColumns}}
+                @allSelectedColumns={{this.allSelectedColumns}}
+                @aggregateColumns={{this.aggregateColumns}}
+                @onChange={{this.onChange}}
+            />
+        `;
+
+        hooks.beforeEach(function () {
+            this.set('aggregateColumns', AGGREGATES);
+        });
+
+        test('the results of the groupings can be sorted by', async function (assert) {
+            await render(WITH_AGGREGATES);
+
+            const options = await getDropdownItems(COLUMN_SELECT);
+            assert.true(options.some((option) => option.includes('Sum of Total')));
+            assert.true(options.some((option) => option.includes('Count of All Records')));
+
+            await selectChoose(COLUMN_SELECT, 'Sum of Total');
+            await selectChoose(DIRECTION_SELECT, 'Descending');
+            await click(addButton());
+
+            const sort = changes[changes.length - 1][0];
+            assert.strictEqual(sort.column.name, 'sum_total');
+            assert.strictEqual(sort.direction.value, 'desc');
+        });
+
+        test('a sort on a grouping result is dropped when the grouping goes away', async function (assert) {
+            await render(WITH_AGGREGATES);
+            await selectChoose(COLUMN_SELECT, 'Sum of Total');
+            await click(addButton());
+            await selectChoose(COLUMN_SELECT, 'Status');
+            await click(addButton());
+
+            this.set('aggregateColumns', [AGGREGATES[1]]);
+            await settled();
+
+            const remaining = changes[changes.length - 1];
+            assert.strictEqual(remaining.length, 1, 'only the sort on a still-selected column survives');
+            assert.strictEqual(remaining[0].column.label, 'Status');
+        });
+
+        test('a computed column is sorted by and re-sorted by its name', async function (assert) {
+            this.set('allSelectedColumns', [...COLUMNS, { name: 'order_month', label: 'Order Month', type: 'string', computed: true }]);
+
+            await render(WITH_AGGREGATES);
+            await selectChoose(COLUMN_SELECT, 'Order Month');
+            await click(addButton());
+            await selectChoose(COLUMN_SELECT, 'Order Month');
+            await selectChoose(DIRECTION_SELECT, 'Descending');
+            await click(addButton());
+
+            const sorts = changes[changes.length - 1];
+            assert.strictEqual(sorts.length, 1, 'a column without a full path is recognised as already sorted');
+            assert.strictEqual(sorts[0].column.name, 'order_month');
+            assert.strictEqual(sorts[0].direction.value, 'desc');
+        });
+
+        test('a summary column keeps its own label', async function (assert) {
+            this.set('allSelectedColumns', [...COLUMNS, { name: 'total_orders', label: 'Total Orders', type: 'integer', aggregate: true }]);
+
+            await render(WITH_AGGREGATES);
+            const options = await getDropdownItems(COLUMN_SELECT);
+
+            assert.true(
+                options.some((option) => option.includes('Total Orders')),
+                'a summary column is sortable'
+            );
+            assert.false(
+                options.some((option) => option.includes('TRUE(')),
+                'its aggregate flag is not mistaken for a function name'
+            );
+        });
     });
 });

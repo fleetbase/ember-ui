@@ -140,6 +140,7 @@ module('Integration | Component | query-builder', function (hooks) {
                 conditions: [{ field: 'x' }],
                 groupBy: [{ id: 1 }],
                 sortBy: [{ id: 2 }],
+                computed_columns: [{ name: 'days_open', expression: 'DATEDIFF(closed_at, opened_at)' }],
                 limit: 10,
             });
 
@@ -153,6 +154,7 @@ module('Integration | Component | query-builder', function (hooks) {
             assert.deepEqual(query.conditions, [], 'conditions are cleared');
             assert.deepEqual(query.groupBy, [], 'groupings are cleared');
             assert.deepEqual(query.sortBy, [], 'sorts are cleared');
+            assert.deepEqual(query.computed_columns, [], 'computed columns are cleared');
             assert.strictEqual(query.limit, 10, 'the limit is deliberately kept');
         });
     });
@@ -415,6 +417,7 @@ module('Integration | Component | query-builder', function (hooks) {
                 conditions: [{ field: 'orders.status' }],
                 groupBy: [{ id: 1, groupBy: selectedColumn(ORDERS, ORDERS.columns[0]), aggregateFn: { value: 'count', label: 'Count' }, aggregateBy: { label: 'All Records' } }],
                 sortBy: [{ id: 2, column: { ...selectedColumn(ORDERS, ORDERS.columns[1]), sortLabel: 'Total' }, direction: { value: 'asc', label: 'Ascending' } }],
+                computed_columns: [{ name: 'days_open', label: 'Days Open', expression: 'DATEDIFF(closed_at, opened_at)', type: 'integer' }],
                 limit: 250,
             });
 
@@ -436,6 +439,11 @@ module('Integration | Component | query-builder', function (hooks) {
             assert.strictEqual(query.conditions.length, 1);
             assert.strictEqual(query.groupBy.length, 1);
             assert.strictEqual(query.sortBy.length, 1);
+            assert.deepEqual(
+                query.computed_columns.map((column) => column.name),
+                ['days_open'],
+                'saved computed columns are restored rather than wiped'
+            );
         });
 
         test('aliases are extracted from the loaded columns', async function (assert) {
@@ -490,6 +498,7 @@ module('Integration | Component | query-builder', function (hooks) {
             this.set('initialQuery', {
                 table: ORDERS,
                 columns: [selectedColumn(ORDERS, ORDERS.columns[0])],
+                computed_columns: [{ name: 'days_open', expression: 'DATEDIFF(closed_at, opened_at)' }],
                 limit: 100,
             });
         });
@@ -524,6 +533,7 @@ module('Integration | Component | query-builder', function (hooks) {
 
             assert.strictEqual(cleared.table, null, 'the table is cleared');
             assert.deepEqual(cleared.columns, []);
+            assert.deepEqual(cleared.computed_columns, []);
             assert.strictEqual(cleared.limit, null);
             assert.strictEqual(lastQuery().table, null, 'the reset is also reported through onChange');
         });
@@ -540,6 +550,82 @@ module('Integration | Component | query-builder', function (hooks) {
             await click(buttonWithText('Clear'));
 
             assert.ok(find('.query-builder-panel'), 'no handler is required for any action');
+        });
+    });
+
+    module('computed columns and grouping results offered to the children', function () {
+        const GROUP_BY_SELECT = '.query-builder-panel-content .grid > div:nth-child(1)';
+        const FN_SELECT = '.query-builder-panel-content .grid > div:nth-child(2)';
+
+        test('a computed column can be grouped by like a selected column', async function (assert) {
+            this.set('initialQuery', {
+                table: ORDERS,
+                columns: [selectedColumn(ORDERS, ORDERS.columns[0])],
+                computed_columns: [
+                    { name: 'order_month', expression: "DATE_FORMAT(created_at, '%Y-%m')" },
+                    { name: 'order_value', label: 'Order Value', expression: 'total / 100', type: 'decimal' },
+                ],
+            });
+
+            await render(hbs`
+                <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
+                    <qb.group />
+                </QueryBuilder>
+            `);
+
+            const options = await getDropdownItems(GROUP_BY_SELECT);
+            assert.true(
+                options.some((option) => option.includes('order_month')),
+                'a computed column without a label is listed by name'
+            );
+            assert.true(
+                options.some((option) => option.includes('Order Value')),
+                'a labelled computed column keeps its label'
+            );
+
+            await selectChoose(GROUP_BY_SELECT, 'order_month');
+            await selectChoose(FN_SELECT, 'Count');
+            await click(buttonWithText('Add Grouping'));
+
+            const [grouping] = lastQuery().groupBy;
+            assert.strictEqual(grouping.groupBy.name, 'order_month');
+            assert.true(grouping.groupBy.computed, 'the server is told it is a computed column');
+            assert.strictEqual(grouping.groupBy.type, 'string', 'an untyped computed column is text');
+        });
+
+        test('the results of the groupings are offered as sort columns', async function (assert) {
+            this.set('initialQuery', {
+                table: ORDERS,
+                columns: [selectedColumn(ORDERS, ORDERS.columns[0])],
+                groupBy: [
+                    { id: 1 },
+                    { id: 2, aggregateFn: { value: 'count', label: 'Count' } },
+                    { id: 3, aggregateFn: { value: 'sum', label: 'Sum' }, aggregateBy: { name: 'payload.entities.quantity', label: 'Quantity' } },
+                    { id: 4, aggregateFn: { value: 'sum', label: 'Sum' }, aggregateBy: { name: 'payload.entities.quantity', label: 'Quantity' } },
+                    { id: 5, aggregateFn: { value: 'count_distinct' }, aggregateBy: { full: 'orders.public_id' } },
+                ],
+            });
+
+            await render(hbs`
+                <QueryBuilder @initialQuery={{this.initialQuery}} @onChange={{this.onChange}} as |qb|>
+                    <qb.sort />
+                </QueryBuilder>
+            `);
+
+            const options = await getDropdownItems('.query-builder-panel-content .grid > div:nth-child(1)');
+            assert.true(options.some((option) => option.includes('Count of All Records')));
+            assert.strictEqual(options.filter((option) => option.includes('Sum of Quantity')).length, 1, 'a repeated grouping is offered once');
+            assert.true(
+                options.some((option) => option.includes('count_distinct of orders.public_id')),
+                'labels fall back to the function and column path'
+            );
+
+            await selectChoose('.query-builder-panel-content .grid > div:nth-child(1)', 'Sum of Quantity');
+            await click(buttonWithText('Add Sort'));
+
+            const [sort] = lastQuery().sortBy;
+            assert.strictEqual(sort.column.name, 'sum_payload_entities_quantity', 'named the way the server aliases the aggregate');
+            assert.strictEqual(sort.column.type, 'decimal');
         });
     });
 });

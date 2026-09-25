@@ -127,7 +127,7 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             await render(TEMPLATE);
             const options = await getDropdownItems(FN_SELECT);
 
-            for (const label of ['Count', 'Sum', 'Average', 'Minimum', 'Maximum', 'Concatenate']) {
+            for (const label of ['Count', 'Count Distinct', 'Sum', 'Average', 'Minimum', 'Maximum', 'Concatenate']) {
                 assert.true(
                     options.some((option) => option.includes(label)),
                     `${label} is offered`
@@ -326,21 +326,20 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             assert.dom('.query-builder-panel-header').containsText('1 group');
         });
 
-        test('grouping by a column that is not selected is refused', async function (assert) {
+        test('grouping by a column deselected after it was chosen is refused', async function (assert) {
             const originalWarn = console.warn;
             const warnings = [];
             console.warn = (...args) => warnings.push(args.map(String).join(' '));
 
             try {
-                // The group-by list is built from allSelectedColumns, but the guard in
-                // addGroupBy checks selectedColumns — so a column present only in the
-                // former is offered yet rejected on add.
-                this.set('allSelectedColumns', COLUMNS);
-                this.set('selectedColumns', [COLUMNS[1]]);
-
                 await render(TEMPLATE);
                 await selectChoose(GROUP_BY_SELECT, 'Status');
                 await selectChoose(FN_SELECT, 'Count');
+
+                // The chosen column leaves the query before the grouping is added.
+                this.set('allSelectedColumns', [COLUMNS[1]]);
+                this.set('selectedColumns', [COLUMNS[1]]);
+                await settled();
                 await click(addButton());
 
                 assert.strictEqual(changes.length, 0, 'nothing is reported');
@@ -447,6 +446,7 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             await addGrouping('Status');
             assert.strictEqual(groupSortItems().length, 1, 'a grouping exists');
 
+            this.set('allSelectedColumns', []);
             this.set('selectedColumns', []);
             await settled();
 
@@ -458,6 +458,7 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             await render(TEMPLATE);
             const reports = changes.length;
 
+            this.set('allSelectedColumns', []);
             this.set('selectedColumns', []);
             await settled();
 
@@ -470,6 +471,7 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             await addGrouping('Created At');
             assert.strictEqual(groupSortItems().length, 2);
 
+            this.set('allSelectedColumns', [COLUMNS[2]]);
             this.set('selectedColumns', [COLUMNS[2]]);
             await settled();
 
@@ -484,11 +486,76 @@ module('Integration | Component | query-builder/group-by', function (hooks) {
             const reports = changes.length;
 
             // Narrow the list but keep the grouped column in it.
+            this.set('allSelectedColumns', [COLUMNS[0], COLUMNS[1]]);
             this.set('selectedColumns', [COLUMNS[0], COLUMNS[1]]);
             await settled();
 
             assert.strictEqual(changes.length, reports, 'nothing is reported when nothing was pruned');
             assert.strictEqual(groupSortItems().length, 1, 'and the grouping survives');
+        });
+    });
+
+    module('summary, distinct and computed columns', function () {
+        const SUMMARY = { name: 'total_orders', label: 'Total Orders', type: 'integer', aggregate: true, computed: true };
+        const COMPUTED = { name: 'order_month', label: 'Order Month', type: 'string', computed: true };
+
+        test('a summary column can be neither grouped by nor aggregated again', async function (assert) {
+            this.set('allSelectedColumns', [...COLUMNS, SUMMARY]);
+
+            await render(TEMPLATE);
+            const groupOptions = await getDropdownItems(GROUP_BY_SELECT);
+            assert.false(
+                groupOptions.some((option) => option.includes('Total Orders')),
+                'a summary value is not a group key'
+            );
+
+            await selectChoose(FN_SELECT, 'Sum');
+            const aggregateOptions = await getDropdownItems(AGGREGATE_BY_SELECT);
+            assert.true(
+                aggregateOptions.some((option) => option.includes('Total')),
+                'plain numeric columns are still offered'
+            );
+            assert.false(
+                aggregateOptions.some((option) => option.includes('Total Orders')),
+                'a summary value cannot be summed again'
+            );
+        });
+
+        test('count distinct counts any column, never all records, and needs one chosen', async function (assert) {
+            await render(TEMPLATE);
+            await selectChoose(GROUP_BY_SELECT, 'Status');
+            await selectChoose(FN_SELECT, 'Count Distinct');
+            assert.dom(addButton()).isDisabled('no column is preselected');
+
+            const options = await getDropdownItems(AGGREGATE_BY_SELECT);
+            assert.false(options.some((option) => option.includes('All Records')));
+            assert.true(
+                options.some((option) => option.includes('Created At')),
+                'non-numeric columns can be counted'
+            );
+
+            await selectChoose(AGGREGATE_BY_SELECT, 'Created At');
+            await click(addButton());
+
+            const added = changes[changes.length - 1][0];
+            assert.strictEqual(added.aggregateFn.value, 'count_distinct');
+            assert.strictEqual(added.aggregateBy.name, 'created_at');
+        });
+
+        test('a computed column is grouped by and pruned by its name', async function (assert) {
+            this.set('allSelectedColumns', [...COLUMNS, COMPUTED]);
+
+            await render(TEMPLATE);
+            await selectChoose(GROUP_BY_SELECT, 'Order Month');
+            await selectChoose(FN_SELECT, 'Count');
+            await click(addButton());
+
+            assert.strictEqual(changes[changes.length - 1][0].groupBy.name, 'order_month', 'a column without a full path can be grouped by');
+
+            this.set('allSelectedColumns', COLUMNS);
+            await settled();
+
+            assert.deepEqual(changes[changes.length - 1], [], 'removing the computed column drops its grouping');
         });
     });
 });

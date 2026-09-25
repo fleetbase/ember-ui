@@ -114,8 +114,15 @@ module('Integration | Component | modals/query-builder-computed-column-editor', 
             assert.true(functions.includes('CONCAT'), 'string helpers are offered');
             assert.true(functions.includes('COALESCE'), 'conditional helpers are offered');
             assert.true(functions.includes('SUM'), 'aggregates are offered');
+            assert.true(functions.includes('JSON_EXTRACT'), 'JSON helpers are offered');
+            assert.true(functions.includes('JSON_UNQUOTE'), 'JSON strings can be unquoted');
+            assert.true(functions.includes('DECIMAL'), 'decimal casts are offered');
 
-            assert.strictEqual(editor().exampleExpressions.length, 4);
+            assert.strictEqual(editor().exampleExpressions.length, 7);
+            assert.true(
+                editor().exampleExpressions.some((example) => example.expression.includes("JSON_EXTRACT(meta, '$.total')")),
+                'reading a JSON total is shown as an example'
+            );
             assert.true(editor().exampleExpressions.every((example) => example.name && example.expression && example.description));
         });
     });

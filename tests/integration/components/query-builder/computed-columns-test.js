@@ -245,15 +245,18 @@ module('Integration | Component | query-builder/computed-columns', function (hoo
         });
 
         test('saving a column with an existing name replaces it', async function (assert) {
-            this.set('computedColumns', [computedColumn({ label: 'Old label' })]);
+            this.set('computedColumns', [computedColumn({ label: 'Old label' }), computedColumn({ name: 'total_value', label: 'Total Value' })]);
 
             await render(TEMPLATE);
             await click(itemButtons(0)[0]);
 
             await shown[0].options.confirm(fakeModal({ saved: computedColumn({ label: 'New label' }) }));
+            await settled();
 
-            assert.strictEqual(changes.at(-1).length, 1, 'nothing is appended');
+            assert.strictEqual(changes.at(-1).length, 2, 'nothing is appended');
             assert.strictEqual(changes.at(-1)[0].label, 'New label');
+            assert.strictEqual(changes.at(-1)[1].label, 'Total Value', 'the other columns are kept');
+            assert.deepEqual(itemLabels(), ['New label', 'Total Value'], 'and the list re-renders');
         });
 
         test('saving a column with a new name appends it', async function (assert) {
@@ -327,5 +330,20 @@ module('Integration | Component | query-builder/computed-columns', function (hoo
         await click(itemButtons(0)[1]);
 
         assert.strictEqual(columns.length, 1, 'the caller-supplied array is left alone');
+    });
+
+    test('it follows the query builder when the list is replaced', async function (assert) {
+        this.set('computedColumns', [computedColumn()]);
+
+        await render(TEMPLATE);
+        assert.deepEqual(itemLabels(), ['Days Open']);
+
+        this.set('computedColumns', [computedColumn({ name: 'total_value', label: 'Total Value' })]);
+        await settled();
+        assert.deepEqual(itemLabels(), ['Total Value'], 'a new list replaces the old one');
+
+        this.set('computedColumns', undefined);
+        await settled();
+        assert.deepEqual(itemLabels(), [], 'a cleared list empties the panel');
     });
 });
