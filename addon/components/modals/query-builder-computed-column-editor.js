@@ -23,6 +23,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     /* istanbul ignore next */
     @tracked validationErrors = [];
     @tracked isValid = false;
+    @tracked saveAttempted = false;
 
     constructor() {
         super(...arguments);
@@ -218,8 +219,42 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
         ];
     }
 
+    /**
+     * The column name the report will use: the typed name, or the label when no name is given,
+     * normalised to the identifier the server accepts (lowercase letters, digits, underscores).
+     */
+    get columnName() {
+        const name = (this.name || this.label || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9_]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+
+        return /^[0-9]/.test(name) ? `col_${name}` : name;
+    }
+
+    /**
+     * What still has to be filled in before the column can be saved.
+     */
+    get missingFields() {
+        const missing = [];
+
+        if (!this.label) missing.push('Enter a display label.');
+        if (!this.columnName) missing.push('Enter a column name.');
+        if (!this.expression) missing.push('Enter an expression.');
+
+        return missing;
+    }
+
+    /**
+     * The missing fields to point out, once the user has tried to save.
+     */
+    get missingFieldErrors() {
+        return this.saveAttempted ? this.missingFields : [];
+    }
+
     get canSave() {
-        const canSave = this.name && this.label && this.expression && !this.isValidating;
+        const canSave = this.missingFields.length === 0 && !this.isValidating;
         this.modalsManager.setOption('canSave', canSave);
         return canSave;
     }
@@ -268,10 +303,14 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     }
 
     @action save() {
-        if (!this.canSave) return;
+        if (!this.canSave) {
+            // Say why nothing was saved, rather than closing on an empty column
+            this.saveAttempted = true;
+            return null;
+        }
 
         const computedColumn = {
-            name: this.name,
+            name: this.columnName,
             label: this.label,
             expression: this.expression,
             description: this.description,

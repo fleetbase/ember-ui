@@ -417,7 +417,8 @@ module('Integration | Component | query-builder', function (hooks) {
                 conditions: [{ field: 'orders.status' }],
                 groupBy: [{ id: 1, groupBy: selectedColumn(ORDERS, ORDERS.columns[0]), aggregateFn: { value: 'count', label: 'Count' }, aggregateBy: { label: 'All Records' } }],
                 sortBy: [{ id: 2, column: { ...selectedColumn(ORDERS, ORDERS.columns[1]), sortLabel: 'Total' }, direction: { value: 'asc', label: 'Ascending' } }],
-                computed_columns: [{ name: 'days_open', label: 'Days Open', expression: 'DATEDIFF(closed_at, opened_at)', type: 'integer' }],
+                // The null stands for an empty entry an earlier editor bug could save
+                computed_columns: [{ name: 'days_open', label: 'Days Open', expression: 'DATEDIFF(closed_at, opened_at)', type: 'integer' }, null],
                 limit: 250,
             });
 

@@ -170,7 +170,8 @@ export default class QueryBuilderComponent extends Component {
             });
             this.columnAliases = aliases;
         }
-        if (queryData.computed_columns) this.computedColumns = queryData.computed_columns;
+        // A report saved while the editor could add an empty entry is cleaned up on load
+        if (queryData.computed_columns) this.computedColumns = queryData.computed_columns.filter(Boolean);
         if (queryData.joins) this.joins = queryData.joins;
         if (queryData.conditions) this.conditions = queryData.conditions;
         if (queryData.groupBy) this.groupBy = queryData.groupBy;

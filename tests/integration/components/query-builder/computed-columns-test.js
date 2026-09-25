@@ -231,6 +231,37 @@ module('Integration | Component | query-builder/computed-columns', function (hoo
             assert.deepEqual(changes, [], 'nothing is saved');
         });
 
+        test('an editor that cannot save yet leaves the modal open and adds nothing', async function (assert) {
+            this.set('computedColumns', [computedColumn()]);
+
+            await render(TEMPLATE);
+            await click(buttonWithText('Add Computed Column'));
+
+            const modal = fakeModal({ saved: null });
+            await shown[0].options.confirm(modal);
+            await settled();
+
+            assert.strictEqual(modal.calls.done, 0, 'the modal stays open so the missing field can be filled in');
+            assert.strictEqual(modal.calls.stopLoading, 1);
+            assert.deepEqual(changes, [], 'no empty column is added');
+            assert.deepEqual(itemLabels(), ['Days Open']);
+        });
+
+        test('renaming a column while editing replaces it instead of adding a copy', async function (assert) {
+            this.set('computedColumns', [computedColumn(), computedColumn({ name: 'total_value', label: 'Total Value' })]);
+
+            await render(TEMPLATE);
+            await click(itemButtons(0)[0]);
+
+            await shown[0].options.confirm(fakeModal({ saved: computedColumn({ name: 'days_open_renamed', label: 'Days Open (renamed)' }) }));
+            await settled();
+
+            assert.deepEqual(
+                changes.at(-1).map((column) => column.name),
+                ['days_open_renamed', 'total_value']
+            );
+        });
+
         test('a modal with no editor instance stops loading and saves nothing', async function (assert) {
             await render(TEMPLATE);
             await click(buttonWithText('Add the first computed column'));
@@ -345,5 +376,19 @@ module('Integration | Component | query-builder/computed-columns', function (hoo
         this.set('computedColumns', undefined);
         await settled();
         assert.deepEqual(itemLabels(), [], 'a cleared list empties the panel');
+    });
+
+    test('empty entries in an incoming list are dropped', async function (assert) {
+        this.set('computedColumns', [computedColumn(), undefined, null]);
+
+        await render(TEMPLATE);
+        assert.deepEqual(itemLabels(), ['Days Open'], 'on first render');
+
+        this.set('computedColumns', [null, computedColumn({ name: 'total_value', label: 'Total Value' })]);
+        await settled();
+        assert.deepEqual(itemLabels(), ['Total Value'], 'and when the list is replaced');
+
+        await click(itemButtons(0)[1]);
+        assert.deepEqual(changes.at(-1), [], 'and the remaining column can still be removed');
     });
 });

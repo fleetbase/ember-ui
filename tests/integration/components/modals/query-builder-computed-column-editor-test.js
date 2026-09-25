@@ -128,7 +128,7 @@ module('Integration | Component | modals/query-builder-computed-column-editor', 
     });
 
     module('saving', function () {
-        test('saving is refused until name, label and expression are all present', async function (assert) {
+        test('saving is refused until a label and an expression are present', async function (assert) {
             await render(TEMPLATE);
 
             assert.notOk(editor().canSave, 'nothing filled in');
@@ -136,11 +136,12 @@ module('Integration | Component | modals/query-builder-computed-column-editor', 
             editor().name = 'days_open';
             assert.notOk(editor().canSave, 'name alone is not enough');
 
-            editor().label = 'Days Open';
-            assert.notOk(editor().canSave, 'still no expression');
-
             editor().expression = 'DATEDIFF(a, b)';
-            assert.ok(editor().canSave, 'now complete');
+            assert.notOk(editor().canSave, 'still no label');
+
+            editor().name = '';
+            editor().label = 'Days Open';
+            assert.ok(editor().canSave, 'the name falls back to the label');
         });
 
         test('the save-ability is published to the modal', async function (assert) {
@@ -175,13 +176,56 @@ module('Integration | Component | modals/query-builder-computed-column-editor', 
             assert.deepEqual(modalOptions.computedColumn, saved, 'and hands it back through the modal options');
         });
 
-        test('saving an incomplete column does nothing', async function (assert) {
+        test('saving an incomplete column saves nothing and says what is missing', async function (assert) {
             await render(TEMPLATE);
 
             editor().name = 'days_open';
+            await settled();
+            assert.dom('[data-test-computed-column-missing-field]').doesNotExist('nothing is flagged before a save is attempted');
 
-            assert.strictEqual(editor().save(), undefined);
+            assert.strictEqual(editor().save(), null);
             assert.notOk(modalOptions.computedColumn, 'nothing is published');
+
+            await settled();
+            assert.deepEqual(
+                [...this.element.querySelectorAll('[data-test-computed-column-missing-field]')].map((node) => node.textContent.trim()),
+                ['Enter a display label.', 'Enter an expression.']
+            );
+
+            editor().label = 'Days Open';
+            editor().expression = 'DATEDIFF(a, b)';
+            await settled();
+            assert.dom('[data-test-computed-column-missing-field]').doesNotExist('the messages clear as the fields are filled in');
+        });
+
+        test('with no name the column is named after its label', async function (assert) {
+            await render(TEMPLATE);
+
+            editor().label = 'Order Month';
+            editor().expression = "DATE_FORMAT(created_at, '%Y-%m')";
+            await settled();
+
+            assert.dom('input[placeholder="order_month"]').exists('the name it will get is shown as the placeholder');
+            assert.strictEqual(editor().save().name, 'order_month');
+        });
+
+        test('a typed name is normalised to an identifier the server accepts', async function (assert) {
+            await render(TEMPLATE);
+
+            editor().label = 'Anything';
+            editor().expression = 'a + b';
+
+            editor().name = ' Order-Total 2 ';
+            assert.strictEqual(editor().save().name, 'order_total_2');
+
+            editor().name = '2nd value';
+            assert.strictEqual(editor().save().name, 'col_2nd_value', 'a leading digit is not a valid identifier');
+
+            editor().name = '';
+            editor().label = '!!!';
+            assert.strictEqual(editor().columnName, '', 'a label with no usable characters gives no name');
+            assert.strictEqual(editor().save(), null);
+            assert.deepEqual(editor().missingFields, ['Enter a column name.']);
         });
 
         test('a column with no chosen type saves as text', async function (assert) {
