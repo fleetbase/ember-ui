@@ -352,8 +352,15 @@ export default class QueryBuilderConditionsComponent extends Component {
         if (!cond) return;
 
         if (value && typeof value === 'object' && 'target' in value) {
+            // Typed text is already on screen, so store it in place and skip the re-render
+            // below: replacing the group gives the drag-sort list a new item, which rebuilds the
+            // group's inputs and drops focus after every keystroke.
             cond.value = value.target.value;
-        } else if (isArray(value)) {
+            this.notifyDebounced.perform();
+            return;
+        }
+
+        if (isArray(value)) {
             cond.value = [...value]; // replace the *value array* if needed
         } else {
             cond.value = value;
@@ -374,12 +381,15 @@ export default class QueryBuilderConditionsComponent extends Component {
 
     @action
     updateConditionRangeValue(groupIndex, conditionIndex, rangeIndex, event) {
-        this.updateCondition(groupIndex, conditionIndex, (c) => {
-            /* istanbul ignore next -- updateConditionOperator seeds value with [null, null] when a range operator is chosen, and the range inputs are the only thing that calls this */
-            const next = isArray(c.value) ? [...c.value] : [null, null];
-            next[rangeIndex] = event.target.value;
-            c.value = next; // replace value array, not the condition object
-        });
+        // Typed like updateConditionValue: store in place without re-rendering, so the range
+        // input keeps focus while the user types.
+        const condition = this.conditionGroups[groupIndex].conditions[conditionIndex];
+        /* istanbul ignore next -- updateConditionOperator seeds value with [null, null] when a range operator is chosen, and the range inputs are the only thing that calls this */
+        const next = isArray(condition.value) ? [...condition.value] : [null, null];
+        next[rangeIndex] = event.target.value;
+        condition.value = next; // replace value array, not the condition object
+
+        this.notifyChange();
     }
 
     @action updateGroupOperator(groupIndex, operator) {

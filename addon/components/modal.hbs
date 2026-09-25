@@ -23,7 +23,7 @@
             paddingLeft=this.paddingLeft
             paddingRight=this.paddingRight
             centered=(eq this.position "center")
-            scrollable=this.scrollable
+            scrollable=(or this.scrollable this.isOverflowing)
             fullscreen=@fullscreen
             zIndex=this.modalZIndex
         )

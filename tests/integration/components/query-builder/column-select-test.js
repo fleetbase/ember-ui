@@ -133,6 +133,9 @@ module('Integration | Component | query-builder/column-select', function (hooks)
             await click(findAll('span.inline-flex button')[0]);
 
             assert.strictEqual(selectedChips().length, 1);
+            assert.dom(checkboxAt(0)).isNotChecked('removing the chip unchecks its column');
+            assert.dom(columnItems()[0]).doesNotHaveClass('selected');
+            assert.dom(checkboxAt(1)).isChecked('the other column stays checked');
             assert.deepEqual(
                 lastChange().columns.map((column) => column.name),
                 ['total']
@@ -163,6 +166,19 @@ module('Integration | Component | query-builder/column-select', function (hooks)
             await click(buttonWithText('Select All'));
 
             assert.strictEqual(changes.length, 0, 'nothing is reported because there was nothing to select');
+        });
+
+        test('a column restored from a saved report is deselected, not added twice', async function (assert) {
+            // A saved report carries copies of the schema's column objects.
+            this.set('selectedColumns', [{ ...COLUMNS[1] }]);
+
+            await render(TEMPLATE);
+            assert.dom(checkboxAt(1)).isChecked();
+
+            await click(checkboxAt(1));
+
+            assert.deepEqual(lastChange().columns, [], 'the restored column is removed');
+            assert.dom(checkboxAt(1)).isNotChecked();
         });
 
         test('preselected columns are shown as selected', async function (assert) {
@@ -259,5 +275,50 @@ module('Integration | Component | query-builder/column-select', function (hooks)
         await render(hbs`<QueryBuilder::ColumnSelect data-test-column-select="yes" />`);
 
         assert.dom('.query-builder-panel').hasAttribute('data-test-column-select', 'yes');
+    });
+
+    module('summary columns', function (hooks) {
+        const SUMMARY = { name: 'total_orders', label: 'Total Orders', type: 'integer', computed: true, aggregate: true };
+
+        hooks.beforeEach(function () {
+            this.set('columns', [...COLUMNS, SUMMARY]);
+        });
+
+        test('summary columns are listed apart from the per-row columns, with what they do', async function (assert) {
+            await render(TEMPLATE);
+
+            assert.dom('[data-test-column-section="summaries"]').containsText('Summaries');
+            assert.dom('[data-test-column-section="summaries"]').containsText('One value across every matching row');
+            assert.dom('[data-test-column-section-columns="rows"] .column-item').exists({ count: 3 });
+            assert.dom('[data-test-column-section-columns="summaries"] .column-item').exists({ count: 1 });
+            assert.dom('[data-test-column-section-columns="summaries"]').containsText('Total Orders');
+        });
+
+        test('a summary column is selected like any other', async function (assert) {
+            await render(TEMPLATE);
+            await click('[data-test-column-section-columns="summaries"] .column-item input');
+
+            assert.deepEqual(
+                lastChange().columns.map((column) => column.name),
+                ['total_orders']
+            );
+        });
+
+        test('searching for only summaries shows only that section', async function (assert) {
+            await render(TEMPLATE);
+            await fillIn('.query-builder-panel-header input', 'orders');
+
+            assert.dom('[data-test-column-section-columns="rows"]').doesNotExist();
+            assert.dom('[data-test-column-section-columns="summaries"] .column-item').exists({ count: 1 });
+        });
+
+        test('without summary columns there is no summaries heading', async function (assert) {
+            this.set('columns', COLUMNS);
+
+            await render(TEMPLATE);
+
+            assert.dom('[data-test-column-section="summaries"]').doesNotExist();
+            assert.dom('[data-test-column-section-columns="rows"] .column-item').exists({ count: 3 });
+        });
     });
 });

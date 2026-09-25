@@ -13,35 +13,45 @@
     </div>
 
     <div class="query-builder-panel-content no-padding">
-        <div class="{{if @columns 'max-h-80 overflow-y-auto' ''}} grid grid-cols-1 gap-2 lg:grid-cols-2 px-2 py-3">
-            {{#each this.filteredColumns as |column|}}
-                <div class="column-item {{if (includes column.name (map-by 'name' this.selectedColumns)) 'selected'}}">
-                    <div class="column-checkbox-wrapper">
-                        <Checkbox @checked={{includes column.name (map-by "name" this.selectedColumns)}} @onToggle={{fn this.selectColumn column}} />
-                        <div class="column-info">
-                            <div class="column-label">{{column.label}}</div>
-                            <div class="column-type">{{column.type}}</div>
-                        </div>
+        <div class="{{if @columns 'max-h-80 overflow-y-auto' ''}} px-2 py-3">
+            {{#each this.columnSections as |section|}}
+                {{#if section.title}}
+                    <div class="column-section-header px-2 pt-3 pb-2" data-test-column-section={{section.key}}>
+                        <div class="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">{{section.title}}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{section.description}}</div>
                     </div>
+                {{/if}}
+                <div class="grid grid-cols-1 gap-2 lg:grid-cols-2" data-test-column-section-columns={{section.key}}>
+                    {{#each section.columns as |column|}}
+                        <div class="column-item {{if (includes column.name (map-by 'name' this.selectedColumns)) 'selected'}}">
+                            <div class="column-checkbox-wrapper">
+                                <Checkbox @checked={{includes column.name (map-by "name" this.selectedColumns)}} @onToggle={{fn this.selectColumn column}} />
+                                <div class="column-info">
+                                    <div class="column-label">{{column.label}}</div>
+                                    <div class="column-type">{{column.type}}</div>
+                                </div>
+                            </div>
 
-                    {{#if (includes column.name (map-by "name" this.selectedColumns))}}
-                        <div class="flex items-center space-x-1">
-                            <label class="text-xs text-gray-600 dark:text-gray-400">Alias:</label>
-                            {{! One-way on purpose: a two-way `@value` wrote the raw text back
-                                AFTER updateAlias ran, undoing its trimming and mutating the
-                                aliases hash that had already been handed to `onChange`. }}
-                            <input
-                                type="text"
-                                value={{get this.columnAliases column.name}}
-                                placeholder={{column.name}}
-                                class="form-input form-input-sm column-alias-input"
-                                {{on "change" (fn this.updateAlias column.name)}}
-                            />
+                            {{#if (includes column.name (map-by "name" this.selectedColumns))}}
+                                <div class="flex items-center space-x-1">
+                                    <label class="text-xs text-gray-600 dark:text-gray-400">Alias:</label>
+                                    {{! One-way on purpose: a two-way `@value` wrote the raw text back
+                                        AFTER updateAlias ran, undoing its trimming and mutating the
+                                        aliases hash that had already been handed to `onChange`. }}
+                                    <input
+                                        type="text"
+                                        value={{get this.columnAliases column.name}}
+                                        placeholder={{column.name}}
+                                        class="form-input form-input-sm column-alias-input"
+                                        {{on "change" (fn this.updateAlias column.name)}}
+                                    />
+                                </div>
+                            {{/if}}
                         </div>
-                    {{/if}}
+                    {{/each}}
                 </div>
             {{else}}
-                <div class="min-h-24 p-4 col-span-2">
+                <div class="min-h-24 p-4">
                     <div class="flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-600 p-6 rounded-xl bg-gray-50 dark:bg-gray-800">
                         <div class="text-center">
                             <FaIcon @icon="table" @size="2x" class="text-gray-400 mb-2" />

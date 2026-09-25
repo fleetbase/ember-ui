@@ -193,6 +193,21 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
         assert.strictEqual(changes[changes.length - 1].flat[0].value, 'active', 'the typed value is reported');
     });
 
+    test('typing a value keeps the same input, so it does not lose focus between keys', async function (assert) {
+        this.set('conditions', [{ id: 1, field: COLUMNS[0], operator: { value: '=' }, value: null, logicalOperator: 'and' }]);
+
+        await render(TEMPLATE);
+
+        const valueInput = find('.condition-content input[type="text"]');
+        await fillIn(valueInput, 'a');
+        await fillIn(valueInput, 'ac');
+
+        assert.true(valueInput.isConnected, 'the input was not torn down and re-created');
+        assert.strictEqual(find('.condition-content input[type="text"]'), valueInput, 'it is still the rendered input');
+        assert.strictEqual(document.activeElement, valueInput, 'and it keeps focus');
+        assert.strictEqual(changes[changes.length - 1].flat[0].value, 'ac');
+    });
+
     module('field and operator selection', function () {
         async function addBlankCondition() {
             await click(buttonWithText('Add condition'));
@@ -281,10 +296,14 @@ module('Integration | Component | query-builder/conditions', function (hooks) {
             await selectChoose('.condition-field', 'Total');
             await selectChoose('.condition-operator', 'between');
 
-            // The inputs are re-created on each update, so they must be re-queried.
-            await fillIn(findAll('.condition-range-inputs input')[0], '10');
-            await fillIn(findAll('.condition-range-inputs input')[1], '20');
+            // Typing does not re-render the range, so the same inputs take both values and keep focus.
+            const [from, to] = findAll('.condition-range-inputs input');
+            await fillIn(from, '10');
+            assert.strictEqual(document.activeElement, from, 'the from input keeps focus');
+            await fillIn(to, '20');
 
+            assert.true(from.isConnected, 'the from input was not re-created');
+            assert.true(to.isConnected, 'the to input was not re-created');
             assert.deepEqual(changes[changes.length - 1].flat[0].value, ['10', '20']);
         });
 

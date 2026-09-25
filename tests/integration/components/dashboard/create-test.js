@@ -101,20 +101,26 @@ module('Integration | Component | dashboard/create', function (hooks) {
     // GridStack announces moves and resizes as a DOM `change` event on its own element, carrying
     // the affected widgets in `detail`. Dispatching one directly is the only way to drive this
     // without a real drag, and it is what gridstack itself does.
-    module('persisting grid changes', function () {
+    module('persisting grid changes', function (hooks) {
+        hooks.beforeEach(function () {
+            this.set('isEdit', true);
+        });
+
         function announceChange(...items) {
             find('.grid-stack').dispatchEvent(new CustomEvent('change', { detail: items }));
 
             return settled();
         }
 
-        test('a moved widget has its new position written back', async function (assert) {
+        test('a moved widget has its new position written back, keeping its other grid options', async function (assert) {
+            this.dashboard.widgets[0].grid_options = { x: 0, y: 0, w: 4, h: 4, minW: 3, minH: 4 };
+
             await render(TEMPLATE);
             await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
 
             const [first, second] = this.dashboard.widgets;
             assert.strictEqual(first.updated, 1, 'the moved widget is updated');
-            assert.deepEqual(first.lastProperties, { grid_options: { x: 1, y: 2, w: 3, h: 4 } });
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 1, y: 2, w: 3, h: 4, minW: 3, minH: 4 } }, 'minimum sizes survive the move');
             assert.strictEqual(second.updated, undefined, 'and only that one');
         });
 
@@ -129,27 +135,86 @@ module('Integration | Component | dashboard/create', function (hooks) {
             );
         });
 
-        test('a widget already written back is not written back again', async function (assert) {
+        // Every drop is a change to keep: the old handler remembered a widget after its first
+        // write and ignored every later move, so a dashboard reloaded to an early layout.
+        test('a widget moved again is written back again', async function (assert) {
             await render(TEMPLATE);
             await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
             await announceChange({ id: 'w1', x: 5, y: 6, w: 7, h: 8 });
 
             const [first] = this.dashboard.widgets;
-            assert.strictEqual(first.updated, 1, 'the second announcement is ignored');
-            assert.deepEqual(first.lastProperties, { grid_options: { x: 1, y: 2, w: 3, h: 4 } }, 'the first position stands');
+            assert.strictEqual(first.updated, 2, 'both moves are written');
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 5, y: 6, w: 7, h: 8 } }, 'the last position stands');
         });
 
-        test('a widget that refuses the update is retried on the next change', async function (assert) {
-            this.dashboard.widgets[0].updateProperties = function () {
-                this.updated = (this.updated ?? 0) + 1;
-                return false;
-            };
+        test('a change that leaves the position as stored is not written back', async function (assert) {
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 0, y: 0, w: 4, h: 4 });
+
+            assert.strictEqual(this.dashboard.widgets[0].updated, undefined);
+        });
+
+        // gridstack reports `change` while laying the grid out at load and whenever it is
+        // re-created; writing those back overwrote the saved layout with a reflowed one.
+        test('changes reported outside edit mode are not persisted', async function (assert) {
+            this.set('isEdit', false);
 
             await render(TEMPLATE);
             await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
-            await announceChange({ id: 'w1', x: 5, y: 6, w: 7, h: 8 });
 
-            assert.strictEqual(this.dashboard.widgets[0].updated, 2, 'it is not remembered as done, so it is tried again');
+            assert.strictEqual(this.dashboard.widgets[0].updated, undefined, 'a reflow at load is not the user saving a layout');
+        });
+
+        test('a failed write is reported', async function (assert) {
+            this.dashboard.widgets[0].updateProperties = () => Promise.reject(new Error('save failed'));
+
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 1, y: 2, w: 3, h: 4 });
+
+            assert.strictEqual(serverErrors.length, 1);
+            assert.strictEqual(serverErrors[0].message, 'save failed');
+        });
+
+        test('leaving edit mode writes back every widget as the grid has it', async function (assert) {
+            await render(TEMPLATE);
+            // Stand in for gridstack's engine: w1 was placed by gridstack (never reported), w2 is unchanged.
+            find('.grid-stack').gridstack = { engine: { nodes: [{ id: 'w1', x: 8, y: 0, w: 4, h: 4 }, { id: 'w2', x: 0, y: 0, w: 4, h: 4 }] } };
+
+            this.set('isEdit', false);
+            await settled();
+
+            const [first, second] = this.dashboard.widgets;
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 8, y: 0, w: 4, h: 4 } }, 'the auto-placed widget is stored where the grid put it');
+            assert.strictEqual(second.updated, undefined, 'an unchanged widget is left alone');
+        });
+
+        test('entering edit mode writes nothing back', async function (assert) {
+            this.set('isEdit', false);
+
+            await render(TEMPLATE);
+            find('.grid-stack').gridstack = { engine: { nodes: [{ id: 'w1', x: 8, y: 0, w: 4, h: 4 }] } };
+            this.set('isEdit', true);
+            await settled();
+
+            assert.strictEqual(this.dashboard.widgets[0].updated, undefined);
+        });
+
+        test('leaving edit mode with no dashboard or no grid instance is harmless', async function (assert) {
+            this.set('dashboard', null);
+
+            await render(TEMPLATE);
+            this.set('isEdit', false);
+            await settled();
+
+            this.set('dashboard', { id: 'dash_2', widgets: [widget('w1')], removeWidget: () => Promise.resolve() });
+            this.set('isEdit', true);
+            await settled();
+            const root = find('.grid-stack');
+            root.gridstack = undefined;
+            this.set('isEdit', false);
+            await settled();
+
+            assert.strictEqual(this.dashboard.widgets[0].updated, undefined, 'nothing to read from means nothing written');
         });
     });
 

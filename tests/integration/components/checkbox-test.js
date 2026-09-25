@@ -199,4 +199,25 @@ module('Integration | Component | checkbox', function (hooks) {
 
         assert.dom(BOX).isNotChecked('a cleared value falls back to unchecked');
     });
+
+    // The report builder's column picker drives each box through @checked and unchecks it from
+    // the "Selected Fields" chips, so a change to @checked must reach the input too.
+    test('changing @checked re-syncs the checked state, and clearing it unchecks the box', async function (assert) {
+        this.set('checked', true);
+
+        await render(hbs`<Checkbox @checked={{this.checked}} />`);
+        assert.dom(BOX).isChecked('checked to begin with');
+
+        this.set('checked', false);
+        await settled();
+        assert.dom(BOX).isNotChecked('unchecked by the caller');
+
+        this.set('checked', true);
+        await settled();
+        assert.dom(BOX).isChecked('checked again by the caller');
+
+        this.set('checked', undefined);
+        await settled();
+        assert.dom(BOX).isNotChecked('a cleared value falls back to unchecked');
+    });
 });

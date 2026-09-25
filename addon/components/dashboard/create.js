@@ -1,7 +1,12 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+
+const POSITION_KEYS = ['x', 'y', 'w', 'h'];
+
+function samePosition(a = {}, b = {}) {
+    return POSITION_KEYS.every((key) => a?.[key] === b[key]);
+}
 
 /**
  * Component responsible for creating and managing the dashboard layout.
@@ -17,43 +22,80 @@ export default class DashboardCreateComponent extends Component {
     @service notifications;
 
     /**
-     * Tracked array to keep track of widgets that have been updated.
-     * @type {Array}
+     * The component's root element, for reaching the gridstack instance mounted inside it.
+     * @type {HTMLElement}
      */
-    @tracked updatedWidgets = [];
+    element = null;
+
+    @action setElement(element) {
+        this.element = element;
+    }
 
     /**
-     * Handles changes to the grid layout, such as repositioning or resizing widgets.
-     * Iterates over each widget event detail and updates the corresponding widget's properties if necessary.
+     * Persists moves and resizes gridstack reports while the layout is being edited.
+     *
+     * Only the user's edits are written back. gridstack also fires `change` while it lays the
+     * grid out at load and whenever it is re-created, and persisting those reflowed positions
+     * overwrote what the user had saved. Every reported change is written, not just the first
+     * per widget: a widget moved twice used to keep its first position.
      *
      * @param {Event} event - Event containing details about the grid change.
      * @action
      */
     @action onChangeGrid(event) {
+        const { dashboard, isEdit } = this.args;
+        if (!isEdit || !dashboard) {
+            return;
+        }
+
+        event.detail.forEach((node) => this.persistNode(dashboard, node));
+    }
+
+    /**
+     * Leaving edit mode writes back every widget as the grid has it. A widget added without a
+     * stored position was placed by gridstack, and a change reported while a save was still in
+     * flight may have been superseded; this is what the user sees when they press save.
+     * @action
+     */
+    @action onEditChange(element, [isEdit]) {
         const { dashboard } = this.args;
+        if (isEdit || !dashboard) {
+            return;
+        }
 
-        event.detail.forEach((currentWidgetEvent) => {
-            const alreadyUpdated = this.updatedWidgets.find((item) => item.id === currentWidgetEvent.id);
-            // `this.dashboard` is not a property of this component — only `this.args.dashboard`
-            // is — so this guard was always true and the loop bailed on the first widget,
-            // meaning grid moves and resizes were never persisted.
-            if (alreadyUpdated || !dashboard) {
-                return;
-            }
+        this.gridNodes().forEach((node) => this.persistNode(dashboard, node));
+    }
 
-            const changedWidget = dashboard.widgets.find((widget) => widget.id === currentWidgetEvent.id);
-            if (!changedWidget) {
-                return;
-            }
+    /**
+     * Writes a grid node's position onto its widget when it differs from what is stored. Other
+     * grid options (minW, minH, ...) are kept; the old write replaced them.
+     * @param {Object} dashboard
+     * @param {Object} node - a gridstack node or change-event entry: `{ id, x, y, w, h }`
+     */
+    persistNode(dashboard, { id, x, y, w, h }) {
+        const widget = dashboard.widgets.find((widget) => widget.id === id);
+        if (!widget) {
+            return;
+        }
 
-            const { x, y, w, h } = currentWidgetEvent;
-            const response = changedWidget.updateProperties({
-                grid_options: { x, y, w, h },
-            });
-            if (response) {
-                this.updatedWidgets.push(changedWidget);
-            }
-        });
+        const gridOptions = { ...(widget.grid_options ?? {}), x, y, w, h };
+        if (samePosition(widget.grid_options, gridOptions)) {
+            return;
+        }
+
+        const saved = widget.updateProperties({ grid_options: gridOptions });
+        if (typeof saved?.catch === 'function') {
+            saved.catch((error) => this.notifications.serverError(error));
+        }
+    }
+
+    /**
+     * The nodes of the gridstack instance mounted in this component, as it currently lays them out.
+     * @returns {Array}
+     */
+    gridNodes() {
+        // gridstack attaches itself to the .grid-stack element as `el.gridstack`.
+        return this.element?.querySelector('.grid-stack')?.gridstack?.engine?.nodes ?? [];
     }
 
     /**
@@ -84,10 +126,7 @@ export default class DashboardCreateComponent extends Component {
      * persistent gap where the deleted widget used to sit.
      */
     compactGrid() {
-        // gridstack attaches itself to the .grid-stack element as `el.gridstack`.
-        // Scoped query so we don't fight other grids on the page.
-        const root = document.querySelector('.fleetbase-dashboard-grid .grid-stack');
-        root?.gridstack?.compact?.();
+        this.element?.querySelector('.grid-stack')?.gridstack?.compact?.();
     }
 
     get gridOptions() {

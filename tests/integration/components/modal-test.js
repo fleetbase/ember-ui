@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, settled, find, findAll, triggerKeyEvent } from '@ember/test-helpers';
+import { render, click, settled, find, findAll, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupWindowMock } from 'ember-window-mock/test-support';
 import { skipTransition } from '@fleetbase/ember-ui/utils/transition-end';
@@ -68,6 +68,61 @@ module('Integration | Component | modal', function (hooks) {
 
             assert.ok(dialog(), 'the sized dialog renders');
             assert.ok(find('.flb--modal-dialog'), 'a dialog wrapper is present');
+        });
+    });
+
+    module('a modal taller than the viewport', function () {
+        const TALL = hbs`
+            <Modal @renderInPlace={{true}} @fade={{false}} as |modal|>
+                <modal.header>Tall</modal.header>
+                <modal.body><div class="filler" style={{this.fillerStyle}}>body</div></modal.body>
+                <modal.footer @submitTitle="Save" />
+            </Modal>
+        `;
+
+        function rect(selector) {
+            return find(selector).getBoundingClientRect();
+        }
+
+        test('it is held to the viewport with the header and footer in view and the body scrolling', async function (assert) {
+            this.set('fillerStyle', 'height: 4000px');
+
+            await render(TALL);
+            await waitUntil(() => find('.flb--modal-dialog').classList.contains('flb--modal-dialog-scrollable'));
+
+            const modal = rect(DIALOG);
+            assert.true(rect('.flb--modal-header').top >= modal.top, 'the header is not pushed above the viewport');
+            assert.true(rect('.flb--modal-footer').bottom <= modal.bottom + 1, 'the footer is not pushed below it');
+            assert.strictEqual(getComputedStyle(find('.flb--modal-body')).overflowY, 'auto', 'the body is what scrolls');
+            assert.strictEqual(dialog().scrollTop, 0, 'focusing the content did not scroll the modal');
+        });
+
+        test('a modal that fits is left alone', async function (assert) {
+            this.set('fillerStyle', 'height: 10px');
+
+            await render(TALL);
+            await settled();
+
+            assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
+        });
+
+        test('content that grows after opening is re-measured', async function (assert) {
+            this.set('fillerStyle', 'height: 10px');
+
+            await render(TALL);
+            assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
+
+            this.set('fillerStyle', 'height: 4000px');
+            await waitUntil(() => find('.flb--modal-dialog').classList.contains('flb--modal-dialog-scrollable'));
+
+            assert.dom('.flb--modal-dialog').hasClass('flb--modal-dialog-scrollable');
+        });
+
+        test('a dialog without a body is never made scrollable', async function (assert) {
+            await render(hbs`<Modal @renderInPlace={{true}} @fade={{false}}><div style="height: 4000px">bare</div></Modal>`);
+            await settled();
+
+            assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
         });
     });
 

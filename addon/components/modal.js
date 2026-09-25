@@ -124,6 +124,20 @@ export default class Modal extends Component {
     @tracked paddingRight;
 
     /**
+     * Whether the dialog's natural height exceeds the modal's viewport. A modal that would
+     * overflow is rendered scrollable (header and footer pinned, body scrolling) so its top
+     * and bottom stay reachable, and gets the viewport's vertical padding on both sides.
+     * @type {boolean}
+     */
+    @tracked isOverflowing = false;
+
+    /**
+     * Re-measures the dialog when its content changes size after opening.
+     * @type {ResizeObserver|null}
+     */
+    contentObserver = null;
+
+    /**
      * Visibility of the modal. Toggle to show/hide with CSS transitions.
      *
      * When the modal is closed by user interaction this property will not update by using two-way bindings in order
@@ -471,6 +485,7 @@ export default class Modal extends Component {
         if (!isFastBoot(this)) {
             modalElement.scrollTop = 0;
             this.adjustDialog();
+            this.observeContent(modalElement);
         }
 
         this.showModal = true;
@@ -603,6 +618,7 @@ export default class Modal extends Component {
         let modalIsOverflowing = this.modalElement.scrollHeight > document.documentElement.clientHeight;
         this.paddingLeft = !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : undefined;
         this.paddingRight = this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : undefined;
+        this.isOverflowing = this.measureOverflow(this.modalElement);
     }
 
     /**
@@ -612,6 +628,49 @@ export default class Modal extends Component {
     resetAdjustments() {
         this.paddingLeft = undefined;
         this.paddingRight = undefined;
+        this.isOverflowing = false;
+        this.contentObserver?.disconnect();
+        this.contentObserver = null;
+    }
+
+    /**
+     * Watches the dialog content so a body that grows after opening (a list that loads, a
+     * section that expands) is re-measured and made scrollable if it no longer fits.
+     * @param {HTMLElement} modalElement
+     */
+    observeContent(modalElement) {
+        const content = modalElement.querySelector('.flb--modal-content');
+        /* istanbul ignore if -- every dialog renders .flb--modal-content, and this suite runs in
+           a browser with ResizeObserver */
+        if (!content || typeof window.ResizeObserver !== 'function') {
+            return;
+        }
+
+        this.contentObserver?.disconnect();
+        this.contentObserver = new window.ResizeObserver(() => this.adjustDialog());
+        this.contentObserver.observe(content);
+    }
+
+    /**
+     * Whether the dialog, laid out at its natural height, would be taller than the modal's
+     * viewport. Measured from the parts rather than the dialog box, so the answer is the same
+     * whether or not the dialog is currently constrained.
+     * @param {HTMLElement} modalElement
+     * @returns {boolean}
+     */
+    measureOverflow(modalElement) {
+        const dialog = modalElement.querySelector('.flb--modal-dialog');
+        const content = modalElement.querySelector('.flb--modal-content');
+        const body = modalElement.querySelector('.flb--modal-body');
+        if (!dialog || !content || !body) {
+            return false;
+        }
+
+        const { marginTop, marginBottom } = window.getComputedStyle(dialog);
+        const margins = parseFloat(marginTop) + parseFloat(marginBottom);
+        const natural = Array.from(content.children).reduce((height, child) => height + (child === body ? body.scrollHeight : child.offsetHeight), 0);
+
+        return natural + margins > modalElement.clientHeight;
     }
 
     /**
@@ -699,6 +758,8 @@ export default class Modal extends Component {
 
     willDestroy() {
         super.willDestroy(...arguments);
+        this.contentObserver?.disconnect();
+        this.contentObserver = null;
 
         this.removeBodyClass();
 

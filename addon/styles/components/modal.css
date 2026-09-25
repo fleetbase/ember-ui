@@ -14,6 +14,7 @@
     --flb-modal-width: 1024px;
     --flb-modal-padding: 1rem;
     --flb-modal-margin: 0.5rem;
+    --flb-modal-margin-y: 0.5rem;
     --flb-modal-color: ;
     --flb-modal-bg: #fff;
     --flb-modal-border-color: transparent;
@@ -47,7 +48,7 @@
 .flb--modal-dialog {
     position: relative;
     width: auto;
-    margin: var(--flb-modal-margin);
+    margin: var(--flb-modal-margin-y) var(--flb-modal-margin);
     pointer-events: none;
 }
 
@@ -65,8 +66,10 @@
     transform: scale(1.02);
 }
 
+/* A dialog taller than the viewport (the modal adds this class when it measures one) is held to the
+   viewport minus the vertical margins: header and footer stay in view and the body scrolls. */
 .flb--modal-dialog-scrollable {
-    height: calc(100% - var(--flb-modal-margin) * 2);
+    height: calc(100% - var(--flb-modal-margin-y) * 2);
 }
 
 .flb--modal-dialog-scrollable .flb--modal-content {
@@ -81,7 +84,7 @@
 .flb--modal-dialog-centered {
     display: flex;
     align-items: center;
-    min-height: calc(100% - var(--flb-modal-margin) * 2);
+    min-height: calc(100% - var(--flb-modal-margin-y) * 2);
 }
 
 .flb--modal-content {
@@ -178,6 +181,7 @@
 @media (min-width: 576px) {
     .flb--modal {
         --flb-modal-margin: 1.75rem;
+        --flb-modal-margin-y: 2.5rem;
         --flb-modal-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
     .flb--modal-dialog {
