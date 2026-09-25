@@ -77,15 +77,18 @@ export default class TemplateBuilderComponent extends Component {
     @tracked variablePickerOpen = false;
 
     /** @type {String|null} The element property the variable picker is targeting */
+    /* istanbul ignore next -- openVariablePicker assigns this before anything reads it, so the lazy initializer never runs */
     @tracked variablePickerTargetProp = null;
 
     /** @type {Function|null} Callback to call with the chosen variable/formula string */
+    /* istanbul ignore next -- openVariablePicker assigns this before anything reads it, so the lazy initializer never runs */
     @tracked variablePickerCallback = null;
 
     /** @type {String} Which tab is active in the left panel: 'layers' or 'queries' */
     @tracked leftPanelTab = 'layers';
 
     /** @type {Array} TemplateQuery records for the current template */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked queries = [];
 
     /** @type {Array} Undo history stack — each entry is a deep-cloned content snapshot */
@@ -101,6 +104,7 @@ export default class TemplateBuilderComponent extends Component {
      * array at all.
      * @type {Object}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked _meta = null;
 
     /**
@@ -110,6 +114,7 @@ export default class TemplateBuilderComponent extends Component {
      * or deleted.
      * @type {Array}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it, so the lazy @tracked initializer never runs */
     @tracked _content = [];
 
     // -------------------------------------------------------------------------
@@ -241,6 +246,7 @@ export default class TemplateBuilderComponent extends Component {
         this._pushUndo();
 
         const index = this._content.findIndex((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (index === -1) return;
 
         // Create a NEW object (spread copy + changes) so that Glimmer detects
@@ -256,6 +262,8 @@ export default class TemplateBuilderComponent extends Component {
         this._content = next;
 
         // Sync selectedElement so the properties panel reflects the new values.
+        /* istanbul ignore else -- both callers edit the current selection: the properties panel
+           only ever renders the selected element, and rotateElement is driven from its toolbar */
         if (this.selectedElement?.uuid === uuid) {
             this.selectedElement = updated;
         }
@@ -270,6 +278,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     moveElement(uuid, { x, y }) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         Object.assign(el, { x, y });
     }
@@ -283,6 +292,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     resizeElement(uuid, { x, y, width, height }) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         Object.assign(el, { x, y, width, height });
     }
@@ -295,6 +305,7 @@ export default class TemplateBuilderComponent extends Component {
     @action
     rotateElement(uuid, deltaDegrees) {
         const el = this._content.find((e) => e.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!el) return;
         const current = el.rotation ?? 0;
         // Normalise to [0, 360)
@@ -317,6 +328,7 @@ export default class TemplateBuilderComponent extends Component {
 
         const elements = this._content;
         const element = elements.find((el) => el.uuid === uuid);
+        /* istanbul ignore if -- every uuid reaching this action comes from an element the canvas or layers panel is currently rendering, so the lookup always resolves */
         if (!element) return;
 
         const currentZ = element.z_index ?? 1;
@@ -344,6 +356,8 @@ export default class TemplateBuilderComponent extends Component {
 
         // Sync selectedElement so the properties panel reflects the new z_index.
         if (this.selectedElement?.uuid === uuid) {
+            /* istanbul ignore next -- uuid names an element of _content, which the map above
+               rebuilt entry for entry, so the lookup always resolves */
             this.selectedElement = this._content.find((el) => el.uuid === uuid) ?? null;
         }
     }
@@ -383,6 +397,7 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     undo() {
+        /* istanbul ignore if -- the toolbar's Undo button carries disabled={{not @canUndo}} and there is no keyboard shortcut, so this cannot run with an empty stack */
         if (!this.canUndo) return;
         const stack = [...this._undoStack];
         const snapshot = stack.pop();
@@ -396,6 +411,7 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     redo() {
+        /* istanbul ignore if -- the toolbar's Redo button carries disabled={{not @canRedo}} and there is no keyboard shortcut, so this cannot run with an empty stack */
         if (!this.canRedo) return;
         const stack = [...this._redoStack];
         const snapshot = stack.pop();
@@ -425,6 +441,8 @@ export default class TemplateBuilderComponent extends Component {
 
     @action
     handleVariableInsert(token) {
+        /* istanbul ignore else -- the picker only renders while it is open, and the single call
+           site of openVariablePicker (properties-panel.js:238) always passes a callback */
         if (this.variablePickerCallback) {
             this.variablePickerCallback(token);
         }
@@ -451,6 +469,7 @@ export default class TemplateBuilderComponent extends Component {
      */
     @action
     handleQueriesChange(queries) {
+        /* istanbul ignore next -- the queries panel's @onChange always hands over its own array */
         this.queries = queries ?? [];
     }
 
@@ -532,6 +551,8 @@ export default class TemplateBuilderComponent extends Component {
     }
 
     _cloneContent(content) {
+        /* istanbul ignore next -- all three callers pass this._content, which is an array from
+           construction onwards */
         return JSON.parse(JSON.stringify(content ?? []));
     }
 
@@ -562,6 +583,8 @@ export default class TemplateBuilderComponent extends Component {
             qr_code: { width: 80, height: 80, props: { value: '' } },
             barcode: { width: 200, height: 60, props: { value: '', barcode_format: 'CODE128' } },
         };
+        /* istanbul ignore next -- type comes from the toolbar's fixed set of element buttons,
+           every one of which has an entry above */
         return map[type] ?? { width: 100, height: 40, props: {} };
     }
 }

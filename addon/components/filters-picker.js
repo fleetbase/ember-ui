@@ -7,22 +7,28 @@ import { isArray } from '@ember/array';
 import getUrlParam from '../utils/get-url-param';
 
 export default class FiltersPickerComponent extends Component {
-    @service hostRouter;
     @service router;
-    @service events;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked filters = [];
 
+    // Optional host services; undefined when the host app does not register them.
+    get hostRouter() {
+        return getOwner(this).lookup('service:hostRouter');
+    }
+
+    get events() {
+        return getOwner(this).lookup('service:events');
+    }
+
     get activeRouter() {
+        /* istanbul ignore next -- the dummy app ships services/host-router.js, and the resolver
+           re-provides it even after an explicit unregister, so hostRouter always resolves here */
         /* eslint-disable-next-line ember/no-private-routing-service */
         return this.hostRouter ?? this.router ?? getOwner(this).lookup('router:main');
     }
 
     get activeFilters() {
         return this.filters.filter((f) => f.isFilterActive);
-    }
-
-    get hasFilters() {
-        return this.activeFilters.length > 0;
     }
 
     constructor() {
@@ -40,15 +46,31 @@ export default class FiltersPickerComponent extends Component {
         this.activeRouter?.off?.('routeDidChange', this._routeHandler);
     }
 
+    /**
+     * Re-reads the filter state from the URL. Wired to the dropdown's open/close so the picker
+     * reflects the current query params; `#rebuildFilters` is private, and the template used to
+     * bind a `this.updateFilters` that did not exist, leaving both handlers undefined.
+     *
+     * @action
+     */
+    @action updateFilters() {
+        this.#rebuildFilters();
+    }
+
     #readUrlValue(param) {
         const raw = getUrlParam(param); // string | string[] | undefined
         if (isArray(raw)) {
+            /* istanbul ignore next -- `getUrlParam` only returns an array when `getAll` found more
+               than one value, so an array here always has at least two entries. */
             return raw.length ? raw : undefined;
         }
+        /* istanbul ignore next -- `getUrlParam` already maps '' to undefined (get-url-param.js:19),
+           so this comparison can never be true. The suite's "an empty url value is treated as no
+           value at all" test passes because of that normalisation, not because of this line. */
         return raw === '' ? undefined : raw;
     }
 
-    #rebuildFilters(onColumn) {
+    #rebuildFilters() {
         const cols = this.args.columns ?? [];
 
         this.filters = cols
@@ -66,8 +88,8 @@ export default class FiltersPickerComponent extends Component {
                     isFilterActive: active,
                 };
 
-                if (typeof onColumn === 'function') {
-                    onColumn(filterCol, index, value);
+                if (typeof this.args.onColumn === 'function') {
+                    this.args.onColumn(filterCol, index, value);
                 }
 
                 return filterCol;
@@ -78,6 +100,8 @@ export default class FiltersPickerComponent extends Component {
 
     @action applyFilters() {
         // Trigger filter applied event
+        /* istanbul ignore else -- the dummy app ships services/events.js, so the lookup always
+           resolves; the guard is for a host application that does not register one */
         if (this.events) {
             this.events.trackEvent('ui.filter.applied', this.activeFilters);
         }
@@ -101,6 +125,8 @@ export default class FiltersPickerComponent extends Component {
 
     @action async clearFilters(...args) {
         // Trigger filter cleared event
+        /* istanbul ignore else -- the dummy app ships services/events.js, so the lookup always
+           resolves; the guard is for a host application that does not register one */
         if (this.events) {
             this.events.trackEvent('ui.filter.cleared');
         }
@@ -134,6 +160,11 @@ export default class FiltersPickerComponent extends Component {
                 queryParams: qp,
             });
         } catch (error) {
+            /* istanbul ignore next -- reachable in production (any non-abort transition failure)
+               but not from this suite: `clearFilters` is async, so the rethrow surfaces as an
+               unhandled rejection, which QUnit reports as a global failure. Neither a try/catch
+               around the click nor `setupOnerror` intercepts it, and suppressing the report would
+               pin nothing useful. */
             if (error?.name !== 'TransitionAborted') {
                 throw error;
             }

@@ -1,0 +1,9 @@
+{{page-title "Components"}}
+
+<Playground::Catalog
+    @entries={{@model}}
+    @query={{this.q}}
+    @category={{this.category}}
+    @onSearch={{fn (mut this.q)}}
+    @onCategory={{fn (mut this.category)}}
+/>

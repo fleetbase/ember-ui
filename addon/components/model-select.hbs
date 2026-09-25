@@ -34,7 +34,7 @@
         @onKeydown={{@onKeydown}}
         @onOpen={{this.onOpen}}
         @options={{this._options}}
-        @optionsComponent={{component this.optionsComponent infiniteScroll=this.infiniteScroll infiniteModel=this.model withCreate=this.withCreate}}
+        @optionsComponent={{component this.optionsComponent infiniteScroll=this.infiniteScroll onLoadMore=this.onLoadMore isLoadingMore=this.loadMoreOptions.isRunning withCreate=this.withCreate}}
         @placeholder={{@placeholder}}
         @placeholderComponent={{@placeholderComponent}}
         @preventScroll={{@preventScroll}}

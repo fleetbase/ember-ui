@@ -1,0 +1,10 @@
+{{! ReportBuilder example adapter: a safe starter scenario, no query execution. }}
+<ReportBuilder
+    @title={{@values.title}}
+    @tables={{this.tables}}
+    @initialQuery={{this.initialQuery}}
+    @isLoading={{@values.isLoading}}
+    @open={{@values.open}}
+    @onChange={{fn (or @onEvent (noop)) "onChange"}}
+    @onQueryConfigChanged={{fn (or @onEvent (noop)) "onQueryConfigChanged"}}
+/>

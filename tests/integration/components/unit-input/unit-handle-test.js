@@ -6,21 +6,35 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | unit-input/unit-handle', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders the unit value', async function (assert) {
+        this.set('unit', { value: 'kg', label: 'Kilograms' });
 
+        await render(hbs`<UnitInput::UnitHandle @unit={{this.unit}} />`);
+
+        assert.dom(this.element).containsText('kg');
+    });
+
+    test('a different unit renders its own value', async function (assert) {
+        this.set('unit', { value: 'lb' });
+
+        await render(hbs`<UnitInput::UnitHandle @unit={{this.unit}} />`);
+
+        assert.dom(this.element).containsText('lb');
+        assert.dom(this.element).doesNotContainText('kg');
+    });
+
+    test('it renders a dropdown status icon', async function (assert) {
+        this.set('unit', { value: 'kg' });
+
+        await render(hbs`<UnitInput::UnitHandle @unit={{this.unit}} />`);
+
+        assert.dom('.ember-power-select-status-icon').exists();
+    });
+
+    test('it renders without a unit', async function (assert) {
         await render(hbs`<UnitInput::UnitHandle />`);
 
-        assert.dom(this.element).hasText('');
-
-        // Template block usage:
-        await render(hbs`
-      <UnitInput::UnitHandle>
-        template block text
-      </UnitInput::UnitHandle>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.ember-power-select-status-icon').exists('the handle still renders');
+        assert.dom(this.element).doesNotContainText('undefined');
     });
 });

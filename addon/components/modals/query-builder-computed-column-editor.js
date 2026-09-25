@@ -7,20 +7,30 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     @service fetch;
     @service notifications;
     @service modalsManager;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked name = '';
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked label = '';
+    // The constructor assigns each of these before anything reads it.
+    /* istanbul ignore next */
     @tracked expression = '';
+    /* istanbul ignore next */
     @tracked description = '';
+    /* istanbul ignore next */
     @tracked type = this.typeOptions[0];
+    /* istanbul ignore next */
     @tracked isValidating = false;
+    /* istanbul ignore next */
     @tracked validationErrors = [];
     @tracked isValid = false;
+    @tracked saveAttempted = false;
 
     constructor() {
         super(...arguments);
 
         const computedColumn = this.modalsManager.getOption('computedColumn', {});
         // If editing existing computed column, load its values
+        /* istanbul ignore else -- getOption defaults to the {} passed above, which is truthy */
         if (computedColumn) {
             this.name = computedColumn.name || '';
             this.label = computedColumn.label || '';
@@ -48,6 +58,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
         return [
             // Date/Time Functions
             'DATEDIFF',
+            'DATE',
             'DATE_ADD',
             'DATE_SUB',
             'NOW',
@@ -154,6 +165,14 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             // Type Conversion
             'CAST',
             'CONVERT',
+            'DECIMAL',
+
+            // JSON Functions
+            'JSON_EXTRACT',
+            'JSON_UNQUOTE',
+            'JSON_VALUE',
+            'JSON_LENGTH',
+            'JSON_CONTAINS',
 
             // Other Utility Functions
             'INTERVAL',
@@ -178,6 +197,21 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
                 description: 'Return different values based on conditions',
             },
             {
+                name: 'Read a JSON Value',
+                expression: "CAST(JSON_UNQUOTE(JSON_EXTRACT(meta, '$.total')) AS DECIMAL(15,2)) / 100",
+                description: 'Read a number stored in a JSON column such as meta, e.g. an order total in cents, as a decimal',
+            },
+            {
+                name: 'Group by Month',
+                expression: "DATE_FORMAT(created_at, '%Y-%m')",
+                description: 'Bucket rows by month; use it as a Group By column',
+            },
+            {
+                name: 'Related JSON Value',
+                expression: "CAST(JSON_UNQUOTE(JSON_EXTRACT(payload.entities.meta, '$.quantity')) AS DECIMAL(15,2))",
+                description: 'Reference related columns by their path, as listed in the column picker, e.g. a quantity kept in order item metadata',
+            },
+            {
                 name: 'Safe Division',
                 expression: 'ROUND(amount / NULLIF(quantity, 0), 2)',
                 description: 'Divide with protection against division by zero',
@@ -185,8 +219,42 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
         ];
     }
 
+    /**
+     * The column name the report will use: the typed name, or the label when no name is given,
+     * normalised to the identifier the server accepts (lowercase letters, digits, underscores).
+     */
+    get columnName() {
+        const name = (this.name || this.label || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9_]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+
+        return /^[0-9]/.test(name) ? `col_${name}` : name;
+    }
+
+    /**
+     * What still has to be filled in before the column can be saved.
+     */
+    get missingFields() {
+        const missing = [];
+
+        if (!this.label) missing.push('Enter a display label.');
+        if (!this.columnName) missing.push('Enter a column name.');
+        if (!this.expression) missing.push('Enter an expression.');
+
+        return missing;
+    }
+
+    /**
+     * The missing fields to point out, once the user has tried to save.
+     */
+    get missingFieldErrors() {
+        return this.saveAttempted ? this.missingFields : [];
+    }
+
     get canSave() {
-        const canSave = this.name && this.label && this.expression && !this.isValidating;
+        const canSave = this.missingFields.length === 0 && !this.isValidating;
         this.modalsManager.setOption('canSave', canSave);
         return canSave;
     }
@@ -235,10 +303,14 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
     }
 
     @action save() {
-        if (!this.canSave) return;
+        if (!this.canSave) {
+            // Say why nothing was saved, rather than closing on an empty column
+            this.saveAttempted = true;
+            return null;
+        }
 
         const computedColumn = {
-            name: this.name,
+            name: this.columnName,
             label: this.label,
             expression: this.expression,
             description: this.description,

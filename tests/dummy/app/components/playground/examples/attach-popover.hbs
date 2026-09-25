@@ -1,0 +1,7 @@
+{{! Attach::Popover example adapter: attaches to its parent element. }}
+<div class="pg-fixture-anchor">
+    <Button @text="Open popover" />
+    <Attach::Popover @placement={{@values.placement}} @showOn={{@values.showOn}} @arrow={{@values.arrow}}>
+        <div class="pg-fixture-block">{{@values.bodyText}}</div>
+    </Attach::Popover>
+</div>

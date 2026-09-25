@@ -1,0 +1,15 @@
+{{! Kanban example adapter: a deterministic three-column board in local state. }}
+<Kanban
+    @columns={{this.columns}}
+    @title={{@values.title}}
+    @readonly={{@values.readonly}}
+    @disabled={{@values.disabled}}
+    @columnIdPath={{@values.columnIdPath}}
+    @onCardDrop={{fn (or @onEvent (noop)) "onCardDrop"}}
+    @onCardMove={{fn (or @onEvent (noop)) "onCardMove"}}
+    @onCardUpdate={{fn (or @onEvent (noop)) "onCardUpdate"}}
+    @onCardDelete={{fn (or @onEvent (noop)) "onCardDelete"}}
+    @onCreateCard={{fn (or @onEvent (noop)) "onCreateCard"}}
+    @onColumnDrop={{fn (or @onEvent (noop)) "onColumnDrop"}}
+    @onColumnMove={{fn (or @onEvent (noop)) "onColumnMove"}}
+/>

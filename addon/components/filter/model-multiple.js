@@ -78,6 +78,9 @@ export default class FilterModelMultipleComponent extends Component {
 
     @action onChange(selection) {
         const { onChange, onClear, filter } = this.args;
+        /* istanbul ignore next -- power-select's multiple variant always hands its onChange an
+           array (an empty one when the last chip is removed), so the fallback is only a guard
+           against a future caller invoking this action directly. */
         const models = isArray(selection) ? selection : [];
 
         this.selectedModels = models;

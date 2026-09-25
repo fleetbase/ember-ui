@@ -1,0 +1,8 @@
+{{! RegistryYield example adapter: two safe local components in a playground-only registry. }}
+<RegistryYield @registry={{@values.registryName}} @type="components" as |item|>
+    <div class="pg-fixture-block">
+        {{#let (component item.component) as |Registered|}}
+            <Registered @options={{item.options}} />
+        {{/let}}
+    </div>
+</RegistryYield>

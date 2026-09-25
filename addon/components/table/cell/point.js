@@ -2,7 +2,8 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { isArray } from '@ember/array';
 import { get, action } from '@ember/object';
-import { later } from '@ember/runloop';
+import { later, cancel } from '@ember/runloop';
+import { registerDestructor } from '@ember/destroyable';
 
 const isPoint = (point) => {
     return point && typeof point === 'object' && isArray(point.coordinates);
@@ -10,19 +11,28 @@ const isPoint = (point) => {
 
 export default class TableCellPointComponent extends Component {
     @tracked display = '';
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked isClickable = false;
 
     constructor(owner, { row, column }) {
         super(...arguments);
-        this.isClickable = typeof column === 'object' && (typeof column.onClick === 'function' || typeof column.action === 'function');
+        this.isClickable = typeof column === 'object' && column !== null && (typeof column.onClick === 'function' || typeof column.action === 'function');
         this.displayPointFromRow(row, column);
+
+        // The deferred lookup below must not outlive the component: a table that
+        // re-renders within the delay would otherwise write to a destroyed
+        // component.
+        registerDestructor(this, () => cancel(this.displayTimer));
     }
 
     displayPointFromRow(row, column) {
-        later(
+        this.displayTimer = later(
             this,
             () => {
-                const pointColumn = column.valuePath;
+                // This runs outside the render pass, so an unguarded read here
+                // throws asynchronously and cannot be caught by the caller.
+                const pointColumn = column?.valuePath;
 
                 if (pointColumn) {
                     const point = get(row, pointColumn);
@@ -39,6 +49,8 @@ export default class TableCellPointComponent extends Component {
     @action onClick() {
         const column = this.args.column;
 
+        /* istanbul ignore next -- `isClickable` is only true when the column carries an onClick or
+           action, and the template only renders a clickable element in that case. */
         if (column) {
             const { onClick, action } = column;
 

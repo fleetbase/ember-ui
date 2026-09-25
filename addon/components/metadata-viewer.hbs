@@ -27,8 +27,10 @@
                         <tr>
                             <td>{{key}}</td>
                             <td>
-                                {{#if (or (is-array @value) (is-object @value))}}
-                                    {{format-json @value}}
+                                {{!-- `value` is the each-in block param; `@value` is a component
+                                    argument this component never receives. --}}
+                                {{#if (or (is-array value) (is-object value))}}
+                                    {{format-json value}}
                                 {{else}}
                                     {{value}}
                                 {{/if}}

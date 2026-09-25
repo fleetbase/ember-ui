@@ -5,11 +5,16 @@ import { action, computed } from '@ember/object';
 
 export default class ToggleComponent extends Component {
     @service abilities;
+    // The constructor assigns each of these before anything reads it.
+    /* istanbul ignore next */
     @tracked isToggled = false;
+    /* istanbul ignore next */
     @tracked activeColor = 'green';
     @tracked permissionRequired;
     @tracked disabledByPermission = false;
+    /* istanbul ignore next */
     @tracked visible = true;
+    /* istanbul ignore next */
     @tracked disabled = false;
 
     @computed('activeColor') get activeColorClass() {

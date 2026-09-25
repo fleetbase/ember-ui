@@ -1,0 +1,14 @@
+{{! TemplateBuilder example adapter: a local starter template, nothing persisted. }}
+<TemplateBuilder
+    @template={{this.template}}
+    @elements={{this.elements}}
+    @isOpen={{@values.isOpen}}
+    @isSaving={{@values.isSaving}}
+    @zoom={{@values.zoom}}
+    @onSave={{fn (or @onEvent (noop)) "onSave"}}
+    @onAddElement={{fn (or @onEvent (noop)) "onAddElement"}}
+    @onSelectElement={{fn (or @onEvent (noop)) "onSelectElement"}}
+    @onUpdateElement={{fn (or @onEvent (noop)) "onUpdateElement"}}
+    @onDeleteElement={{fn (or @onEvent (noop)) "onDeleteElement"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+/>

@@ -18,7 +18,20 @@ export default modifier(function setHeight(element, [height], { calculated = fal
         if (match !== null) {
             heightValue = match[1];
             unit = match[2] || '';
+        } else {
+            // A keyword like `auto`, `none` or `fit-content` has no numeric part, so the
+            // numbersOnly() line below would reduce it to the invalid string "px" and the browser
+            // would drop it. Apply it verbatim instead.
+            element.style.height = height;
+            return;
         }
+    }
+
+    // A unit this modifier cannot convert (%, vh, vw, ch, …) used to be parsed off and then
+    // thrown away, so `100%` silently became `100px`. Honour it as written instead.
+    if (!['', 'px', 'em', 'rem', 'pt', 'pc'].includes(unit)) {
+        element.style.height = height;
+        return;
     }
 
     // Convert the height value to pixels

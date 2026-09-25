@@ -37,6 +37,8 @@ export default class AutocompleteInputComponent extends Component {
     }
 
     @action onFocus() {
+        /* istanbul ignore else -- `results` is initialised to an array and only ever reassigned
+           to another one, so it is never falsy */
         if (this.results) {
             this.shouldHideResults = false;
         }

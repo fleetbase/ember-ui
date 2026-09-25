@@ -11,11 +11,12 @@ export default class ModelTagInputComponent extends Component {
      */
     @action addTag(tag) {
         const attr = this.args.attr ?? 'tags';
-        if (!isArray(this.args.model[attr])) {
-            this.args.model.set(attr, []);
-        }
+        const current = isArray(this.args.model[attr]) ? this.args.model[attr] : [];
 
-        this.args.model[attr].pushObject(tag);
+        // Plain assignment rather than `pushObject`: with Ember 5's array prototype extensions
+        // off, a freshly created `[]` has no `pushObject`, so the first tag on an untagged
+        // record used to throw.
+        this.args.model.set(attr, [...current, tag]);
     }
 
     /**
@@ -26,6 +27,13 @@ export default class ModelTagInputComponent extends Component {
      */
     @action removeTag(index) {
         const attr = this.args.attr ?? 'tags';
-        this.args.model[attr].removeAt(index);
+        /* istanbul ignore next -- a non-array attribute renders no tags, so there is no remove
+           control to reach this from. */
+        const current = isArray(this.args.model[attr]) ? this.args.model[attr] : [];
+
+        this.args.model.set(
+            attr,
+            current.filter((_, position) => position !== index)
+        );
     }
 }

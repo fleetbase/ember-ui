@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { debug } from '@ember/debug';
+import { registerDestructor, isDestroying, isDestroyed } from '@ember/destroyable';
 import Chart, { _adapters } from 'chart.js/auto';
 import {
     parse,
@@ -59,14 +60,32 @@ export default class ChartComponent extends Component {
             },
         };
 
+        // Every chart owns its Chart.js instance and its resize listener; without this each
+        // re-render leaked one.
+        registerDestructor(this, () => {
+            this.chart?.destroy();
+            this.chart = null;
+        });
+
         if (typeof options.data.datasets === 'function') {
             try {
                 this.isLoading = true;
                 options.data.datasets = await options.data.datasets();
             } catch (err) {
+                // Leave a usable value behind: falling through with `datasets` still holding the
+                // FUNCTION made Chart.js throw "config.data.datasets.forEach is not a function",
+                // and because that happens after an await inside a {{did-insert}} action it
+                // escapes as an uncaught global error that setupOnerror cannot intercept.
+                options.data.datasets = [];
                 debug('Error loading Chart dataset: ' + err.message);
             } finally {
                 this.isLoading = false;
+            }
+
+            // The await above yields; the component may be gone by the time we resume, and
+            // building a chart against a detached canvas leaks it.
+            if (isDestroying(this) || isDestroyed(this)) {
+                return;
             }
         }
 

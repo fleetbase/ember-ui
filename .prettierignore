@@ -3,6 +3,7 @@
 
 # compiled output
 /dist/
+/playground-dist/
 
 # misc
 /coverage/

@@ -6,21 +6,15 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | rules-builder', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block with no wrapper of its own', async function (assert) {
+        await render(hbs`<div class="host"><RulesBuilder><span class="inside">rules</span></RulesBuilder></div>`);
 
-        await render(hbs`<RulesBuilder />`);
+        assert.dom('.host > .inside').hasText('rules', 'the block lands directly in the caller');
+    });
 
-        assert.dom().hasText('');
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><RulesBuilder /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <RulesBuilder>
-        template block text
-      </RulesBuilder>
-    `);
-
-        assert.dom().hasText('template block text');
+        assert.dom('.host').hasText('');
     });
 });

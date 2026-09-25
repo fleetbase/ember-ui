@@ -225,7 +225,8 @@ body[data-theme='dark'] .fleetbase-power-select .ember-power-select-trigger .emb
     color: #9fa6b2;
 }
 
-body[data-theme='dark'] .fleetbase-power-select .ember-model-select__loading {
+body[data-theme='dark'] .fleetbase-power-select .ember-model-select__loading,
+body[data-theme='dark'] .filter-multi-option .ember-model-select__loading {
     @apply bg-gray-700;
 }
 

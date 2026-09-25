@@ -12,7 +12,6 @@ export default class QueryBuilderComponent extends Component {
     @tracked sortBy = [];
     @tracked limit = null;
     @tracked computedColumns = [];
-    @tracked showQueryPreview = false;
 
     constructor() {
         super(...arguments);
@@ -21,40 +20,6 @@ export default class QueryBuilderComponent extends Component {
         if (this.args.initialQuery) {
             this.loadFromQuery(this.args.initialQuery);
         }
-    }
-
-    get columns() {
-        const columns = [];
-
-        // Add columns from main table
-        if (this.table?.columns) {
-            this.table.columns.forEach((column) => {
-                columns.push({
-                    ...column,
-                    table: this.table.name,
-                    full: `${this.table.name}.${column.name}`,
-                    label: column.label || column.name,
-                });
-            });
-        }
-
-        // Add columns from joined tables
-        if (this.joins?.length) {
-            this.joins.forEach((join) => {
-                if (join.table?.columns) {
-                    join.table.columns.forEach((column) => {
-                        columns.push({
-                            ...column,
-                            table: join.table.name,
-                            full: `${join.table.name}.${column.name}`,
-                            label: `${join.table.label || join.table.name} - ${column.label || column.name}`,
-                        });
-                    });
-                }
-            });
-        }
-
-        return columns;
     }
 
     get allSelectedColumns() {
@@ -74,7 +39,57 @@ export default class QueryBuilderComponent extends Component {
             });
         }
 
+        // Computed columns can be grouped by, aggregated, sorted and filtered like any other column
+        allColumns.push(...this.computedColumnOptions);
+
         return allColumns;
+    }
+
+    /**
+     * The query's computed columns, shaped like the columns the other panels pick from.
+     */
+    get computedColumnOptions() {
+        return this.computedColumns.map((column) => ({
+            name: column.name,
+            label: column.label || column.name,
+            type: column.type || 'string',
+            description: column.description,
+            expression: column.expression,
+            computed: true,
+            full: column.name,
+        }));
+    }
+
+    /**
+     * The result columns a grouped query's aggregates produce (e.g. `sum_order_total`),
+     * named the way the server aliases them, so a report can sort by them.
+     */
+    get aggregateColumns() {
+        const columns = [];
+
+        this.groupBy.forEach((item) => {
+            const fn = item.aggregateFn?.value;
+            if (!fn) {
+                return;
+            }
+
+            const by = item.aggregateBy?.name ?? item.aggregateBy?.full ?? '*';
+            const name = `${fn}_${by === '*' ? 'all' : by.replace(/\./g, '_')}`;
+            if (columns.some((column) => column.name === name)) {
+                return;
+            }
+
+            const byLabel = by === '*' ? 'All Records' : item.aggregateBy.label || by;
+            columns.push({
+                name,
+                full: name,
+                label: `${item.aggregateFn.label ?? fn} of ${byLabel}`,
+                type: fn === 'count' || fn === 'count_distinct' ? 'integer' : 'decimal',
+                aggregateResult: true,
+            });
+        });
+
+        return columns;
     }
 
     get queryObject() {
@@ -105,9 +120,12 @@ export default class QueryBuilderComponent extends Component {
                 this.conditions = [];
                 this.groupBy = [];
                 this.sortBy = [];
+                this.computedColumns = [];
                 break;
             case 'columns':
                 this.selectedColumns = value;
+                /* istanbul ignore else -- the only caller is column-select's notifyChange, which
+                   always passes its columnAliases, and that field is never anything but an object */
                 if (additionalArgs[0]) {
                     this.columnAliases = additionalArgs[0];
                 }
@@ -139,11 +157,6 @@ export default class QueryBuilderComponent extends Component {
     }
 
     @action
-    toggleQueryPreview() {
-        this.showQueryPreview = !this.showQueryPreview;
-    }
-
-    @action
     loadFromQuery(queryData) {
         if (queryData.table) this.table = queryData.table;
         if (queryData.columns) {
@@ -157,19 +170,13 @@ export default class QueryBuilderComponent extends Component {
             });
             this.columnAliases = aliases;
         }
+        // A report saved while the editor could add an empty entry is cleaned up on load
+        if (queryData.computed_columns) this.computedColumns = queryData.computed_columns.filter(Boolean);
         if (queryData.joins) this.joins = queryData.joins;
         if (queryData.conditions) this.conditions = queryData.conditions;
         if (queryData.groupBy) this.groupBy = queryData.groupBy;
         if (queryData.sortBy) this.sortBy = queryData.sortBy;
         if (queryData.limit) this.limit = queryData.limit;
-    }
-
-    @action
-    exportQuery() {
-        return {
-            sql: this.generatedQuery,
-            object: this.queryObject,
-        };
     }
 
     @action onExecute() {
@@ -201,7 +208,7 @@ export default class QueryBuilderComponent extends Component {
         this.groupBy = [];
         this.sortBy = [];
         this.limit = null;
-        this.showQueryPreview = false;
+        this.computedColumns = [];
 
         if (this.args.onChange) {
             this.args.onChange(this.queryObject);

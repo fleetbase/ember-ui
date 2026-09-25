@@ -1,0 +1,12 @@
+{{! ModelSelect example adapter: backed by a seeded dummy store, never a live API. }}
+<ModelSelect
+    @modelName="driver"
+    @selectedModel={{this.selected}}
+    @optionLabel={{@values.optionLabel}}
+    @placeholder={{@values.placeholder}}
+    @searchEnabled={{@values.searchEnabled}}
+    @allowClear={{@values.allowClear}}
+    @disabled={{@values.disabled}}
+    @onChange={{this.select}}
+    @onClear={{fn (or @onEvent (noop)) "onClear"}}
+/>

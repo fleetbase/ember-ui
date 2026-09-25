@@ -1,0 +1,13 @@
+{{! CommentThread example adapter: local fixtures, no persistence. }}
+<CommentThread
+    @subject={{this.subject}}
+    @subjectType="order"
+    @comments={{this.comments}}
+    @disabled={{@values.disabled}}
+    @buttonType={{@values.buttonType}}
+    @onPublishComment={{this.publish}}
+    @onPublishReply={{fn (or @onEvent (noop)) "onPublishReply"}}
+    @onUpdateComment={{fn (or @onEvent (noop)) "onUpdateComment"}}
+    @onDeleteComment={{fn (or @onEvent (noop)) "onDeleteComment"}}
+    @onReloadComments={{fn (or @onEvent (noop)) "onReloadComments"}}
+/>
