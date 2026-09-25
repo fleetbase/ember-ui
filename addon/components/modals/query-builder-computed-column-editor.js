@@ -198,7 +198,7 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
             {
                 name: 'Read a JSON Value',
                 expression: "CAST(JSON_UNQUOTE(JSON_EXTRACT(meta, '$.total')) AS DECIMAL(15,2)) / 100",
-                description: 'Read a number stored in a JSON column, e.g. a storefront order total in cents, as a decimal',
+                description: 'Read a number stored in a JSON column such as meta, e.g. an order total in cents, as a decimal',
             },
             {
                 name: 'Group by Month',
@@ -206,9 +206,9 @@ export default class ModalsQueryBuilderComputedColumnEditorComponent extends Com
                 description: 'Bucket rows by month; use it as a Group By column',
             },
             {
-                name: 'Related Column',
-                expression: 'payload.entities.quantity * payload.entities.price',
-                description: 'Reference related columns by their path, as listed in the column picker',
+                name: 'Related JSON Value',
+                expression: "CAST(JSON_UNQUOTE(JSON_EXTRACT(payload.entities.meta, '$.quantity')) AS DECIMAL(15,2))",
+                description: 'Reference related columns by their path, as listed in the column picker, e.g. a quantity kept in order item metadata',
             },
             {
                 name: 'Safe Division',
