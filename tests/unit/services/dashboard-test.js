@@ -667,6 +667,26 @@ module('Unit | Service | dashboard selection and lifecycle', function (hooks) {
             assert.strictEqual(service._createDefaultDashboardWidgets().length, 1);
         });
 
+        test('default widgets are laid out by their order, then in registration order', function (assert) {
+            // As registered by extensions that booted in some arbitrary order.
+            this.widgetService.widgets = [
+                { id: 'ledger-expenses', name: 'Expenses', component: 'widget/kpi', default: true },
+                { id: 'map', name: 'Map', component: 'widget/map', default: true, order: 50 },
+                { id: 'blog', name: 'Blog', component: 'widget/blog', default: true },
+                { id: 'ledger-revenue', name: 'Revenue', component: 'widget/kpi', default: true, order: 20 },
+                { id: 'radar', name: 'Radar', component: 'widget/radar', default: true, order: 10 },
+                { id: 'active-orders', name: 'Active Orders', component: 'widget/kpi', default: true, order: 20 },
+                { id: 'not-a-number', name: 'Odd', component: 'widget/kpi', default: true, order: '5' },
+            ];
+            const service = this.owner.lookup('service:dashboard');
+
+            assert.deepEqual(
+                service._createDefaultDashboardWidgets().map((widget) => widget.options.widget_key),
+                ['radar', 'ledger-revenue', 'active-orders', 'map', 'ledger-expenses', 'blog', 'not-a-number'],
+                'ordered widgets first (ties keep registration order), then the rest as registered'
+            );
+        });
+
         test('the system dashboards fall back to the single default', function (assert) {
             const service = this.owner.lookup('service:dashboard');
 

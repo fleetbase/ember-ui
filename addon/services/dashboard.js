@@ -309,8 +309,30 @@ export default class DashboardService extends Service {
      * @returns {Array} An array of default dashboard widgets.
      */
     _createDefaultDashboardWidgets(defaultDashboardId = 'dashboard') {
-        const widgets = this.widgetService.getDefaultWidgets(defaultDashboardId);
+        const widgets = this._orderDefaultWidgets(this.widgetService.getDefaultWidgets(defaultDashboardId));
         return widgets.map((defaultWidget) => this._buildDashboardWidget(defaultWidget));
+    }
+
+    /**
+     * Put default widgets in the order the dashboard should lay them out.
+     *
+     * Several extensions contribute default widgets to the same dashboard, and the grid
+     * auto-places them in order, so their registration order (which depends on which
+     * extension boots first) used to decide the layout. A widget may declare a numeric
+     * `order`: ordered widgets come first, lowest first; the rest follow in the order they
+     * were registered.
+     *
+     * @private
+     * @param {Array} widgets Default widget definitions
+     * @returns {Array} The widgets, ordered
+     */
+    _orderDefaultWidgets(widgets) {
+        const rank = (widget) => (typeof widget.order === 'number' && Number.isFinite(widget.order) ? widget.order : Infinity);
+
+        return widgets
+            .map((widget, index) => ({ widget, index, rank: rank(widget) }))
+            .sort((a, b) => (a.rank === b.rank ? a.index - b.index : a.rank - b.rank))
+            .map(({ widget }) => widget);
     }
 
     /**
