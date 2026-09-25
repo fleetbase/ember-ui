@@ -63,6 +63,39 @@ module('Integration | Component | modal/default', function (hooks) {
         assert.true(Math.abs(content.top - modal.top - (modal.bottom - content.bottom)) < 2, 'the content sits in the vertical middle');
     });
 
+    // The modals manager declares `scrollable`, `position` and `size` among its default options,
+    // so `modalsManager.show(name, { scrollable: true })` is the way a caller asks for them.
+    test('scrollable, position and size options reach the dialog', async function (assert) {
+        this.set('options', { title: 'Options', scrollable: true, position: 'center', size: 'lg' });
+
+        await render(hbs`
+            <Modal::Default @modalIsOpened={{true}} @options={{this.options}}>
+                <div style="height: 4000px">tall</div>
+            </Modal::Default>
+        `);
+        await settled();
+
+        assert.dom('.flb--modal-dialog').hasClass('flb--modal-dialog-scrollable', 'scrollable pins the header and footer and scrolls the body');
+        assert.dom('.flb--modal-dialog').hasClass('flb--modal-dialog-centered', 'position center centres the dialog');
+        assert.dom('.flb--modal-dialog').hasClass('flb--modal-lg', 'size picks the width');
+
+        const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+        const modal = rect('.flb--modal');
+        assert.true(rect('.flb--modal-header').top >= modal.top, 'the header stays in view');
+        assert.true(rect('.flb--modal-footer').bottom <= modal.bottom + 1, 'and so does the footer');
+        assert.strictEqual(getComputedStyle(document.querySelector('.flb--modal-body')).overflowY, 'auto', 'the body is what scrolls');
+    });
+
+    test('with no layout options the dialog keeps the defaults', async function (assert) {
+        this.set('options', { title: 'Plain', size: null });
+
+        await render(hbs`<Modal::Default @modalIsOpened={{true}} @options={{this.options}}><p>body</p></Modal::Default>`);
+
+        assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
+        assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-centered');
+        assert.false([...document.querySelector('.flb--modal-dialog').classList].some((name) => /^flb--modal-(sm|lg|xl)$/.test(name)), 'a null size adds no size class');
+    });
+
     test('@modalIsOpened does not gate rendering — the modal is open whenever it is rendered', async function (assert) {
         // <Modal> takes its visibility from `@arg open = true` and never reads
         // `@modalIsOpened`, so the argument Modal::Default forwards is inert.
