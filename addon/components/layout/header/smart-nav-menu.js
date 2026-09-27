@@ -175,6 +175,11 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
             // permission rather than being checked against its own (non-existent)
             // extension ability, which would always throw and default to visible.
             const abilityId = item._isShortcut && item._parentId ? item._parentId : item.id;
+            // Items (including shortcuts) may also declare their own permission,
+            // e.g. the module-level list permission for a shortcut.
+            if (item.permission && this.lacksPermission(item.permission)) {
+                continue;
+            }
             try {
                 if (this.abilities.can(`${abilityId} see extension`)) {
                     visible.push(item);
@@ -190,6 +195,18 @@ export default class LayoutHeaderSmartNavMenuComponent extends Component {
             this.args.mutateMenuItems(visible);
         }
         return A(visible);
+    }
+
+    /**
+     * Whether the current user lacks the given permission. An undefined ability
+     * is treated as permitted, matching the extension check in `allItems`.
+     */
+    lacksPermission(permission) {
+        try {
+            return this.abilities.cannot(permission);
+        } catch (_) {
+            return false;
+        }
     }
 
     /**
