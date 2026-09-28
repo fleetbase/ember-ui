@@ -1,39 +1,33 @@
 name: Ember CI
 
-# Pushes run only for main and tags (tags publish). A release or dev branch always
-# has a pull request, and pull_request already runs on every push to it; triggering
-# on push too ran the whole suite twice for each commit.
+# Validate release integration branches even when they have no open pull request.
+# Tag pushes also run the publishing jobs after the required checks pass.
 on:
   push:
-    # `release/v*` (and the legacy `dev-v*`) are the release integration branches (see
-    # release.yml, which tags when one merges to main). They are listed here so pull requests
-    # targeting a release branch run the full suite — without them those PRs would get no
-    # checks at all.
     branches:
       - main
+      - 'release/v*'
+      - 'dev-v*'
     tags:
       - 'v*'
   pull_request:
+    # These filters match the target branch, including release integration branches.
     branches:
       - main
       - 'release/v*'
       - 'dev-v*'
 
-# A newer push to the same pull request or branch makes the running check stale.
-# Every tag is its own ref, so a publish run is never cancelled by another push.
+# Cancel stale runs for the same branch or PR; their distinct refs keep both checks.
+# Allow tag publishing runs to finish.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 env:
   NODE_VERSION: 22.x
 
 permissions:
   contents: read
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
   lint:
