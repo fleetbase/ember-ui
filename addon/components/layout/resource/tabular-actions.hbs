@@ -50,6 +50,19 @@
             {{#each @bulkActions as |bulkAction|}}
                 {{#if bulkAction.separator}}
                     <div class="next-dd-menu-seperator"></div>
+                {{else if (and bulkAction.permission (cannot bulkAction.permission))}}
+                    {{! Same convention as action buttons: shown but disabled, with the unauthorized hint, and not clickable. }}
+                    <div class="px-1">
+                        <a href="javascript:;" class="next-dd-item {{bulkAction.class}} disabled" disabled={{true}} aria-disabled="true" {{on "click" (noop)}}>
+                            {{#if bulkAction.icon}}
+                                <div class="w-{{or bulkAction.iconWidth '6'}}"><FaIcon @icon={{bulkAction.icon}} @size={{or bulkAction.iconSize "sm"}} /></div>
+                            {{/if}}
+                            <div>{{or bulkAction.text bulkAction.label}}</div>
+                            <Attach::Tooltip @class="clean" @animation="scale" @placement="right">
+                                <InputInfo @text={{t "common.unauthorized"}} />
+                            </Attach::Tooltip>
+                        </a>
+                    </div>
                 {{else}}
                     <div class="px-1">
                         <a href="#" class="next-dd-item {{bulkAction.class}}" {{on "click" (dropdown-fn dd bulkAction.fn)}}>
