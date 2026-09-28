@@ -4,7 +4,7 @@ import { inject as service } from '@ember/service';
 
 const POSITION_KEYS = ['x', 'y', 'w', 'h'];
 
-function samePosition(a = {}, b = {}) {
+function samePosition(a, b) {
     return POSITION_KEYS.every((key) => a?.[key] === b[key]);
 }
 

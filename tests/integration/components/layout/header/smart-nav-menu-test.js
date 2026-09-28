@@ -92,6 +92,10 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
                 can(ability) {
                     return !deniedAbilities.has(ability);
                 }
+
+                cannot(ability) {
+                    return deniedAbilities.has(ability);
+                }
             }
         );
 
@@ -147,6 +151,69 @@ module('Integration | Component | layout/header/smart-nav-menu', function (hooks
             await click(moreButton());
 
             assert.dom(this.wormhole).containsText('shortcut-1', 'the shortcut is checked against its parent, not itself');
+        });
+
+        test('a shortcut with a denied module permission is hidden even when its parent is visible', async function (assert) {
+            headerMenuItems = [item('fleet-ops'), item('orders', { _isShortcut: true, _parentId: 'fleet-ops', permission: 'list fleet-ops order' })];
+            deniedAbilities.add('list fleet-ops order');
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(
+                barItems().map((node) => node.textContent.trim()),
+                ['fleet-ops'],
+                'the restricted shortcut is excluded from the bar'
+            );
+
+            await click(moreButton());
+
+            assert.dom(this.wormhole).containsText('fleet-ops', 'the permitted parent remains available');
+            assert.dom(this.wormhole).doesNotContainText('orders', 'the restricted shortcut is also excluded from the dropdown');
+        });
+
+        test('an item with a permitted module permission remains visible', async function (assert) {
+            headerMenuItems = [item('orders', { permission: 'list fleet-ops order' })];
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(
+                barItems().map((node) => node.textContent.trim()),
+                ['orders'],
+                'the module permission allows the item in the bar'
+            );
+
+            await click(moreButton());
+
+            assert.dom(this.wormhole).containsText('orders', 'the item is also available in the dropdown');
+        });
+
+        test('an undefined module permission defaults the item to visible', async function (assert) {
+            headerMenuItems = [item('orders', { permission: 'list fleet-ops order' })];
+            this.owner.unregister('service:abilities');
+            this.owner.register(
+                'service:abilities',
+                class extends Service {
+                    can() {
+                        return true;
+                    }
+
+                    cannot() {
+                        throw new Error('no such ability');
+                    }
+                }
+            );
+
+            await render(TEMPLATE);
+
+            assert.deepEqual(
+                barItems().map((node) => node.textContent.trim()),
+                ['orders'],
+                'an unregistered module ability does not hide the item'
+            );
+
+            await click(moreButton());
+
+            assert.dom(this.wormhole).containsText('orders', 'the fallback also keeps the item in the dropdown');
         });
 
         test('an ability that throws defaults the item to visible', async function (assert) {

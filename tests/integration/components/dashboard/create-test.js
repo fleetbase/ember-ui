@@ -124,6 +124,18 @@ module('Integration | Component | dashboard/create', function (hooks) {
             assert.strictEqual(second.updated, undefined, 'and only that one');
         });
 
+        test('a widget without stored grid options saves the position assigned by the grid', async function (assert) {
+            delete this.dashboard.widgets[0].grid_options;
+
+            await render(TEMPLATE);
+            await announceChange({ id: 'w1', x: 2, y: 3, w: 4, h: 5 });
+
+            const [first, second] = this.dashboard.widgets;
+            assert.strictEqual(first.updated, 1, 'the newly placed widget is saved');
+            assert.deepEqual(first.lastProperties, { grid_options: { x: 2, y: 3, w: 4, h: 5 } }, 'its first position is stored without existing grid options');
+            assert.strictEqual(second.updated, undefined, 'other widgets are unchanged');
+        });
+
         test('a widget that is not on the dashboard is skipped', async function (assert) {
             await render(TEMPLATE);
             await announceChange({ id: 'not-a-widget', x: 0, y: 0, w: 1, h: 1 });

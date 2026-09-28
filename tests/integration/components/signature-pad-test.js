@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
 import { click, clearRender, render, rerender, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import SignaturePad from 'signature_pad';
 
 // An 8x8 opaque red png, used to exercise @value rehydration.
 const RED_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC';
@@ -642,6 +643,30 @@ module('Integration | Component | signature-pad', function (hooks) {
     });
 
     module('resizing', function () {
+        test('resizing an unchanged canvas preserves its bitmap without clearing the pad', async function (assert) {
+            const state = trackReady(this);
+            await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @onReady={{this.onReady}} />`);
+            await waitUntil(() => state.api);
+
+            const canvas = getCanvas();
+            await drawStroke(canvas);
+            await state.api.resize();
+            const imageBefore = canvas.toDataURL();
+            const pad = state.api.instance();
+            const clear = pad.clear.bind(pad);
+            let clears = 0;
+            pad.clear = () => {
+                clears++;
+                clear();
+            };
+
+            await state.api.resize();
+
+            assert.strictEqual(clears, 0, 'an unchanged size does not clear and redraw the pad');
+            assert.strictEqual(canvas.toDataURL(), imageBefore, 'the existing signature bitmap stays intact');
+            assert.strictEqual(state.api.toData().length, 1, 'the original stroke is retained');
+        });
+
         test('it preserves strokes across a resize', async function (assert) {
             const state = trackReady(this);
             await render(hbs`<SignaturePad @height={{200}} @throttle={{0}} @minDistance={{0}} @onReady={{this.onReady}} />`);
@@ -764,6 +789,31 @@ module('Integration | Component | signature-pad', function (hooks) {
     });
 
     module('teardown', function () {
+        test('destroying the component during initial hydration does not announce readiness or observe the removed canvas', async function (assert) {
+            const originalFromDataURL = SignaturePad.prototype.fromDataURL;
+            const ready = [];
+            let finishHydration;
+            SignaturePad.prototype.fromDataURL = () => new Promise((resolve) => (finishHydration = resolve));
+            this.set('value', RED_PNG);
+            this.set('onReady', (api) => ready.push(api));
+
+            try {
+                await render(hbs`<SignaturePad @value={{this.value}} @onReady={{this.onReady}} />`);
+                await waitUntil(() => finishHydration);
+                assert.dom('canvas.signature-pad-canvas').exists('the canvas mounted while its initial image was pending');
+
+                await clearRender();
+                finishHydration();
+                await settled();
+
+                assert.deepEqual(ready, [], 'a removed pad never announces itself as ready');
+                assert.strictEqual(resizeCallbacks.length, 0, 'the late setup does not attach a ResizeObserver');
+                assert.dom('.signature-pad').doesNotExist('the component remains removed after hydration resolves');
+            } finally {
+                SignaturePad.prototype.fromDataURL = originalFromDataURL;
+            }
+        });
+
         test('it disconnects the observer and detaches listeners', async function (assert) {
             const changes = [];
             this.set('onChange', (dataUrl) => changes.push(dataUrl));
@@ -821,8 +871,11 @@ module('Integration | Component | signature-pad', function (hooks) {
             await drawStroke(getCanvas());
             assert.strictEqual(changes.length, 1, 'the stroke reported once before the teardown');
 
+            let finishHydration;
+            state.api.instance().fromDataURL = () => new Promise((resolve) => (finishHydration = resolve));
             const pending = state.api.undo();
             await clearRender();
+            finishHydration();
             await pending;
 
             assert.strictEqual(changes.length, 1, 'the destroyed pad emitted nothing more');
@@ -838,14 +891,18 @@ module('Integration | Component | signature-pad', function (hooks) {
             await render(hbs`<SignaturePad @readonly={{this.readonly}} @value={{this.value}} @onReady={{this.onReady}} />`);
             await waitUntil(() => state.api);
 
+            let finishHydration;
+            state.api.instance().fromDataURL = () => new Promise((resolve) => (finishHydration = resolve));
             this.set('value', RED_PNG);
             await rerender();
+            await waitUntil(() => finishHydration);
             this.set('readonly', true);
             await rerender();
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            finishHydration();
             await settled();
 
+            assert.strictEqual(state.api.instance(), null, 'the late hydration did not restore the removed canvas');
             assert.dom('.signature-pad-surface-readonly').exists('the readonly surface took over without an error');
         });
 
@@ -857,14 +914,18 @@ module('Integration | Component | signature-pad', function (hooks) {
             await render(hbs`<SignaturePad @value={{this.value}} @onReady={{this.onReady}} />`);
             await waitUntil(() => state.api);
 
+            let finishHydration;
+            state.api.instance().fromDataURL = () => new Promise((resolve) => (finishHydration = resolve));
             this.set('value', RED_PNG);
             await rerender();
+            await waitUntil(() => finishHydration);
             await clearRender();
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            finishHydration();
             await settled();
 
-            assert.ok(true, 'the late value application returned before touching destroyed state');
+            assert.strictEqual(state.api.instance(), null, 'the late value application left the destroyed pad alone');
+            assert.dom('.signature-pad').doesNotExist('the component remains removed after the pending hydration finishes');
         });
     });
 

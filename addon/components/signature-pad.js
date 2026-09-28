@@ -424,7 +424,8 @@ export default class SignaturePadComponent extends Component {
         // A stored signature can arrive after the user has already started drawing (it is
         // fetched asynchronously). Keep their strokes on top of it, and keep them counted as
         // a change; only a value that replaces an untouched pad resets that.
-        const strokes = this.signaturePad ? this.signaturePad.toData() : [];
+        // This canvas did-update action runs after setup() has assigned the pad synchronously.
+        const strokes = this.signaturePad.toData();
 
         if (strokes.length > 0 && value) {
             this.hydratedDataUrl = value;
