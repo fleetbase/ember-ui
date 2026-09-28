@@ -32,6 +32,8 @@ export default class LazyEngineComponent extends Component {
     @tracked resolvedComponent = null;
     @tracked component = this.args.component;
     @tracked params = this.args.params ?? {};
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked error = null;
 
     constructor() {

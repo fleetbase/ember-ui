@@ -3,7 +3,18 @@
     as |queue|
 }}
     <label class="file-upload {{@labelClass}}" disabled={{@disabled}}>
-        <input type="file" accept={{@accept}} hidden={{or @hidden true}} class={{@inputClass}} {{queue.selectFile}} disabled={{@disabled}} ...attributes />
+        {{! `hidden` defaults to true but must stay switchable off, and `multiple` has to be
+            forwarded or a "multi" upload can only ever pick one file through the button. }}
+        <input
+            type="file"
+            accept={{@accept}}
+            hidden={{if (is-empty @hidden) true @hidden}}
+            multiple={{@multiple}}
+            class={{@inputClass}}
+            {{queue.selectFile}}
+            disabled={{@disabled}}
+            ...attributes
+        />
         {{yield queue}}
     </label>
 {{/let}}

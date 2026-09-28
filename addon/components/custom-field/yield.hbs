@@ -7,7 +7,7 @@
             @actionButtons={{if @editable (cfg-edit-buttons group permission=@permission disabled=(or @editDisabled group.isEditing)) null}}
             @panelHeaderClass={{@panelHeaderClass}}
         >
-            <div class="grid grid-cols-1 lg:grid-cols-{{or group.meta.grid_size 2}} gap-{{or @groupWrapperGap 2}} {{@groupWrapperClass}}">
+            <div class="grid grid-cols-1 lg:grid-cols-{{or group.meta.grid_size 1}} gap-{{or @groupWrapperGap 2}} {{@groupWrapperClass}}">
                 {{#each group.customFields as |customField|}}
                     {{#if (and @viewMode group.isEditing)}}
                         <CustomField::Input @customField={{customField}} @subject={{@subject}} @onChange={{fn this.customFields.writeFieldValue @subject}} />

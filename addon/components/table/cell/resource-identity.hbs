@@ -3,7 +3,7 @@
         type="button"
         disabled={{and @column.permission (cannot @column.permission)}}
         {{on "click" this.onClick}}
-        class="flex min-w-0 items-start gap-2 text-left py-0.5"
+        class="flex min-w-0 items-start gap-2 text-left {{this.triggerClass}}"
     >
         <div class="relative flex {{this.imageSizeClass}} flex-shrink-0 items-center justify-center">
             <Image

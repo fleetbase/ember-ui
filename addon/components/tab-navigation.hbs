@@ -1,5 +1,5 @@
 {{! template-lint-disable no-nested-interactive require-presentational-children }}
-<div class="tab-navigation {{@containerClass}}" data-style={{or @style "github"}} data-size={{or @size "md"}} {{did-update this.argsDidChange @activeTabId @tabs}}>
+<div class="tab-navigation {{@containerClass}}" data-style={{this.style}} data-size={{this.size}} {{did-update this.argsDidChange @activeTabId @tabs}}>
     <div class="tab-list justify-between {{@tablistClass}}" role="tablist" {{did-insert this.registerTabList}} {{did-update this.tabsDidChange @tabs @activeTabId}}>
         <div class="tab-items flex flex-row items-center min-w-0 overflow-hidden" role="tablist">
             {{#if (has-block "title")}}
@@ -20,7 +20,7 @@
                                 @activeClass="tab-item--active"
                                 class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
                                 role="tab"
-                                aria-selected={{tab.isActive}}
+                                aria-selected={{if tab.isActive "true" "false"}}
                                 aria-controls="tabpanel-{{tab.route}}"
                                 id="tab-{{tab.route}}"
                                 data-tab-id={{tab.route}}
@@ -45,7 +45,7 @@
                                     </span>
                                 {{/if}}
                                 {{#if tab.isClosable}}
-                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab)}}>
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
@@ -59,7 +59,7 @@
                                 @activeClass="tab-item--active"
                                 class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isDisabled 'tab-item--disabled'}}"
                                 role="tab"
-                                aria-selected={{tab.isActive}}
+                                aria-selected={{if tab.isActive "true" "false"}}
                                 aria-controls="tabpanel-{{tab.route}}"
                                 id="tab-{{tab.route}}"
                                 data-tab-id={{tab.route}}
@@ -84,7 +84,7 @@
                                     </span>
                                 {{/if}}
                                 {{#if tab.isClosable}}
-                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                    <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab)}}>
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
@@ -97,7 +97,7 @@
                             type="button"
                             class="tab-item {{@tabClass}} {{tab.class}} {{if tab.isActive 'tab-item--active'}} {{if tab.isDisabled 'tab-item--disabled'}}"
                             role="tab"
-                            aria-selected={{tab.isActive}}
+                            aria-selected={{if tab.isActive "true" "false"}}
                             aria-controls="tabpanel-{{tab.id}}"
                             id="tab-{{tab.id}}"
                             {{on "click" (fn this.selectTab tab)}}
@@ -126,7 +126,7 @@
                             {{/if}}
                             {{#if tab.isClosable}}
 
-                                <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab) stopPropagation=true}}>
+                                <button type="button" class="tab-close" aria-label="Close {{tab.label}}" {{on "click" (fn this.closeTab tab)}}>
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>

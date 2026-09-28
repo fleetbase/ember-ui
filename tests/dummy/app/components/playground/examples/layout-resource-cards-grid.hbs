@@ -1,0 +1,12 @@
+{{! Layout::Resource::CardsGrid example adapter. }}
+<Layout::Resource::CardsGrid
+    @data={{this.data}}
+    @columns={{@values.columns}}
+    @gap={{@values.gap}}
+    @showPagination={{@values.showPagination}}
+    @emptyStateText={{@values.emptyStateText}}
+    @paginationMeta={{this.meta}}
+    @onClick={{fn (or @onEvent (noop)) "onClick"}}
+    @onCreateNew={{fn (or @onEvent (noop)) "onCreateNew"}}
+    @onPageChange={{fn (or @onEvent (noop)) "onPageChange"}}
+/>

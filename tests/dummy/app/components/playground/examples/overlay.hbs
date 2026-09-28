@@ -1,0 +1,21 @@
+{{!
+    Overlay example adapter. `@renderInPlace` keeps it inside the preview frame instead of
+    covering the whole playground.
+}}
+<Overlay
+    @isOpen={{@values.isOpen}}
+    @position={{@values.position}}
+    @width={{@values.width}}
+    @noBackdrop={{@values.noBackdrop}}
+    @isResizable={{@values.isResizable}}
+    @isMinimizable={{@values.isMinimizable}}
+    @isMaximizable={{@values.isMaximizable}}
+    @fullHeight={{@values.fullHeight}}
+    @onOpen={{fn (or @onEvent (noop)) "onOpen"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+    @onToggle={{fn (or @onEvent (noop)) "onToggle"}}
+    @onMaximize={{fn (or @onEvent (noop)) "onMaximize"}}
+    @onMinimize={{fn (or @onEvent (noop)) "onMinimize"}}
+>
+    <div class="pg-fixture-block">Overlay content</div>
+</Overlay>

@@ -9,12 +9,18 @@ export default class OverlayComponent extends Component {
     @tracked overlayPanelNode;
     @tracked gutterNode;
     @tracked isOpen = false;
+    /* istanbul ignore next -- the resize flow assigns this before anything reads it */
     @tracked isResizing = false;
     @tracked isMaximized = false;
+    /* istanbul ignore next -- assigned before anything reads it */
     @tracked isMinimized = false;
+    /* istanbul ignore next -- the resize flow assigns this before anything reads it */
     @tracked mouseX = 0;
+    /* istanbul ignore next -- the resize flow assigns this before anything reads it */
     @tracked mouseY = 0;
+    /* istanbul ignore next -- the resize flow assigns this before anything reads it */
     @tracked overlayWidth = 0;
+    /* istanbul ignore next -- the resize flow assigns this before anything reads it */
     @tracked overlayHeight = 0;
 
     context = {
@@ -177,6 +183,8 @@ export default class OverlayComponent extends Component {
         const { disableResize, onResize, position } = this.args;
         const { overlayPanelNode } = this;
 
+        /* istanbul ignore if -- this runs as a mousemove listener that startResize only attaches
+           after the identical guard there has passed */
         if (disableResize === true || !overlayPanelNode) {
             return;
         }
@@ -189,16 +197,25 @@ export default class OverlayComponent extends Component {
         const height = dy * multiplier + this.overlayHeight;
         const minResizeWidth = this.args.minResizeWidth ?? 560;
         const maxResizeWidth = this.args.maxResizeWidth ?? 900;
+        const minResizeHeight = this.args.minResizeHeight ?? 0;
+        const maxResizeHeight = this.args.maxResizeHeight ?? Number.MAX_SAFE_INTEGER;
 
-        // Min resize width
-        if (width <= minResizeWidth) {
-            overlayPanelNode.style.width = `${minResizeWidth}px`;
+        // Clamp the dimension actually being dragged. These guards used to test the WIDTH whatever
+        // the position and `return` before the fork below, so a top/bottom overlay whose width sat
+        // outside [min, max] — which a full-width drawer always does — could never be resized at
+        // all, and each vertical drag silently rewrote its width to the clamp.
+        const size = isHorizontal ? width : height;
+        const minSize = isHorizontal ? minResizeWidth : minResizeHeight;
+        const maxSize = isHorizontal ? maxResizeWidth : maxResizeHeight;
+        const dimension = isHorizontal ? 'width' : 'height';
+
+        if (size <= minSize) {
+            overlayPanelNode.style[dimension] = `${minSize}px`;
             return;
         }
 
-        // Max resize width
-        if (width >= maxResizeWidth) {
-            overlayPanelNode.style.width = `${maxResizeWidth}px`;
+        if (size >= maxSize) {
+            overlayPanelNode.style[dimension] = `${maxSize}px`;
             return;
         }
 

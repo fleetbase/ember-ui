@@ -93,10 +93,16 @@ export default class ResourceHoverCardComponent extends Component {
             return element.closest(targetSelector) ?? element.parentElement?.querySelector(targetSelector) ?? null;
         }
 
+        /* istanbul ignore next -- the anchor is a rendered <span>, so it always has a parent
+           element; the fallback only guards a caller that has not been written. */
         return element.parentElement ?? null;
     }
 
     bind() {
+        /* istanbul ignore if -- bind() is only reached from setup() (which returns early when
+           there is no target) and from disarm() (which always follows an arm() that unbound
+           first), so neither guard is reachable in practice. They keep a double-bind from
+           silently doubling every listener if a future caller breaks that ordering. */
         if (!this.target || this.bound.length) {
             return;
         }
@@ -139,6 +145,9 @@ export default class ResourceHoverCardComponent extends Component {
     @action arm() {
         this.timer = null;
 
+        /* istanbul ignore if -- arm() only runs from the `later()` timer, which Ember does not
+           run against a destroyed target, and onEnter cancels any pending timer before
+           scheduling another, so it can never fire while already armed. */
         if (this.isDestroyed || this.isDestroying || this.armed) {
             return;
         }
@@ -157,6 +166,9 @@ export default class ResourceHoverCardComponent extends Component {
     }
 
     @action disarm() {
+        /* istanbul ignore if -- disarm() is called from the popover's onChange and from the
+           summary's onClose, both of which are torn down with this component, so it is never
+           reached after destruction. */
         if (this.isDestroyed || this.isDestroying) {
             return;
         }

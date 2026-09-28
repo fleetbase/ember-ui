@@ -1,4 +1,4 @@
-<div class="fleetbase-dashboard-grid" ...attributes>
+<div class="fleetbase-dashboard-grid" ...attributes {{did-insert this.setElement}} {{did-update this.onEditChange @isEdit}}>
     {{!--
         Keyed iteration over a single-element [dashboardId] array. When the
         active dashboard changes the iteration key changes, ember destroys the

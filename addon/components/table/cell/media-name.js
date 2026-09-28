@@ -14,7 +14,9 @@ export default class TableCellMediaNameComponent extends Component {
             path = column.photoPath;
         }
 
-        return get(row, path);
+        // Ember's `get` asserts on a nullish target, which would take down the
+        // whole table render for a cell that has no row yet.
+        return row ? get(row, path) : undefined;
     }
 
     @computed('args.row', 'args.column.{altText,altTextPath}') get altText() {
@@ -25,7 +27,7 @@ export default class TableCellMediaNameComponent extends Component {
         }
 
         if (typeof column?.altTextPath === 'string') {
-            return get(row, column.altTextPath);
+            return row ? get(row, column.altTextPath) : '';
         }
 
         return '';

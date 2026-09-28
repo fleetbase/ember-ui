@@ -1,0 +1,14 @@
+{{! Layout::Resource::Panel example adapter: a local resource and an opt-in save action. }}
+<Layout::Resource::Panel
+    @resource={{this.resource}}
+    @title={{@values.title}}
+    @width={{@values.width}}
+    @isResizable={{@values.isResizable}}
+    @saveDisabled={{@values.saveDisabled}}
+    @saveTask={{this.save}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+    @onPressCancel={{fn (or @onEvent (noop)) "onPressCancel"}}
+    @onToggle={{fn (or @onEvent (noop)) "onToggle"}}
+>
+    <div class="pg-fixture-block">Panel body for {{this.resource.reference}}</div>
+</Layout::Resource::Panel>

@@ -13,7 +13,14 @@ module('Unit | Service | resource-registry', function (hooks) {
         const [vehicle] = service.registerDescriptors([{ key: 'vehicle', aliases: ['attachable-vehicle'], identifier: (r) => r.plate }]);
         assert.strictEqual(vehicle.key, 'vehicle');
         assert.strictEqual(service.register({ key: 'driver' }).key, 'driver');
-        assert.ok(service.descriptors.some((d) => d.key === 'vehicle') && service.descriptors.some((d) => d.key === 'driver'));
+        assert.ok(
+            service.descriptors.some((d) => d.key === 'vehicle'),
+            'the vehicle descriptor is registered'
+        );
+        assert.ok(
+            service.descriptors.some((d) => d.key === 'driver'),
+            'the driver descriptor is registered'
+        );
         assert.strictEqual(service.resolveKey('attachable-vehicle'), 'vehicle');
         assert.strictEqual(service.getDescriptor('vehicle').key, 'vehicle');
         assert.strictEqual(service.componentName('pill', 'vehicle'), 'vehicle/pill');

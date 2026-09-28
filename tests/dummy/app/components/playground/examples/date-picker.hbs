@@ -1,0 +1,10 @@
+{{! DatePicker example adapter: the default date is a fixed fixture, never `new Date()`. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <DatePicker
+        @value={{this.writableValue}}
+        @placeholder={{@values.placeholder}}
+        @onChange={{this.update}}
+        @onDateChanged={{fn (or @onEvent (noop)) "onDateChanged"}}
+        @onSelect={{fn (or @onEvent (noop)) "onSelect"}}
+    />
+</div>

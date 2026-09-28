@@ -1,0 +1,11 @@
+{{! Badge example adapter. }}
+<Badge
+    @status={{@values.status}}
+    @text={{if @values.text @values.text null}}
+    @size={{@values.size}}
+    @hideStatusDot={{@values.hideStatusDot}}
+    @hideIcon={{@values.hideIcon}}
+    @roundedFull={{@values.roundedFull}}
+    @disableHumanize={{@values.disableHumanize}}
+    @helpText={{if @values.helpText @values.helpText null}}
+/>

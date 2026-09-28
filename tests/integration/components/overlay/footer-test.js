@@ -6,21 +6,15 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | overlay/footer', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block with no wrapper of its own', async function (assert) {
+        await render(hbs`<div class="host"><Overlay::Footer><button type="button" class="save">Save</button></Overlay::Footer></div>`);
 
-        await render(hbs`<Overlay::Footer />`);
+        assert.dom('.host > button.save').hasText('Save', 'the block is rendered directly into the caller');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><Overlay::Footer /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <Overlay::Footer>
-        template block text
-      </Overlay::Footer>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.host').hasText('');
     });
 });

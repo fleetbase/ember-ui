@@ -33,6 +33,9 @@ export default class PillComponent extends Component {
     }
 
     @action handleClick() {
+        /* istanbul ignore else -- the template renders the anchor this is bound to only when
+           `isClickable` is true, which is exactly `typeof @onClick === 'function'`; a pill with
+           no handler is a static span with nothing to click, so the else can never run */
         if (typeof this.args.onClick === 'function') {
             if (this.args.resource) {
                 this.args.onClick(this.args.resource, ...arguments);

@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { setupRenderingTest } from 'dummy/tests/helpers';
+import { setupRenderingTest, setupPointerDevice } from 'dummy/tests/helpers';
 import { render, click, triggerEvent, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { registerResourceDescriptors } from '@fleetbase/ember-ui/utils/resource-registry';
@@ -7,6 +7,7 @@ import buildCoreResourceDescriptors from '@fleetbase/ember-ui/utils/resource-des
 
 module('Integration | Component | resource identity smoke', function (hooks) {
     setupRenderingTest(hooks);
+    setupPointerDevice(hooks);
 
     hooks.beforeEach(function () {
         registerResourceDescriptors(this.owner, buildCoreResourceDescriptors(this.owner));

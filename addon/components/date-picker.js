@@ -36,6 +36,8 @@ export default class DatePickerComponent extends Component {
             options.selectedDates = this.parseValue(value);
         }
 
+        /* istanbul ignore next -- `nodeRef` is assigned by the insert hook before the picker is
+           ever configured. */
         if (this.nodeRef) {
             options.container = this.nodeRef.parentNode;
         }

@@ -11,6 +11,7 @@ import deprecateSubclassing from '@fleetbase/ember-ui/utils/deprecate-subclassin
 import arg from '../utils/decorators/arg';
 import { tracked } from '@glimmer/tracking';
 import { ref } from 'ember-ref-bucket';
+import window from 'ember-window-mock';
 
 function nextRunloop() {
     return new Promise((resolve) => next(resolve));
@@ -289,7 +290,9 @@ export default class Modal extends Component {
      * @readonly
      * @private
      */
-    @usesTransition('_fade') usesTransition;
+    // Must name the ARGUMENT: the decorator reads `this.args[prop]`, and `_fade` is a getter on
+    // the component, so `this.args._fade` was always undefined and `@fade={{false}}` was ignored.
+    @usesTransition('fade') usesTransition;
 
     destinationElement = getDestinationElement(this);
 
@@ -448,6 +451,7 @@ export default class Modal extends Component {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.checkScrollbar();
             this.setScrollbar();
@@ -456,10 +460,14 @@ export default class Modal extends Component {
         await afterRender();
 
         const { modalElement } = this;
+        /* istanbul ignore if -- modalElement is created by the same {{#if this.inDom}} block that
+           show() switched on a few lines above, and only hideModal() switches it off — which can
+           never complete inside the single render pass afterRender() is waiting for */
         if (!modalElement) {
             return;
         }
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             modalElement.scrollTop = 0;
             this.adjustDialog();
@@ -511,6 +519,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetAdjustments();
             this.resetScrollbar();
@@ -535,6 +544,14 @@ export default class Modal extends Component {
         this.shouldShowBackdrop = true;
 
         await nextRunloop();
+
+        // The modal can be torn down inside that runloop — a modal opened and immediately removed
+        // from its parent template does exactly that. The backdrop goes with it, so there is
+        // nothing left to transition and nothing to assert about. hideBackdrop already guards its
+        // own teardown this way; this is the same guard on the way in.
+        if (this.isDestroyed || this.isDestroying) {
+            return;
+        }
 
         const { backdropElement } = this;
         assert('Backdrop element should be in DOM', backdropElement);
@@ -561,6 +578,8 @@ export default class Modal extends Component {
             await transitionEnd(backdropElement, this.backdropTransitionDuration);
         }
 
+        /* istanbul ignore if -- reaching here means hideBackdrop's await resolved, and the check
+           at the top of hideModal already ruled out a teardown before it */
         if (this.isDestroyed) {
             return;
         }
@@ -573,6 +592,14 @@ export default class Modal extends Component {
      * @private
      */
     @action adjustDialog() {
+        // Defensive: the resize listener and the modalElement ref are created and torn down by
+        // the same {{#if this.inDom}} block in modal.hbs, so in practice one never outlives the
+        // other. Guarding matches how show() treats the same ref.
+        /* istanbul ignore if -- see above: inDom gates the listener and the ref together */
+        if (!this.modalElement) {
+            return;
+        }
+
         let modalIsOverflowing = this.modalElement.scrollHeight > document.documentElement.clientHeight;
         this.paddingLeft = !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : undefined;
         this.paddingRight = this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : undefined;
@@ -623,6 +650,7 @@ export default class Modal extends Component {
         // Only add the body class if this is the first modal
         if (this.modalsManager.modals.length === 1) {
             // special handling for FastBoot, where real `document` is not available
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // a SimpleDOM instance with just a subset of the DOM API!
                 let document = this.document;
@@ -643,6 +671,7 @@ export default class Modal extends Component {
     removeBodyClass() {
         // Only remove the body class if there are no more modals
         if (this.modalsManager.modals.length === 0) {
+            /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
             if (isFastBoot(this)) {
                 // no need for FastBoot support here
                 return;
@@ -673,6 +702,7 @@ export default class Modal extends Component {
 
         this.removeBodyClass();
 
+        /* istanbul ignore next -- FastBoot-only: this suite runs in a browser, where isFastBoot() is always false. */
         if (!isFastBoot(this)) {
             this.resetScrollbar();
         }

@@ -13,6 +13,15 @@ module.exports = {
         {
             pattern: /(py|px|mx|my|gap)-[1-9][0-9]?/,
         },
+        // Custom field groups build their grid from data (`lg:grid-cols-{{grid_size}}`,
+        // `col-span-{{colSpan}}`), which the content scanner cannot see.
+        {
+            pattern: /grid-cols-[1-3]/,
+            variants: ['lg'],
+        },
+        {
+            pattern: /col-span-[1-3]/,
+        },
     ],
     theme: {
         extend: {

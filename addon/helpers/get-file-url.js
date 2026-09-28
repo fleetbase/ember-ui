@@ -6,7 +6,9 @@ import isUuid from '@fleetbase/ember-core/utils/is-uuid';
 export default class GetFileUrlHelper extends Helper {
     @service store;
 
-    @tracked lastInput = undefined;
+    // not tracked: `compute` reads it and then writes it in the same render pass,
+    // which trips Glimmer's backtracking-rerender assertion for tracked state
+    lastInput = undefined;
     @tracked value = null; // what the template sees
 
     compute([input]) {

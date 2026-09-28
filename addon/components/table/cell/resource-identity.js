@@ -105,6 +105,19 @@ export default class TableCellResourceIdentityComponent extends Component {
         return this.column.statusBadgeSize ?? 'xxs';
     }
 
+    /**
+     * The trigger's own classes. Vertical padding used to be hard-coded here, so the identity cell
+     * could never be compacted for a dense table however the column was configured.
+     */
+    get triggerClass() {
+        return this.column.triggerClass ?? (this.compact ? 'py-0' : 'py-0.5');
+    }
+
+    /** Shorthand for the dense variant, so a caller need not know the padding class to drop. */
+    get compact() {
+        return this.column.compact ?? false;
+    }
+
     get imageSizeClass() {
         return this.column.imageSizeClass ?? 'h-7 w-7';
     }

@@ -1,0 +1,13 @@
+{{!
+    File example adapter. The file is a plain fixture object; the action callbacks only report to
+    the event log, so nothing is downloaded, previewed or deleted.
+}}
+<File
+    @file={{this.file}}
+    @size={{@values.size}}
+    @hideExtension={{@values.hideExtension}}
+    @dropdownButtonText={{if @values.dropdownButtonText @values.dropdownButtonText null}}
+    @onPreview={{fn (or @onEvent (noop)) "onPreview"}}
+    @onDownload={{fn (or @onEvent (noop)) "onDownload"}}
+    @onDelete={{fn (or @onEvent (noop)) "onDelete"}}
+/>

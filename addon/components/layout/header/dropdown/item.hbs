@@ -74,7 +74,7 @@
             class="next-header-dd-menu-item next-dd-item {{if @item.disabled 'disabled'}} {{@item.class}}"
             target={{@item.target}}
             disabled={{@item.disabled}}
-            {{on "click" (fn @onAction @item.action @item.params)}}
+            {{on "click" (fn (or @onAction (noop)) @item.action @item.params)}}
         >
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
@@ -90,7 +90,7 @@
 
 {{#if this.isInteractive}}
     <div class={{if @item.overwriteWrapperClass @item.wrapperClass (concat @item.wrapperClass " px-1")}}>
-        <a href="javascript:;" class="next-header-dd-menu-item next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" @item.onClick}} ...attributes>
+        <a href="javascript:;" class="next-header-dd-menu-item next-dd-item {{if this.active 'active'}}" disabled={{@item.disabled}} {{on "click" (or @item.onClick (noop))}} ...attributes>
             {{#if @item.icon}}
                 <FaIcon @icon={{@item.icon}} @size={{or @item.iconSize "sm"}} class={{or @item.iconClass "mr-2"}} />
             {{/if}}

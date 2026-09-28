@@ -4,6 +4,8 @@
             <div class="p-4">
                 <Spinner />
             </div>
+        {{else if this.loadError}}
+            <div class="p-4 text-sm text-red-600 dark:text-red-400">{{this.loadError}}</div>
         {{else}}
             {{#each this.releases as |release|}}
                 <div class="mb-4">

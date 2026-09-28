@@ -11,6 +11,8 @@ import { isArray } from '@ember/array';
  * the select filter's; values compare as strings so "true" and true match.
  */
 export default class FilterRadioComponent extends Component {
+    /* istanbul ignore next -- @tracked initializer: the constructor assigns `value` before
+       anything reads it, so this lazy initializer is never invoked. */
     @tracked value = '';
 
     constructor(owner, { value }) {

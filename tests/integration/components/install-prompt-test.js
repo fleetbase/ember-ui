@@ -6,21 +6,15 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | install-prompt', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block with no wrapper of its own', async function (assert) {
+        await render(hbs`<div class="host"><InstallPrompt><button type="button" class="install">Install</button></InstallPrompt></div>`);
 
-        await render(hbs`<InstallPrompt />`);
+        assert.dom('.host > button.install').hasText('Install');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><InstallPrompt /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <InstallPrompt>
-        template block text
-      </InstallPrompt>
-    `);
-
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.host').hasText('');
     });
 });

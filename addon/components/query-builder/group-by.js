@@ -2,10 +2,22 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
+/**
+ * How the query builder panels identify a column: joined columns carry a `full` path,
+ * table and computed columns are identified by name.
+ */
+const columnKey = (column) => column.full ?? column.name;
+
+/**
+ * Whether a column is a summary value (e.g. "Total Orders") that aggregates on its own.
+ */
+const isSummaryColumn = (column) => column.aggregate === true;
+
 export default class QueryBuilderGroupByComponent extends Component {
     @tracked selectedGroupBy = null;
     @tracked selectedAggregateFn = null;
     @tracked selectedAggregateBy = null;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked groupByItems = [];
 
     constructor() {
@@ -16,6 +28,7 @@ export default class QueryBuilderGroupByComponent extends Component {
     get aggregateFunctions() {
         return [
             { value: 'count', label: 'Count', icon: 'hashtag' },
+            { value: 'count_distinct', label: 'Count Distinct', icon: 'fingerprint' },
             { value: 'sum', label: 'Sum', icon: 'plus' },
             { value: 'avg', label: 'Average', icon: 'chart-line' },
             { value: 'min', label: 'Minimum', icon: 'arrow-down' },
@@ -38,8 +51,9 @@ export default class QueryBuilderGroupByComponent extends Component {
 
         // Filter to only show selected columns that are not aggregated
         return columnsToUse.filter((column) => {
-            // Don't allow grouping by columns that are already aggregated
-            const isAggregated = column.aggregate && column.aggregate !== 'none';
+            // Don't allow grouping by columns that are already aggregated (summary columns
+            // such as "Total Orders" are flagged `aggregate: true`)
+            const isAggregated = isSummaryColumn(column) || (typeof column.aggregate === 'string' && column.aggregate !== 'none');
             return !isAggregated;
         });
     }
@@ -50,11 +64,19 @@ export default class QueryBuilderGroupByComponent extends Component {
     get availableAggregateColumns() {
         if (!this.selectedAggregateFn) return [];
 
-        const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
+        /* istanbul ignore next -- with neither list there are no columns to group by either, so
+           canGroup is false and group-by.hbs never renders the control that reads this */
+        const allColumns = this.args.allSelectedColumns || this.args.selectedColumns || [];
+        // A summary column is already an aggregate and cannot be aggregated again
+        const columnsToUse = allColumns.filter((column) => !isSummaryColumn(column));
         const fn = this.selectedAggregateFn.value;
 
         if (fn === 'count') {
             return [{ name: '*', label: 'All Records', type: 'count', full: '*' }, ...columnsToUse];
+        }
+
+        if (fn === 'count_distinct') {
+            return columnsToUse;
         }
 
         if (fn === 'sum' || fn === 'avg') {
@@ -67,10 +89,13 @@ export default class QueryBuilderGroupByComponent extends Component {
             return columnsToUse.filter((c) => ['integer', 'decimal', 'number', 'float', 'date', 'datetime', 'timestamp', 'string', 'text'].includes(c.type));
         }
 
+        /* istanbul ignore else -- fn comes from the fixed aggregateFunctions list, and every
+           entry in it is handled by one of the branches above */
         if (fn === 'group_concat') {
             return columnsToUse.filter((c) => ['string', 'text'].includes(c.type));
         }
 
+        /* istanbul ignore next -- see above */
         return columnsToUse;
     }
 
@@ -89,10 +114,13 @@ export default class QueryBuilderGroupByComponent extends Component {
             return 'Select columns first to enable grouping';
         }
 
+        /* istanbul ignore else -- group-by.hbs only renders {{this.groupingMessage}} inside the
+           {{else}} of {{#if this.canGroup}}, so it is never read while grouping is possible */
         if (!this.canGroup) {
             return 'No non-aggregated columns available for grouping';
         }
 
+        /* istanbul ignore next -- see above */
         return null;
     }
 
@@ -114,6 +142,7 @@ export default class QueryBuilderGroupByComponent extends Component {
         // For SUM/AVG/MIN/MAX/GROUP_CONCAT we need:
         // - at least one compatible column available
         // - a selected "aggregate by" column
+        /* istanbul ignore next -- availableAggregateColumns always returns an array */
         const avail = this.availableAggregateColumns ?? [];
         const hasCompatible = avail.length > 0;
 
@@ -139,9 +168,11 @@ export default class QueryBuilderGroupByComponent extends Component {
     }
 
     @action addGroupBy() {
+        /* istanbul ignore else -- the Add button is disabled by isAddGroupingDisabled until all
+           three are chosen, so there is nothing to press before then */
         if (this.selectedGroupBy && this.selectedAggregateFn && this.selectedAggregateBy) {
             // Validate that the groupBy column is actually selected
-            const isGroupByColumnSelected = this.args.selectedColumns?.some((col) => col.full === this.selectedGroupBy.full);
+            const isGroupByColumnSelected = this.availableGroupByColumns.some((col) => columnKey(col) === columnKey(this.selectedGroupBy));
 
             if (!isGroupByColumnSelected) {
                 console.warn('Cannot group by column that is not selected:', this.selectedGroupBy);
@@ -178,12 +209,13 @@ export default class QueryBuilderGroupByComponent extends Component {
 
     @action reorderGroupBy({ sourceList, sourceIndex, targetList, targetIndex }) {
         // no change? bail
+        /* istanbul ignore if -- ember-drag-sort re-checks that the source and target position differ after its own index adjustments (services/drag-sort.ts endDragging) and never invokes @dragEndAction for a drop that did not move anything */
         if (sourceList === targetList && sourceIndex === targetIndex) return;
 
         // mutate the EmberArray in-place (per README)
-        const item = sourceList.objectAt(sourceIndex);
-        sourceList.removeAt(sourceIndex);
-        targetList.insertAt(targetIndex, item);
+        const item = sourceList[sourceIndex];
+        sourceList.splice(sourceIndex, 1);
+        targetList.splice(targetIndex, 0, item);
 
         // ensure Glimmer sees a change even if it misses EmberArray observers
         this.groupByItems = [...this.groupByItems];
@@ -195,7 +227,11 @@ export default class QueryBuilderGroupByComponent extends Component {
      * Validate existing group by items when selected columns change
      */
     @action validateGroupByItems() {
-        if (!this.args.selectedColumns?.length) {
+        /* istanbul ignore next -- the only consumer, query-builder.hbs, always passes
+           allSelectedColumns, and that getter always returns an array */
+        const columnsToUse = this.args.allSelectedColumns || this.args.selectedColumns || [];
+
+        if (!columnsToUse.length) {
             // Clear all grouping if no columns selected
             if (this.groupByItems.length > 0) {
                 this.groupByItems = [];
@@ -206,7 +242,7 @@ export default class QueryBuilderGroupByComponent extends Component {
 
         // Remove group by items for columns that are no longer selected
         const validGroupByItems = this.groupByItems.filter((item) => {
-            return this.args.selectedColumns.some((col) => col.full === item.groupBy.full);
+            return columnsToUse.some((col) => columnKey(col) === columnKey(item.groupBy));
         });
 
         if (validGroupByItems.length !== this.groupByItems.length) {

@@ -7,7 +7,7 @@ export default helper(function truncateFilename([filename, maxLength = 20]) {
 
     const extensionMatch = filename.match(/\.(.+)$/);
     const extension = extensionMatch ? extensionMatch[0] : '';
-    const baseName = filename.slice(0, -extension.length);
+    const baseName = extension ? filename.slice(0, -extension.length) : filename;
 
     if (maxLength <= extension.length) {
         // If the maximum length is less than or equal to the extension's length, return only the extension

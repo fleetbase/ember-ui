@@ -5,6 +5,8 @@ import { action } from '@ember/object';
 export default class SelectComponent extends Component {
     @tracked value;
     @tracked placeholder;
+    /* istanbul ignore next -- the constructor always assigns this, so the field's lazy
+       initializer is never invoked. */
     @tracked disabled = false;
 
     constructor(owner, { value, placeholder, disabled = false }) {

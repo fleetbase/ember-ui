@@ -1,0 +1,15 @@
+{{!
+    FileUpload example adapter. Nothing is uploaded: the lifecycle callbacks report to the event
+    log, which summarizes a File by name, type and size only — never its contents.
+}}
+<FileUpload
+    @accept={{@values.accept}}
+    @multiple={{@values.multiple}}
+    @disabled={{@values.disabled}}
+    @labelClass={{@values.labelClass}}
+    @onFileAdded={{fn (or @onEvent (noop)) "onFileAdded"}}
+    @onFileRemoved={{fn (or @onEvent (noop)) "onFileRemoved"}}
+    @onUploadStarted={{fn (or @onEvent (noop)) "onUploadStarted"}}
+    @onUploadSucceeded={{fn (or @onEvent (noop)) "onUploadSucceeded"}}
+    @onUploadFailed={{fn (or @onEvent (noop)) "onUploadFailed"}}
+/>

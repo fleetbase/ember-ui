@@ -1,0 +1,12 @@
+{{! DropdownButton example adapter. }}
+<DropdownButton
+    @text={{@values.text}}
+    @type={{@values.type}}
+    @size={{@values.size}}
+    @icon={{@values.icon}}
+    @disabled={{@values.disabled}}
+    @isLoading={{@values.isLoading}}
+    @items={{this.items}}
+    @onOpen={{fn (or @onEvent (noop)) "onOpen"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+/>

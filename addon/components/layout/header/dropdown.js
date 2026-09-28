@@ -6,6 +6,8 @@ import calculatePosition from 'ember-basic-dropdown/utils/calculate-position';
 export default class LayoutHeaderDropdownComponent extends Component {
     @service media;
     @action onAction(dd, action, ...params) {
+        /* istanbul ignore next -- the template only ever invokes this from inside a dropdown, so
+           `dd` always carries its actions. */
         if (typeof dd?.actions?.close === 'function') {
             dd.actions.close();
         }

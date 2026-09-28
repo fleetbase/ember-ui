@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { isNone } from '@ember/utils';
+import { next } from '@ember/runloop';
 import numbersOnly from '../utils/numbers-only';
 import getCurrency from '../utils/get-currency';
 import AutoNumeric from 'autonumeric';
@@ -10,7 +11,6 @@ import AutoNumeric from 'autonumeric';
 export default class MoneyInputComponent extends Component {
     @service fetch;
     @service currentUser;
-    @tracked currencies = getCurrency();
     @tracked currency;
     @tracked currencyData;
     @tracked autonumeric;
@@ -36,9 +36,19 @@ export default class MoneyInputComponent extends Component {
 
         this.autonumeric = new AutoNumeric(element, amount, this.getCurrencyFormatOptions(currency));
 
-        // default the currency from currency data
+        // Default the consumer's currency from ours, but after this render: {{did-insert}} runs
+        // inside the render that already read @currency, and writing it back there is the
+        // "already used in the same computation" assertion.
         if (typeof onCurrencyChange === 'function') {
-            onCurrencyChange(currency.code, currency);
+            next(() => {
+                /* istanbul ignore if -- render() settles the run loop, so this fires before any
+                   test can tear the component down */
+                if (this.isDestroying || this.isDestroyed) {
+                    return;
+                }
+
+                this.#reportCurrency(currency);
+            });
         }
 
         // Use rawValueModified for better change detection
@@ -54,9 +64,18 @@ export default class MoneyInputComponent extends Component {
         });
     }
 
+    /**
+     * The user picked a currency: apply it and tell the consumer.
+     * @action
+     */
     @action setCurrency(currency) {
-        const { onCurrencyChange } = this.args;
+        this.#applyCurrency(currency);
+        this.#reportCurrency(currency);
+    }
 
+    #applyCurrency(currency) {
+        /* istanbul ignore else -- autoNumerize runs from {{did-insert}} on the amount field, so
+           the instance exists before the currency selector can be reached */
         if (this.autonumeric) {
             let value = this.autonumeric.getNumber();
             this.autonumeric.update(this.getCurrencyFormatOptions(currency));
@@ -66,19 +85,32 @@ export default class MoneyInputComponent extends Component {
 
         this.currency = currency.code;
         this.currencyData = currency;
+    }
 
-        if (typeof onCurrencyChange === 'function') {
-            onCurrencyChange(currency.code, currency);
+    #reportCurrency(currency) {
+        if (typeof this.args.onCurrencyChange === 'function') {
+            this.args.onCurrencyChange(currency.code, currency);
         }
     }
 
     @action getCurrencyFormatOptions(currency) {
+        /* istanbul ignore next -- every entry in get-currency.js declares a symbol */
+        const currencySymbol = isNone(currency.symbol) ? '$' : currency.symbol;
+        /* istanbul ignore next -- every entry in get-currency.js declares a precision */
+        const decimalPlaces = isNone(currency.precision) ? 2 : currency.precision;
+        /* istanbul ignore next -- every entry in get-currency.js declares a thousandSeparator */
+        const digitGroupSeparator = isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator;
+
         let options = {
-            currencySymbol: isNone(currency.symbol) ? '$' : currency.symbol,
+            currencySymbol,
             currencySymbolPlacement: currency.symbolPlacement === 'before' ? 'p' : 's',
-            decimalCharacter: isNone(currency.decimalSeperator) ? '.' : currency.decimalSeparator,
-            decimalPlaces: isNone(currency.precision) ? 2 : currency.precision,
-            digitGroupSeparator: isNone(currency.thousandSeparator) ? ',' : currency.thousandSeparator,
+            // Truthiness, not isNone: 16 zero-decimal currencies in get-currency.js carry
+            // `decimalSeparator: ''`, and an empty decimalCharacter makes AutoNumeric build the
+            // broken character class /[^-0123456789\]/ and throw. The rest of this component
+            // already tests the separator with `!currency.decimalSeparator`.
+            decimalCharacter: currency.decimalSeparator || '.',
+            decimalPlaces,
+            digitGroupSeparator,
         };
 
         // decimal and thousand seperator cannot be the same, if they are revert the thousand seperator
@@ -89,7 +121,13 @@ export default class MoneyInputComponent extends Component {
         return options;
     }
 
+    /**
+     * `@currency` changed from outside: reformat, but do not echo it back. The consumer set
+     * it, and writing to their model from inside a render is the "already used in the same
+     * computation" assertion (seen after a save, when the server's value replaced the local one).
+     * @action
+     */
     @action handleCurrencyChanges(el, [currency]) {
-        this.setCurrency(getCurrency(currency));
+        this.#applyCurrency(getCurrency(currency));
     }
 }

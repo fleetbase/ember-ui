@@ -1,6 +1,12 @@
 import { modifier } from 'ember-modifier';
 import numbersOnly from '../utils/numbers-only';
 
+// Units that are meaningful only relative to the viewport, the parent box or the font, and so
+// cannot be converted to a pixel count here. They are passed through to CSS untouched — the old
+// modifier discarded them and emitted the bare number as pixels, which turned a `100vw`
+// fullscreen overlay into a 100-PIXEL one.
+const PASS_THROUGH_UNITS = ['%', 'vw', 'vh', 'vmin', 'vmax', 'ch', 'ex', 'cm', 'mm', 'in', 'px'];
+
 export default modifier(function setWidth(element, [width]) {
     if (width === undefined || width === null) {
         return;
@@ -14,8 +20,17 @@ export default modifier(function setWidth(element, [width]) {
         const match = width.match(/^(\d+(?:\.\d+)?)(\D+)?$/);
         if (match !== null) {
             widthValue = match[1];
-            unit = match[2] || '';
+            unit = (match[2] || '').trim();
+        } else {
+            // Keyword widths such as `auto`, `fit-content` or a `calc(...)` expression.
+            element.style.width = width;
+            return;
         }
+    }
+
+    if (PASS_THROUGH_UNITS.includes(unit)) {
+        element.style.width = `${widthValue}${unit}`;
+        return;
     }
 
     // Convert the width value to pixels

@@ -6,21 +6,15 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | view-raw-metadata', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block with no wrapper of its own', async function (assert) {
+        await render(hbs`<div class="host"><ViewRawMetadata><span class="inside">raw</span></ViewRawMetadata></div>`);
 
-        await render(hbs`<ViewRawMetadata />`);
+        assert.dom('.host > .inside').hasText('raw', 'the block lands directly in the caller');
+    });
 
-        assert.dom().hasText('');
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><ViewRawMetadata /></div>`);
 
-        // Template block usage:
-        await render(hbs`
-      <ViewRawMetadata>
-        template block text
-      </ViewRawMetadata>
-    `);
-
-        assert.dom().hasText('template block text');
+        assert.dom('.host').hasText('');
     });
 });

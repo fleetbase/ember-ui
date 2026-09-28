@@ -30,7 +30,7 @@
                 <li>
                     <span class="text-sm dark:text-gray-100">{{get selected @options.modelNamePath}}</span>
 
-                    <a href="javascript:;" {{on "click" (fn @options.remove selected)}} class="my-1">
+                    <a href="javascript:;" {{on "click" (fn (or @options.remove (noop)) selected)}} class="my-1">
                         <FaIcon @icon="times-circle" />
                     </a>
                 </li>

@@ -22,7 +22,7 @@
             "
         role="document"
     >
-        <div class="flb--modal-content" tabindex="-1" {{focus-trap shouldSelfFocus=true focusTrapOptions=(hash clickOutsideDeactivates=true fallbackFocus=".flb--modal")}}>
+        <div class="flb--modal-content" tabindex="-1" {{focus-trap shouldSelfFocus=true focusTrapOptions=(hash clickOutsideDeactivates=true preventScroll=true fallbackFocus=".flb--modal")}}>
             {{yield}}
         </div>
     </div>

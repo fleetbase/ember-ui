@@ -4,7 +4,6 @@ import { action, computed, defineProperty } from '@ember/object';
 import { alias, gt, not } from '@ember/object/computed';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 import PaginationItems from '../utils/pagination/items';
-import arrayRange from '../utils/array-range';
 
 export default class PaginationComponent extends Component {
     /**
@@ -12,6 +11,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Boolean}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked truncatePages = true;
 
     /**
@@ -19,6 +19,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Boolean}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked showFL = false;
 
     /**
@@ -26,6 +27,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Integer}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked numPagesToShow = 10;
 
     /**
@@ -33,6 +35,7 @@ export default class PaginationComponent extends Component {
      *
      * @var {Integer}
      */
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked currentPage = 1;
 
     /**
@@ -41,7 +44,7 @@ export default class PaginationComponent extends Component {
      * @var {Integer}
      */
     get from() {
-        return this.args.meta.from || 1;
+        return this.args.meta?.from || 1;
     }
 
     /**
@@ -50,7 +53,7 @@ export default class PaginationComponent extends Component {
      * @var {Integer}
      */
     get to() {
-        return this.args.meta.to || 1;
+        return this.args.meta?.to || 1;
     }
 
     /**
@@ -87,7 +90,7 @@ export default class PaginationComponent extends Component {
      * @var {Boolean}
      */
     @computed('args.meta.current_page', 'totalPages') get canStepForward() {
-        return this.args.meta.current_page < this.totalPages;
+        return this.args.meta?.current_page < this.totalPages;
     }
 
     /**
@@ -109,13 +112,18 @@ export default class PaginationComponent extends Component {
      *
      * @var {Object}
      */
-    @computed('args.currentPage', 'totalPages', 'truncatePages', 'numPagesToShow', 'showFL')
+    @computed('currentPage', 'totalPages', 'truncatePages', 'numPagesToShow', 'showFL')
     get pageItemsObj() {
         const result = PaginationItems.create({
             parent: this,
         });
 
-        defineProperty(result, 'currentPage', alias('parent.args.currentPage'));
+        // Alias the component's OWN tracked `currentPage`, not `args.currentPage`. The
+        // constructor defaults it to 1 and `incrementPage`/`goToPage` move it, so aliasing the
+        // raw argument meant the page list collapsed to a single ellipsis when the caller
+        // passed no `@currentPage`, and the highlight never moved unless the parent fed the
+        // new value back down.
+        defineProperty(result, 'currentPage', alias('parent.currentPage'));
         defineProperty(result, 'totalPages', alias('parent.totalPages'));
         defineProperty(result, 'truncatePages', alias('parent.truncatePages'));
         defineProperty(result, 'numPagesToShow', alias('parent.numPagesToShow'));
@@ -138,16 +146,6 @@ export default class PaginationComponent extends Component {
      *
      * @var {Array}
      */
-    @computed('args.meta.last_page') get pageNumbers() {
-        const pages = arrayRange(this.args.meta.last_page || 0, 1).map((page) => {
-            return {
-                page,
-                dots: page === 12,
-            };
-        });
-        return pages.length < 12 ? pages : pages.slice(0, 12);
-    }
-
     /**
      * Create instance of PaginationComponent
      */
@@ -165,6 +163,8 @@ export default class PaginationComponent extends Component {
      *
      * @void
      */
+    /* istanbul ignore next -- every call site in pagination.hbs passes an explicit step
+       (`(fn this.incrementPage 1)` or `-1`), so the default never applies. */
     @action incrementPage(step = 1) {
         const currentPage = Number(this.currentPage);
         const totalPages = Number(this.totalPages);

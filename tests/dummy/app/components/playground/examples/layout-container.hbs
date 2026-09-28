@@ -1,0 +1,19 @@
+{{!
+    Layout::Container example adapter. The container yields the console frame, so the smallest
+    honest example composes it with a header, sidebar and main region.
+}}
+{{#if (eq @scenario "bare")}}
+    <Layout::Container>
+        <div class="pg-fixture-block">{{@values.bodyText}}</div>
+    </Layout::Container>
+{{else}}
+    <Layout::Container>
+        <Layout::Header />
+        <Layout::Sidebar />
+        <Layout::Main>
+            <Layout::Section>
+                <div class="pg-fixture-block">{{@values.bodyText}}</div>
+            </Layout::Section>
+        </Layout::Main>
+    </Layout::Container>
+{{/if}}

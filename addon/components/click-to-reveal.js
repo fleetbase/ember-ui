@@ -6,7 +6,7 @@ import { later } from '@ember/runloop';
 export default class ClickToRevealComponent extends ClickToCopyComponent {
     @tracked isVisible = false;
     @tracked isLoading = false;
-    @tracked timeout = 600;
+    /* istanbul ignore next -- the constructor assigns this before anything reads it */
     @tracked clickToCopy = false;
     @tracked wrapperClass = this.args.wrapperClass ?? '';
 

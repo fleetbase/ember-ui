@@ -1,25 +1,23 @@
 name: Ember CI
 
-# Pushes run only for main and tags (tags publish). A release or dev branch always
-# has a pull request, and pull_request already runs on every push to it; triggering
-# on push too ran the whole suite twice for each commit.
+# Validate branches through pull requests so updates run CI only once.
+# Keep tag pushes for publishing after the required checks pass.
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   pull_request:
+    # These filters match the target branch, including release integration branches.
     branches:
       - main
       - 'release/v*'
       - 'dev-v*'
 
-# A newer push to the same pull request or branch makes the running check stale.
-# Every tag is its own ref, so a publish run is never cancelled by another push.
+# Cancel stale runs for the same PR.
+# Allow tag publishing runs to finish.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 env:
   NODE_VERSION: 22.x
@@ -28,110 +26,174 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: latest
-
-    - name: Install Dependencies
-      run: pnpm install
-
-    - name: Lint
-      run: pnpm run lint
-
-    - name: Build
-      run: pnpm run build
-
-  test:
-    needs: build
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     # The suite takes about three minutes. A hang (a test run that never exits) should
     # fail fast, not run until someone cancels it.
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: latest
-
-    - name: Install Dependencies
-      run: pnpm install
-
-    - name: Lint
-      run: pnpm run lint
-
-    - name: Test
-      run: pnpm run test:ember --filter='!Integration'
-
-  npm_publish:
-    needs: test
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: latest
-
-    - name: Install Dependencies
-      run: pnpm install
-
-    - name: Build
-      run: pnpm run build
-
-    - name: Set up npm
-      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-
-    - name: Publish
-      run: npm publish --access public
-      
-  github_publish:
-    needs: build
-    permissions:
-      contents: read
-      packages: write
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
 
-      - name: Install Dependencies
-        run: pnpm install
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Build the playground for GitHub Pages
+        run: pnpm run build:playground
+
+      - name: Verify the Pages artifact
+        run: |
+          set -euo pipefail
+
+          test -f playground-dist/index.html || { echo 'playground-dist/index.html is missing'; exit 1; }
+          test -f playground-dist/.nojekyll || { echo 'playground-dist/.nojekyll is missing'; exit 1; }
+          test -d playground-dist/assets   || { echo 'playground-dist/assets is missing'; exit 1; }
+
+          # Assets must resolve under the sub-path, or every request 404s on Pages.
+          grep -q '/ember-ui/assets/' playground-dist/index.html \
+            || { echo 'index.html does not reference assets under /ember-ui/'; exit 1; }
+
+          # Nothing from the test or coverage lifecycle may reach a published artifact.
+          for unwanted in tests tests.html testem.js coverage; do
+            if [ -e "playground-dist/$unwanted" ]; then
+              echo "playground-dist/$unwanted must not be published"
+              exit 1
+            fi
+          done
+
+          if find playground-dist -name 'lcov.info' -o -name 'coverage-*.json' | grep -q .; then
+            echo 'coverage artefacts leaked into the Pages build'
+            exit 1
+          fi
+
+  test:
+    name: Test with coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Coverage gate self-test
+        run: pnpm run coverage:selftest
+
+      - name: Run full test suite with coverage
+        run: pnpm run test:coverage
+
+      - name: Enforce 100% coverage gate
+        run: pnpm run coverage:check
+
+      - name: Verify LCOV report exists
+        run: test -s coverage/lcov.info || (echo 'coverage/lcov.info missing or empty' && exit 1)
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          flags: ember-ui
+          fail_ci_if_error: true
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  npm_publish:
+    name: Publish to npm
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Set up npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+
+      - name: Publish
+        run: npm publish --access public
+
+  github_publish:
+    name: Publish to GitHub registry
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm run build

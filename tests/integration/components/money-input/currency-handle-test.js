@@ -6,21 +6,35 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | money-input/currency-handle', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test("it renders the currency's flag emoji", async function (assert) {
+        this.set('currency', { code: 'AWG', emoji: '🇦🇼' });
 
+        await render(hbs`<MoneyInput::CurrencyHandle @currency={{this.currency}} />`);
+
+        assert.dom('.currency-flag').hasText('🇦🇼');
+    });
+
+    test('a currency with no emoji renders an empty handle', async function (assert) {
+        this.set('currency', { code: 'USD' });
+
+        await render(hbs`<MoneyInput::CurrencyHandle @currency={{this.currency}} />`);
+
+        assert.dom('.currency-flag').hasText('');
+    });
+
+    test('it renders without a currency at all', async function (assert) {
         await render(hbs`<MoneyInput::CurrencyHandle />`);
 
-        assert.dom(this.element).hasText('');
+        assert.dom('.currency-flag').exists();
+        assert.dom('.currency-flag').hasText('');
+    });
 
-        // Template block usage:
-        await render(hbs`
-      <MoneyInput::CurrencyHandle>
-        template block text
-      </MoneyInput::CurrencyHandle>
-    `);
+    test('a trigger class and splattributes are applied', async function (assert) {
+        this.set('currency', { code: 'USD', emoji: '🇺🇸' });
 
-        assert.dom(this.element).hasText('template block text');
+        await render(hbs`<MoneyInput::CurrencyHandle @currency={{this.currency}} @triggerClass="my-trigger" data-test-handle="yes" />`);
+
+        assert.dom('.currency-flag').hasClass('my-trigger');
+        assert.dom('.currency-flag').hasAttribute('data-test-handle', 'yes');
     });
 });

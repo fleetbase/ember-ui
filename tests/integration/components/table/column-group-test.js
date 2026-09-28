@@ -6,21 +6,21 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | table/column-group', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
-
-        await render(hbs`<Table::ColumnGroup />`);
-
-        assert.dom(this.element).hasText('');
-
-        // Template block usage:
+    test('it renders only its block', async function (assert) {
         await render(hbs`
-      <Table::ColumnGroup>
-        template block text
-      </Table::ColumnGroup>
-    `);
+            <Table::ColumnGroup>
+                <Table::Column><span class="a">A</span></Table::Column>
+                <Table::Column><span class="b">B</span></Table::Column>
+            </Table::ColumnGroup>
+        `);
 
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.a').hasText('A');
+        assert.dom('.b').hasText('B');
+    });
+
+    test('with no block it renders nothing', async function (assert) {
+        await render(hbs`<div class="host"><Table::ColumnGroup /></div>`);
+
+        assert.dom('.host').hasText('');
     });
 });

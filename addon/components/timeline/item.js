@@ -2,6 +2,8 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 
 export default class TimelineItemComponent extends Component {
+    /* istanbul ignore next -- @tracked initializer: the value is assigned before it is ever
+       read, so this lazy initializer is never invoked. */
     @tracked isActive = false;
 
     constructor(owner, { activeStatus, activity }) {

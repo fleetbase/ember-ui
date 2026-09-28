@@ -6,21 +6,24 @@ import { hbs } from 'ember-cli-htmlbars';
 module('Integration | Component | layout/section/body', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    test('it renders its block unpadded by default', async function (assert) {
+        await render(hbs`<Layout::Section::Body><span class="inside">body</span></Layout::Section::Body>`);
 
-        await render(hbs`<Layout::Section::Body />`);
+        assert.dom('.next-view-section-body .inside').hasText('body');
+        assert.dom('.next-view-section-body').doesNotHaveClass('py-4');
+    });
 
-        assert.dom(this.element).hasText('');
+    test('padding can be opted into', async function (assert) {
+        await render(hbs`<Layout::Section::Body @padded={{true}} />`);
 
-        // Template block usage:
-        await render(hbs`
-      <Layout::Section::Body>
-        template block text
-      </Layout::Section::Body>
-    `);
+        assert.dom('.next-view-section-body').hasClass('py-4');
+        assert.dom('.next-view-section-body').hasClass('px-4');
+    });
 
-        assert.dom(this.element).hasText('template block text');
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Layout::Section::Body class="overflow-y-scroll" data-test-body="yes" />`);
+
+        assert.dom('.next-view-section-body').hasClass('overflow-y-scroll');
+        assert.dom('.next-view-section-body').hasAttribute('data-test-body', 'yes');
     });
 });

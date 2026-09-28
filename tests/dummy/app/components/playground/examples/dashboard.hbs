@@ -1,0 +1,9 @@
+{{! Dashboard example adapter: a local fixture and three safe local widgets. }}
+<Dashboard
+    @dashboard={{this.dashboard}}
+    @isEdit={{@values.isEdit}}
+    @stickyHeader={{@values.stickyHeader}}
+    @isSystemDashboard={{@values.isSystemDashboard}}
+    @onLoad={{fn (or @onEvent (noop)) "onLoad"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+/>

@@ -1,0 +1,10 @@
+{{! Modal::Default example adapter: rendered in place so it stays inside the preview frame. }}
+<Modal::Default
+    @modalIsOpened={{@values.modalIsOpened}}
+    @options={{hash title=@values.title acceptButtonText=@values.acceptButtonText declineButtonText=@values.declineButtonText}}
+    @renderInPlace={{true}}
+    @onSubmit={{fn (or @onEvent (noop)) "onSubmit"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+>
+    <div class="pg-fixture-block">{{@values.bodyText}}</div>
+</Modal::Default>

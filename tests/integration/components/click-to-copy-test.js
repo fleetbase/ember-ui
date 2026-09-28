@@ -1,26 +1,102 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | click-to-copy', function (hooks) {
     setupRenderingTest(hooks);
 
-    test('it renders', async function (assert) {
-        // Set any properties with this.set('myProperty', 'value');
-        // Handle any actions with this.set('myAction', function(val) { ... });
+    hooks.beforeEach(function () {
+        // Scoped navigator.clipboard override so tests never depend on real clipboard permissions.
+        this.copiedValues = [];
+        this._clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+        Object.defineProperty(navigator, 'clipboard', {
+            configurable: true,
+            value: {
+                writeText: (value) => {
+                    this.copiedValues.push(value);
+                    return Promise.resolve();
+                },
+            },
+        });
+    });
 
+    hooks.afterEach(function () {
+        if (this._clipboardDescriptor) {
+            Object.defineProperty(navigator, 'clipboard', this._clipboardDescriptor);
+        } else {
+            delete navigator.clipboard;
+        }
+    });
+
+    test('it renders the value with a copy prompt', async function (assert) {
+        await render(hbs`<ClickToCopy @value="ORDER-12345" />`);
+
+        assert.dom('.click-to-copy--value').hasText('ORDER-12345');
+        assert.dom('.click-to-copy--tooltip').hasText('Click to copy');
+    });
+
+    test('it renders a placeholder when no value is provided', async function (assert) {
         await render(hbs`<ClickToCopy />`);
 
-        assert.dom(this.element).hasText('');
+        assert.dom('.click-to-copy--value').hasText('-');
+    });
 
-        // Template block usage:
-        await render(hbs`
-      <ClickToCopy>
-        template block text
-      </ClickToCopy>
-    `);
+    test('it yields block content in place of the value', async function (assert) {
+        await render(hbs`<ClickToCopy @value="ORDER-12345"><span class="custom-label">Order number</span></ClickToCopy>`);
 
-        assert.dom(this.element).hasText('template block text');
+        assert.dom('.click-to-copy--value .custom-label').hasText('Order number');
+    });
+
+    test('it copies the value to the clipboard on click', async function (assert) {
+        await render(hbs`<ClickToCopy @value="ORDER-12345" />`);
+        await click('.click-to-copy');
+
+        assert.deepEqual(this.copiedValues, ['ORDER-12345'], 'the value is written to the clipboard');
+        assert.dom('.click-to-copy--tooltip').hasText('Copied!', 'tooltip confirms the copy');
+    });
+
+    test('it falls back to execCommand when the clipboard API is unavailable', async function (assert) {
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+        const originalExecCommand = document.execCommand;
+        const executedCommands = [];
+        document.execCommand = (command) => {
+            executedCommands.push(command);
+            return true;
+        };
+
+        try {
+            await render(hbs`<ClickToCopy @value="ORDER-12345" />`);
+            await click('.click-to-copy');
+
+            assert.deepEqual(executedCommands, ['copy'], 'the copy command is executed');
+            assert.dom('.click-to-copy--tooltip').hasText('Copied!', 'tooltip confirms the copy');
+        } finally {
+            document.execCommand = originalExecCommand;
+        }
+    });
+    test('a failing execCommand in the fallback path is reported, not thrown', async function (assert) {
+        // Force the fallback, then make the copy itself fail.
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+        const originalExecCommand = document.execCommand;
+        const originalConsoleError = console.error;
+        const reported = [];
+        console.error = (error) => reported.push(error);
+        document.execCommand = () => {
+            throw new Error('copy is not allowed');
+        };
+
+        try {
+            this.set('value', 'ord_1');
+            await render(hbs`<ClickToCopy @value={{this.value}} />`);
+            await click('.click-to-copy');
+        } finally {
+            document.execCommand = originalExecCommand;
+            console.error = originalConsoleError;
+        }
+
+        assert.strictEqual(reported.length, 1, 'the failure is logged');
+        assert.strictEqual(reported[0].message, 'copy is not allowed');
+        assert.dom('.click-to-copy').doesNotIncludeText('Copied', 'and nothing claims success');
     });
 });

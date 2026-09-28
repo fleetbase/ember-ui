@@ -35,4 +35,46 @@ function setupTest(hooks, options) {
     // Additional setup for unit tests can be done here.
 }
 
-export { setupApplicationTest, setupRenderingTest, setupTest };
+/**
+ * Pins the browser's answer to `(hover: none)` to "this device can hover".
+ *
+ * `Resource::HoverCard` deliberately never arms on a touch device, and a
+ * headless Chrome reports `(hover: none)` as matching while a local windowed
+ * one does not — so hover tests pass locally and time out in CI. Tests that
+ * are about arming behaviour rather than device detection use this so they
+ * run the same way in both places; the tests that cover the touch-device
+ * branch stub `matchMedia` themselves and are unaffected.
+ *
+ * Only the hover query is answered here: everything else is delegated to the
+ * real `matchMedia`, so unrelated queries keep working.
+ */
+function setupPointerDevice(hooks) {
+    let nativeMatchMedia;
+
+    hooks.beforeEach(function () {
+        nativeMatchMedia = window.matchMedia;
+
+        window.matchMedia = function (query) {
+            if (typeof query === 'string' && query.replace(/\s+/g, '').includes('hover:none')) {
+                return {
+                    matches: false,
+                    media: query,
+                    onchange: null,
+                    addEventListener() {},
+                    removeEventListener() {},
+                    addListener() {},
+                    removeListener() {},
+                    dispatchEvent: () => false,
+                };
+            }
+
+            return nativeMatchMedia.call(window, query);
+        };
+    });
+
+    hooks.afterEach(function () {
+        window.matchMedia = nativeMatchMedia;
+    });
+}
+
+export { setupApplicationTest, setupRenderingTest, setupTest, setupPointerDevice };

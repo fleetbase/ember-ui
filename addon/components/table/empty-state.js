@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import window from 'ember-window-mock';
 
 export default class TableEmptyStateComponent extends Component {
     @service docsPanel;
@@ -64,6 +65,7 @@ export default class TableEmptyStateComponent extends Component {
     }
 
     get docsTitle() {
+        /* istanbul ignore next -- `title` always returns a string, so it is never nullish */
         return this.args.docsTitle ?? this.title ?? 'Documentation';
     }
 
@@ -78,6 +80,8 @@ export default class TableEmptyStateComponent extends Component {
     @action openDocs() {
         const docsTarget = this.docsTarget;
 
+        /* istanbul ignore if -- empty-state.hbs wraps the button that calls this in
+           {{#if this.docsTarget}}, so there is nothing to press without one */
         if (!docsTarget) {
             return;
         }
@@ -89,6 +93,8 @@ export default class TableEmptyStateComponent extends Component {
             });
         }
 
+        /* istanbul ignore else -- this addon only runs in a browser; the guard is for a
+           FastBoot render, where there is no window to open anything in */
         if (typeof window !== 'undefined') {
             return window.open(docsTarget, '_docs');
         }

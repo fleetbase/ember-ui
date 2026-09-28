@@ -21,6 +21,8 @@ export default class ModalDialog extends Component {
      * @property id
      * @type null | HTMLElement
      */
+    /* istanbul ignore next -- `@ref` assigns this field itself, so its initializer is never
+       invoked. */
     @ref('mainNode') _element = null;
 
     /**
@@ -56,6 +58,7 @@ export default class ModalDialog extends Component {
         //Title element may be set by user so we have to try and find it to set the id
         let nodeId = null;
 
+        /* istanbul ignore next -- a `did-insert` action always receives its element. */
         if (modalNode) {
             const titleNode = modalNode.querySelector('.flb--modal-title');
             if (titleNode) {
@@ -104,6 +107,8 @@ export default class ModalDialog extends Component {
      */
 
     @action handleKeyDown(e) {
+        /* istanbul ignore next -- every keydown this suite and a browser produce carries a
+           keyCode; `which` is the pre-DOM-3 fallback */
         let code = e.keyCode || e.which;
         if (code === 27 && this.args.keyboard) {
             this.args.onClose?.();

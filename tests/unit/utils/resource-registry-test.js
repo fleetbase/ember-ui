@@ -448,4 +448,57 @@ module('Unit | Utility | resource-registry | abilities service', function (hooks
         assert.true(canOpenResource(this.owner, 'allowed-thing'));
         assert.false(canOpenResource(this.owner, 'denied-thing'));
     });
+
+    test('a polymorphic type is matched whatever case it arrives in', function (assert) {
+        registerResourceDescriptor(this.owner, { key: 'widget', polymorphicTypes: ['core:widget'] });
+
+        assert.strictEqual(resolveResourceKey(this.owner, 'core:widget'), 'widget', 'the registered spelling matches directly');
+
+        // A spelling the index holds only in its lowercased form falls through to that entry.
+        assert.strictEqual(resolveResourceKey(this.owner, 'CORE:WIDGET'), 'widget', 'an upper-cased type still resolves');
+        assert.strictEqual(resolveResourceKey(this.owner, 'Core:Widget'), 'widget', 'and so does a mixed-case one');
+    });
+
+    test('getResourceDescriptor answers null when the registry lists a key it cannot look up', function (assert) {
+        // A host registry whose list and lookup disagree: the index is built from the list, so
+        // the key resolves, but the descriptor itself cannot be fetched back out.
+        const listed = {
+            key: 'vehicle',
+            aliases: [],
+            modelNames: [],
+            polymorphicTypes: [],
+        };
+
+        const owner = fakeOwner({
+            'service:universe/registry-service': {
+                register() {},
+                getRegistry: (section, name) => (name === 'descriptors' ? [listed] : []),
+                lookup: () => null,
+            },
+        });
+
+        assert.strictEqual(resolveResourceKey(owner, 'vehicle'), 'vehicle', 'the key resolves from the listed descriptors');
+        assert.strictEqual(getResourceDescriptor(owner, 'vehicle'), null, 'but a lookup that misses comes back as null rather than undefined');
+    });
+
+    test('relationValue falls through references that cannot answer for themselves', function (assert) {
+        const record = {
+            name: 'from the attribute',
+            // A model whose belongsTo/hasMany exist but hand back nothing usable for this name.
+            belongsTo: () => null,
+            hasMany: () => ({ notValue: true }),
+        };
+
+        assert.strictEqual(relationValue(record, 'name'), 'from the attribute', 'it falls through to the plain attribute');
+    });
+
+    test('relationValue falls through a belongsTo reference with no value function', function (assert) {
+        const record = {
+            name: 'plain',
+            belongsTo: () => ({ notValue: true }),
+            hasMany: () => undefined,
+        };
+
+        assert.strictEqual(relationValue(record, 'name'), 'plain');
+    });
 });

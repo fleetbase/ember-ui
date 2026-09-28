@@ -1,0 +1,9 @@
+{{! DateTimeInput example adapter. }}
+<div class="pg-example" {{did-update this.onControlChanged @values}}>
+    <DateTimeInput
+        @value={{this.writableValue}}
+        @minDate={{if @values.minDate @values.minDate null}}
+        @maxDate={{if @values.maxDate @values.maxDate null}}
+        @onChange={{this.update}}
+    />
+</div>

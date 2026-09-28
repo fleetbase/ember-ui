@@ -87,6 +87,7 @@ export default class TemplateBuilderToolbarComponent extends Component {
 
     @action
     close() {
+        /* istanbul ignore else -- the close button is rendered inside {{#if @onClose}}, so this action cannot run without the callback */
         if (this.args.onClose) this.args.onClose();
     }
 

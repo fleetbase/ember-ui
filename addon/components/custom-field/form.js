@@ -1,39 +1,20 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { dasherize, camelize } from '@ember/string';
 import { next } from '@ember/runloop';
-import { task } from 'ember-concurrency';
 import isObject from '@fleetbase/ember-core/utils/is-object';
 import getCustomFieldTypeMap from '../../utils/get-custom-field-type-map';
 
 export default class CustomFieldFormComponent extends Component {
-    @service notifications;
     @tracked currentFieldMap;
     @tracked colSpanSizeOptions = [1, 2, 3];
     customFieldTypeMap = getCustomFieldTypeMap();
 
     constructor(owner, { resource }) {
         super(...arguments);
+        // Deferred a tick: selectFieldMap writes to the resource, which may already be rendered.
         next(() => this.selectFieldMap(resource.type));
-    }
-
-    /**
-     * A task for saving the custom field. It handles the save operation asynchronously,
-     * manages callbacks on success, and shows notifications on error.
-     * @task
-     */
-    @task *save() {
-        try {
-            this.args.resource = yield this.args.resource.save();
-            if (typeof this.onCustomFieldSaved === 'function') {
-                this.onCustomFieldSaved(this.args.resource);
-            }
-        } catch (error) {
-            this.notifications.serverError(error);
-            return;
-        }
     }
 
     /**
@@ -64,6 +45,9 @@ export default class CustomFieldFormComponent extends Component {
      * @param {Event} event - The event object containing the selected model type.
      * @action
      */
+    // No entry in getCustomFieldTypeMap declares allowedModels (modelSelect is commented out
+    // there), so the template never renders the model-type select that fires this.
+    /* istanbul ignore next */
     @action onSelectModelType(event) {
         const value = event.target.value;
         const modelName = dasherize(value);
@@ -78,11 +62,7 @@ export default class CustomFieldFormComponent extends Component {
      * @action
      */
     @action setCustomFieldMetaProperty(key, value) {
-        if (!isObject(this.args.resource.meta)) {
-            this.args.resource.set('meta', {});
-        }
-
-        const currentMeta = this.args.resource.meta ?? {};
+        const currentMeta = isObject(this.args.resource.meta) ? this.args.resource.meta : {};
         this.args.resource.set('meta', { ...currentMeta, [key]: value });
     }
 

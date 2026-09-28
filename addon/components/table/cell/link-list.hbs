@@ -3,7 +3,7 @@
         {{#let (get @row @column.valuePath) as |items|}}
             {{#each items as |item|}}
                 <li>
-                    <a href="javascript:;" class="truncate" {{on "click" (fn @column.action item @row)}}>
+                    <a href="javascript:;" class="truncate" {{on "click" (fn (or @column.action (noop)) item @row)}}>
                         {{get item (or @column.cellComponentLabelPath "name")}}
                     </a>
                 </li>

@@ -1,0 +1,16 @@
+{{!
+    Attach::Tooltip example adapter. The tooltip attaches to its parent element, so the parent is
+    what the example provides. "Force shown" is on by default so it is visible without hovering.
+}}
+<div class="pg-fixture-anchor">
+    <Button @text="Hover me" />
+    <Attach::Tooltip
+        @placement={{@values.placement}}
+        @animation={{@values.animation}}
+        @isShown={{@values.isShown}}
+        @interactive={{@values.interactive}}
+        @showDelay={{@values.showDelay}}
+    >
+        {{@values.text}}
+    </Attach::Tooltip>
+</div>

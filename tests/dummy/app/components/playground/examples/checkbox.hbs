@@ -1,0 +1,8 @@
+{{! Checkbox example adapter. }}
+<Checkbox
+    @label={{@values.label}}
+    @value={{@values.checked}}
+    @disabled={{@values.disabled}}
+    @helpText={{if @values.helpText @values.helpText null}}
+    @onChange={{fn (or @onEvent (noop)) "onChange"}}
+/>

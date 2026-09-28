@@ -3,7 +3,9 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 export default class ArrayInputComponent extends Component {
+    /* istanbul ignore next -- the constructor assigns both before anything reads them. */
     @tracked data = [];
+    /* istanbul ignore next -- see above. */
     @tracked disabled = false;
 
     constructor(owner, { data = [], disabled = false }) {
@@ -38,7 +40,7 @@ export default class ArrayInputComponent extends Component {
     }
 
     @action addData() {
-        this.data.pushObject('');
+        this.data = [...this.data, ''];
 
         if (typeof this.args.onDataChanged === 'function') {
             this.args.onDataChanged(this.data);
@@ -46,7 +48,7 @@ export default class ArrayInputComponent extends Component {
     }
 
     @action removeData(index) {
-        this.data.removeAt(index);
+        this.data = this.data.filter((_, i) => i !== index);
 
         if (typeof this.args.onDataChanged === 'function') {
             this.args.onDataChanged(this.data);

@@ -16,6 +16,9 @@ import { unwrapRecord, resourceTitle, resourceIdentifier, resourceImage, resourc
  */
 export default class ResourceSummaryComponent extends Component {
     @tracked hydrated = null;
+    /* istanbul ignore next -- @tracked initializer: `hydrateFailed` is only ever assigned by
+       the hydrate task's catch, and nothing reads it before then, so the initializer is never
+       invoked. */
     @tracked hydrateFailed = false;
 
     translate = makeTranslator(getOwner(this));

@@ -1,0 +1,13 @@
+{{!
+    TabNavigation example adapter. Tabs link to the dummy `console.menu-item` route so LinkTo
+    resolves; navigation stays inside the playground.
+}}
+<TabNavigation
+    @tabs={{this.tabs}}
+    @activeTabId={{@values.activeTabId}}
+    @size={{@values.size}}
+    @route="console.menu-item"
+    @onTabChange={{fn (or @onEvent (noop)) "onTabChange"}}
+    @onAddTab={{fn (or @onEvent (noop)) "onAddTab"}}
+    @onClose={{fn (or @onEvent (noop)) "onClose"}}
+/>

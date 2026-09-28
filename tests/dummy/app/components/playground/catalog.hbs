@@ -1,0 +1,86 @@
+{{!
+    Catalog. The design has no page title or lede here — the app header names the product and the
+    filter bar is the first thing under it, so the component grid starts immediately.
+}}
+<section class="pg-catalog" data-test-catalog {{playground/search-shortcut selector="#pg-catalog-search"}}>
+    <div class="pg-filters">
+        <div class="pg-filters__inner">
+            <div class="pg-filters__field pg-filters__field--search">
+                <label class="pg-field-label" for="pg-catalog-search">Search</label>
+                <div class="pg-searchwrap">
+                    <input
+                        id="pg-catalog-search"
+                        type="search"
+                        class="pg-input"
+                        value={{@query}}
+                        placeholder="Search by name or slug"
+                        data-test-catalog-search
+                        {{on "input" this.onSearch}}
+                    />
+                    <span class="pg-kbd" aria-hidden="true">⌘ K</span>
+                </div>
+            </div>
+
+            <div class="pg-filters__field pg-filters__field--category">
+                <label class="pg-field-label" for="pg-catalog-category">Category</label>
+                <select id="pg-catalog-category" class="pg-input" data-test-catalog-category {{on "change" this.onCategory}}>
+                    <option value="" selected={{eq this.activeCategory ""}}>All categories</option>
+                    {{#each this.categories as |name|}}
+                        <option value={{name}} selected={{eq name this.activeCategory}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <p class="pg-filters__count" data-test-catalog-count>
+                <strong>{{this.matchCount}}</strong> of {{@entries.length}} components
+            </p>
+        </div>
+    </div>
+
+    {{#if this.groups}}
+        <div class="pg-catalog__body">
+            <nav class="pg-jumpto" aria-label="Categories">
+                <p class="pg-jumpto__title">Jump to</p>
+                {{#each this.groups key="name" as |group|}}
+                    <a href="#pg-cat-{{group.slug}}" class="pg-jumpto__link">
+                        <span>{{group.name}}</span>
+                        <span class="pg-jumpto__count">{{group.entries.length}}</span>
+                    </a>
+                {{/each}}
+            </nav>
+
+            <div class="pg-catalog__groups">
+                {{#each this.groups key="name" as |group|}}
+                    <section class="pg-group" id="pg-cat-{{group.slug}}" data-test-catalog-group={{group.name}}>
+                        <div class="pg-group__head">
+                            <h2 class="pg-group__title">{{group.name}}</h2>
+                            <span class="pg-group__count">{{group.entries.length}}</span>
+                            <span class="pg-group__rule" aria-hidden="true"></span>
+                        </div>
+
+                        <ul class="pg-cards">
+                            {{#each group.entries key="slug" as |entry|}}
+                                <li>
+                                    <LinkTo
+                                        @route="component"
+                                        @model={{entry.slug}}
+                                        class="pg-card"
+                                        data-test-catalog-link={{entry.slug}}
+                                    >
+                                        <span class="pg-card__name">{{entry.name}}</span>
+                                        <span class="pg-card__slug">{{entry.slug}}</span>
+                                        <span class="pg-card__description">{{entry.description}}</span>
+                                    </LinkTo>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    </section>
+                {{/each}}
+            </div>
+        </div>
+    {{else}}
+        <p class="pg-catalog__empty" data-test-catalog-empty>
+            No documented component matches that search.
+        </p>
+    {{/if}}
+</section>
