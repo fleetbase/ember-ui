@@ -178,7 +178,14 @@ module('Integration | Component | dashboard/create', function (hooks) {
         test('leaving edit mode writes back every widget as the grid has it', async function (assert) {
             await render(TEMPLATE);
             // Stand in for gridstack's engine: w1 was placed by gridstack (never reported), w2 is unchanged.
-            find('.grid-stack').gridstack = { engine: { nodes: [{ id: 'w1', x: 8, y: 0, w: 4, h: 4 }, { id: 'w2', x: 0, y: 0, w: 4, h: 4 }] } };
+            find('.grid-stack').gridstack = {
+                engine: {
+                    nodes: [
+                        { id: 'w1', x: 8, y: 0, w: 4, h: 4 },
+                        { id: 'w2', x: 0, y: 0, w: 4, h: 4 },
+                    ],
+                },
+            };
 
             this.set('isEdit', false);
             await settled();

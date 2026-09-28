@@ -75,7 +75,7 @@ module('Integration | Component | modal', function (hooks) {
         const TALL = hbs`
             <Modal @renderInPlace={{true}} @fade={{false}} @scrollable={{this.scrollable}} as |modal|>
                 <modal.header>Tall</modal.header>
-                <modal.body><div class="filler" style="height: 4000px">body</div></modal.body>
+                <modal.body><div class="filler" {{style height="4000px"}}>body</div></modal.body>
                 <modal.footer @submitTitle="Save" />
             </Modal>
         `;
@@ -86,7 +86,6 @@ module('Integration | Component | modal', function (hooks) {
 
         test('by default the dialog grows and the overlay scrolls, opening at the top', async function (assert) {
             await render(TALL);
-            await settled();
 
             const overlay = dialog();
             assert.true(overlay.scrollHeight > overlay.clientHeight, 'the overlay is what scrolls');
@@ -103,7 +102,6 @@ module('Integration | Component | modal', function (hooks) {
             this.set('scrollable', true);
 
             await render(TALL);
-            await settled();
 
             const modal = rect(DIALOG);
             assert.true(rect('.flb--modal-header').top >= modal.top, 'the header is pinned in view');

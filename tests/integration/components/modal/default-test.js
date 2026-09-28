@@ -32,10 +32,9 @@ module('Integration | Component | modal/default', function (hooks) {
 
         await render(hbs`
             <Modal::Default @modalIsOpened={{true}} @options={{this.options}}>
-                <div style="height: 4000px">tall</div>
+                <div {{style height="4000px"}}>tall</div>
             </Modal::Default>
         `);
-        await settled();
 
         const q = (selector) => document.querySelector(selector);
         const rect = (selector) => q(selector).getBoundingClientRect();
@@ -46,7 +45,8 @@ module('Integration | Component | modal/default', function (hooks) {
         assert.true(overlay.scrollHeight > overlay.clientHeight, 'the overlay scrolls');
         assert.strictEqual(overlay.scrollTop, 0, 'it opens at the top');
         assert.true(rect('.flb--modal-header').top >= rect('.flb--modal').top, 'the header is in view');
-        assert.true(margin > 0 && overlay.scrollHeight >= dialog.offsetHeight + 2 * margin - 1, 'the space below the footer matches the space above the header');
+        assert.true(margin > 0, 'the dialog keeps a margin');
+        assert.true(overlay.scrollHeight >= dialog.offsetHeight + 2 * margin - 1, 'the space below the footer matches the space above the header');
         assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
     });
 
@@ -54,7 +54,6 @@ module('Integration | Component | modal/default', function (hooks) {
         this.set('options', { title: 'Short' });
 
         await render(hbs`<Modal::Default @modalIsOpened={{true}} @options={{this.options}}><p>short</p></Modal::Default>`);
-        await settled();
 
         assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
         const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
@@ -70,10 +69,9 @@ module('Integration | Component | modal/default', function (hooks) {
 
         await render(hbs`
             <Modal::Default @modalIsOpened={{true}} @options={{this.options}}>
-                <div style="height: 4000px">tall</div>
+                <div {{style height="4000px"}}>tall</div>
             </Modal::Default>
         `);
-        await settled();
 
         assert.dom('.flb--modal-dialog').hasClass('flb--modal-dialog-scrollable', 'scrollable pins the header and footer and scrolls the body');
         assert.dom('.flb--modal-dialog').hasClass('flb--modal-dialog-centered', 'position center centres the dialog');
@@ -93,7 +91,10 @@ module('Integration | Component | modal/default', function (hooks) {
 
         assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-scrollable');
         assert.dom('.flb--modal-dialog').doesNotHaveClass('flb--modal-dialog-centered');
-        assert.false([...document.querySelector('.flb--modal-dialog').classList].some((name) => /^flb--modal-(sm|lg|xl)$/.test(name)), 'a null size adds no size class');
+        assert.false(
+            [...document.querySelector('.flb--modal-dialog').classList].some((name) => /^flb--modal-(sm|lg|xl)$/.test(name)),
+            'a null size adds no size class'
+        );
     });
 
     test('@modalIsOpened does not gate rendering — the modal is open whenever it is rendered', async function (assert) {

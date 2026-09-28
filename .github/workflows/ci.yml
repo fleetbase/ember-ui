@@ -1,13 +1,9 @@
 name: Ember CI
 
-# Validate release integration branches even when they have no open pull request.
-# Tag pushes also run the publishing jobs after the required checks pass.
+# Validate branches through pull requests so updates run CI only once.
+# Keep tag pushes for publishing after the required checks pass.
 on:
   push:
-    branches:
-      - main
-      - 'release/v*'
-      - 'dev-v*'
     tags:
       - 'v*'
   pull_request:
@@ -17,7 +13,7 @@ on:
       - 'release/v*'
       - 'dev-v*'
 
-# Cancel stale runs for the same branch or PR; their distinct refs keep both checks.
+# Cancel stale runs for the same PR.
 # Allow tag publishing runs to finish.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

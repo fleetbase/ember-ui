@@ -11,8 +11,12 @@
  * @returns {Object|null}
  */
 export default function findCustomFieldValue(subject, customField) {
+    if (!customField?.id) {
+        return null;
+    }
+
     const values = (typeof subject?.get === 'function' ? subject.get('custom_field_values') : subject?.custom_field_values) ?? [];
-    const matches = values.filter((cfv) => cfv?.custom_field_uuid === customField?.id);
+    const matches = values.filter((cfv) => cfv?.custom_field_uuid === customField.id);
 
     return matches.find((cfv) => !cfv.isNew) ?? matches[0] ?? null;
 }

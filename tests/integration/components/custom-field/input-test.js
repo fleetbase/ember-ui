@@ -571,7 +571,8 @@ module('Integration | Component | custom-field/input', function (hooks) {
         // The dummy store hands back plain objects, which `isModel` rejects; these two tests need a
         // record that passes it so the destroy guard is actually exercised.
         function modelLikeFile(attrs) {
-            return Object.assign(Object.create(Model.prototype), attrs);
+            // Define own properties so a fixture id does not invoke Ember Data's store-backed setter.
+            return Object.create(Model.prototype, Object.getOwnPropertyDescriptors(attrs));
         }
 
         test('clearing a stored signature does not destroy its file before the resource is saved', async function (assert) {
@@ -592,6 +593,7 @@ module('Integration | Component | custom-field/input', function (hooks) {
 
         test('re-signing over a stored signature keeps the stored file and destroys only session uploads', async function (assert) {
             const destroyed = [];
+            const changes = [];
             const stored = modelLikeFile({ id: 'file_9', filename: 'signature.png', url: 'https://files.test/existing.png', destroyRecord: () => destroyed.push('file_9') });
             this.owner.lookup('service:store').push = () => stored;
             serveStoredFile();
@@ -600,18 +602,20 @@ module('Integration | Component | custom-field/input', function (hooks) {
             fetch.uploadFile.perform = (file, params, onSuccess) => {
                 counter += 1;
                 const label = `upload_${counter}`;
-                const uploadedFile = modelLikeFile({ filename: file.name, destroyRecord: () => destroyed.push(label) });
+                const uploadedFile = modelLikeFile({ id: label, filename: file.name, destroyRecord: () => destroyed.push(label) });
                 onSuccess(uploadedFile);
                 return Promise.resolve(uploadedFile);
             };
             this.set('customField', signatureField());
             this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file_9', url: 'https://files.test/existing.png' }) }]));
+            this.set('onChange', (value) => changes.push(value));
 
-            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} />`);
+            await render(hbs`<CustomField::Input @customField={{this.customField}} @subject={{this.subject}} @onChange={{this.onChange}} />`);
             await waitUntil(() => !document.querySelector('.signature-pad-placeholder'));
 
             await signAndFinish();
             assert.deepEqual(destroyed, [], 'the first re-sign leaves the stored file alone');
+            assert.deepEqual(changes, ['file:upload_1'], 'the replacement references the uploaded file');
 
             await signAndFinish([
                 [0.2, 0.2],
@@ -619,6 +623,7 @@ module('Integration | Component | custom-field/input', function (hooks) {
                 [0.8, 0.3],
             ]);
             assert.deepEqual(destroyed, ['upload_1'], 'the second re-sign destroys only the superseded session upload');
+            assert.deepEqual(changes, ['file:upload_1', 'file:upload_2'], 'each completed signature emits its own file reference');
         });
 
         test('stored file json that does not parse is not treated as a saved file', async function (assert) {
@@ -843,9 +848,8 @@ module('Integration | Component | custom-field/input', function (hooks) {
             fetch.uploadFile.perform = (file, params, onSuccess) => {
                 counter += 1;
                 const label = `file_${counter}`;
-                // ember-data's Model prototype has an asserting `id` setter, so the stub record
-                // carries its identity in the closure instead.
-                const uploadedFile = Object.assign(Object.create(Model.prototype), {
+                const uploadedFile = modelLikeFile({
+                    id: label,
                     filename: file.name,
                     destroyRecord: () => {
                         destroyed.push(label);

@@ -142,6 +142,19 @@ module('Integration | Component | custom-field/value', function (hooks) {
         assert.dom('.custom-field-file').containsText('receipt.pdf', 'no JSON parsing was needed');
     });
 
+    test('a cached file value follows a replacement from the subject', async function (assert) {
+        this.set('customField', createCustomField({ type: 'file-upload' }));
+        this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file-1', filename: 'first.pdf' }) }]));
+
+        await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
+        assert.dom('.custom-field-file').containsText('first.pdf');
+
+        this.set('subject', createSubject([{ custom_field_uuid: 'custom-field-1', value: JSON.stringify({ id: 'file-2', filename: 'replacement.pdf' }) }]));
+        await settled();
+
+        assert.dom('.custom-field-file').containsText('replacement.pdf', 'the normalized file is refreshed with the subject');
+    });
+
     test('a file value can be downloaded through the fetch service', async function (assert) {
         const filePayload = {
             id: 'file-1',
@@ -230,7 +243,11 @@ module('Integration | Component | custom-field/value', function (hooks) {
             await render(hbs`<CustomField::Value @customField={{this.customField}} @subject={{this.subject}} />`);
 
             const lookups = store.calls.filter((call) => call.method === 'findRecord');
-            assert.deepEqual(lookups.map((call) => call.args.slice(0, 2)), [['file', 'file_1']], 'the file is looked up once, by its uuid');
+            assert.deepEqual(
+                lookups.map((call) => call.args.slice(0, 2)),
+                [['file', 'file_1']],
+                'the file is looked up once, by its uuid'
+            );
             assert.dom('img.custom-field-signature-image').hasAttribute('src', 'https://files.test/signature.png');
 
             await click('.custom-field-signature-download');

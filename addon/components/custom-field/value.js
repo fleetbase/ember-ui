@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
+import { cached, tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
 import { debug } from '@ember/debug';
@@ -18,9 +18,6 @@ export default class CustomFieldValueComponent extends Component {
      */
     @tracked resolvedFiles = {};
     #resolving = new Set();
-
-    #normalizedFor;
-    #normalized = null;
 
     get customField() {
         return this.args.customField;
@@ -44,7 +41,7 @@ export default class CustomFieldValueComponent extends Component {
      * raw value, so the same object is handed to the template across renders.
      * @type {*}
      */
-    get value() {
+    @cached get value() {
         const raw = findCustomFieldValue(this.args.subject, this.customField)?.value ?? null;
         const isFileField = FILE_FIELD_TYPES.includes(this.customField?.type);
 
@@ -57,12 +54,7 @@ export default class CustomFieldValueComponent extends Component {
             return this.resolvedFiles[fileId] ?? null;
         }
 
-        if (raw !== this.#normalizedFor) {
-            this.#normalizedFor = raw;
-            this.#normalized = raw && isFileField ? this.#normalizeFileValue(raw) : raw;
-        }
-
-        return this.#normalized;
+        return raw && isFileField ? this.#normalizeFileValue(raw) : raw;
     }
 
     #resolveFile(fileId) {

@@ -6,7 +6,7 @@ module('Unit | Utility | find-custom-field-value', function () {
 
     test('it finds the record for the field on a plain subject', function (assert) {
         const record = { custom_field_uuid: 'cf_1', value: 'High' };
-        assert.strictEqual(findCustomFieldValue({ custom_field_values: [{ custom_field_uuid: 'cf_2' }, record] }, field), record);
+        assert.strictEqual(findCustomFieldValue({ custom_field_values: [null, { custom_field_uuid: 'cf_2' }, record] }, field), record);
     });
 
     test('it reads through get() when the subject offers one', function (assert) {
@@ -31,5 +31,6 @@ module('Unit | Utility | find-custom-field-value', function () {
         assert.strictEqual(findCustomFieldValue({ get: () => undefined }, field), null);
         assert.strictEqual(findCustomFieldValue(null, field), null);
         assert.strictEqual(findCustomFieldValue({ custom_field_values: [null, { custom_field_uuid: 'cf_1' }] }, undefined), null);
+        assert.strictEqual(findCustomFieldValue({ custom_field_values: [{}] }, {}), null);
     });
 });
