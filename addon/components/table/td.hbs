@@ -2,7 +2,14 @@
     {{#if (has-block)}}
         {{yield}}
     {{else}}
-        {{#if @column.cellComponent}}
+        {{#if (is-object @column.cellComponent)}}
+            {{! An ExtensionComponent: a cell an extension registered from its own engine. }}
+            {{#let (lazy-engine-component @column.cellComponent) as |cellComponent|}}
+                {{#if cellComponent}}
+                    {{component cellComponent column=@column row=@row value=@value}}
+                {{/if}}
+            {{/let}}
+        {{else if @column.cellComponent}}
             {{component @column.cellComponent column=@column row=@row value=@value}}
         {{else}}
             <Table::Cell::Base @column={{@column}} @row={{@row}} @value={{@value}} />
