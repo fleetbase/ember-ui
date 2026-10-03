@@ -36,7 +36,7 @@ export default class LayoutResourcePanelComponent extends Component {
 
     /**
      * `@actionButtons` with what extensions registered under `@registry`
-     * (a details prefix such as `ledger:details:invoice`) merged in: header
+     * (a details prefix such as `ledger:invoice:details`) merged in: header
      * buttons from its `actions` slot and dropdown items from its `menu` slot.
      */
     get actionButtons() {

@@ -25,7 +25,7 @@ export default function lookupResourceView(owner) {
  * when there is none.
  *
  * @param {Object|null} resourceView
- * @param {String} registry A surface prefix, e.g. `ledger:details:invoice`
+ * @param {String} registry A surface prefix, e.g. `ledger:invoice:details`
  * @param {Array} buttons
  * @param {Object} context
  * @param {Object} options

@@ -21,24 +21,24 @@ module('Unit | Utility | resource-view', function () {
 
     test('mergeHeaderButtons leaves the buttons alone without a service or registry', function (assert) {
         const buttons = [{ id: 'edit' }];
-        assert.strictEqual(mergeHeaderButtons(null, 'ledger:details:invoice', buttons), buttons);
+        assert.strictEqual(mergeHeaderButtons(null, 'ledger:invoice:details', buttons), buttons);
         assert.strictEqual(mergeHeaderButtons(new ResourceViewStub(), null, buttons), buttons);
         assert.deepEqual(mergeHeaderButtons(null, null, undefined), []);
     });
 
     test('mergeHeaderButtons merges actions, and menu items only when asked', function (assert) {
         const views = new ResourceViewStub();
-        views.add('ledger:details:invoice:actions', { id: 'print' });
-        views.add('ledger:details:invoice:menu', { id: 'acme' });
+        views.add('ledger:invoice:details:actions', { id: 'print' });
+        views.add('ledger:invoice:details:menu', { id: 'acme' });
 
         assert.deepEqual(
-            mergeHeaderButtons(views, 'ledger:details:invoice', [{ id: 'edit' }]).map((b) => b.id),
+            mergeHeaderButtons(views, 'ledger:invoice:details', [{ id: 'edit' }]).map((b) => b.id),
             ['edit', 'print'],
             'table toolbars take no menu'
         );
 
         const dropdown = { id: 'more', items: [{ id: 'void' }] };
-        const merged = mergeHeaderButtons(views, 'ledger:details:invoice', [{ id: 'edit' }, dropdown], {}, { withMenu: true });
+        const merged = mergeHeaderButtons(views, 'ledger:invoice:details', [{ id: 'edit' }, dropdown], {}, { withMenu: true });
         assert.deepEqual(
             merged.map((b) => b.id),
             ['edit', 'more', 'print']
@@ -53,7 +53,7 @@ module('Unit | Utility | resource-view', function () {
             'the given dropdown is not modified'
         );
 
-        const appended = mergeHeaderButtons(views, 'ledger:details:invoice', [], {}, { withMenu: true });
+        const appended = mergeHeaderButtons(views, 'ledger:invoice:details', [], {}, { withMenu: true });
         assert.deepEqual(
             appended.map((b) => b.id),
             ['print', 'registered-menu']
@@ -63,6 +63,6 @@ module('Unit | Utility | resource-view', function () {
             ['acme']
         );
 
-        assert.deepEqual(mergeHeaderButtons(new ResourceViewStub(), 'ledger:details:invoice', [], {}, { withMenu: true }), [], 'no dropdown is added for an empty menu');
+        assert.deepEqual(mergeHeaderButtons(new ResourceViewStub(), 'ledger:invoice:details', [], {}, { withMenu: true }), [], 'no dropdown is added for an empty menu');
     });
 });

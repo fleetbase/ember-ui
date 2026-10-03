@@ -40,7 +40,7 @@ module('Integration | Component | layout/resource registries', function (hooks) 
     module('Layout::Resource::Tabular', function () {
         test('without a registry nothing is looked up or merged', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('fleet-ops:table:driver:columns', { id: 'score', label: 'Score' });
+            views.add('fleet-ops:driver:table:columns', { id: 'score', label: 'Score' });
 
             await render(hbs`<Layout::Resource::Tabular @data={{this.rows}} @columns={{this.columns}} />`);
 
@@ -50,7 +50,7 @@ module('Integration | Component | layout/resource registries', function (hooks) 
 
         test('without a registry the bulk actions are used as given, even with the service present', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('fleet-ops:table:driver:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
+            views.add('fleet-ops:driver:table:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
             this.set('bulkActions', [{ label: 'Delete', fn: () => {} }]);
 
             await render(hbs`<Layout::Resource::Tabular @data={{this.rows}} @columns={{this.columns}} @bulkActions={{this.bulkActions}} />`);
@@ -65,7 +65,7 @@ module('Integration | Component | layout/resource registries', function (hooks) 
         });
 
         test('without the registry service the view renders as given', async function (assert) {
-            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:table:driver" @data={{this.rows}} @columns={{this.columns}} />`);
+            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:driver:table" @data={{this.rows}} @columns={{this.columns}} />`);
 
             assert.deepEqual(headerTexts(), ['Name', 'Status']);
         });
@@ -73,16 +73,16 @@ module('Integration | Component | layout/resource registries', function (hooks) 
         test('registered columns, row actions, toolbar buttons and bulk actions are merged', async function (assert) {
             const views = setupResourceView(this.owner);
             const clicked = [];
-            views.add('fleet-ops:table:driver:columns', { id: 'score', label: 'Score', valuePath: 'status' });
-            views.add('fleet-ops:table:driver:row-actions', { id: 'sync', label: 'Sync to Acme', fn: (row) => clicked.push(['sync', row.name]) });
-            views.add('fleet-ops:table:driver:actions', { id: 'import', text: 'Import from Acme', onClick: () => clicked.push(['import']) });
-            views.add('fleet-ops:table:driver:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => clicked.push(['export']) });
+            views.add('fleet-ops:driver:table:columns', { id: 'score', label: 'Score', valuePath: 'status' });
+            views.add('fleet-ops:driver:table:row-actions', { id: 'sync', label: 'Sync to Acme', fn: (row) => clicked.push(['sync', row.name]) });
+            views.add('fleet-ops:driver:table:actions', { id: 'import', text: 'Import from Acme', onClick: () => clicked.push(['import']) });
+            views.add('fleet-ops:driver:table:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => clicked.push(['export']) });
             this.set('bulkActions', [{ label: 'Delete', fn: () => {} }]);
             this.set('controller', { sort: null });
 
             await render(hbs`
                 <Layout::Resource::Tabular
-                    @registry="fleet-ops:table:driver"
+                    @registry="fleet-ops:driver:table"
                     @data={{this.rows}}
                     @columns={{this.columns}}
                     @bulkActions={{this.bulkActions}}
@@ -115,7 +115,7 @@ module('Integration | Component | layout/resource registries', function (hooks) 
             assert.deepEqual(clicked, [['sync', 'Ada'], ['import'], ['export']]);
 
             const slots = [...new Set(views.calls.map((call) => `${call.prefix}:${call.slot}`))].sort();
-            assert.deepEqual(slots, ['fleet-ops:table:driver:actions', 'fleet-ops:table:driver:bulk-actions', 'fleet-ops:table:driver:columns', 'fleet-ops:table:driver:row-actions']);
+            assert.deepEqual(slots, ['fleet-ops:driver:table:actions', 'fleet-ops:driver:table:bulk-actions', 'fleet-ops:driver:table:columns', 'fleet-ops:driver:table:row-actions']);
 
             const { context } = views.calls.find((call) => call.slot === 'bulk-actions');
             assert.strictEqual(context.controller, this.controller, 'handlers get the controller');
@@ -127,7 +127,7 @@ module('Integration | Component | layout/resource registries', function (hooks) 
             const views = setupResourceView(this.owner);
 
             await render(
-                hbs`<Layout::Resource::Tabular @registry="fleet-ops:table:driver" @data={{this.rows}} @columns={{this.columns}} as |data|>{{data.length}}</Layout::Resource::Tabular>`
+                hbs`<Layout::Resource::Tabular @registry="fleet-ops:driver:table" @data={{this.rows}} @columns={{this.columns}} as |data|>{{data.length}}</Layout::Resource::Tabular>`
             );
 
             const { context } = views.calls[0];
@@ -138,10 +138,10 @@ module('Integration | Component | layout/resource registries', function (hooks) 
         test('a column registered after the first render appears', async function (assert) {
             const views = setupResourceView(this.owner);
 
-            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:table:driver" @data={{this.rows}} @columns={{this.columns}} />`);
+            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:driver:table" @data={{this.rows}} @columns={{this.columns}} />`);
             assert.deepEqual(headerTexts(), ['Name', 'Status']);
 
-            views.add('fleet-ops:table:driver:columns', { id: 'score', label: 'Score' });
+            views.add('fleet-ops:driver:table:columns', { id: 'score', label: 'Score' });
             await settled();
 
             assert.deepEqual(headerTexts(), ['Name', 'Status', 'Score']);
@@ -149,16 +149,16 @@ module('Integration | Component | layout/resource registries', function (hooks) 
 
         test('a column the user hid stays hidden when the columns are recomputed', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('fleet-ops:table:driver:columns', { id: 'score', label: 'Score' });
+            views.add('fleet-ops:driver:table:columns', { id: 'score', label: 'Score' });
 
-            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:table:driver" @data={{this.rows}} @columns={{this.columns}} />`);
+            await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:driver:table" @data={{this.rows}} @columns={{this.columns}} />`);
 
             await click(buttonWithIcon('sliders'));
             const toggles = findAll('.customize-columns-dropdown-body input[type="checkbox"]');
             await click(toggles[2]);
             assert.deepEqual(headerTexts(), ['Name', 'Status'], 'the registered column is hidden');
 
-            views.add('fleet-ops:table:driver:columns', { id: 'rank', label: 'Rank' });
+            views.add('fleet-ops:driver:table:columns', { id: 'rank', label: 'Rank' });
             await settled();
 
             assert.deepEqual(headerTexts(), ['Name', 'Status', 'Rank'], 'the registered column stays hidden while a new one appears');
@@ -184,11 +184,11 @@ module('Integration | Component | layout/resource registries', function (hooks) 
     module('Layout::Resource::TabularActions', function () {
         test('registered toolbar buttons and bulk actions are merged', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('iam:table:user:actions', { id: 'import', text: 'Import from Acme' });
-            views.add('iam:table:user:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
+            views.add('iam:user:table:actions', { id: 'import', text: 'Import from Acme' });
+            views.add('iam:user:table:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
             this.set('table', { selectedRows: [{ id: 1 }] });
 
-            await render(hbs`<Layout::Resource::TabularActions @registry="iam:table:user" @columns={{this.columns}} @table={{this.table}} />`);
+            await render(hbs`<Layout::Resource::TabularActions @registry="iam:user:table" @columns={{this.columns}} @table={{this.table}} />`);
 
             assert.ok(
                 findAll('button').some((button) => button.textContent.includes('Import from Acme')),
@@ -207,9 +207,9 @@ module('Integration | Component | layout/resource registries', function (hooks) 
 
         test('without a table the selection is empty and no bulk menu is offered', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('iam:table:user:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
+            views.add('iam:user:table:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
 
-            await render(hbs`<Layout::Resource::TabularActions @registry="iam:table:user" @columns={{this.columns}} />`);
+            await render(hbs`<Layout::Resource::TabularActions @registry="iam:user:table" @columns={{this.columns}} />`);
 
             assert.notOk(buttonWithIcon('layer-group'), 'there is nothing to act on');
             const { context } = views.calls.find((call) => call.slot === 'actions');
@@ -231,12 +231,12 @@ module('Integration | Component | layout/resource registries', function (hooks) 
     module('Layout::Resource::Panel', function () {
         test('registered header buttons and menu items join the existing dropdown', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('ledger:details:invoice:actions', { id: 'print', text: 'Print label' });
-            views.add('ledger:details:invoice:menu', { id: 'acme', label: 'Send to Acme' });
+            views.add('ledger:invoice:details:actions', { id: 'print', text: 'Print label' });
+            views.add('ledger:invoice:details:menu', { id: 'acme', label: 'Send to Acme' });
             this.set('resource', { id: 'inv_1' });
             this.set('actionButtons', [{ id: 'more', icon: 'ellipsis-h', items: [{ id: 'void', label: 'Void' }] }]);
 
-            await render(hbs`<Layout::Resource::Panel @registry="ledger:details:invoice" @resource={{this.resource}} @actionButtons={{this.actionButtons}} />`);
+            await render(hbs`<Layout::Resource::Panel @registry="ledger:invoice:details" @resource={{this.resource}} @actionButtons={{this.actionButtons}} />`);
 
             assert.ok(
                 findAll('button').some((button) => button.textContent.includes('Print label')),
@@ -256,9 +256,9 @@ module('Integration | Component | layout/resource registries', function (hooks) 
 
         test('registered menu items get a dropdown of their own when there is none', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('ledger:details:invoice:menu', { id: 'acme', label: 'Send to Acme' });
+            views.add('ledger:invoice:details:menu', { id: 'acme', label: 'Send to Acme' });
 
-            await render(hbs`<Layout::Resource::Panel @registry="ledger:details:invoice" @resource={{this.resource}} />`);
+            await render(hbs`<Layout::Resource::Panel @registry="ledger:invoice:details" @resource={{this.resource}} />`);
 
             await clickFound(assert, buttonWithIcon('ellipsis'), 'the dropdown trigger');
             assert.deepEqual(
@@ -270,20 +270,20 @@ module('Integration | Component | layout/resource registries', function (hooks) 
         test('no dropdown is added when nothing is registered for the menu', async function (assert) {
             setupResourceView(this.owner);
 
-            await render(hbs`<Layout::Resource::Panel @registry="ledger:details:invoice" @resource={{this.resource}} />`);
+            await render(hbs`<Layout::Resource::Panel @registry="ledger:invoice:details" @resource={{this.resource}} />`);
 
             assert.notOk(buttonWithIcon('ellipsis'));
         });
 
         test('a custom header component receives the merged buttons', async function (assert) {
             const views = setupResourceView(this.owner);
-            views.add('ledger:details:invoice:actions', { id: 'print', text: 'Print label' });
+            views.add('ledger:invoice:details:actions', { id: 'print', text: 'Print label' });
             this.owner.register(
                 'component:test-panel-header',
                 setComponentTemplate(hbs`<div class="custom-header">{{#each @actionButtons as |b|}}<span class="custom-button">{{b.text}}</span>{{/each}}</div>`, class extends Component {})
             );
 
-            await render(hbs`<Layout::Resource::Panel @registry="ledger:details:invoice" @headerComponent="test-panel-header" />`);
+            await render(hbs`<Layout::Resource::Panel @registry="ledger:invoice:details" @headerComponent="test-panel-header" />`);
 
             assert.dom('.custom-header .custom-button').hasText('Print label');
         });
