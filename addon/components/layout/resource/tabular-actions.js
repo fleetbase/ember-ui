@@ -34,7 +34,7 @@ export default class LayoutResourceTabularActionsComponent extends Component {
     get bulkActions() {
         const { resourceView } = this;
         const { registry, bulkActions } = this.args;
-        return resourceView && registry ? resourceView.mergeSlot(registry, 'bulk-actions', bulkActions ?? [], this.viewContext) : bulkActions;
+        return resourceView && registry ? resourceView.mergeSlot(registry, 'bulk-actions', bulkActions, this.viewContext) : bulkActions;
     }
 
     /**

@@ -61,7 +61,7 @@ export default class LayoutResourceTabularComponent extends Component {
         const visibility = this.columnVisibility;
         for (const column of columns) {
             const key = columnKey(column);
-            if (column && key in visibility && column.hidden !== visibility[key]) {
+            if (key in visibility && column.hidden !== visibility[key]) {
                 column.hidden = visibility[key];
             }
         }
@@ -76,7 +76,7 @@ export default class LayoutResourceTabularComponent extends Component {
     get bulkActions() {
         const { resourceView } = this;
         const { registry, bulkActions } = this.args;
-        return resourceView && registry ? resourceView.mergeSlot(registry, 'bulk-actions', bulkActions ?? [], this.viewContext) : bulkActions;
+        return resourceView && registry ? resourceView.mergeSlot(registry, 'bulk-actions', bulkActions, this.viewContext) : bulkActions;
     }
 
     get checkboxSticky() {
@@ -87,8 +87,8 @@ export default class LayoutResourceTabularComponent extends Component {
 
     @action setColumns(columns) {
         const visibility = { ...this.columnVisibility };
-        for (const column of columns ?? []) {
-            visibility[columnKey(column)] = Boolean(column?.hidden);
+        for (const column of columns) {
+            visibility[columnKey(column)] = Boolean(column.hidden);
         }
         this.columnVisibility = visibility;
     }
