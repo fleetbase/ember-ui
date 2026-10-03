@@ -48,6 +48,22 @@ module('Integration | Component | layout/resource registries', function (hooks) 
             assert.deepEqual(views.calls, []);
         });
 
+        test('without a registry the bulk actions are used as given, even with the service present', async function (assert) {
+            const views = setupResourceView(this.owner);
+            views.add('fleet-ops:table:driver:bulk-actions', { id: 'export', label: 'Export to Acme', fn: () => {} });
+            this.set('bulkActions', [{ label: 'Delete', fn: () => {} }]);
+
+            await render(hbs`<Layout::Resource::Tabular @data={{this.rows}} @columns={{this.columns}} @bulkActions={{this.bulkActions}} />`);
+            await clickFound(assert, find('tbody input[type="checkbox"]'), 'the row checkbox');
+            await clickFound(assert, buttonWithIcon('layer-group'), 'the bulk menu trigger');
+
+            assert.deepEqual(
+                menuItems().map((item) => item.textContent.trim()),
+                ['Delete']
+            );
+            assert.deepEqual(views.calls, [], 'nothing is merged without a registry');
+        });
+
         test('without the registry service the view renders as given', async function (assert) {
             await render(hbs`<Layout::Resource::Tabular @registry="fleet-ops:table:driver" @data={{this.rows}} @columns={{this.columns}} />`);
 
