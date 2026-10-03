@@ -2,8 +2,10 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import { action } from '@ember/object';
+import { getOwner } from '@ember/application';
 import contextComponentCallback from '@fleetbase/ember-core/utils/context-component-callback';
 import applyContextComponentArguments from '@fleetbase/ember-core/utils/apply-context-component-arguments';
+import lookupResourceView, { mergeHeaderButtons } from '../../../utils/resource-view';
 
 export default class LayoutResourcePanelComponent extends Component {
     @service store;
@@ -30,6 +32,23 @@ export default class LayoutResourcePanelComponent extends Component {
 
     get authSchema() {
         return this.args.authSchema ?? 'fleet-ops';
+    }
+
+    /**
+     * `@actionButtons` with what extensions registered under `@registry`
+     * (a details prefix such as `ledger:details:invoice`) merged in: header
+     * buttons from its `actions` slot and dropdown items from its `menu` slot.
+     */
+    get actionButtons() {
+        const component = this;
+        const context = {
+            resource: this.resource,
+            get panel() {
+                return component.context;
+            },
+        };
+
+        return mergeHeaderButtons(lookupResourceView(getOwner(this)), this.args.registry, this.args.actionButtons, context, { withMenu: true });
     }
 
     constructor() {
