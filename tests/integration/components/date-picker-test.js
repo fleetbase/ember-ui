@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, find, findAll, fillIn, settled } from '@ember/test-helpers';
+import { render, click, find, findAll, fillIn, settled, triggerEvent } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const INPUT = '.fleetbase-date-picker';
@@ -222,6 +222,15 @@ module('Integration | Component | date-picker', function (hooks) {
             assert.strictEqual(find('.air-datepicker-cell.-selected-'), null, 'no day is marked any more');
         });
 
+        test('leaving the field after picking in the calendar does not report the pick again', async function (assert) {
+            await render(TEMPLATE);
+            await click(INPUT);
+            await click(days()[9]);
+            await triggerEvent(INPUT, 'change');
+
+            assert.strictEqual(changes.length, 1, 'the text the picker wrote is not a second choice');
+        });
+
         test('emptying an already empty field reports nothing', async function (assert) {
             await render(TEMPLATE);
             await fillIn(INPUT, '');
@@ -277,6 +286,39 @@ module('Integration | Component | date-picker', function (hooks) {
 
             assert.dom(INPUT).hasValue('2026-03-12');
             assert.deepEqual(changes, []);
+        });
+
+        test('a timestamp is accepted', async function (assert) {
+            this.set('value', null);
+
+            await render(TEMPLATE);
+            this.set('value', new Date(2026, 2, 20).getTime());
+            await settled();
+
+            assert.dom(INPUT).hasValue('2026-03-20');
+        });
+
+        test('an ISO string is accepted', async function (assert) {
+            this.set('value', null);
+
+            await render(TEMPLATE);
+            this.set('value', new Date(2026, 2, 20, 9, 30).toISOString());
+            await settled();
+
+            assert.dom(INPUT).hasValue('2026-03-20');
+        });
+
+        test('an invalid Date, a blank string and unparseable text all clear the field', async function (assert) {
+            for (const value of [new Date('not a date'), '   ', 'yesterday']) {
+                this.set('value', '2026-03-12');
+                await render(TEMPLATE);
+                this.set('value', value);
+                await settled();
+
+                assert.dom(INPUT).hasValue('', `${String(value)} is not a date`);
+            }
+
+            assert.deepEqual(changes, [], 'none of it is reported');
         });
     });
 });

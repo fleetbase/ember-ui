@@ -37,12 +37,18 @@ export default class DatePickerComponent extends Component {
             return;
         }
 
-        const text = (event.target.value ?? '').trim();
+        const text = event.target.value.trim();
+
+        // The picker writes its own selection into the field, so leaving the field after picking in
+        // the calendar fires `change` with text the picker already holds. That is not a new choice.
+        if (text === this.selectionText(picker)) {
+            return;
+        }
+
+        // Reaching here with an empty field means there was a selection to clear.
         if (text === '') {
-            if (picker.selectedDates.length) {
-                picker.clear({ silent: true });
-                this.report({ date: undefined, formattedDate: '', datepicker: picker });
-            }
+            picker.clear({ silent: true });
+            this.report({ date: undefined, formattedDate: '', datepicker: picker });
             return;
         }
 
@@ -53,7 +59,7 @@ export default class DatePickerComponent extends Component {
             return;
         }
 
-        event.target.value = picker.selectedDates.length ? this.format(picker.selectedDates[0]) : '';
+        event.target.value = this.selectionText(picker);
     }
 
     /**
@@ -184,6 +190,11 @@ export default class DatePickerComponent extends Component {
     parseText(text) {
         const date = parse(text, this.dateFormat, new Date());
         return isValid(date) ? date : null;
+    }
+
+    /** The selection as the picker writes it into the field. */
+    selectionText(picker) {
+        return picker.selectedDates.map((date) => this.format(date)).join(picker.opts.multipleDatesSeparator);
     }
 
     format(date) {
