@@ -1,3 +1,12 @@
 <div class="date-picker-container">
-    <Input @value={{@value}} placeholder={{@placeholder}} autocomplete="off" class="fleetbase-date-picker form-input {{@class}}" ...attributes {{did-insert this.setupComponent}} />
+    <Input
+        @value={{@value}}
+        placeholder={{@placeholder}}
+        autocomplete="off"
+        class="fleetbase-date-picker form-input {{@class}}"
+        ...attributes
+        {{did-insert this.setupComponent}}
+        {{did-update this.syncValue @value}}
+        {{on "change" this.handleTypedValue}}
+    />
 </div>

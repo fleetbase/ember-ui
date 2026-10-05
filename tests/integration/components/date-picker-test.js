@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click, find, findAll } from '@ember/test-helpers';
+import { render, click, find, findAll, fillIn, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const INPUT = '.fleetbase-date-picker';
@@ -168,6 +168,115 @@ module('Integration | Component | date-picker', function (hooks) {
             assert.strictEqual(changes.length, 1);
             assert.deepEqual(selections, [], 'no other handler is invoked');
             assert.deepEqual(dateChanges, []);
+        });
+    });
+
+    module('typing a date', function () {
+        test('a complete date in the picker format is selected and reported like a click', async function (assert) {
+            this.set('dateFormat', 'dd/MM/yyyy');
+
+            await render(TEMPLATE);
+            await fillIn(INPUT, '28/12/1990');
+
+            assert.strictEqual(changes.length, 1, 'onChange receives the typed date');
+            assert.strictEqual(changes[0].getFullYear(), 1990);
+            assert.strictEqual(changes[0].getMonth(), 11);
+            assert.strictEqual(changes[0].getDate(), 28);
+            assert.deepEqual(dateChanges, ['28/12/1990'], 'onDateChanged receives it formatted');
+            assert.strictEqual(selections.length, 1);
+            assert.dom(INPUT).hasValue('28/12/1990');
+
+            await click(INPUT);
+            assert.dom('.air-datepicker-cell.-selected-').hasText('28', 'the calendar opens on the typed day');
+        });
+
+        test('text that is not a date is reverted and not reported', async function (assert) {
+            await render(TEMPLATE);
+            await fillIn(INPUT, 'yesterday');
+
+            assert.deepEqual(changes, []);
+            assert.dom(INPUT).hasValue('', 'nothing was selected, so the field is emptied');
+        });
+
+        test('an invalid entry falls back to the current selection', async function (assert) {
+            this.set('value', '2026-03-12');
+
+            await render(TEMPLATE);
+            await fillIn(INPUT, '2026-13-45');
+
+            assert.deepEqual(changes, []);
+            assert.dom(INPUT).hasValue('2026-03-12');
+        });
+
+        test('emptying the field clears the selection and reports it', async function (assert) {
+            this.set('value', '2026-03-12');
+
+            await render(TEMPLATE);
+            await fillIn(INPUT, '');
+
+            assert.strictEqual(changes.length, 1, 'the clearing is reported');
+            assert.strictEqual(changes[0], undefined, 'with no date');
+            assert.deepEqual(dateChanges, ['']);
+
+            await click(INPUT);
+            assert.strictEqual(find('.air-datepicker-cell.-selected-'), null, 'no day is marked any more');
+        });
+
+        test('emptying an already empty field reports nothing', async function (assert) {
+            await render(TEMPLATE);
+            await fillIn(INPUT, '');
+
+            assert.deepEqual(changes, []);
+        });
+    });
+
+    module('a value that changes later', function () {
+        test('the new date is shown and selected without being reported', async function (assert) {
+            this.set('value', '2026-03-12');
+
+            await render(TEMPLATE);
+            this.set('value', '2026-03-20');
+            await settled();
+
+            assert.dom(INPUT).hasValue('2026-03-20');
+            assert.deepEqual(changes, [], 'a change made by the consumer is not echoed back');
+
+            await click(INPUT);
+            assert.dom('.air-datepicker-cell.-selected-').hasText('20');
+        });
+
+        test('a Date object is accepted', async function (assert) {
+            this.set('value', null);
+
+            await render(TEMPLATE);
+            this.set('value', new Date(2026, 2, 20));
+            await settled();
+
+            assert.dom(INPUT).hasValue('2026-03-20');
+        });
+
+        test('clearing the value clears the field', async function (assert) {
+            this.set('value', '2026-03-12');
+
+            await render(TEMPLATE);
+            this.set('value', null);
+            await settled();
+
+            assert.dom(INPUT).hasValue('');
+
+            await click(INPUT);
+            assert.strictEqual(find('.air-datepicker-cell.-selected-'), null);
+        });
+
+        test('the same date again changes nothing', async function (assert) {
+            this.set('value', '2026-03-12');
+
+            await render(TEMPLATE);
+            this.set('value', new Date(2026, 2, 12));
+            await settled();
+
+            assert.dom(INPUT).hasValue('2026-03-12');
+            assert.deepEqual(changes, []);
         });
     });
 });
