@@ -55,7 +55,12 @@ function main(argv) {
 
     console.log(`Building the playground for ${basePath} into ${output}/`);
 
-    execFileSync('ember', ['build', '--environment=production', `--output-path=${outputPath}`], {
+    // Run ember-cli from this package's own dependencies with the current Node. CI invokes this
+    // script with `node` rather than `pnpm run`, so `node_modules/.bin` is not on PATH and a bare
+    // `ember` would only resolve where ember-cli happens to be installed globally.
+    const emberBin = require.resolve('ember-cli/bin/ember', { paths: [projectRoot] });
+
+    execFileSync(process.execPath, [emberBin, 'build', '--environment=production', `--output-path=${outputPath}`], {
         stdio: 'inherit',
         env: { ...process.env, PLAYGROUND: 'true', PLAYGROUND_ROOT_URL: basePath },
     });
