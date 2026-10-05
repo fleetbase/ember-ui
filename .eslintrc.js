@@ -44,6 +44,8 @@ module.exports = {
                     '@tailwindcss/forms',
                     // Build-time only: required from index.js when COVERAGE=true.
                     'ember-cli-code-coverage',
+                    // Dev-only: scripts/build-playground.js resolves ember-cli's bin from this package.
+                    'ember-cli',
                 ],
             },
         ],

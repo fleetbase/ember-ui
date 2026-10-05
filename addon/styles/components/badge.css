@@ -596,6 +596,43 @@
     @apply text-gray-300;
 }
 
+/* ── Configured order lifecycle statuses ──
+   Activity codes used by order configs with their own lifecycle (meta.lifecycle),
+   such as loans and rentals, that the families above don't cover. `assigned`,
+   `active`, `completed` and `cancelled` are already styled above. */
+
+.status-badge.requested-status-badge > span {
+    @apply bg-slate-800 border-slate-700 text-slate-100;
+}
+
+.status-badge.requested-status-badge > span svg {
+    @apply text-slate-300;
+}
+
+.status-badge.handed-over-status-badge > span {
+    @apply bg-violet-800 border-violet-700 text-violet-100;
+}
+
+.status-badge.handed-over-status-badge > span svg {
+    @apply text-violet-300;
+}
+
+.status-badge.extended-status-badge > span {
+    @apply bg-orange-700 border-orange-700 text-orange-100;
+}
+
+.status-badge.extended-status-badge > span svg {
+    @apply text-orange-300;
+}
+
+.status-badge.returned-status-badge > span {
+    @apply bg-cyan-800 border-cyan-700 text-cyan-100;
+}
+
+.status-badge.returned-status-badge > span svg {
+    @apply text-cyan-300;
+}
+
 body[data-theme='dark'] .status-badge:not(.shadow-none) {
     @apply shadow;
 }

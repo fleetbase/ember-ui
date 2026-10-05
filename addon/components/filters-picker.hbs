@@ -33,8 +33,9 @@
                         {{#unless filter.noFilterLabel}}
                             <label class="filter-component-label">{{or filter.filterLabel filter.label}}</label>
                         {{/unless}}
+                        {{! An ExtensionComponent filter comes from an extension's own engine. }}
                         {{component
-                            filter.filterComponent
+                            (if (is-object filter.filterComponent) (lazy-engine-component filter.filterComponent) filter.filterComponent)
                             value=filter.filterValue
                             filter=filter
                             param=(or filter.filterParam filter.valuePath)

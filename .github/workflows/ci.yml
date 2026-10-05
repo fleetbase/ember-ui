@@ -132,7 +132,10 @@ jobs:
       - name: Verify LCOV report exists
         run: test -s coverage/lcov.info || (echo 'coverage/lcov.info missing or empty' && exit 1)
 
+      # The coverage gate above is what blocks a merge; Codecov only reports. A Codecov outage (its
+      # CLI download host refusing TLS, say) shows up as a failed step without failing the job.
       - name: Upload coverage to Codecov
+        continue-on-error: true
         uses: codecov/codecov-action@v5
         with:
           files: coverage/lcov.info

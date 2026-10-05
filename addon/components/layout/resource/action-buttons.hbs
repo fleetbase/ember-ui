@@ -1,0 +1,95 @@
+{{#each @buttons as |actionButton|}}
+    {{#if actionButton.items}}
+        <DropdownButton
+            @text={{or actionButton.text actionButton.label}}
+            @textClass={{actionButton.textClass}}
+            @type={{actionButton.type}}
+            @icon={{or actionButton.icon @dropdownIcon}}
+            @size={{or actionButton.size @dropdownSize}}
+            @iconPrefix={{actionButton.prefix}}
+            @buttonClass={{actionButton.buttonClass}}
+            @buttonWrapperClass={{actionButton.wrapperClass}}
+            @triggerClass={{actionButton.triggerClass}}
+            @renderInPlace={{or actionButton.renderInPlace @renderInPlace}}
+            @isLoading={{actionButton.isLoading}}
+            @disabled={{actionButton.disabled}}
+            @helpText={{actionButton.helpText}}
+            @tooltipPlacement={{actionButton.tooltipPlacement}}
+            as |dd|
+        >
+            <div class="next-dd-menu mt-1 mx-0" aria-labelledby="user-menu">
+                {{#each actionButton.items as |item|}}
+                    {{#if item.separator}}
+                        <div class="next-dd-menu-seperator"></div>
+                    {{else}}
+                        <div class="px-1 {{item.wrapperClass}}">
+                            <a
+                                href="javascript:;"
+                                class="next-dd-item {{item.class}} {{if item.disabled 'disabled'}}"
+                                disabled={{item.disabled}}
+                                {{on "click" (dropdown-fn dd (or item.fn item.onClick (noop)))}}
+                            >
+                                {{#if item.icon}}
+                                    <div class="w-7 flex-grow-0 flex-shrink-0">
+                                        <FaIcon @icon={{item.icon}} />
+                                    </div>
+                                {{/if}}
+                                <span>{{or item.text item.label}}</span>
+                            </a>
+                        </div>
+                    {{/if}}
+                {{/each}}
+            </div>
+        </DropdownButton>
+    {{else if actionButton.component}}
+        {{#let (if (is-object actionButton.component) (lazy-engine-component actionButton.component) actionButton.component) as |buttonComponent|}}
+            {{#if buttonComponent}}
+                {{component
+                    buttonComponent
+                    icon=actionButton.icon
+                    iconPrefix=actionButton.iconPrefix
+                    iconComponent=actionButton.iconComponent
+                    size=actionButton.size
+                    text=actionButton.text
+                    options=actionButton.options
+                    items=actionButton.items
+                    permission=actionButton.permission
+                    isLoading=actionButton.isLoading
+                    renderInPlace=actionButton.renderInPlace
+                    triggerClass=actionButton.triggerClass
+                    disabled=actionButton.disabled
+                    onClick=actionButton.onClick
+                    fn=actionButton.fn
+                    perform=actionButton.perform
+                    onSelect=actionButton.onSelect
+                    onChange=actionButton.onChange
+                }}
+            {{/if}}
+        {{/let}}
+    {{else}}
+        <Button
+            @type={{actionButton.type}}
+            @text={{actionButton.text}}
+            @onClick={{if actionButton.perform (perform actionButton.perform) (or actionButton.onClick actionButton.fn)}}
+            @size={{actionButton.size}}
+            @buttonType={{actionButton.buttonType}}
+            @disabled={{actionButton.disabled}}
+            @exampleText={{actionButton.exampleText}}
+            @helpText={{actionButton.helpText}}
+            @icon={{actionButton.icon}}
+            @iconClass={{actionButton.iconClass}}
+            @iconFlip={{actionButton.iconFlip}}
+            @iconPrefix={{actionButton.iconPrefix}}
+            @iconRotation={{actionButton.iconRotation}}
+            @iconSize={{actionButton.iconSize}}
+            @isLoading={{actionButton.isLoading}}
+            @outline={{actionButton.outline}}
+            @permission={{actionButton.permission}}
+            @wrapperClass={{actionButton.wrapperClass}}
+            @textClass={{actionButton.textClass}}
+            @tooltipPlacement={{actionButton.tooltipPlacement}}
+            @visible={{actionButton.visible}}
+            class={{actionButton.class}}
+        />
+    {{/if}}
+{{/each}}
