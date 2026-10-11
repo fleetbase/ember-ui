@@ -1,0 +1,476 @@
+/*
+ * Skeleton loading states. One shimmering block (`.ui-skeleton`) in a few shapes, and the
+ * composites that arrange it into a table, a card, a form, a panel or a whole page. Every
+ * box is `aria-hidden`; the page composite announces itself once through `role="status"`.
+ * Surfaces are opaque in both themes so a skeleton reads the same wherever it sits.
+ */
+
+.ui-skeleton {
+    position: relative;
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 0.875rem;
+    max-width: 100%;
+    overflow: hidden;
+    vertical-align: middle;
+    border-radius: 0.25rem;
+    background-color: #e5e7eb;
+}
+
+.ui-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 55%), transparent);
+    animation: ui-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+body[data-theme='dark'] .ui-skeleton {
+    background-color: #374151;
+}
+
+body[data-theme='dark'] .ui-skeleton::after {
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 7%), transparent);
+}
+
+@keyframes ui-skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-skeleton::after {
+        animation: none;
+    }
+}
+
+.ui-skeleton-title {
+    height: 1.125rem;
+}
+
+.ui-skeleton-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+}
+
+.ui-skeleton-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+}
+
+.ui-skeleton-rect {
+    height: 5rem;
+}
+
+.ui-skeleton-button {
+    width: 5.5rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+}
+
+.ui-skeleton-badge {
+    width: 3.75rem;
+    height: 1.125rem;
+    border-radius: 9999px;
+}
+
+.ui-skeleton-input {
+    height: 2.125rem;
+    border-radius: 0.375rem;
+}
+
+.ui-skeleton-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ── Text ── */
+.ui-skeleton-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* ── Identity (avatar + name) ── */
+.ui-skeleton-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* ── Table ── */
+.ui-skeleton-table-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.ui-skeleton-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.ui-skeleton-table th,
+.ui-skeleton-table td {
+    padding: 0.625rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ui-skeleton-table th {
+    height: 2.25rem;
+    background-color: #f9fafb;
+}
+
+.ui-skeleton-table td {
+    height: 2.75rem;
+}
+
+.ui-skeleton-table .ui-skeleton-table-check {
+    width: 2.25rem;
+    padding-right: 0;
+}
+
+body[data-theme='dark'] .ui-skeleton-table th,
+body[data-theme='dark'] .ui-skeleton-table td {
+    border-color: #2d3748;
+}
+
+body[data-theme='dark'] .ui-skeleton-table th {
+    background-color: #111827;
+}
+
+/* ── Table card (toolbar, table, footer) ── */
+.ui-skeleton-table-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+body[data-theme='dark'] .ui-skeleton-table-card {
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+.ui-skeleton-table-card-toolbar,
+.ui-skeleton-table-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.625rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.ui-skeleton-table-card-toolbar {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ui-skeleton-table-card-footer {
+    border-top: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-table-card-toolbar,
+body[data-theme='dark'] .ui-skeleton-table-card-footer {
+    border-color: #2d3748;
+}
+
+.ui-skeleton-table-card-tabs {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.ui-skeleton-table-card .ui-skeleton-table th:last-child,
+.ui-skeleton-table-card .ui-skeleton-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ui-skeleton-table-card .ui-skeleton-table th {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-table-card .ui-skeleton-table th {
+    border-color: #2d3748;
+}
+
+.ui-skeleton-form-card {
+    padding: 1.25rem;
+}
+
+/* ── Card ── */
+.ui-skeleton-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #f9fafb;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+body[data-theme='dark'] .ui-skeleton-card {
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+.ui-skeleton-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-card-header {
+    border-color: #2d3748;
+}
+
+.ui-skeleton-card-media {
+    width: 100%;
+}
+
+.ui-skeleton-card-media .ui-skeleton {
+    display: block;
+    border-radius: 0;
+}
+
+.ui-skeleton-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.625rem 0.5rem;
+}
+
+.ui-skeleton-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-card-footer {
+    border-color: #2d3748;
+}
+
+.ui-skeleton-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Cards grid: 4-up at 1440, 2-up at 1024, 1-up on phones ── */
+.ui-skeleton-cards-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ui-skeleton-cards-grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.ui-skeleton-cards-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-skeleton-cards-grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ui-skeleton-cards-grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ui-skeleton-cards-grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+@media (max-width: 1279px) {
+    .ui-skeleton-cards-grid-cols-3,
+    .ui-skeleton-cards-grid-cols-4,
+    .ui-skeleton-cards-grid-cols-5,
+    .ui-skeleton-cards-grid-cols-6 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .ui-skeleton-cards-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+/* ── Panel ── */
+.ui-skeleton-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1rem;
+}
+
+.ui-skeleton-panel-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ui-skeleton-panel-identity-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.ui-skeleton-panel-tabs {
+    display: flex;
+    gap: 1.25rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-panel-tabs {
+    border-color: #2d3748;
+}
+
+.ui-skeleton-panel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ui-skeleton-panel-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.ui-skeleton-field {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ── Form ── */
+.ui-skeleton-form {
+    display: grid;
+    gap: 1rem 1.5rem;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.ui-skeleton-form-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-skeleton-form-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ui-skeleton-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+/* ── Stat tiles ── */
+.ui-skeleton-stat-tiles {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.ui-skeleton-stat-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+body[data-theme='dark'] .ui-skeleton-stat-tile {
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+/* ── Page header (the console section header, 57px) ── */
+.ui-skeleton-page-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 57px;
+    padding: 0.5rem 1.5rem 0.5rem 2.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #fff;
+}
+
+body[data-theme='dark'] .ui-skeleton-page-header {
+    border-color: #374151;
+    background-color: #111827;
+}
+
+.ui-skeleton-page-header-left {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.ui-skeleton-page-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.ui-skeleton-page-header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Page ── */
+.ui-skeleton-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100%;
+}
+
+.ui-skeleton-page-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+}

@@ -6,7 +6,7 @@ export default class LayoutResourceCardBodyComponent extends Component {
     }
 
     get bodyClass() {
-        const baseClasses = '';
+        const baseClasses = 'resource-card-body';
         return this.args.class ? `${baseClasses} ${this.args.class}` : baseClasses;
     }
 }

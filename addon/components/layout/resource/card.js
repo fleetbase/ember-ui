@@ -10,22 +10,23 @@ export default class LayoutResourceCardComponent extends Component {
     }
 
     get cardClass() {
-        const baseClasses = 'bg-gray-50 dark:bg-gray-700/50 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden';
+        const baseClasses =
+            'resource-card bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden';
         return this.args.class ? `${baseClasses} ${this.args.class}` : baseClasses;
     }
 
     get headerClass() {
-        const baseClasses = 'px-2 py-1.5 border-b border-gray-200 dark:border-gray-700';
+        const baseClasses = 'resource-card-header px-2 py-1.5 border-b border-gray-200 dark:border-gray-700';
         return this.args.headerClass ? `${baseClasses} ${this.args.headerClass}` : baseClasses;
     }
 
     get bodyClass() {
-        const baseClasses = '';
+        const baseClasses = 'resource-card-body';
         return this.args.bodyClass ? `${baseClasses} ${this.args.bodyClass}` : baseClasses;
     }
 
     get footerClass() {
-        const baseClasses = 'px-2 py-1 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50';
+        const baseClasses = 'resource-card-footer px-2 py-1 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800';
         return this.args.footerClass ? `${baseClasses} ${this.args.footerClass}` : baseClasses;
     }
 }

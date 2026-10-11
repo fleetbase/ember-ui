@@ -37,7 +37,7 @@ select.form-select.has--placeholder {
 .fleetbase-console .form-textarea,
 .fleetbase-console .form-select,
 .fleetbase-console .form-multiselect {
-    @apply border border-gray-300 dark:border-gray-900;
+    @apply border border-gray-300 dark:border-gray-600;
 }
 
 body[data-theme='dark'] .fleetbase-console .form-input,
@@ -106,7 +106,7 @@ select.form-select,
 body[data-theme='dark'] .form-input.ember-power-select-trigger,
 body[data-theme='dark'] .form-input,
 body[data-theme='dark'] .form-select {
-    @apply text-sm text-white bg-gray-700 border border-gray-900 shadow-sm shadow-gray-900 outline-0;
+    @apply text-sm text-white bg-gray-900 border border-gray-600 shadow-sm shadow-gray-900 outline-0;
 }
 
 body[data-theme='dark'] .form-input.ember-power-select-trigger:active,

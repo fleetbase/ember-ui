@@ -1,0 +1,5 @@
+<span class="ui-skeleton-text {{@class}}" aria-hidden="true" ...attributes>
+    {{#each this.lines as |line|}}
+        <Skeleton @variant="text" @width={{if line.isLast (or @lastLineWidth "60%") @width}} />
+    {{/each}}
+</span>

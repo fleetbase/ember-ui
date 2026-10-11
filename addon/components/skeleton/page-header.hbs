@@ -1,0 +1,21 @@
+<div class="ui-skeleton-page-header {{@class}}" aria-hidden="true" ...attributes>
+    <div class="ui-skeleton-page-header-left">
+        {{#unless @hideAvatar}}
+            <Skeleton @variant="avatar" />
+        {{/unless}}
+        <div class="ui-skeleton-page-header-text">
+            <Skeleton @variant="title" @width="11rem" />
+            {{#unless @hideSubtitle}}
+                <Skeleton @variant="text" @width="17rem" @height="0.625rem" />
+            {{/unless}}
+        </div>
+    </div>
+    <div class="ui-skeleton-page-header-actions">
+        {{#unless @hideSearch}}
+            <Skeleton @variant="input" @width="16rem" @height="1.875rem" class="ui-skeleton-page-header-search" />
+        {{/unless}}
+        {{#each this.actions as |action|}}
+            <Skeleton @variant="button" data-skeleton-action={{action}} />
+        {{/each}}
+    </div>
+</div>
