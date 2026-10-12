@@ -24,6 +24,15 @@ module('Integration | Component | coordinates-input', function (hooks) {
         assert.dom('.coordinates-input input[aria-label="Longitude"]').hasValue('103.8198');
     });
 
+    test('it renders empty inputs for a null value', async function (assert) {
+        this.set('value', null);
+
+        await render(hbs`<CoordinatesInput @value={{this.value}} />`);
+
+        assert.dom('.coordinates-input input[aria-label="Latitude"]').hasValue('');
+        assert.dom('.coordinates-input input[aria-label="Longitude"]').hasValue('');
+    });
+
     test('it ignores a zero-zero point value', async function (assert) {
         this.set('value', { type: 'Point', coordinates: [0, 0] });
 
