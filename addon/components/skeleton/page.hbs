@@ -7,7 +7,7 @@
         {{/if}}
     </span>
     {{#unless @hideHeader}}
-        <Skeleton::PageHeader @hideAvatar={{@hideAvatar}} @hideSubtitle={{@hideSubtitle}} @hideSearch={{@hideSearch}} @actions={{@actions}} />
+        <Skeleton::PageHeader @hideAvatar={{@hideAvatar}} @hideSubtitle={{@hideSubtitle}} @hideSearch={{@hideSearch}} @actions={{@actions}} @borderless={{@borderlessHeader}} />
     {{/unless}}
     <div class="ui-skeleton-page-body {{@bodyClass}}">
         {{#if (has-block)}}
@@ -27,24 +27,27 @@
                     <Skeleton @variant="text" @width="7rem" />
                     <Skeleton @variant="text" @width="4rem" />
                 </div>
-                <Skeleton::Table @rows={{@rows}} @columns={{@columns}} />
+                <Skeleton::Table @rows={{@rows}} @columns={{@columns}} @identityColumn={{@identityColumn}} />
             </div>
         {{else}}
             <div class="ui-skeleton-table-card">
-                <div class="ui-skeleton-table-card-toolbar">
-                    <span class="ui-skeleton-table-card-tabs">
-                        <Skeleton @variant="text" @width="2.5rem" />
-                        <Skeleton @variant="text" @width="3.5rem" />
-                        <Skeleton @variant="text" @width="3rem" />
-                        <Skeleton @variant="text" @width="4rem" />
-                    </span>
-                    <Skeleton @variant="text" @width="5rem" />
-                </div>
-                <Skeleton::Table @rows={{@rows}} @columns={{@columns}} @checkbox={{true}} />
-                <div class="ui-skeleton-table-card-footer">
-                    <Skeleton @variant="text" @width="8rem" />
-                    <Skeleton @variant="button" @width="9rem" />
-                </div>
+                {{#if this.showToolbar}}
+                    <div class="ui-skeleton-table-card-toolbar">
+                        <span class="ui-skeleton-table-card-tabs">
+                            {{#each this.tabs as |tab|}}
+                                <Skeleton @variant="text" @width={{tab.width}} data-skeleton-tab={{tab.index}} />
+                            {{/each}}
+                        </span>
+                        <Skeleton @variant="text" @width="5rem" />
+                    </div>
+                {{/if}}
+                <Skeleton::Table @rows={{@rows}} @columns={{@columns}} @checkbox={{this.showCheckbox}} @identityColumn={{@identityColumn}} />
+                {{#if this.showFooter}}
+                    <div class="ui-skeleton-table-card-footer">
+                        <Skeleton @variant="text" @width="8rem" />
+                        <Skeleton @variant="button" @width="9rem" />
+                    </div>
+                {{/if}}
             </div>
         {{/if}}
     </div>

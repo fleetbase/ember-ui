@@ -14,14 +14,22 @@ export default class SkeletonTableComponent extends SkeletonBaseComponent {
         return this.args.header !== false;
     }
 
-    get hasIdentityColumn() {
-        return this.args.identityColumn !== false;
+    /** The column holding an avatar and a name: the first by default, `@identityColumn` as an index, none when false. */
+    get identityIndex() {
+        const { identityColumn } = this.args;
+
+        if (identityColumn === false) {
+            return -1;
+        }
+
+        const index = parseInt(identityColumn, 10);
+        return Number.isFinite(index) && index >= 0 ? index : 0;
     }
 
     get columns() {
         return this.range(this.args.columns, 5).map((index) => ({
             index,
-            isIdentity: this.hasIdentityColumn && index === 0,
+            isIdentity: index === this.identityIndex,
             width: CELL_WIDTHS[index % CELL_WIDTHS.length],
             headerWidth: HEADER_WIDTHS[index % HEADER_WIDTHS.length],
         }));

@@ -281,6 +281,39 @@ body[data-theme='dark'] .ui-skeleton-card-footer {
     gap: 0.5rem;
 }
 
+.ui-skeleton-card-footer-row {
+    display: contents;
+}
+
+.ui-skeleton-card-footer.ui-skeleton-card-footer-stacked {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.ui-skeleton-card-footer-stacked .ui-skeleton-card-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.ui-skeleton-card-identity {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.ui-skeleton-card-identity-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
 /* ── Cards grid: 4-up at 1440, 2-up at 1024, 1-up on phones ── */
 .ui-skeleton-cards-grid {
     display: grid;
@@ -438,6 +471,10 @@ body[data-theme='dark'] .ui-skeleton-page-header {
     background-color: #111827;
 }
 
+.ui-skeleton-page-header.ui-skeleton-page-header-borderless {
+    border-bottom-color: transparent;
+}
+
 .ui-skeleton-page-header-left {
     display: flex;
     flex: 1 1 auto;
@@ -473,4 +510,24 @@ body[data-theme='dark'] .ui-skeleton-page-header {
     flex-direction: column;
     gap: 1rem;
     padding: 1.25rem;
+}
+
+/* ── Tabs (an underlined strip between the header and the content) ── */
+.ui-skeleton-tabs {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 2.25rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body[data-theme='dark'] .ui-skeleton-tabs {
+    border-color: #374151;
+}
+
+.ui-skeleton-tabs-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
 }

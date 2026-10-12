@@ -119,4 +119,54 @@ module('Integration | Component | skeleton', function (hooks) {
         assert.dom('.ui-skeleton-page-body [data-test-custom]').exists('a block replaces the body');
         assert.dom('.ui-skeleton-table').doesNotExist();
     });
+
+    test('page shapes its table card to the page: tabs, toolbar, checkbox, footer and identity column', async function (assert) {
+        await render(hbs`<Skeleton::Page @label="Loading" @tabs={{6}} @columns={{3}} @rows={{2}} @identityColumn={{1}} @borderlessHeader={{true}} />`);
+        assert.dom('.ui-skeleton-table-card-toolbar [data-skeleton-tab]').exists({ count: 6 });
+        assert.dom('.ui-skeleton-table tbody tr:first-child td:nth-child(3) .ui-skeleton-identity').exists('the second column (after the checkbox) holds the identity');
+        assert.dom('.ui-skeleton-table tbody tr:first-child td:nth-child(2) .ui-skeleton-identity').doesNotExist();
+        assert.dom('.ui-skeleton-page-header').hasClass('ui-skeleton-page-header-borderless');
+
+        await render(hbs`<Skeleton::Page @label="Loading" @toolbar={{false}} @checkbox={{false}} @footer={{false}} @columns={{4}} @identityColumn={{false}} />`);
+        assert.dom('.ui-skeleton-table-card-toolbar').doesNotExist();
+        assert.dom('.ui-skeleton-table-card-footer').doesNotExist();
+        assert.dom('.ui-skeleton-table thead th').exists({ count: 4 }, 'no checkbox column');
+        assert.dom('.ui-skeleton-identity').doesNotExist();
+    });
+
+    test('tabs draw an underlined strip with optional count pills', async function (assert) {
+        await render(hbs`<Skeleton::Tabs @count={{3}} />`);
+        assert.dom('.ui-skeleton-tabs').hasAttribute('aria-hidden', 'true');
+        assert.dom('.ui-skeleton-tabs-item').exists({ count: 3 });
+        assert.dom('.ui-skeleton-tabs-item .ui-skeleton-badge').doesNotExist();
+
+        await render(hbs`<Skeleton::Tabs @count={{2}} @counts={{true}} />`);
+        assert.dom('.ui-skeleton-tabs-item .ui-skeleton-badge').exists({ count: 2 });
+    });
+
+    test('card follows the card it stands in for', async function (assert) {
+        await render(hbs`<Skeleton::Card @mediaFirst={{true}} @hideHeader={{true}} @lines={{4}} @footerActions={{2}} @mediaHeight={{144}} />`);
+        assert.dom('.ui-skeleton-card > :first-child').hasClass('ui-skeleton-card-media', 'the image leads the card');
+        assert.dom('.ui-skeleton-card-header').doesNotExist();
+        assert.dom('.ui-skeleton-card-body [data-skeleton-line]').exists({ count: 4 });
+        assert.dom('.ui-skeleton-card-footer [data-skeleton-card-action]').exists({ count: 2 });
+
+        await render(hbs`<Skeleton::Card @avatar={{true}} @status="badge" @hideMedia={{true}} @footerActions={{1}} @footerBadge={{true}} />`);
+        assert.dom('.ui-skeleton-card-header .ui-skeleton-card-identity .ui-skeleton-avatar').exists();
+        assert.dom('.ui-skeleton-card-header > .ui-skeleton-badge').exists();
+        assert.dom('.ui-skeleton-card-media').doesNotExist();
+        assert.dom('.ui-skeleton-card-footer-row > .ui-skeleton-badge').exists('the footer leads with a badge');
+
+        await render(hbs`<Skeleton::Card @subtitle={{true}} @footerActions={{2}} @footerLines={{3}} />`);
+        assert.dom('.ui-skeleton-card-header .ui-skeleton-card-identity-text .ui-skeleton').exists({ count: 2 }, 'a title and its subtitle');
+        assert.dom('.ui-skeleton-card-footer').hasClass('ui-skeleton-card-footer-stacked');
+        assert.dom('.ui-skeleton-card-footer [data-skeleton-footer-line]').exists({ count: 3 });
+
+        await render(hbs`<Skeleton::Card @lines={{0}} />`);
+        assert.dom('.ui-skeleton-card-body').doesNotExist('no empty body without lines');
+
+        await render(hbs`<Skeleton::Card @status={{false}} />`);
+        assert.dom('.ui-skeleton-card-header .ui-skeleton-circle').doesNotExist();
+        assert.dom('.ui-skeleton-card-media').exists('media after the header by default');
+    });
 });

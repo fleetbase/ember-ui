@@ -1,4 +1,4 @@
-<div class="ui-skeleton-page-header {{@class}}" aria-hidden="true" ...attributes>
+<div class="ui-skeleton-page-header {{if @borderless 'ui-skeleton-page-header-borderless'}} {{@class}}" aria-hidden="true" ...attributes>
     <div class="ui-skeleton-page-header-left">
         {{#unless @hideAvatar}}
             <Skeleton @variant="avatar" />

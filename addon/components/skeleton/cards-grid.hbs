@@ -1,5 +1,18 @@
 <div class="ui-skeleton-cards-grid ui-skeleton-cards-grid-cols-{{this.columns}} {{@class}}" aria-hidden="true" ...attributes>
     {{#each this.items as |item|}}
-        <Skeleton::Card @mediaHeight={{@mediaHeight}} @hideMedia={{@hideMedia}} data-skeleton-card={{item}} />
+        <Skeleton::Card
+            @mediaHeight={{@mediaHeight}}
+            @hideMedia={{@hideMedia}}
+            @mediaFirst={{@mediaFirst}}
+            @avatar={{@avatar}}
+            @subtitle={{@subtitle}}
+            @hideHeader={{@hideHeader}}
+            @status={{@status}}
+            @lines={{@lines}}
+            @footerActions={{@footerActions}}
+            @footerBadge={{@footerBadge}}
+            @footerLines={{@footerLines}}
+            data-skeleton-card={{item}}
+        />
     {{/each}}
 </div>
