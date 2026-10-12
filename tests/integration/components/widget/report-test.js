@@ -1,7 +1,8 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { click, render, settled, waitUntil } from '@ember/test-helpers';
+import { click, clearRender, render, settled, waitUntil } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+import WidgetReportComponent from '@fleetbase/ember-ui/components/widget/report';
 
 class StoreStub {
     report = null;
@@ -16,6 +17,22 @@ class StoreStub {
         }
 
         return this.report;
+    }
+}
+
+class FetchStub {
+    posts = [];
+    response = { success: true, results: [], columns: [], meta: {} };
+    error = null;
+
+    async post(url, data) {
+        this.posts.push({ url, data });
+
+        if (this.error) {
+            throw this.error;
+        }
+
+        return this.response;
     }
 }
 
@@ -42,10 +59,12 @@ module('Integration | Component | widget/report', function (hooks) {
         this.store = new StoreStub();
         this.modalsManager = new ModalsManagerStub();
         this.notifications = new NotificationsStub();
+        this.fetch = new FetchStub();
 
         this.owner.register('service:store', this.store, { instantiate: false });
         this.owner.register('service:modals-manager', this.modalsManager, { instantiate: false });
         this.owner.register('service:notifications', this.notifications, { instantiate: false });
+        this.owner.register('service:fetch', this.fetch, { instantiate: false });
     });
 
     test('it renders an empty state when no report is selected', async function (assert) {
@@ -56,22 +75,170 @@ module('Integration | Component | widget/report', function (hooks) {
         assert.strictEqual(this.store.findRecordCalls.length, 0, 'does not load without a report id');
     });
 
-    test('it loads and renders a selected report', async function (assert) {
+    test('it loads a selected report and runs it live', async function (assert) {
         this.store.report = {
             id: 'report-1',
             title: 'Revenue',
             result_columns: [{ label: 'Total', name: 'total' }],
             data: [{ total: '$42.00' }],
         };
+        this.fetch.response = { success: true, results: [{ total: '$99.00' }], columns: [{ name: 'total', label: 'Live Total' }], meta: { total_rows: 1 } };
         this.set('options', { reportId: 'report-1' });
 
         await render(hbs`<Widget::Report @options={{this.options}} />`);
         await waitUntil(() => this.store.findRecordCalls.length === 1);
+        await settled();
 
         assert.deepEqual(this.store.findRecordCalls[0], { modelName: 'report', id: 'report-1' });
+        assert.deepEqual(this.fetch.posts, [{ url: 'reports/report-1/execute', data: undefined }], 'executes the report');
         assert.dom('table').exists();
-        assert.dom().includesText('Total');
+        assert.dom().includesText('Live Total');
+        assert.dom().includesText('$99.00');
+        assert.dom().doesNotIncludeText('$42.00', 'the stored results are not shown');
+        assert.dom('[data-test-widget-report-last-run]').exists('shows when it last ran');
+        assert.dom('[data-test-widget-report-error]').doesNotExist();
+    });
+
+    test('a record that can execute itself is run through its own method', async function (assert) {
+        let executions = 0;
+        this.store.report = {
+            id: 'report-1',
+            async execute() {
+                executions++;
+                return { success: true, results: [{ n: 7 }], columns: ['n'] };
+            },
+        };
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+
+        assert.strictEqual(executions, 1);
+        assert.strictEqual(this.fetch.posts.length, 0, 'fetch is not called directly');
+        assert.dom('table').includesText('7');
+    });
+
+    test('a failed run is shown inline and falls back to the stored results', async function (assert) {
+        this.store.report = {
+            id: 'report-1',
+            result_columns: [{ label: 'Total', name: 'total' }],
+            data: [{ total: '$42.00' }],
+        };
+        this.fetch.error = new Error('Query timed out');
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+
+        assert.dom('[data-test-widget-report-error]').includesText('Query timed out');
+        assert.dom('[data-test-widget-report-error]').includesText('Showing saved results');
         assert.dom().includesText('$42.00');
+        assert.dom('[data-test-widget-report-stored]').exists();
+        assert.deepEqual(this.notifications.errors, [], 'the failure is not a toast');
+
+        this.fetch.error = null;
+        this.fetch.response = { success: true, results: [{ total: '$50.00' }], columns: [{ name: 'total', label: 'Total' }] };
+        await click('[data-test-widget-report-refresh]');
+
+        assert.strictEqual(this.fetch.posts.length, 2, 'refresh runs the report again');
+        assert.dom('[data-test-widget-report-error]').doesNotExist('a good run clears the error');
+        assert.dom().includesText('$50.00');
+    });
+
+    test('a live result over the row cap is truncated', async function (assert) {
+        this.store.report = { id: 'report-1' };
+        this.fetch.response = {
+            success: true,
+            results: Array.from({ length: 150 }, (_, i) => ({ n: i })),
+            columns: ['n'],
+        };
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+
+        assert.dom('tbody tr').exists({ count: 100 });
+        assert.dom('[data-test-widget-report-truncated]').includesText('Showing first 100 of 150 rows');
+    });
+
+    test('an unsuccessful run keeps the last good result and says so', async function (assert) {
+        this.store.report = { id: 'report-1' };
+        this.fetch.response = { success: true, results: [{ total: '$10.00' }], columns: [{ name: 'total', label: 'Total' }] };
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+
+        assert.dom().includesText('$10.00');
+
+        this.fetch.response = { success: false, error: 'Report is invalid' };
+        await click('[data-test-widget-report-refresh]');
+
+        assert.dom('[data-test-widget-report-error]').includesText('Report is invalid');
+        assert.dom('[data-test-widget-report-error]').includesText('Showing the last successful run');
+        assert.dom().includesText('$10.00', 'the previous live result stays on screen');
+    });
+
+    test('polling is off by default', async function (assert) {
+        let instance;
+        this.owner.register(
+            'component:widget/report',
+            class extends WidgetReportComponent {
+                constructor() {
+                    super(...arguments);
+                    instance = this;
+                }
+            }
+        );
+        this.store.report = { id: 'report-1' };
+        this.set('options', { reportId: 'report-1' });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+
+        assert.strictEqual(instance.refreshInterval, 0);
+        assert.false(instance.pollReport.isRunning, 'no polling task is started');
+        assert.strictEqual(this.fetch.posts.length, 1, 'the report runs once');
+    });
+
+    test('a configured interval polls no faster than five minutes and stops when destroyed', async function (assert) {
+        let instance;
+        const delays = [];
+        this.owner.register(
+            'component:widget/report',
+            class extends WidgetReportComponent {
+                constructor() {
+                    super(...arguments);
+                    instance = this;
+                }
+
+                pollDelay(interval) {
+                    delays.push(interval);
+                    // Let two intervals pass immediately, then wait forever.
+                    return delays.length <= 2 ? Promise.resolve() : new Promise(() => {});
+                }
+            }
+        );
+        this.store.report = { id: 'report-1' };
+        this.set('options', { reportId: 'report-1', refreshInterval: 1 });
+
+        await render(hbs`<Widget::Report @options={{this.options}} />`);
+        await waitUntil(() => this.fetch.posts.length === 3 && delays.length === 3);
+
+        assert.deepEqual(delays, [300000, 300000, 300000], 'the interval is raised to five minutes');
+        assert.true(instance.pollReport.isRunning, 'the polling task is waiting for the next interval');
+
+        await clearRender();
+        assert.false(instance.pollReport.isRunning, 'destroying the widget stops the polling');
+    });
+
+    test('a selection without an id is not run', async function (assert) {
+        this.set('widget', { options: {} });
+
+        await render(hbs`<Widget::Report @widget={{this.widget}} />`);
+        await click('[data-test-widget-report-select]');
+
+        const modalOptions = this.modalsManager.shown[0].options;
+        modalOptions.onChange([{ title: 'Unsaved' }]);
+        await modalOptions.confirm({ startLoading() {}, done() {} });
+        await settled();
+
+        assert.strictEqual(this.fetch.posts.length, 0, 'nothing is executed without an id');
     });
 
     test('a loaded report can be changed, with the current one preselected', async function (assert) {

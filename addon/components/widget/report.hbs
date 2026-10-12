@@ -1,11 +1,43 @@
 <div class="widget-report flex h-full min-h-0 flex-col" ...attributes>
     {{#if this.report}}
-        <div class="mb-2 flex items-center justify-end">
-            <Button @size="xs" @type="default" @text="Change Report" @icon="edit" @onClick={{this.selectReport}} data-test-widget-report-change />
+        <div class="mb-2 flex items-center justify-between gap-2">
+            <div class="flex min-w-0 items-center text-xs text-gray-500 dark:text-gray-400" data-test-widget-report-status>
+                {{#if this.runReport.isRunning}}
+                    <Spinner class="mr-1" />
+                    <span data-test-widget-report-running>Running report...</span>
+                {{else if this.lastRunDisplay}}
+                    <span class="truncate" data-test-widget-report-last-run>Last run {{this.lastRunDisplay}}</span>
+                {{else if this.isShowingStoredResult}}
+                    <span class="truncate" data-test-widget-report-stored>Showing saved results</span>
+                {{/if}}
+            </div>
+            <div class="flex shrink-0 items-center gap-1">
+                <Button @size="xs" @type="default" @text="Refresh" @icon="arrows-rotate" @onClick={{this.refresh}} @disabled={{this.runReport.isRunning}} data-test-widget-report-refresh />
+                <Button @size="xs" @type="default" @text="Change Report" @icon="edit" @onClick={{this.selectReport}} data-test-widget-report-change />
+            </div>
         </div>
+        {{#if this.runError}}
+            <div
+                class="mb-2 flex items-start rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 dark:border-red-800 dark:bg-red-900 dark:text-red-200"
+                role="alert"
+                data-test-widget-report-error
+            >
+                <FaIcon @icon="triangle-exclamation" class="mr-1 mt-0.5" />
+                <span>{{this.runError}}{{if this.isShowingStoredResult " Showing saved results." " Showing the last successful run."}}</span>
+            </div>
+        {{/if}}
         <div class="min-h-0 flex-1 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-            <Report::Data @resource={{this.report}} />
+            <Report::Data @resource={{this.result}} />
         </div>
+        {{#if this.result.truncated}}
+            <div class="mt-1 text-right text-xs text-gray-500 dark:text-gray-400" data-test-widget-report-truncated>
+                Showing first
+                {{this.result.data.length}}
+                of
+                {{this.result.total_rows}}
+                rows
+            </div>
+        {{/if}}
     {{else if this.loadReport.isRunning}}
         <div class="flex min-h-24 flex-1 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:bg-gray-800">
             <div class="flex flex-col items-center justify-center text-center">
