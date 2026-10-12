@@ -406,7 +406,7 @@ button.integrated-vendor-button:visited,
 body[data-theme='dark'] .ui-full-calendar .fc-button.btn-default,
 body[data-theme='dark'] .fc-button.btn-default,
 body[data-theme='dark'] .btn.btn-default {
-    @apply text-gray-300 bg-gray-700 border-gray-600 shadow;
+    @apply text-gray-300 bg-gray-700 border-gray-900 shadow;
 }
 
 body[data-theme='dark'] .ui-full-calendar .fc-button.btn-default:hover:not(:disabled),
