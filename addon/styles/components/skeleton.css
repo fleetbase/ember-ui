@@ -314,45 +314,37 @@ body[data-theme='dark'] .ui-skeleton-card-footer {
     min-width: 0;
 }
 
-/* ── Cards grid: 4-up at 1440, 2-up at 1024, 1-up on phones ── */
+/* ── Cards grid: the same breakpoints as Layout::Resource::CardsGrid, so a skeleton never
+   shows fewer columns than the grid it stands in for. One column on phones; from 768px two
+   for @columns=2 and 3 (three from 1024px), and the full count for 4 to 6. ── */
 .ui-skeleton-cards-grid {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.ui-skeleton-cards-grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-.ui-skeleton-cards-grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.ui-skeleton-cards-grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.ui-skeleton-cards-grid-cols-5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.ui-skeleton-cards-grid-cols-6 {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-
-@media (max-width: 1279px) {
-    .ui-skeleton-cards-grid-cols-3,
-    .ui-skeleton-cards-grid-cols-4,
-    .ui-skeleton-cards-grid-cols-5,
-    .ui-skeleton-cards-grid-cols-6 {
+@media (min-width: 768px) {
+    .ui-skeleton-cards-grid-cols-2,
+    .ui-skeleton-cards-grid-cols-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ui-skeleton-cards-grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .ui-skeleton-cards-grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .ui-skeleton-cards-grid-cols-6 {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 767px) {
-    .ui-skeleton-cards-grid {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
+@media (min-width: 1024px) {
+    .ui-skeleton-cards-grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
