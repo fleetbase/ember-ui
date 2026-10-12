@@ -227,6 +227,27 @@ module('Integration | Component | widget/report', function (hooks) {
         assert.false(instance.pollReport.isRunning, 'destroying the widget stops the polling');
     });
 
+    test('a widget that has not run has no error, and the polling delay waits out the interval', async function (assert) {
+        let instance;
+        this.owner.register(
+            'component:widget/report',
+            class extends WidgetReportComponent {
+                constructor() {
+                    super(...arguments);
+                    instance = this;
+                }
+            }
+        );
+
+        await render(hbs`<Widget::Report />`);
+
+        assert.strictEqual(instance.runError, null, 'a widget that has not run has no run error');
+
+        const startedAt = Date.now();
+        await instance.pollDelay(10);
+        assert.true(Date.now() - startedAt >= 10, 'resolves once the interval has passed');
+    });
+
     test('a selection without an id is not run', async function (assert) {
         this.set('widget', { options: {} });
 
