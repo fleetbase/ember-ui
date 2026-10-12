@@ -104,9 +104,12 @@ export default class CommentThreadComponent extends Component {
         if (typeof this.args.onPublishComment === 'function') {
             yield this.args.onPublishComment(this.input, this.subject);
         } else {
+            // The console's comment serializer drops `subject_id`, so the uuid is what reaches
+            // the API; without it the comment is inserted with no subject and fails.
             let comment = this.store.createRecord('comment', {
                 content: this.input,
                 subject_id: this.subjectPublicId,
+                subject_uuid: this.subjectUuid,
                 subject_type: this.subjectType,
             });
 

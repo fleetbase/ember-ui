@@ -307,7 +307,11 @@ module('Integration | Component | comment-thread', function (hooks) {
 
             const [created] = storeCalls(this.store, 'createRecord');
             assert.strictEqual(created.args[0], 'comment', 'a comment record is created');
-            assert.deepEqual(created.args[1], { content: 'A comment with no handler', subject_id: 'order_test_1', subject_type: 'order' }, 'carrying the subject identity');
+            assert.deepEqual(
+                created.args[1],
+                { content: 'A comment with no handler', subject_id: 'order_test_1', subject_uuid: undefined, subject_type: 'order' },
+                'carrying the subject identity'
+            );
 
             const [queried] = storeCalls(this.store, 'query');
             assert.strictEqual(queried.args[0], 'comment', 'the thread is reloaded afterwards');
@@ -330,7 +334,11 @@ module('Integration | Component | comment-thread', function (hooks) {
             await click('button');
 
             const [created] = storeCalls(this.store, 'createRecord');
-            assert.deepEqual(created.args[1], { content: 'A comment on an untyped subject', subject_id: 'order_uuid_only', subject_type: null }, 'the record carries a null type');
+            assert.deepEqual(
+                created.args[1],
+                { content: 'A comment on an untyped subject', subject_id: 'order_uuid_only', subject_uuid: 'order_uuid_only', subject_type: null },
+                'the record carries a null type'
+            );
 
             const [queried] = storeCalls(this.store, 'query');
             assert.strictEqual(queried.args[1].subject_uuid, 'order_uuid_only', 'queried by uuid');
