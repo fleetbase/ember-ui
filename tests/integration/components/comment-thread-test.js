@@ -300,6 +300,18 @@ module('Integration | Component | comment-thread', function (hooks) {
             return store.calls.filter((call) => call.method === method);
         }
 
+        test('a subject keyed by uuid sends that uuid with the comment', async function (assert) {
+            this.set('subject', { id: '2a470034-ef02-45a2-a3b6-b13d0fb7004a', public_id: 'contact_test_1' });
+
+            await render(TEMPLATE);
+            await fillIn('textarea', 'A note on a contact');
+            await click('button');
+
+            const [created] = storeCalls(this.store, 'createRecord');
+            assert.strictEqual(created.args[1].subject_uuid, '2a470034-ef02-45a2-a3b6-b13d0fb7004a', 'the id is the uuid the API needs');
+            assert.strictEqual(created.args[1].subject_id, 'contact_test_1');
+        });
+
         test('publishing with no handler creates the comment and reloads the thread', async function (assert) {
             await render(TEMPLATE);
             await fillIn('textarea', 'A comment with no handler');
