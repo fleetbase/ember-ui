@@ -93,6 +93,14 @@ module('Integration | Component | date-picker', function (hooks) {
             assert.dom('.air-datepicker-cell.-selected-').exists('the day is marked in the calendar');
         });
 
+        test('a Date value is shown in the picker format, not as a datetime string', async function (assert) {
+            this.set('value', new Date(2026, 2, 12, 15, 45));
+
+            await render(TEMPLATE);
+
+            assert.dom(INPUT).hasValue('2026-03-12');
+        });
+
         // A picker that is not a range (or multi-date) picker keeps only one selected day,
         // so these cases pass @range through to prove both parsed dates arrive.
         const RANGE_TEMPLATE = hbs`<DatePicker @value={{this.value}} @range={{true}} />`;
@@ -236,6 +244,20 @@ module('Integration | Component | date-picker', function (hooks) {
             await fillIn(INPUT, '');
 
             assert.deepEqual(changes, []);
+        });
+    });
+
+    module('a consumer that stores the picked Date', function () {
+        test('the field keeps showing the formatted date after a pick', async function (assert) {
+            this.set('value', null);
+            this.set('store', (date) => this.set('value', date));
+
+            await render(hbs`<DatePicker @value={{this.value}} @onChange={{this.store}} />`);
+            await click(INPUT);
+            await click(days()[9]);
+
+            assert.true(this.value instanceof Date, 'the consumer holds a Date');
+            assert.true(/^\d{4}-\d{2}-10$/.test(find(INPUT).value), `shown as yyyy-MM-dd, got "${find(INPUT).value}"`);
         });
     });
 
