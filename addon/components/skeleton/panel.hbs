@@ -1,0 +1,30 @@
+<div class="ui-skeleton-panel {{@class}}" aria-hidden="true" ...attributes>
+    <div class="ui-skeleton-panel-identity">
+        <Skeleton @variant="avatar" @width="2.5rem" @height="2.5rem" />
+        <div class="ui-skeleton-panel-identity-text">
+            <Skeleton @variant="title" @width="45%" />
+            <Skeleton @variant="text" @width="30%" />
+        </div>
+        <Skeleton @variant="button" @width="2rem" />
+    </div>
+    {{#if this.tabs.length}}
+        <div class="ui-skeleton-panel-tabs">
+            {{#each this.tabs as |tab|}}
+                <Skeleton @variant="text" @width="4rem" data-skeleton-tab={{tab}} />
+            {{/each}}
+        </div>
+    {{/if}}
+    {{#each this.sections as |section|}}
+        <div class="ui-skeleton-panel-section" data-skeleton-section={{section}}>
+            <Skeleton @variant="text" @width="8rem" @height="0.75rem" class="ui-skeleton-panel-section-title" />
+            <div class="ui-skeleton-panel-fields">
+                {{#each this.fields as |field|}}
+                    <div class="ui-skeleton-field" data-skeleton-field={{field}}>
+                        <Skeleton @variant="text" @width="30%" @height="0.625rem" />
+                        <Skeleton @variant="text" @width="55%" />
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    {{/each}}
+</div>

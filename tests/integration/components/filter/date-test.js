@@ -47,7 +47,7 @@ module('Integration | Component | filter/date', function (hooks) {
 
         await render(TEMPLATE);
 
-        assert.dom(INPUT).hasValue('2026-01-05,2026-01-09');
+        assert.dom(INPUT).hasValue('2026-01-05, 2026-01-09', 'shown the way the picker writes a range');
     });
 
     test('the field opens a calendar', async function (assert) {

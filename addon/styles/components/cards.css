@@ -49,3 +49,21 @@ body[data-theme='dark'] .order-schedule-card .card-title {
 body[data-theme='dark'] .order-schedule-card .card-content {
     @apply bg-gray-900;
 }
+
+/*
+ * Resource card, dark: an opaque surface with a clear outer edge, quiet inner hairlines
+ * and a footer one tier up, so the card reads the same over the page and over a panel.
+ */
+body[data-theme='dark'] .resource-card {
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+body[data-theme='dark'] .resource-card .resource-card-header {
+    border-color: #2d3748;
+}
+
+body[data-theme='dark'] .resource-card .resource-card-footer {
+    border-color: #2d3748;
+    background-color: #273244;
+}

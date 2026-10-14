@@ -1,0 +1,69 @@
+<div class="ui-skeleton-card {{@class}}" aria-hidden="true" ...attributes>
+    {{#if this.showMediaFirst}}
+        <div class="ui-skeleton-card-media" {{set-height this.mediaHeight}}>
+            <Skeleton @variant="rect" @width="100%" @height="100%" />
+        </div>
+    {{/if}}
+    {{#unless @hideHeader}}
+        <div class="ui-skeleton-card-header">
+            {{#if @avatar}}
+                <span class="ui-skeleton-card-identity">
+                    <Skeleton @variant="avatar" @width="1.75rem" @height="1.75rem" />
+                    <span class="ui-skeleton-card-identity-text">
+                        <Skeleton @variant="title" @width="70%" @height="0.875rem" />
+                        <Skeleton @variant="text" @width="45%" @height="0.625rem" />
+                    </span>
+                </span>
+            {{else if @subtitle}}
+                <span class="ui-skeleton-card-identity-text">
+                    <Skeleton @variant="title" @width="60%" />
+                    <Skeleton @variant="text" @width="40%" @height="0.625rem" />
+                </span>
+            {{else}}
+                <Skeleton @variant="title" @width="55%" />
+            {{/if}}
+            {{#if (eq @status "badge")}}
+                <Skeleton @variant="badge" />
+            {{else if (not-eq @status false)}}
+                <Skeleton @variant="circle" @width="0.5rem" @height="0.5rem" />
+            {{/if}}
+        </div>
+    {{/unless}}
+    {{#if this.showMediaAfterHeader}}
+        <div class="ui-skeleton-card-media" {{set-height this.mediaHeight}}>
+            <Skeleton @variant="rect" @width="100%" @height="100%" />
+        </div>
+    {{/if}}
+    {{#if this.lines.length}}
+        <div class="ui-skeleton-card-body">
+            {{#each this.lines as |line|}}
+                <Skeleton @variant="text" @width={{line.width}} data-skeleton-line={{line.index}} />
+            {{/each}}
+        </div>
+    {{/if}}
+    <div class="ui-skeleton-card-footer {{if this.footerLines.length 'ui-skeleton-card-footer-stacked'}}">
+        <div class="ui-skeleton-card-footer-row">
+            {{#if this.footerActions.length}}
+                {{#if @footerBadge}}
+                    <Skeleton @variant="badge" />
+                {{else}}
+                    <Skeleton @variant="text" @width="4rem" />
+                {{/if}}
+                <span class="ui-skeleton-card-meta">
+                    {{#each this.footerActions as |button|}}
+                        <Skeleton @variant="button" @width="1.75rem" @height="1.625rem" data-skeleton-card-action={{button}} />
+                    {{/each}}
+                </span>
+            {{else}}
+                <Skeleton @variant="badge" />
+                <span class="ui-skeleton-card-meta">
+                    <Skeleton @variant="text" @width="2.5rem" />
+                    <Skeleton @variant="text" @width="2.5rem" />
+                </span>
+            {{/if}}
+        </div>
+        {{#each this.footerLines as |line|}}
+            <Skeleton @variant="text" @width={{line.width}} @height="0.625rem" data-skeleton-footer-line={{line.index}} />
+        {{/each}}
+    </div>
+</div>

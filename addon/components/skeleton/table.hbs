@@ -1,0 +1,37 @@
+<div class="ui-skeleton-table-wrapper {{@class}}" aria-hidden="true" ...attributes>
+    <table class="ui-skeleton-table">
+        {{#if this.showHeader}}
+            <thead>
+                <tr>
+                    {{#if @checkbox}}
+                        <th class="ui-skeleton-table-check"><Skeleton @variant="rect" @width="14px" @height="14px" /></th>
+                    {{/if}}
+                    {{#each this.columns as |column|}}
+                        <th><Skeleton @variant="text" @width={{column.headerWidth}} @height="0.625rem" /></th>
+                    {{/each}}
+                </tr>
+            </thead>
+        {{/if}}
+        <tbody>
+            {{#each this.rows as |row|}}
+                <tr data-skeleton-row={{row}}>
+                    {{#if @checkbox}}
+                        <td class="ui-skeleton-table-check"><Skeleton @variant="rect" @width="14px" @height="14px" /></td>
+                    {{/if}}
+                    {{#each this.columns as |column|}}
+                        <td>
+                            {{#if column.isIdentity}}
+                                <span class="ui-skeleton-identity">
+                                    <Skeleton @variant="avatar" @width="1.5rem" @height="1.5rem" />
+                                    <Skeleton @variant="text" @width={{column.width}} />
+                                </span>
+                            {{else}}
+                                <Skeleton @variant="text" @width={{column.width}} />
+                            {{/if}}
+                        </td>
+                    {{/each}}
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

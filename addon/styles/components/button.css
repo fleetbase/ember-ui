@@ -157,6 +157,14 @@ a.btn.btn-success:hover:not(:disabled),
     @apply bg-green-400;
 }
 
+/* Dark mode: a lighter green washes the white label out; green-600 keeps the contrast. */
+body[data-theme='dark'] .btn.fb-button-success:hover:not(:disabled),
+body[data-theme='dark'] a.btn.fb-button-success:hover:not(:disabled),
+body[data-theme='dark'] .btn.btn-success:hover:not(:disabled),
+body[data-theme='dark'] a.btn.btn-success:hover:not(:disabled) {
+    @apply bg-green-600;
+}
+
 .btn.fb-button-success:focus,
 a.btn.fb-button-success:focus,
 .fc-button.fb-button-success:focus,

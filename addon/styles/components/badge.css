@@ -148,12 +148,14 @@
 
 .status-badge.duplicate-status-badge > span,
 .status-badge.backlogged-status-badge > span,
+.status-badge.delivery-status-badge > span,
 .status-badge.violet-status-badge > span {
     @apply bg-violet-800 border-violet-700 text-violet-100;
 }
 
 .status-badge.duplicate-status-badge > span svg,
 .status-badge.backlogged-status-badge > span svg,
+.status-badge.delivery-status-badge > span svg,
 .status-badge.violet-status-badge > span svg {
     @apply text-violet-300;
 }

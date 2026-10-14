@@ -1,0 +1,8 @@
+<div class="ui-skeleton-form ui-skeleton-form-cols-{{this.columns}} {{@class}}" aria-hidden="true" ...attributes>
+    {{#each this.fields as |field|}}
+        <div class="ui-skeleton-form-field" data-skeleton-field={{field}}>
+            <Skeleton @variant="text" @width="7rem" @height="0.625rem" />
+            <Skeleton @variant="input" />
+        </div>
+    {{/each}}
+</div>

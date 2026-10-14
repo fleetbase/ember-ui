@@ -1,0 +1,10 @@
+<div class="ui-skeleton-tabs {{@class}}" aria-hidden="true" ...attributes>
+    {{#each this.tabs as |tab|}}
+        <span class="ui-skeleton-tabs-item" data-skeleton-tab={{tab.index}}>
+            <Skeleton @variant="text" @width={{tab.width}} />
+            {{#if @counts}}
+                <Skeleton @variant="badge" @width="1.25rem" />
+            {{/if}}
+        </span>
+    {{/each}}
+</div>

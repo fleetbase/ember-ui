@@ -4,7 +4,7 @@ import localeEn from 'air-datepicker/locale/en';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { isArray } from '@ember/array';
-import { parse, isValid } from 'date-fns';
+import { parse, format, isValid } from 'date-fns';
 
 export default class DatePickerComponent extends Component {
     @tracked nodeRef;
@@ -18,6 +18,18 @@ export default class DatePickerComponent extends Component {
 
     get dateFormat() {
         return this.args.dateFormat || this.defaultOptions.dateFormat;
+    }
+
+    /**
+     * The field's text: the value's dates in the picker's format, whatever shape `@value` has
+     * (a Date, a timestamp, a list, an ISO or formatted string). Binding `@value` itself would
+     * show a Date's full `toString()`, e.g. right after a pick while the field still has focus.
+     */
+    get displayValue() {
+        const separator = this.airDatePickerRef?.opts.multipleDatesSeparator ?? ', ';
+        return this.toDates(this.args.value)
+            .map((date) => format(date, this.dateFormat))
+            .join(separator);
     }
 
     @action setupComponent(node) {
@@ -73,8 +85,8 @@ export default class DatePickerComponent extends Component {
             return;
         }
 
-        // `<Input>` echoes typed text back through `@value` on every keystroke; while the field has
-        // focus the text is still being typed and `handleTypedValue` settles it on change.
+        // While the field has focus the text may still be being typed; `handleTypedValue` settles it
+        // on change.
         if (document.activeElement === element) {
             return;
         }

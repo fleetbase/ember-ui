@@ -73,7 +73,8 @@ export default class CoordinatesInputComponent extends Component {
      * @memberof CoordinatesInputComponent
      */
     isPoint(point) {
-        return typeof point === 'object' && !isBlank(point.type) && point.type === 'Point' && isArray(point.coordinates);
+        // typeof null is "object", so null has to be ruled out before reading .type
+        return point !== null && typeof point === 'object' && !isBlank(point.type) && point.type === 'Point' && isArray(point.coordinates);
     }
 
     /**

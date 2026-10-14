@@ -1,0 +1,9 @@
+<div class="ui-skeleton-stat-tiles {{@class}}" aria-hidden="true" ...attributes>
+    {{#each this.tiles as |tile|}}
+        <div class="ui-skeleton-stat-tile" data-skeleton-tile={{tile}}>
+            <Skeleton @variant="text" @width="50%" @height="0.625rem" />
+            <Skeleton @variant="title" @width="35%" @height="1.375rem" />
+            <Skeleton @variant="text" @width="60%" @height="0.625rem" />
+        </div>
+    {{/each}}
+</div>

@@ -5,6 +5,8 @@ import { task } from 'ember-concurrency';
 import getWithDefault from '@fleetbase/ember-core/utils/get-with-default';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Component to handle a thread of comments.
  */
@@ -84,8 +86,18 @@ export default class CommentThreadComponent extends Component {
         return this.args.comments ?? this.comments;
     }
 
+    /**
+     * The subject's uuid: its `uuid` field, or its `id` when that is a uuid (records whose
+     * serializer keys them by uuid have no separate `uuid` attribute).
+     */
     get subjectUuid() {
-        return this.subject?.uuid;
+        const subject = this.subject;
+
+        if (subject?.uuid) {
+            return subject.uuid;
+        }
+
+        return typeof subject?.id === 'string' && UUID_PATTERN.test(subject.id) ? subject.id : undefined;
     }
 
     get subjectPublicId() {
@@ -104,9 +116,12 @@ export default class CommentThreadComponent extends Component {
         if (typeof this.args.onPublishComment === 'function') {
             yield this.args.onPublishComment(this.input, this.subject);
         } else {
+            // The console's comment serializer drops `subject_id`, so the uuid is what reaches
+            // the API; without it the comment is inserted with no subject and fails.
             let comment = this.store.createRecord('comment', {
                 content: this.input,
                 subject_id: this.subjectPublicId,
+                subject_uuid: this.subjectUuid,
                 subject_type: this.subjectType,
             });
 
