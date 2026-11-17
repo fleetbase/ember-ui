@@ -109,6 +109,36 @@ module('Integration | Component | visible-column-picker', function (hooks) {
             assert.dom('.customize-columns-dropdown-header h4').hasText('Pick your columns');
         });
 
+        test('columns that name a group are listed under its heading, after the rest', async function (assert) {
+            this.set('columns', [
+                { label: 'Score', valuePath: 'meta.score', group: 'Safety', hidden: true },
+                { label: 'Name', valuePath: 'name' },
+                { label: 'Rating', valuePath: 'meta.rating', group: 'Safety' },
+                { label: 'Depot', valuePath: 'meta.depot', group: 'Yard' },
+                { valuePath: 'meta.unlabelled', group: 'Yard' },
+            ]);
+
+            await render(TEMPLATE);
+            await click(TRIGGER);
+
+            assert.deepEqual(checkboxLabels(), ['Name', 'Score', 'Rating', 'Depot'], 'ungrouped first, then each group in order');
+            assert.deepEqual(
+                findAll('.customize-columns-dropdown-group-title').map((title) => title.textContent.trim()),
+                ['Safety', 'Yard']
+            );
+            assert.strictEqual(findAll('[data-test-column-group="Safety"] input[type="checkbox"]').length, 2);
+
+            await click(find('[data-test-column-group="Safety"] input[type="checkbox"]'));
+            assert.false(this.columns[0].hidden, 'a grouped column toggles like any other');
+        });
+
+        test('a picker with no grouped columns draws no group heading', async function (assert) {
+            await render(TEMPLATE);
+            await click(TRIGGER);
+
+            assert.deepEqual(findAll('.customize-columns-dropdown-group'), []);
+        });
+
         test('a picker with no columns renders an empty list', async function (assert) {
             this.set('columns', []);
 
