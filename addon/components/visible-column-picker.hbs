@@ -26,9 +26,21 @@
             <Button @text={{t "common.done"}} @icon="check" @type="primary" @size="xs" @onClick={{dropdown-fn dd this.applyChanges}} @wrapperClass="visible-column-picker-done-btn" />
         </div>
         <div class="customize-columns-dropdown-body">
-            <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full">
-                {{#each this.columnsWithLabels as |column|}}
-                    <Checkbox @label={{column.label}} @value={{not column.hidden}} @onToggle={{fn this.selectColumn column}} />
+            <div class="w-full">
+                <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full">
+                    {{#each this.ungroupedColumns as |column|}}
+                        <Checkbox @label={{column.label}} @value={{not column.hidden}} @onToggle={{fn this.selectColumn column}} />
+                    {{/each}}
+                </div>
+                {{#each this.columnGroups as |group|}}
+                    <div class="customize-columns-dropdown-group" data-test-column-group={{group.name}}>
+                        <div class="customize-columns-dropdown-group-title">{{group.name}}</div>
+                        <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-1 gap-2 w-full">
+                            {{#each group.columns as |column|}}
+                                <Checkbox @label={{column.label}} @value={{not column.hidden}} @onToggle={{fn this.selectColumn column}} />
+                            {{/each}}
+                        </div>
+                    </div>
                 {{/each}}
             </div>
         </div>

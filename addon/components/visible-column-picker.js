@@ -11,6 +11,40 @@ export default class VisibleColumnPickerComponent extends Component {
     @filter('args.columns.@each.label', (column) => column.label) columnsWithLabels;
 
     /**
+     * Labelled columns that belong to no group, listed first.
+     *
+     * @memberof VisibleColumnPickerComponent
+     */
+    get ungroupedColumns() {
+        return this.columnsWithLabels.filter((column) => !column.group);
+    }
+
+    /**
+     * Labelled columns that name a `group`, gathered under that heading in the
+     * order the groups first appear. Extensions use it to keep the columns they
+     * add to a table apart from the table's own.
+     *
+     * @memberof VisibleColumnPickerComponent
+     */
+    get columnGroups() {
+        const groups = new Map();
+
+        for (const column of this.columnsWithLabels) {
+            if (!column.group) {
+                continue;
+            }
+
+            if (!groups.has(column.group)) {
+                groups.set(column.group, []);
+            }
+
+            groups.get(column.group).push(column);
+        }
+
+        return [...groups.entries()].map(([name, columns]) => ({ name, columns }));
+    }
+
+    /**
      * Callback to apply selection changes
      *
      * @memberof VisibleColumnPickerComponent

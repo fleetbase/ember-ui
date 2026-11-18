@@ -2636,6 +2636,14 @@ a.text-danger:hover {
     @apply py-2 px-4;
 }
 
+.customize-columns-dropdown-group {
+    @apply mt-3 pt-3 border-t border-gray-200 dark:border-gray-700;
+}
+
+.customize-columns-dropdown-group-title {
+    @apply mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400;
+}
+
 .filter-component > .filter-multi-option > .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input.form-input-sm,
 .filter-component > .filter-multi-option > .ember-power-select-trigger.ember-power-select-multiple-trigger.form-input-sm {
     max-height: none;
