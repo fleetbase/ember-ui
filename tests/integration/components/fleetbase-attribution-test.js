@@ -35,6 +35,56 @@ module('Integration | Component | fleetbase-attribution', function (hooks) {
         assert.dom('.fleetbase-attribution-link').hasText('Powered by Fleetbase');
     });
 
+    test('a custom name and url replace the Fleetbase credit, and Legal stays', async function (assert) {
+        await render(hbs`<FleetbaseAttribution @showPoweredBy={{true}} @poweredByName="Acme Logistics" @poweredByUrl="https://acme.example/about" />`);
+
+        assert.dom('.fleetbase-attribution-link').hasText('Powered by Acme Logistics');
+        assert.dom('.fleetbase-attribution-link').hasAttribute('href', 'https://acme.example/about');
+        assert.dom('.fleetbase-attribution-link').hasAttribute('target', '_blank');
+        assert.dom('.fleetbase-attribution-link').hasAttribute('rel', 'noopener noreferrer');
+        assert.dom('.fleetbase-attribution-legal-link').hasText('Legal');
+        assert.dom(NOTICE).doesNotIncludeText('Fleetbase', 'no Fleetbase text outside the Legal button');
+    });
+
+    test('a custom name without a url is plain text, not a link', async function (assert) {
+        await render(hbs`<FleetbaseAttribution @poweredByName="  Acme Logistics  " />`);
+
+        assert.dom('span.fleetbase-attribution-link').hasText('Acme Logistics');
+        assert.dom('a.fleetbase-attribution-link').doesNotExist();
+        assert.dom('.fleetbase-attribution-legal-link').exists();
+    });
+
+    test('a url that is not http(s) is ignored', async function (assert) {
+        for (const bad of ['javascript:alert(1)', 'data:text/html,x', '//acme.example', 'acme.example', '']) {
+            this.set('url', bad);
+            await render(hbs`<FleetbaseAttribution @poweredByName="Acme" @poweredByUrl={{this.url}} />`);
+
+            assert.dom('a.fleetbase-attribution-link').doesNotExist(`no link for "${bad}"`);
+            assert.dom('.fleetbase-attribution-link').hasText('Acme');
+        }
+    });
+
+    test('a url alone, or a blank name, leaves the default credit unchanged', async function (assert) {
+        await render(hbs`<FleetbaseAttribution @poweredByUrl="https://acme.example" />`);
+        assert.dom('.fleetbase-attribution-link').hasAttribute('href', 'https://www.fleetbase.io');
+
+        await render(hbs`<FleetbaseAttribution @poweredByName="   " @poweredByUrl="https://acme.example" />`);
+        assert.dom('.fleetbase-attribution-link').hasText('Fleetbase');
+        assert.dom('.fleetbase-attribution-link').hasAttribute('href', 'https://www.fleetbase.io');
+    });
+
+    test('the Fleetbase app version is not shown beside a custom name', async function (assert) {
+        const original = config.version;
+
+        try {
+            config.version = '1.2.3';
+            await render(hbs`<FleetbaseAttribution @poweredByName="Acme" />`);
+            assert.dom('.fleetbase-attribution-version').doesNotExist();
+        } finally {
+            config.version = original;
+        }
+    });
+
     test('it forwards splattributes', async function (assert) {
         await render(hbs`<FleetbaseAttribution data-test-attribution="yes" />`);
 
