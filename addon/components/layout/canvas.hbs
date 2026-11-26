@@ -1,0 +1,17 @@
+<div class="fb-canvas" data-theme={{@theme}} ...attributes>
+    <div class="fb-canvas-backdrop" data-canvas-layer="backdrop">
+        {{#if (has-block "backdrop")}}
+            {{yield to="backdrop"}}
+        {{else}}
+            <Layout::Canvas::Backdrop::DotGrid />
+        {{/if}}
+    </div>
+    <main class="fb-canvas-content" data-canvas-layer="content">
+        {{yield}}
+    </main>
+    {{#if (has-block "chrome")}}
+        <div class="fb-canvas-chrome" data-canvas-layer="chrome">
+            {{yield to="chrome"}}
+        </div>
+    {{/if}}
+</div>

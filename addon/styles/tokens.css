@@ -1,0 +1,106 @@
+/**
+ * Design tokens for the canvas layout.
+ *
+ * Every value the canvas layout needs is a CSS custom property here, so one
+ * `data-theme` attribute (on <body>, or on any element such as a
+ * `Layout::Canvas` root) switches the whole subtree between light and dark.
+ * `tailwind.config.js` maps these into utilities (`bg-surface`, `text-muted`,
+ * `rounded-chrome`, `shadow-chrome`, ...), so templates never repeat a hex.
+ *
+ * The light values also sit on `:root` so a page without `data-theme` still
+ * resolves every token. All names carry the `--fb-` prefix so they cannot
+ * collide with host or engine variables. None of the existing components read
+ * them, so importing this file changes nothing until a component uses them.
+ */
+
+:root,
+[data-theme='light'] {
+    /* Surfaces and text */
+    --fb-surface: #ffffff;
+    --fb-subtle: #f4f6f9;
+    --fb-border: #e3e8ef;
+    --fb-text: #0f172a;
+    --fb-muted: #526077;
+    --fb-accent: #2563eb;
+    --fb-accent-fg: #ffffff;
+    --fb-focus: #2563eb;
+
+    /* Floating chrome (context bar, dock, tray, taskbar) */
+    --fb-chrome: rgba(255, 255, 255, 0.92);
+    --fb-chrome-border: rgba(15, 23, 42, 0.09);
+
+    /* Status: foreground and its tinted background */
+    --fb-info: #1d4ed8;
+    --fb-info-subtle: #e8f0fe;
+    --fb-warn: #92400e;
+    --fb-warn-subtle: #fef3c7;
+    --fb-ok: #166534;
+    --fb-ok-subtle: #dcfce7;
+    --fb-critical: #b91c1c;
+    --fb-critical-subtle: #fee2e2;
+
+    /* Map backdrop */
+    --fb-map-land: #edf0f4;
+    --fb-map-water: #c9daec;
+    --fb-map-road: #ffffff;
+    --fb-map-route: #2563eb;
+
+    /* Dot-grid canvas */
+    --fb-canvas-bg: #eef1f5;
+    --fb-canvas-dot: #b8c3d1;
+    --fb-canvas-grid: 22px;
+    --fb-canvas-dot-size: 1px;
+
+    /* Shadows */
+    --fb-shadow-chrome: 0 8px 24px rgba(15, 23, 42, 0.1);
+    --fb-shadow-sheet: 0 16px 40px rgba(15, 23, 42, 0.14);
+}
+
+[data-theme='dark'] {
+    --fb-surface: #0f1726;
+    --fb-subtle: #182235;
+    --fb-border: #2a3852;
+    --fb-text: #e7ecf4;
+    --fb-muted: #9aa7bd;
+    --fb-accent: #3b82f6;
+    --fb-accent-fg: #ffffff;
+    --fb-focus: #60a5fa;
+
+    --fb-chrome: rgba(15, 23, 38, 0.9);
+    --fb-chrome-border: rgba(148, 163, 184, 0.22);
+
+    --fb-info: #bfdbfe;
+    --fb-info-subtle: #172b4d;
+    --fb-warn: #fde68a;
+    --fb-warn-subtle: #422006;
+    --fb-ok: #bbf7d0;
+    --fb-ok-subtle: #052e16;
+    --fb-critical: #fecaca;
+    --fb-critical-subtle: #450a0a;
+
+    --fb-map-land: #1b2333;
+    --fb-map-water: #13233a;
+    --fb-map-road: #2b3750;
+    --fb-map-route: #60a5fa;
+
+    --fb-canvas-bg: #0b1220;
+    --fb-canvas-dot: #26344f;
+
+    --fb-shadow-chrome: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --fb-shadow-sheet: 0 18px 44px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme-independent: geometry is the same in both themes. */
+:root {
+    /* Radius */
+    --fb-radius-control: 8px;
+    --fb-radius-card: 12px;
+    --fb-radius-chrome: 14px;
+    --fb-radius-dock: 18px;
+
+    /* Content insets: where the content layer sits inside the floating chrome */
+    --fb-inset-left: 82px;
+    --fb-inset-top: 64px;
+    --fb-inset-bottom: 80px;
+    --fb-inset-right: 12px;
+}

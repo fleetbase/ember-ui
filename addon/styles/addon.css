@@ -1,3 +1,6 @@
+/** Design tokens: CSS variables only, no rules */
+@import 'tokens.css';
+
 /** Layout */
 @import 'layout/reset.css';
 @import "ember-basic-dropdown/vendor/ember-basic-dropdown.css";
@@ -9,6 +12,7 @@
 @import 'layout/utilities.css';
 @import 'layout/dark-theme.css';
 @import 'layout/light-theme.css';
+@import 'layout/canvas.css';
 
 /** Components */
 @import 'components/modal.css';
