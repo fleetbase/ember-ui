@@ -1,0 +1,52 @@
+/**
+ * Layout::Canvas, the Map-Canvas+ shell root (opt-in; the classic layout does
+ * not use it). Three stacked layers, lowest first: backdrop, content, chrome.
+ * All colours and geometry come from `styles/tokens.css`.
+ */
+
+.fb-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: var(--fb-canvas-bg);
+    color: var(--fb-text);
+}
+
+.fb-canvas-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.fb-canvas-content {
+    position: absolute;
+    top: var(--fb-inset-top);
+    right: var(--fb-inset-right);
+    bottom: var(--fb-inset-bottom);
+    left: var(--fb-inset-left);
+    z-index: 1;
+    overflow: auto;
+}
+
+/* The chrome layer spans the canvas but never swallows a click meant for the
+   map or content below; only the chrome pieces themselves take the pointer. */
+.fb-canvas-chrome {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.fb-canvas-chrome > * {
+    pointer-events: auto;
+}
+
+.fb-canvas-dot-grid {
+    position: absolute;
+    inset: 0;
+    background-color: var(--fb-canvas-bg);
+    background-image: radial-gradient(var(--fb-canvas-dot) var(--fb-canvas-dot-size), transparent var(--fb-canvas-dot-size));
+    background-size: var(--fb-canvas-grid) var(--fb-canvas-grid);
+}
