@@ -14,7 +14,8 @@ module('Integration | Component | layout/canvas/backdrop/dot-grid', function (ho
     setupShellTheme(hooks);
 
     test('it is decorative and fills its container', async function (assert) {
-        await render(hbs`<div style="position: relative; width: 300px; height: 200px"><Layout::Canvas::Backdrop::DotGrid /></div>`);
+        await render(hbs`<div class="frame"><Layout::Canvas::Backdrop::DotGrid /></div>`);
+        Object.assign(this.element.querySelector('.frame').style, { position: 'relative', width: '300px', height: '200px' });
 
         assert.dom('.fb-canvas-dot-grid').hasAttribute('aria-hidden', 'true');
         const grid = this.element.querySelector('.fb-canvas-dot-grid');
@@ -28,10 +29,17 @@ module('Integration | Component | layout/canvas/backdrop/dot-grid', function (ho
         assert.strictEqual(getComputedStyle(this.element.querySelector('.fb-canvas-dot-grid')).backgroundSize, '22px 22px');
     });
 
-    test('it forwards splattributes, so the grid size can be overridden', async function (assert) {
-        await render(hbs`<Layout::Canvas::Backdrop::DotGrid class="dense" style="--fb-canvas-grid: 11px" />`);
+    test('it forwards splattributes', async function (assert) {
+        await render(hbs`<Layout::Canvas::Backdrop::DotGrid class="dense" data-test-grid="yes" />`);
 
         assert.dom('.fb-canvas-dot-grid').hasClass('dense');
+        assert.dom('.fb-canvas-dot-grid').hasAttribute('data-test-grid', 'yes');
+    });
+
+    test('the grid size follows --fb-canvas-grid', async function (assert) {
+        await render(hbs`<Layout::Canvas::Backdrop::DotGrid />`);
+        this.element.querySelector('.fb-canvas-dot-grid').style.setProperty('--fb-canvas-grid', '11px');
+
         assert.strictEqual(getComputedStyle(this.element.querySelector('.fb-canvas-dot-grid')).backgroundSize, '11px 11px');
     });
 

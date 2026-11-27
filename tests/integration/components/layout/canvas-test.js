@@ -7,6 +7,14 @@ import { setupShellTheme, renderShell, eachShellTheme } from '@fleetbase/ember-u
 const CANVAS_BG = { light: 'rgb(238, 241, 245)', dark: 'rgb(11, 18, 32)' };
 const TEXT = { light: 'rgb(15, 23, 42)', dark: 'rgb(231, 236, 244)' };
 
+// Test-only geometry is applied from JS: templates may not carry inline styles.
+function applyStyle(element, styles) {
+    for (const [property, value] of Object.entries(styles)) {
+        element.style.setProperty(property, value);
+    }
+    return element;
+}
+
 module('Integration | Component | layout/canvas', function (hooks) {
     setupRenderingTest(hooks);
     setupShellTheme(hooks);
@@ -37,7 +45,7 @@ module('Integration | Component | layout/canvas', function (hooks) {
 
     test('a chrome block renders the chrome layer above the content', async function (assert) {
         await render(hbs`
-            <Layout::Canvas style="height: 400px; width: 600px">
+            <Layout::Canvas>
                 <:chrome><nav class="dock" aria-label="Modules">dock</nav></:chrome>
             </Layout::Canvas>
         `);
@@ -61,11 +69,14 @@ module('Integration | Component | layout/canvas', function (hooks) {
         this.onContentClick = () => this.contentClicks++;
 
         await render(hbs`
-            <Layout::Canvas style="height: 400px; width: 600px">
-                <:default><button type="button" class="under" style="width: 100%; height: 100%" {{on "click" this.onContentClick}}>content</button></:default>
-                <:chrome><div class="tray" style="position: absolute; right: 0; top: 0; width: 40px; height: 40px">tray</div></:chrome>
+            <Layout::Canvas>
+                <:default><button type="button" class="under" {{on "click" this.onContentClick}}>content</button></:default>
+                <:chrome><div class="tray">tray</div></:chrome>
             </Layout::Canvas>
         `);
+        applyStyle(this.element.querySelector('.fb-canvas'), { width: '600px', height: '400px' });
+        applyStyle(this.element.querySelector('.under'), { width: '100%', height: '100%' });
+        applyStyle(this.element.querySelector('.tray'), { position: 'absolute', right: '0', top: '0', width: '40px', height: '40px' });
 
         assert.strictEqual(getComputedStyle(this.element.querySelector('.fb-canvas-chrome')).pointerEvents, 'none');
         assert.strictEqual(getComputedStyle(this.element.querySelector('.fb-canvas-chrome .tray')).pointerEvents, 'auto');
@@ -80,9 +91,9 @@ module('Integration | Component | layout/canvas', function (hooks) {
 
     // offset* rather than getBoundingClientRect: the test container is scaled, offsets are not.
     test('the content layer sits inside the canvas insets', async function (assert) {
-        await render(hbs`<Layout::Canvas style="height: 600px; width: 1000px" />`);
+        await render(hbs`<Layout::Canvas />`);
 
-        const canvas = this.element.querySelector('.fb-canvas');
+        const canvas = applyStyle(this.element.querySelector('.fb-canvas'), { width: '1000px', height: '600px' });
         const content = this.element.querySelector('.fb-canvas-content');
 
         assert.strictEqual(content.offsetParent, canvas, 'content is positioned against the canvas');
@@ -93,7 +104,8 @@ module('Integration | Component | layout/canvas', function (hooks) {
     });
 
     test('the insets can be overridden with the token variables', async function (assert) {
-        await render(hbs`<Layout::Canvas style="height: 600px; width: 1000px; --fb-inset-left: 0px; --fb-inset-top: 0px" />`);
+        await render(hbs`<Layout::Canvas />`);
+        applyStyle(this.element.querySelector('.fb-canvas'), { width: '1000px', height: '600px', '--fb-inset-left': '0px', '--fb-inset-top': '0px' });
 
         const content = this.element.querySelector('.fb-canvas-content');
 
