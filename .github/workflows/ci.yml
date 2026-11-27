@@ -10,6 +10,7 @@ on:
     # These filters match the target branch, including release integration branches.
     branches:
       - main
+      - 'feature/map-canvas'
       - 'release/v*'
       - 'dev-v*'
 
