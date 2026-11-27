@@ -597,7 +597,11 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
 
         assert.dom('.next-sidebar-navigator-search-result').exists({ count: 12 });
         assert.dom('.next-sidebar-navigator-search-result:first-of-type').hasClass('is-active');
-        assert.dom('.next-sidebar-navigator-search-result').hasStyle({ alignItems: 'flex-start' });
+        // Chrome 158 serialises a computed `align-items: flex-start` as `flow-start`; earlier versions as `flex-start`.
+        assert.true(
+            ['flex-start', 'flow-start'].includes(getComputedStyle(document.querySelector('.next-sidebar-navigator-search-result')).alignItems),
+            'search results align their content to the top'
+        );
         assert.dom('.next-sidebar-navigator-search-result-icon').hasStyle({ marginTop: '2px' });
 
         await triggerKeyEvent('.next-sidebar-navigator-search-popover-input input', 'keydown', 'ArrowDown');

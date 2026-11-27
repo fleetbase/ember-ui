@@ -32,6 +32,22 @@ module.exports = {
                 DEFAULT: 'transparent',
             },
             colors: {
+                // Design tokens (addon/styles/tokens.css). Each resolves a CSS variable, so
+                // the same class follows the nearest [data-theme] without a `dark:` variant.
+                surface: 'var(--fb-surface)',
+                subtle: 'var(--fb-subtle)',
+                border: 'var(--fb-border)',
+                text: 'var(--fb-text)',
+                muted: 'var(--fb-muted)',
+                accent: { DEFAULT: 'var(--fb-accent)', fg: 'var(--fb-accent-fg)' },
+                focus: 'var(--fb-focus)',
+                chrome: { DEFAULT: 'var(--fb-chrome)', border: 'var(--fb-chrome-border)' },
+                info: { DEFAULT: 'var(--fb-info)', subtle: 'var(--fb-info-subtle)' },
+                warn: { DEFAULT: 'var(--fb-warn)', subtle: 'var(--fb-warn-subtle)' },
+                ok: { DEFAULT: 'var(--fb-ok)', subtle: 'var(--fb-ok-subtle)' },
+                critical: { DEFAULT: 'var(--fb-critical)', subtle: 'var(--fb-critical-subtle)' },
+                map: { land: 'var(--fb-map-land)', water: 'var(--fb-map-water)', road: 'var(--fb-map-road)', route: 'var(--fb-map-route)' },
+                canvas: { DEFAULT: 'var(--fb-canvas-bg)', dot: 'var(--fb-canvas-dot)' },
                 sky: {
                     100: '#e6f0fb',
                     200: '#bad5f5',
@@ -75,7 +91,15 @@ module.exports = {
                     850: '#212a38',
                 },
             },
+            borderRadius: {
+                control: 'var(--fb-radius-control)',
+                card: 'var(--fb-radius-card)',
+                chrome: 'var(--fb-radius-chrome)',
+                dock: 'var(--fb-radius-dock)',
+            },
             boxShadow: {
+                chrome: 'var(--fb-shadow-chrome)',
+                sheet: 'var(--fb-shadow-sheet)',
                 xs: '0 0 0 1px rgba(0,0,0, 0.05)',
                 'light-xs': '0 0 0 1px rgba(212,220,236, 0.05)',
                 'light-sm': '0 1px 2px 0 rgba(212,220,236, 0.05)',
@@ -102,6 +126,10 @@ module.exports = {
                 86: '30rem',
             },
             spacing: {
+                'canvas-left': 'var(--fb-inset-left)',
+                'canvas-top': 'var(--fb-inset-top)',
+                'canvas-bottom': 'var(--fb-inset-bottom)',
+                'canvas-right': 'var(--fb-inset-right)',
                 70: '18rem',
                 74: '22rem',
                 78: '26rem',
