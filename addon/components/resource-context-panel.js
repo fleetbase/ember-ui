@@ -5,6 +5,7 @@ import { task } from 'ember-concurrency';
 import { dasherize } from '@ember/string';
 import isModel from '@fleetbase/ember-core/utils/is-model';
 import getModelName from '@fleetbase/ember-core/utils/get-model-name';
+import { shellState } from '../services/shell';
 
 /**
  * Component that integrates with the resource-context-panel service
@@ -16,7 +17,6 @@ import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 export default class ResourceContextPanelComponent extends Component {
     @service resourceContextPanel;
     @service notifications;
-    @service shell;
 
     /**
      * Map of overlay sizes to actual widths.
@@ -47,14 +47,14 @@ export default class ResourceContextPanelComponent extends Component {
     };
 
     /**
-     * `canvas` or `classic`: `@layout` when given, else the shell service's.
+     * `canvas` or `classic`: `@layout` when given, else the shell's (`shellState`).
      * In the canvas layout each overlay renders as a Sheet stacked with spines,
      * Escape is left to the sheets, and no click-catching backdrop is drawn (a
      * sheet floats over the live map without blocking it).
      * @type {String}
      */
     get layout() {
-        return this.args.layout ?? this.shell.layout;
+        return this.args.layout ?? shellState.layout;
     }
 
     get isCanvas() {

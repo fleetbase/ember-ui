@@ -211,6 +211,23 @@ module('Integration | Component | sheet', function (hooks) {
             assert.dom('.fb-sheet').exists();
         });
 
+        test('Escape is left to an open modal', async function (assert) {
+            const modals = this.owner.lookup('service:modals-manager');
+            Object.defineProperty(modals, 'modalIsOpened', { configurable: true, get: () => true });
+            await render(hbs`<Sheet @title="A" @onClose={{this.onClose}} />`);
+
+            await triggerKeyEvent('.fb-sheet', 'keydown', 'Escape');
+            assert.deepEqual(this.calls, []);
+        });
+
+        test('Escape still works where there is no modals-manager (inside an engine)', async function (assert) {
+            this.owner.unregister('service:modals-manager');
+            await render(hbs`<Sheet @title="A" @onClose={{this.onClose}} />`);
+
+            await triggerKeyEvent('.fb-sheet', 'keydown', 'Escape');
+            assert.deepEqual(this.calls, ['close']);
+        });
+
         test('opening moves focus into the sheet, and closing returns it', async function (assert) {
             this.open = false;
             await render(hbs`

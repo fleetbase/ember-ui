@@ -6,9 +6,24 @@ import Component from '@glimmer/component';
 import { setComponentTemplate } from '@ember/component';
 import templateOnly from '@ember/component/template-only';
 import { BackdropStub } from '../../../../helpers/shell-stubs';
+import ExtensionComponent from '@fleetbase/ember-core/contracts/extension-component';
+import { isEngineComponent } from '@fleetbase/ember-ui/components/layout/canvas/backdrop-host';
 
 // Counts constructions and teardowns so a test can tell hidden from destroyed.
 const lifecycle = { created: [], destroyed: [] };
+
+class EngineMapTarget extends Component {
+    constructor() {
+        super(...arguments);
+        lifecycle.created.push(`engine:${this.args.params.registration.name}`);
+    }
+
+    willDestroy() {
+        super.willDestroy(...arguments);
+        lifecycle.destroyed.push(`engine:${this.args.params.registration.name}`);
+    }
+}
+setComponentTemplate(hbs`<div class="engine-map-target" data-active={{if @params.isActive "yes" "no"}} data-has-service={{if @params.backdrop "yes" "no"}}></div>`, EngineMapTarget);
 
 class LiveMap extends Component {
     constructor() {
@@ -210,5 +225,34 @@ module('Integration | Component | layout/canvas/backdrop-host', function (hooks)
 
         assert.strictEqual(getComputedStyle(this.element.querySelector('.page')).pointerEvents, 'none');
         assert.strictEqual(getComputedStyle(this.element.querySelector('.card')).pointerEvents, 'auto');
+    });
+
+    test('an engine ExtensionComponent renders through LazyEngineComponent with the values as @params, and survives being hidden', async function (assert) {
+        const backdrop = useBackdrop(this.owner, [{ ...MAP, component: new ExtensionComponent('@fleetbase/fleetops-engine', EngineMapTarget) }]);
+        backdrop.activate('fleet-ops-map');
+        await render(hbs`<Layout::Canvas::BackdropHost />`);
+
+        const target = this.element.querySelector('.fb-canvas-backdrop-slot.is-active .engine-map-target');
+        assert.dom(target).hasAttribute('data-active', 'yes').hasAttribute('data-has-service', 'yes');
+        assert.strictEqual(getComputedStyle(this.element.querySelector('.fb-canvas-backdrop-slot')).pointerEvents, 'auto', 'the host leaves the pointer to the backdrop');
+
+        backdrop.activate(null);
+        await settled();
+        assert.dom('.engine-map-target').hasAttribute('data-active', 'no');
+
+        backdrop.activate('fleet-ops-map');
+        await settled();
+        assert.strictEqual(this.element.querySelector('.engine-map-target'), target, 'the same engine target element');
+        assert.deepEqual(lifecycle.created, ['engine:fleet-ops-map']);
+        assert.deepEqual(lifecycle.destroyed, []);
+    });
+
+    test('isEngineComponent recognises ExtensionComponents and their string form only', function (assert) {
+        assert.true(isEngineComponent(new ExtensionComponent('@fleetbase/fleetops-engine', 'map/live-map-backdrop')));
+        assert.true(isEngineComponent('#extension-component:@fleetbase/fleetops-engine:map/live-map-backdrop'));
+        assert.false(isEngineComponent('test-live-map'));
+        assert.false(isEngineComponent(LiveMap));
+        assert.false(isEngineComponent(null));
+        assert.false(isEngineComponent({ path: 'no-engine' }));
     });
 });

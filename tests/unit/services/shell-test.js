@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'dummy/tests/helpers';
 import { run } from '@ember/runloop';
 import { settled } from '@ember/test-helpers';
+import { shellState } from '@fleetbase/ember-ui/services/shell';
 
 module('Unit | Service | shell', function (hooks) {
     setupTest(hooks);
@@ -12,6 +13,7 @@ module('Unit | Service | shell', function (hooks) {
         assert.strictEqual(shell.layout, 'classic');
         assert.true(shell.isClassic);
         assert.false(shell.isCanvas);
+        assert.strictEqual(shell.explicitLayout, 'classic');
     });
 
     test('setLayout switches layouts and falls back to classic for anything unknown', function (assert) {
@@ -55,5 +57,14 @@ module('Unit | Service | shell', function (hooks) {
         await settled();
 
         assert.strictEqual(shell.mountedCanvases, 0);
+    });
+
+    test('the service and engine-side readers share one state', function (assert) {
+        const shell = this.owner.lookup('service:shell');
+
+        shell.setLayout('canvas');
+
+        assert.strictEqual(shell.state, shellState);
+        assert.true(shellState.isCanvas);
     });
 });

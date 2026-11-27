@@ -5,35 +5,22 @@ import { schedule } from '@ember/runloop';
 export const LAYOUTS = ['classic', 'canvas'];
 
 /**
- * Which application shell is on screen: `classic` (sidebar and header) or
- * `canvas` (Map-Canvas+ floating chrome).
- *
- * Components that render differently in the two shells (`Layout::Resource::Panel`
- * becomes a `Sheet`, for one) read `isCanvas`. The console sets the layout with
- * `setLayout()` when it picks a shell; `Layout::Canvas` also marks the canvas
- * layout while it is mounted, so a canvas rendered without the console (tests,
- * the playground) behaves the same.
- *
- * @class ShellService
- * @extends Service
+ * The layout state itself, one per page. It lives at module level, not on the
+ * service, because components that read it (`Layout::Resource::Panel`, `Sheet`)
+ * also render inside engines, whose owners do not have this service: they
+ * import `shellState` instead of injecting it, and see the same value as the
+ * host.
  */
-export default class ShellService extends Service {
-    /**
-     * The layout set with `setLayout()`; `classic` until then.
-     * @type {String}
-     */
-    @tracked explicitLayout = 'classic';
+class ShellState {
+    // No initializers: @tracked initializers run lazily on first read, and reset() always writes
+    // first, so they would never execute. The constructor sets the starting values instead.
+    @tracked explicitLayout;
+    @tracked mountedCanvases;
 
-    /**
-     * Number of `Layout::Canvas` roots mounted.
-     * @type {Number}
-     */
-    @tracked mountedCanvases = 0;
+    constructor() {
+        this.reset();
+    }
 
-    /**
-     * `canvas` while a canvas is mounted or the console chose it, else `classic`.
-     * @type {String}
-     */
     get layout() {
         return this.mountedCanvases > 0 ? 'canvas' : this.explicitLayout;
     }
@@ -42,8 +29,49 @@ export default class ShellService extends Service {
         return this.layout === 'canvas';
     }
 
+    reset() {
+        this.explicitLayout = 'classic';
+        this.mountedCanvases = 0;
+    }
+}
+
+export const shellState = new ShellState();
+
+/**
+ * Which application shell is on screen: `classic` (sidebar and header) or
+ * `canvas` (Map-Canvas+ floating chrome).
+ *
+ * The console sets the layout with `setLayout()` when it picks a shell;
+ * `Layout::Canvas` also marks the canvas layout while it is mounted, so a
+ * canvas rendered without the console (tests, the playground) behaves the
+ * same. Components read `shellState` (exported above), which works in engines
+ * too.
+ *
+ * @class ShellService
+ * @extends Service
+ */
+export default class ShellService extends Service {
+    state = shellState;
+
+    get explicitLayout() {
+        return shellState.explicitLayout;
+    }
+
+    get mountedCanvases() {
+        return shellState.mountedCanvases;
+    }
+
+    /** `canvas` while a canvas is mounted or the console chose it, else `classic`. */
+    get layout() {
+        return shellState.layout;
+    }
+
+    get isCanvas() {
+        return shellState.isCanvas;
+    }
+
     get isClassic() {
-        return !this.isCanvas;
+        return !shellState.isCanvas;
     }
 
     /**
@@ -52,7 +80,7 @@ export default class ShellService extends Service {
      * @param {String} layout `classic` or `canvas`
      */
     setLayout(layout) {
-        this.explicitLayout = LAYOUTS.includes(layout) ? layout : 'classic';
+        shellState.explicitLayout = LAYOUTS.includes(layout) ? layout : 'classic';
     }
 
     /**
@@ -74,6 +102,6 @@ export default class ShellService extends Service {
         if (this.isDestroying || this.isDestroyed) {
             return;
         }
-        this.mountedCanvases = Math.max(0, this.mountedCanvases + step);
+        shellState.mountedCanvases = Math.max(0, shellState.mountedCanvases + step);
     }
 }

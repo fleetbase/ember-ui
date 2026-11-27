@@ -6,7 +6,14 @@
             aria-hidden={{if entry.isActive "false" "true"}}
             inert={{entry.inert}}
         >
-            {{component entry.component registration=entry.registration isActive=entry.isActive state=this.state backdrop=this.backdrop}}
+            {{#if entry.isEngineComponent}}
+                <LazyEngineComponent
+                    @component={{entry.component}}
+                    @params={{hash registration=entry.registration isActive=entry.isActive state=this.state backdrop=this.backdrop}}
+                />
+            {{else}}
+                {{component entry.component registration=entry.registration isActive=entry.isActive state=this.state backdrop=this.backdrop}}
+            {{/if}}
         </div>
     {{/each}}
     {{#unless this.hasActive}}

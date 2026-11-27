@@ -5,6 +5,7 @@ import { action } from '@ember/object';
 import { getOwner } from '@ember/application';
 import contextComponentCallback from '@fleetbase/ember-core/utils/context-component-callback';
 import applyContextComponentArguments from '@fleetbase/ember-core/utils/apply-context-component-arguments';
+import { shellState } from '../../../services/shell';
 import lookupResourceView, { mergeHeaderButtons } from '../../../utils/resource-view';
 
 export default class LayoutResourcePanelComponent extends Component {
@@ -15,19 +16,18 @@ export default class LayoutResourcePanelComponent extends Component {
     @service notifications;
     @service hostRouter;
     @service contextPanel;
-    @service shell;
     @tracked overlayContext;
 
     /**
      * In the canvas layout the panel renders as a `Sheet`; in classic as the
      * right-hand `Overlay` it always was. `@layout` (`canvas` | `classic`)
-     * overrides the shell service.
+     * overrides the shell layout (`shellState`, which engines can read too).
      */
     get isCanvas() {
         if (this.args.layout) {
             return this.args.layout === 'canvas';
         }
-        return this.shell.isCanvas;
+        return shellState.isCanvas;
     }
 
     get sheetTitle() {

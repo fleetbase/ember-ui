@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
-import { setupTest } from 'dummy/tests/helpers';
-import { run } from '@ember/runloop';
+import { SheetStack, sheetStack } from '@fleetbase/ember-ui/utils/sheet-stack';
 
 function sheet(depth, handles = true) {
     return {
@@ -19,11 +18,17 @@ function escape(init = {}) {
     return event;
 }
 
-module('Unit | Service | sheet-stack', function (hooks) {
-    setupTest(hooks);
-
+module('Unit | Utility | sheet-stack', function (hooks) {
     hooks.beforeEach(function () {
-        this.stack = this.owner.lookup('service:sheet-stack');
+        this.stack = new SheetStack();
+    });
+
+    hooks.afterEach(function () {
+        this.stack.reset();
+    });
+
+    test('one page-wide stack is shared by every sheet', function (assert) {
+        assert.true(sheetStack instanceof SheetStack);
     });
 
     test('the top sheet is the shallowest, and the latest among equals', function (assert) {
@@ -87,7 +92,7 @@ module('Unit | Service | sheet-stack', function (hooks) {
         this.stack.unregister(front);
     });
 
-    test('other keys, handled and composing events, and an open modal are ignored', function (assert) {
+    test('other keys and handled or composing events are ignored', function (assert) {
         const front = sheet(0);
         this.stack.register(front);
 
@@ -97,10 +102,6 @@ module('Unit | Service | sheet-stack', function (hooks) {
         const handled = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
         handled.preventDefault();
         window.dispatchEvent(handled);
-
-        const modals = this.owner.lookup('service:modals-manager');
-        Object.defineProperty(modals, 'modalIsOpened', { configurable: true, get: () => true });
-        escape();
 
         assert.strictEqual(front.escapes, 0);
         this.stack.unregister(front);
@@ -116,12 +117,12 @@ module('Unit | Service | sheet-stack', function (hooks) {
         assert.strictEqual(front.escapes, 0);
     });
 
-    test('destroying the service drops its sheets and listener', function (assert) {
+    test('reset drops every sheet and the listener', function (assert) {
         const front = sheet(0);
         this.stack.register(front);
         this.stack.unregister(sheet(0));
 
-        run(() => this.stack.destroy());
+        this.stack.reset();
         escape();
 
         assert.strictEqual(front.escapes, 0);

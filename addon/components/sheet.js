@@ -1,8 +1,10 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
+import { getOwner } from '@ember/application';
+import { sheetStack } from '../utils/sheet-stack';
+import { optionalService } from '../utils/shell';
 
 /** Width presets in px. */
 export const SHEET_WIDTHS = { sm: 360, md: 440, lg: 640 };
@@ -59,10 +61,11 @@ const FOCUSABLE = [
  * Blocks: `<:header>` (replaces the default title; yields `{ close, park, isTop }`),
  * `<:body>` or the default block, `<:footer>`.
  *
- * While it is the top sheet, Tab and Shift+Tab cycle inside it.
+ * While it is the top sheet, Tab and Shift+Tab cycle inside it, and Escape (see
+ * `utils/sheet-stack`) closes it unless a modal is open.
  */
 export default class SheetComponent extends Component {
-    @service sheetStack;
+    sheetStack = sheetStack;
     @tracked customWidth = null;
 
     id = guidFor(this);
@@ -215,6 +218,11 @@ export default class SheetComponent extends Component {
     /** Called by the sheet stack on Escape. Returns whether the sheet handled it. */
     escape() {
         if (this.args.closeOnEscape === false || typeof this.args.onClose !== 'function') {
+            return false;
+        }
+        // A modal over the sheets gets Escape first. Looked up optionally: inside an engine the
+        // owner may not have ember-ui's modals-manager.
+        if (optionalService(getOwner(this), 'modals-manager')?.modalIsOpened) {
             return false;
         }
         this.close();
