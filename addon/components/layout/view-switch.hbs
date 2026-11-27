@@ -1,0 +1,33 @@
+<div class="fb-view-switch fb-chrome-surface" ...attributes>
+    <div class="fb-view-switch-views" role="radiogroup" aria-label={{or @label "View"}} {{on "keydown" this.onKeydown}}>
+        {{#each this.views key="id" as |option|}}
+            <button
+                type="button"
+                role="radio"
+                class="fb-view-switch-option {{if option.isSelected 'is-selected'}}"
+                aria-checked={{if option.isSelected "true" "false"}}
+                tabindex={{if option.isSelected "0" "-1"}}
+                data-view={{option.id}}
+                {{on "click" (fn this.select option)}}
+            >
+                <span>{{option.label}}</span>
+                {{#if option.hasCount}}
+                    <span class="fb-view-switch-count">{{option.count}}</span>
+                {{/if}}
+            </button>
+        {{/each}}
+    </div>
+    {{#if (or (has-block "actions") this.primaryAction)}}
+        <span class="fb-view-switch-divider" aria-hidden="true"></span>
+        {{#if (has-block "actions")}}
+            {{yield to="actions"}}
+        {{else}}
+            <button type="button" class="fb-view-switch-primary" {{on "click" this.runPrimary}}>
+                {{#if this.primaryAction.icon}}
+                    <FaIcon @icon={{this.primaryAction.icon}} @size="sm" aria-hidden="true" />
+                {{/if}}
+                <span>{{this.primaryAction.label}}</span>
+            </button>
+        {{/if}}
+    {{/if}}
+</div>

@@ -1,4 +1,5 @@
 import Service, { inject as service } from '@ember/service';
+import Evented from '@ember/object/evented';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { guidFor } from '@ember/object/internals';
@@ -12,7 +13,7 @@ import { guidFor } from '@ember/object/internals';
  * @memberof @fleetbase/ember-ui
  * @extends Service
  */
-export default class ResourceContextPanelService extends Service {
+export default class ResourceContextPanelService extends Service.extend(Evented) {
     @service router;
     @service notifications;
 
@@ -30,6 +31,23 @@ export default class ResourceContextPanelService extends Service {
      * @tracked
      */
     @tracked activeTabs = {};
+
+    /**
+     * Overlays parked out of the stack, oldest first. Nothing renders them yet:
+     * the canvas taskbar (shell phase 4) lists them and calls `unpark()`.
+     * @type {Array<OverlayDefinition>}
+     * @tracked
+     */
+    @tracked parked = [];
+
+    /**
+     * Whether panels offer a park button. Off until something can show parked
+     * panels again (the taskbar calls `enableParking()`); an overlay can also
+     * opt in on its own with `parkable: true` or an `onPark` hook.
+     * @type {Boolean}
+     * @tracked
+     */
+    @tracked parkingEnabled = false;
 
     /**
      * @private
@@ -166,6 +184,84 @@ export default class ResourceContextPanelService extends Service {
         if (overlayToClose.routeSync) {
             this.#clearFromRoute(overlayToClose);
         }
+    }
+
+    /**
+     * Turns the park button on (or off) for every panel.
+     *
+     * @method enableParking
+     * @param {Boolean} [enabled=true]
+     */
+    @action enableParking(enabled = true) {
+        this.parkingEnabled = Boolean(enabled);
+    }
+
+    /**
+     * Whether an overlay can be parked.
+     *
+     * @method canPark
+     * @param {OverlayDefinition} overlay
+     * @returns {Boolean}
+     */
+    canPark(overlay) {
+        return Boolean(overlay) && (this.parkingEnabled || overlay.parkable === true || typeof overlay.onPark === 'function');
+    }
+
+    /**
+     * Moves an overlay out of the stack into `parked`, keeping its definition
+     * (and active tab) so `unpark()` can bring it back. Triggers
+     * `overlay.parked` with the overlay and calls its `onPark` hook.
+     *
+     * @method park
+     * @param {String} [id] - The overlay ID; the active overlay when omitted
+     * @returns {OverlayDefinition|null} The parked overlay
+     */
+    @action park(id) {
+        const overlay = id ? this.getById(id) : this.getActive();
+        if (!overlay) {
+            return null;
+        }
+
+        this.overlays = this.overlays.filter((open) => open !== overlay);
+        this.parked = [...this.parked, overlay];
+
+        if (typeof overlay.onPark === 'function') {
+            overlay.onPark({ resource: overlay.resource ?? overlay.model, model: overlay.resource ?? overlay.model, unpark: () => this.unpark(overlay.id) });
+        }
+        this.trigger('overlay.parked', overlay);
+
+        return overlay;
+    }
+
+    /**
+     * Puts a parked overlay back on top of the stack. Triggers `overlay.unparked`.
+     *
+     * @method unpark
+     * @param {String} id - The overlay ID
+     * @returns {OverlayDefinition|null} The restored overlay
+     */
+    @action unpark(id) {
+        const overlay = this.parked.find((parked) => parked.id === id);
+        if (!overlay) {
+            return null;
+        }
+
+        this.parked = this.parked.filter((parked) => parked !== overlay);
+        this.overlays = [...this.overlays, overlay];
+        this.trigger('overlay.unparked', overlay);
+
+        return overlay;
+    }
+
+    /**
+     * Whether an overlay is parked.
+     *
+     * @method isParked
+     * @param {String} id - The overlay ID
+     * @returns {Boolean}
+     */
+    isParked(id) {
+        return this.parked.some((parked) => parked.id === id);
     }
 
     /**

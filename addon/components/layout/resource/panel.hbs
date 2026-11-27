@@ -1,63 +1,135 @@
-<Overlay
-    @onLoad={{this.setOverlayContext}}
-    @onOpen={{this.onOpen}}
-    @onClose={{this.onClose}}
-    @onToggle={{this.onToggle}}
-    @position="right"
-    @noBackdrop={{true}}
-    @fullHeight={{true}}
-    @isResizable={{this.isResizable}}
-    @width={{this.width}}
-    @minResizeWidth={{@minResizeWidth}}
-    @maxResizeWidth={{@maxResizeWidth}}
-    ...attributes
->
-    {{#if @headerComponent}}
-        {{! Invoked with angle brackets so `class` lands as an ATTRIBUTE. In the curly form it
-            arrives as the `@class` argument, which a Glimmer component drops — losing both the
-            caller's @headerClass and the addon's own resource-panel-header styling hook. }}
-        {{#let (component @headerComponent) as |CustomHeader|}}
-            <CustomHeader
+{{#if this.isCanvas}}
+    <Sheet
+        @title={{this.sheetTitle}}
+        @side={{@side}}
+        @width={{this.sheetWidth}}
+        @resizable={{this.isResizable}}
+        @minWidth={{this.sheetMinWidth}}
+        @maxWidth={{this.sheetMaxWidth}}
+        @onClose={{this.onPressCancel}}
+        @showClose={{false}}
+        @onPark={{@onPark}}
+        @onActivate={{@onActivate}}
+        @stackIndex={{@stackIndex}}
+        @stackSize={{@stackSize}}
+        @onOpen={{this.setSheetContext}}
+        class="resource-panel-sheet"
+        ...attributes
+    >
+        <:header>
+            {{#if @headerComponent}}
+                {{! Invoked with angle brackets so `class` lands as an ATTRIBUTE. In the curly form it
+                    arrives as the `@class` argument, which a Glimmer component drops — losing both the
+                    caller's @headerClass and the addon's own resource-panel-header styling hook. }}
+                {{#let (component @headerComponent) as |CustomHeader|}}
+                    <CustomHeader
+                        @authSchema={{this.authSchema}}
+                        @resource={{this.resource}}
+                        @saveTask={{@saveTask}}
+                        @saveDisabled={{@saveDisabled}}
+                        @pojoResource={{@pojoResource}}
+                        @onPressCancel={{@onPressCancel}}
+                        @actionButtons={{this.actionButtons}}
+                        @headerClass={{@headerClass}}
+                        @modelName={{@modelName}}
+                        @saveOptions={{@saveOptions}}
+                        @headerLeftClass={{@headerLeftClass}}
+                        @headerLeftInnerClass={{@headerLeftInnerClass}}
+                        @titleWrapperClass={{@titleWrapperClass}}
+                        @titleClass={{@titleClass}}
+                        @actionsWrapperClass={{@actionsWrapperClass}}
+                        class="{{@headerClass}} resource-panel-header"
+                    />
+                {{/let}}
+            {{else}}
+                <Layout::Resource::Panel::Header
+                    @authSchema={{this.authSchema}}
+                    @resource={{this.resource}}
+                    @title={{@headerTitle}}
+                    @saveTask={{@saveTask}}
+                    @saveDisabled={{@saveDisabled}}
+                    @pojoResource={{@pojoResource}}
+                    @saveOptions={{@saveOptions}}
+                    @onPressCancel={{this.onPressCancel}}
+                    @actionButtons={{this.actionButtons}}
+                    @modelName={{@modelName}}
+                    @headerLeftClass={{@headerLeftClass}}
+                    @headerLeftInnerClass={{@headerLeftInnerClass}}
+                    @titleWrapperClass={{@titleWrapperClass}}
+                    @titleClass={{@titleClass}}
+                    @actionsWrapperClass={{@actionsWrapperClass}}
+                    class={{@headerClass}}
+                />
+            {{/if}}
+        </:header>
+        <:body>
+            <div class="resource-panel-sheet-body {{@bodyClass}}">
+                {{yield this.resource}}
+            </div>
+        </:body>
+    </Sheet>
+{{else}}
+    <Overlay
+        @onLoad={{this.setOverlayContext}}
+        @onOpen={{this.onOpen}}
+        @onClose={{this.onClose}}
+        @onToggle={{this.onToggle}}
+        @position="right"
+        @noBackdrop={{true}}
+        @fullHeight={{true}}
+        @isResizable={{this.isResizable}}
+        @width={{this.width}}
+        @minResizeWidth={{@minResizeWidth}}
+        @maxResizeWidth={{@maxResizeWidth}}
+        ...attributes
+    >
+        {{#if @headerComponent}}
+            {{! Invoked with angle brackets so `class` lands as an ATTRIBUTE. In the curly form it
+                arrives as the `@class` argument, which a Glimmer component drops — losing both the
+                caller's @headerClass and the addon's own resource-panel-header styling hook. }}
+            {{#let (component @headerComponent) as |CustomHeader|}}
+                <CustomHeader
+                    @authSchema={{this.authSchema}}
+                    @resource={{this.resource}}
+                    @saveTask={{@saveTask}}
+                    @saveDisabled={{@saveDisabled}}
+                    @pojoResource={{@pojoResource}}
+                    @onPressCancel={{@onPressCancel}}
+                    @actionButtons={{this.actionButtons}}
+                    @headerClass={{@headerClass}}
+                    @modelName={{@modelName}}
+                    @saveOptions={{@saveOptions}}
+                    @headerLeftClass={{@headerLeftClass}}
+                    @headerLeftInnerClass={{@headerLeftInnerClass}}
+                    @titleWrapperClass={{@titleWrapperClass}}
+                    @titleClass={{@titleClass}}
+                    @actionsWrapperClass={{@actionsWrapperClass}}
+                    class="{{@headerClass}} resource-panel-header"
+                />
+            {{/let}}
+        {{else}}
+            <Layout::Resource::Panel::Header
                 @authSchema={{this.authSchema}}
                 @resource={{this.resource}}
+                @title={{@headerTitle}}
                 @saveTask={{@saveTask}}
                 @saveDisabled={{@saveDisabled}}
                 @pojoResource={{@pojoResource}}
-                @onPressCancel={{@onPressCancel}}
-                @actionButtons={{this.actionButtons}}
-                @headerClass={{@headerClass}}
-                @modelName={{@modelName}}
                 @saveOptions={{@saveOptions}}
+                @onPressCancel={{this.onPressCancel}}
+                @actionButtons={{this.actionButtons}}
+                @modelName={{@modelName}}
                 @headerLeftClass={{@headerLeftClass}}
                 @headerLeftInnerClass={{@headerLeftInnerClass}}
                 @titleWrapperClass={{@titleWrapperClass}}
                 @titleClass={{@titleClass}}
                 @actionsWrapperClass={{@actionsWrapperClass}}
-                class="{{@headerClass}} resource-panel-header"
+                class={{@headerClass}}
             />
-        {{/let}}
-    {{else}}
-        <Layout::Resource::Panel::Header
-            @authSchema={{this.authSchema}}
-            @resource={{this.resource}}
-            @title={{@headerTitle}}
-            @saveTask={{@saveTask}}
-            @saveDisabled={{@saveDisabled}}
-            @pojoResource={{@pojoResource}}
-            @saveOptions={{@saveOptions}}
-            @onPressCancel={{this.onPressCancel}}
-            @actionButtons={{this.actionButtons}}
-            @modelName={{@modelName}}
-            @headerLeftClass={{@headerLeftClass}}
-            @headerLeftInnerClass={{@headerLeftInnerClass}}
-            @titleWrapperClass={{@titleWrapperClass}}
-            @titleClass={{@titleClass}}
-            @actionsWrapperClass={{@actionsWrapperClass}}
-            class={{@headerClass}}
-        />
-    {{/if}}
+        {{/if}}
 
-    <Overlay::Body class="no-padding {{@bodyClass}}">
-        {{yield this.resource}}
-    </Overlay::Body>
-</Overlay>
+        <Overlay::Body class="no-padding {{@bodyClass}}">
+            {{yield this.resource}}
+        </Overlay::Body>
+    </Overlay>
+{{/if}}

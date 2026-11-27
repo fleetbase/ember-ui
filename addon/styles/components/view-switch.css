@@ -1,0 +1,82 @@
+/**
+ * Layout::ViewSwitch: the floating segmented pill, top-centre over the canvas
+ * (C2_Table, J1). It lives in the chrome layer, which passes the pointer
+ * through everywhere but on the pill itself.
+ */
+
+.fb-view-switch {
+    position: absolute;
+    top: var(--fb-view-switch-top, 12px);
+    left: 50%;
+    display: flex;
+    height: 44px;
+    align-items: center;
+    gap: 4px;
+    padding: 0 6px;
+    border-radius: var(--fb-radius-chrome);
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.fb-view-switch-views {
+    display: flex;
+    gap: 2px;
+}
+
+.fb-view-switch-option,
+.fb-view-switch-primary {
+    display: inline-flex;
+    height: 32px;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 9px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.fb-view-switch-option {
+    background: transparent;
+    color: var(--fb-muted);
+}
+
+.fb-view-switch-option:hover {
+    background-color: var(--fb-subtle);
+    color: var(--fb-text);
+}
+
+.fb-view-switch-option.is-selected {
+    background-color: var(--fb-accent);
+    color: var(--fb-accent-fg);
+    font-weight: 600;
+}
+
+.fb-view-switch-count {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+}
+
+.fb-view-switch-divider {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background-color: var(--fb-border);
+}
+
+.fb-view-switch-primary {
+    background-color: var(--fb-text);
+    color: var(--fb-surface);
+    font-weight: 600;
+}
+
+.fb-view-switch-primary:hover {
+    opacity: 0.9;
+}
+
+.fb-view-switch :focus-visible {
+    outline: 2px solid var(--fb-focus);
+    outline-offset: 2px;
+}

@@ -923,4 +923,78 @@ module('Unit | Service | resource-context-panel', function (hooks) {
         assert.throws(() => service.open(null), /Overlay definition is required/, 'and with an explicit null');
         assert.strictEqual(service.overlays.length, 0, 'nothing is left behind');
     });
+
+    module('parking', function () {
+        test('canPark is off until parking is enabled or the overlay opts in', function (assert) {
+            const plain = contentOverlay();
+            assert.false(this.service.canPark(plain));
+            assert.false(this.service.canPark(null));
+            assert.true(this.service.canPark(contentOverlay({ parkable: true })));
+            assert.true(this.service.canPark(contentOverlay({ onPark() {} })));
+
+            this.service.enableParking();
+            assert.true(this.service.canPark(plain));
+
+            this.service.enableParking(false);
+            assert.false(this.service.canPark(plain));
+        });
+
+        test('park moves an overlay out of the stack, calls its hook and triggers overlay.parked', function (assert) {
+            const events = [];
+            const hooks = [];
+            const resource = { name: 'Order 1' };
+            this.service.on('overlay.parked', (overlay) => events.push(['parked', overlay.id]));
+            this.service.on('overlay.unparked', (overlay) => events.push(['unparked', overlay.id]));
+
+            this.service.open(contentOverlay({ id: 'a', resource, onPark: (context) => hooks.push(context) }));
+            this.service.open(contentOverlay({ id: 'b' }));
+
+            const parked = this.service.park('a');
+
+            assert.strictEqual(parked.id, 'a');
+            assert.deepEqual(
+                this.service.overlays.map((overlay) => overlay.id),
+                ['b']
+            );
+            assert.deepEqual(
+                this.service.parked.map((overlay) => overlay.id),
+                ['a']
+            );
+            assert.true(this.service.isParked('a'));
+            assert.false(this.service.isParked('b'));
+            assert.strictEqual(hooks[0].resource, resource);
+            assert.strictEqual(hooks[0].model, resource);
+
+            hooks[0].unpark();
+            assert.deepEqual(
+                this.service.overlays.map((overlay) => overlay.id),
+                ['b', 'a'],
+                'unparking puts it back on top'
+            );
+            assert.deepEqual(this.service.parked, []);
+            assert.deepEqual(events, [
+                ['parked', 'a'],
+                ['unparked', 'a'],
+            ]);
+        });
+
+        test('park without an id parks the active overlay; a model stands in for the resource', function (assert) {
+            const hooks = [];
+            const model = { name: 'Driver' };
+            this.service.open(contentOverlay({ id: 'a', model, onPark: (context) => hooks.push(context) }));
+
+            assert.strictEqual(this.service.park().id, 'a');
+            assert.strictEqual(hooks[0].resource, model);
+        });
+
+        test('parking or unparking something that is not there does nothing', function (assert) {
+            assert.strictEqual(this.service.park(), null);
+            assert.strictEqual(this.service.park('missing'), null);
+            assert.strictEqual(this.service.unpark('missing'), null);
+
+            this.service.open(contentOverlay({ id: 'a' }));
+            this.service.park('a');
+            assert.strictEqual(this.service.unpark('a').id, 'a');
+        });
+    });
 });

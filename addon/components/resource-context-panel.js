@@ -16,6 +16,7 @@ import getModelName from '@fleetbase/ember-core/utils/get-model-name';
 export default class ResourceContextPanelComponent extends Component {
     @service resourceContextPanel;
     @service notifications;
+    @service shell;
 
     /**
      * Map of overlay sizes to actual widths.
@@ -30,6 +31,43 @@ export default class ResourceContextPanelComponent extends Component {
         xl: '1000px',
         fullscreen: '100vw',
     };
+
+    /**
+     * Map of overlay sizes to Sheet width presets, for the canvas layout.
+     * @type {Object}
+     */
+    sheetSizeMap = {
+        xxs: 'sm',
+        xs: 'md',
+        sm: 'md',
+        md: 'md',
+        lg: 'lg',
+        xl: 'lg',
+        fullscreen: 'lg',
+    };
+
+    /**
+     * `canvas` or `classic`: `@layout` when given, else the shell service's.
+     * In the canvas layout each overlay renders as a Sheet stacked with spines,
+     * Escape is left to the sheets, and no click-catching backdrop is drawn (a
+     * sheet floats over the live map without blocking it).
+     * @type {String}
+     */
+    get layout() {
+        return this.args.layout ?? this.shell.layout;
+    }
+
+    get isCanvas() {
+        return this.layout === 'canvas';
+    }
+
+    get eachKey() {
+        return this.isCanvas ? 'id' : '@identity';
+    }
+
+    get showDismissBackdrop() {
+        return !this.isCanvas && Boolean(this.activeOverlay?.dismissible);
+    }
 
     /**
      * Map of overlay sizes to resizable settings.
@@ -66,6 +104,8 @@ export default class ResourceContextPanelComponent extends Component {
                 model: resource,
                 title: overlay.title ?? resource?.name ?? resource?.displayName,
                 computedWidth: overlay.width ?? this.sizeMap[overlay.size] ?? this.sizeMap.sm,
+                computedSheetWidth: overlay.width ?? this.sheetSizeMap[overlay.size] ?? this.sheetSizeMap.sm,
+                canPark: this.resourceContextPanel.canPark(overlay),
                 computedResizable: this.resizableMap[overlay.size] !== undefined ? this.resizableMap[overlay.size] : true,
                 saveOptions: {
                     ...(overlay.saveOptions ?? {}),
@@ -136,6 +176,28 @@ export default class ResourceContextPanelComponent extends Component {
     }
 
     /**
+     * Brings a stacked overlay to the front (a sheet's spine was clicked).
+     *
+     * @method bringToFront
+     * @param {String} id - The overlay ID
+     * @action
+     */
+    @action bringToFront(id) {
+        this.resourceContextPanel.bringToFront(id);
+    }
+
+    /**
+     * Parks an overlay (see the service's `park()`).
+     *
+     * @method parkOverlay
+     * @param {String} id - The overlay ID
+     * @action
+     */
+    @action parkOverlay(id) {
+        this.resourceContextPanel.park(id);
+    }
+
+    /**
      * Closes the active overlay.
      *
      * @method closeActiveOverlay
@@ -187,7 +249,8 @@ export default class ResourceContextPanelComponent extends Component {
      * @action
      */
     @action handleKeydown(event) {
-        if (event.key === 'Escape') {
+        // In the canvas layout the top Sheet handles Escape (see the sheet-stack service).
+        if (event.key === 'Escape' && !this.isCanvas) {
             const activeOverlay = this.resourceContextPanel.getActive();
             if (activeOverlay && activeOverlay.dismissible) {
                 this.closeActiveOverlay();

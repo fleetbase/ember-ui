@@ -59,6 +59,8 @@
 @import 'components/tip-tap-editor.css';
 @import 'components/tab-navigation.css';
 @import 'components/resource-context-panel.css';
+@import 'components/sheet.css';
+@import 'components/view-switch.css';
 @import 'components/card-grid.css';
 @import 'components/report-builder.css';
 @import 'components/query-builder.css';

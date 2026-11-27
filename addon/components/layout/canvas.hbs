@@ -3,7 +3,7 @@
         {{#if (has-block "backdrop")}}
             {{yield to="backdrop"}}
         {{else}}
-            <Layout::Canvas::Backdrop::DotGrid />
+            <Layout::Canvas::BackdropHost />
         {{/if}}
     </div>
     <main class="fb-canvas-content" data-canvas-layer="content">

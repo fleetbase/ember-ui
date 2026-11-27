@@ -18,6 +18,8 @@ module('Integration | Component | resource-context-panel', function (hooks) {
             activeTabs: {},
             closed: [],
             activeTabCalls: [],
+            fronted: [],
+            parkedIds: [],
         };
 
         this.owner.unregister('service:resourceContextPanel');
@@ -37,6 +39,15 @@ module('Integration | Component | resource-context-panel', function (hooks) {
                 }
                 close(id) {
                     panel.closed.push(id);
+                }
+                canPark(overlay) {
+                    return overlay.parkable === true;
+                }
+                bringToFront(id) {
+                    panel.fronted.push(id);
+                }
+                park(id) {
+                    panel.parkedIds.push(id);
                 }
                 setActiveTab(overlayId, tabId) {
                     panel.activeTabCalls.push([overlayId, tabId]);

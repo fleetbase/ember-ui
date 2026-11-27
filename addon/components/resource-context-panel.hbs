@@ -1,5 +1,13 @@
-{{#each this.computedOverlays as |overlay|}}
+{{! Keyed by id in the canvas layout so a stacked sheet is not re-created (and its focus and
+    scroll lost) whenever another overlay opens; classic keeps its original identity keying. }}
+{{#each this.computedOverlays key=this.eachKey as |overlay index|}}
     <Layout::Resource::Panel
+        @layout={{this.layout}}
+        @stackIndex={{index}}
+        @stackSize={{this.computedOverlays.length}}
+        @sheetWidth={{overlay.computedSheetWidth}}
+        @onActivate={{fn this.bringToFront overlay.id}}
+        @onPark={{if overlay.canPark (fn this.parkOverlay overlay.id)}}
         @resource={{overlay.model}}
         @headerTitle={{overlay.title}}
         @headerComponent={{if
@@ -66,6 +74,6 @@
     </Layout::Resource::Panel>
 {{/each}}
 
-{{#if this.activeOverlay.dismissible}}
+{{#if this.showDismissBackdrop}}
     <div class="resource-context-panel-backdrop fixed inset-0 bg-black bg-opacity-10 z-[999] cursor-pointer" {{on "click" this.closeActiveOverlay}} role="button" tabindex="-1"></div>
 {{/if}}

@@ -1,0 +1,78 @@
+<section
+    id={{this.id}}
+    class="fb-sheet is-{{this.side}} {{if this.isTop 'is-top'}} {{if this.isSpine 'is-spine'}} {{if this.isHidden 'is-hidden'}}"
+    role="dialog"
+    aria-modal="false"
+    aria-label={{or @label (if (has-block "header") @title)}}
+    aria-labelledby={{if (or @label (has-block "header")) null this.titleId}}
+    aria-hidden={{if this.isHidden "true"}}
+    tabindex="-1"
+    data-side={{this.side}}
+    data-depth={{this.depth}}
+    {{set-css-var "--fb-sheet-width" this.width}}
+    {{set-css-var "--fb-sheet-offset" this.offset}}
+    {{did-insert this.didInsert}}
+    {{on "keydown" this.trapFocus}}
+    ...attributes
+>
+    {{#if this.isSpine}}
+        <button type="button" class="fb-sheet-spine" aria-label="Show {{this.label}}" {{on "click" this.activate}}>
+            <span class="fb-sheet-spine-label">{{this.label}}</span>
+        </button>
+    {{/if}}
+
+    <div class="fb-sheet-panel" inert={{this.panelInert}}>
+        <header class="fb-sheet-header">
+            <div class="fb-sheet-header-main">
+                {{#if (has-block "header")}}
+                    {{yield (hash close=this.close park=this.park isTop=this.isTop titleId=this.titleId) to="header"}}
+                {{else}}
+                    <h2 id={{this.titleId}} class="fb-sheet-title">{{@title}}</h2>
+                {{/if}}
+            </div>
+            {{#if (or this.showPark this.showClose)}}
+                <div class="fb-sheet-controls">
+                    {{#if this.showPark}}
+                        <button type="button" class="fb-sheet-control fb-sheet-park" aria-label="Park {{this.label}}" title="Park" {{on "click" this.park}}>
+                            <FaIcon @icon="window-minimize" @size="sm" aria-hidden="true" />
+                        </button>
+                    {{/if}}
+                    {{#if this.showClose}}
+                        <button type="button" class="fb-sheet-control fb-sheet-close" aria-label="Close {{this.label}}" title="Close" {{on "click" this.close}}>
+                            <FaIcon @icon="xmark" @size="sm" aria-hidden="true" />
+                        </button>
+                    {{/if}}
+                </div>
+            {{/if}}
+        </header>
+
+        <div class="fb-sheet-body">
+            {{#if (has-block "body")}}
+                {{yield (hash close=this.close park=this.park isTop=this.isTop) to="body"}}
+            {{else}}
+                {{yield (hash close=this.close park=this.park isTop=this.isTop)}}
+            {{/if}}
+        </div>
+
+        {{#if (has-block "footer")}}
+            <footer class="fb-sheet-footer">
+                {{yield (hash close=this.close park=this.park isTop=this.isTop) to="footer"}}
+            </footer>
+        {{/if}}
+    </div>
+
+    {{#if this.isResizable}}
+        <div
+            class="fb-sheet-resize"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize {{this.label}}"
+            aria-valuenow={{this.widthValue}}
+            aria-valuemin={{this.minWidth}}
+            aria-valuemax={{this.maxWidth}}
+            tabindex="0"
+            {{on "pointerdown" this.startResize}}
+            {{on "keydown" this.resizeWithKeyboard}}
+        ></div>
+    {{/if}}
+</section>

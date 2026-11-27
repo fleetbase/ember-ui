@@ -92,6 +92,44 @@ export class ContextBarStub extends Service {
     }
 }
 
+/**
+ * ember-core's `backdrop` service, reduced to what the canvas host reads:
+ * `active`, `mounted` and `state`. Tests set `registrations` and pick the
+ * active one with `activate(name)` (or `activate(null)` for the dot grid);
+ * keep-alive registrations stay in `mounted` once activated, as in ember-core.
+ */
+export class BackdropStub extends Service {
+    @tracked registrations = [];
+    @tracked activeName = null;
+    @tracked activated = [];
+    @tracked state = { layers: [], fitBounds: null, focus: null, mode: null };
+    requests = new Map();
+
+    get active() {
+        return this.registrations.find((registration) => registration?.name === this.activeName) ?? null;
+    }
+
+    get mounted() {
+        return this.registrations.filter((registration) => registration?.name === this.activeName || (registration?.keepAlive && this.activated.includes(registration.name)));
+    }
+
+    activate(name) {
+        this.activeName = name;
+        if (name && !this.activated.includes(name)) {
+            this.activated = [...this.activated, name];
+        }
+    }
+
+    request(owner, options = {}) {
+        this.requests.set(owner, options);
+        this.state = { ...this.state, layers: [...this.requests].map(([key, value]) => ({ owner: key, layers: value.layers ?? [] })) };
+    }
+
+    release(owner) {
+        return this.requests.delete(owner);
+    }
+}
+
 // <LinkToExternal> only resolves inside a mounted engine, so it is stubbed at that boundary.
 class LinkToExternalStub extends Component {}
 const LINK_TO_EXTERNAL_TEMPLATE = hbs`<a href="javascript:;" data-test-route={{@route}} ...attributes>{{yield}}</a>`;

@@ -15,7 +15,40 @@ export default class LayoutResourcePanelComponent extends Component {
     @service notifications;
     @service hostRouter;
     @service contextPanel;
+    @service shell;
     @tracked overlayContext;
+
+    /**
+     * In the canvas layout the panel renders as a `Sheet`; in classic as the
+     * right-hand `Overlay` it always was. `@layout` (`canvas` | `classic`)
+     * overrides the shell service.
+     */
+    get isCanvas() {
+        if (this.args.layout) {
+            return this.args.layout === 'canvas';
+        }
+        return this.shell.isCanvas;
+    }
+
+    get sheetTitle() {
+        return this.args.headerTitle ?? this.resource?.name ?? this.resource?.displayName;
+    }
+
+    /**
+     * `@sheetWidth` (a Sheet preset or length) wins; otherwise `@width`, which in
+     * the classic layout is an Overlay width such as `600px`.
+     */
+    get sheetWidth() {
+        return this.args.sheetWidth ?? this.args.width ?? 'md';
+    }
+
+    get sheetMinWidth() {
+        return parseInt(this.args.minResizeWidth, 10) || undefined;
+    }
+
+    get sheetMaxWidth() {
+        return parseInt(this.args.maxResizeWidth, 10) || undefined;
+    }
 
     // Mirror args (reactive)
     get resource() {
@@ -60,6 +93,18 @@ export default class LayoutResourcePanelComponent extends Component {
         this.context = overlayContext;
         contextComponentCallback(this, 'onLoad', ...arguments);
         contextComponentCallback(this, 'onOverlayReady', ...arguments);
+    }
+
+    /**
+     * The canvas counterpart of `setOverlayContext`: the sheet's API stands in
+     * for the overlay context, and the panel's onLoad/onOpen callbacks fire as
+     * the sheet mounts.
+     */
+    @action setSheetContext(sheet) {
+        this.context = sheet;
+        contextComponentCallback(this, 'onLoad', sheet);
+        contextComponentCallback(this, 'onOverlayReady', sheet);
+        contextComponentCallback(this, 'onOpen', { resource: this.resource, panel: sheet });
     }
 
     @action onPressCancel() {
