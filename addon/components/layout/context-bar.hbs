@@ -1,0 +1,44 @@
+<nav class="fb-context-bar fb-chrome-surface" aria-label="Context" ...attributes>
+    <LinkToExternal @route="console" class="fb-context-bar-logo" aria-label="Home">
+        <LogoIcon @brand={{@brand}} @size="7" />
+    </LinkToExternal>
+    {{#if this.crumbs.length}}
+        <span class="fb-context-bar-divider" aria-hidden="true"></span>
+        <ol class="fb-crumbs" aria-label="Breadcrumb">
+            {{#each this.crumbs as |crumb|}}
+                <li class="fb-crumb {{if crumb.isCurrent 'is-current'}} {{if crumb.split 'is-split'}}">
+                    {{#unless crumb.isFirst}}
+                        <span class="fb-crumb-separator" aria-hidden="true">{{if crumb.split "⧉" "›"}}</span>
+                    {{/unless}}
+                    {{#if (and crumb.isFirst crumb.color)}}
+                        <span class="fb-crumb-dot" aria-hidden="true" {{set-css-var "--fb-module-color" crumb.color}}></span>
+                    {{/if}}
+                    {{#if crumb.isMenu}}
+                        <Layout::ChromeMenu class="fb-crumb-menu" @label={{crumb.label}} @items={{crumb.menu}} @triggerClass="fb-crumb-button" />
+                    {{else if crumb.isLink}}
+                        <button type="button" class="fb-crumb-button" {{on "click" (fn this.navigate crumb)}}>{{crumb.label}}</button>
+                    {{else}}
+                        <span class="fb-crumb-label" aria-current={{if crumb.isCurrent "page"}}>{{crumb.label}}</span>
+                    {{/if}}
+                </li>
+            {{/each}}
+        </ol>
+    {{/if}}
+    <div id="view-header-left-content-a" class="fb-context-bar-slot"></div>
+    {{yield}}
+    {{#if this.chips.length}}
+        <span class="fb-context-bar-divider" aria-hidden="true"></span>
+        <ul class="fb-chips" aria-label="Status">
+            {{#each this.chips as |chip|}}
+                <li class="fb-chip-item">
+                    {{#if chip.isMenu}}
+                        <Layout::ChromeMenu class="fb-chip-menu" @label={{chip.label}} @items={{chip.menu}} @triggerClass="fb-chip is-menu" />
+                    {{else}}
+                        <span class="fb-chip is-{{chip.tone}}">{{chip.label}}</span>
+                    {{/if}}
+                </li>
+            {{/each}}
+        </ul>
+    {{/if}}
+    <div id="view-header-left-content-b" class="fb-context-bar-slot"></div>
+</nav>

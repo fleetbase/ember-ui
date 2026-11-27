@@ -1,0 +1,9 @@
+<div id={{@id}} class="fb-dock-tooltip" role="tooltip" {{did-insert this.place}} {{did-update this.place @anchor}} ...attributes>
+    <strong class="fb-dock-tooltip-name">{{@entry.title}}</strong>
+    {{#if @entry.status}}
+        <span class="fb-dock-tooltip-status is-{{@entry.status.tone}}">{{@entry.status.text}}</span>
+    {{/if}}
+    {{#if @entry.shortcut}}
+        <kbd class="fb-dock-tooltip-kbd">{{@entry.shortcut}}</kbd>
+    {{/if}}
+</div>

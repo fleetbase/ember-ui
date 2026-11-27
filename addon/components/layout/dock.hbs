@@ -1,0 +1,50 @@
+<nav class={{this.dockClass}} aria-label="Modules" ...attributes>
+    <ul class="fb-dock-items" {{on "keydown" this.onKeydown}}>
+        {{#each this.entries as |entry|}}
+            <li class="fb-dock-slot">
+                <Layout::Dock::Item
+                    @entry={{entry}}
+                    @active={{entry.isActive}}
+                    @expanded={{and this.isFlyoutOpen (eq this.flyoutEntry.id entry.id)}}
+                    @tabbable={{eq this.tabbableId entry.id}}
+                    @tooltipId={{if (eq this.tooltipId entry.id) this.tooltipElementId}}
+                    @showBadge={{this.dockPreferences.showBadges}}
+                    @onActivate={{this.activate}}
+                    @onPointerEnter={{this.onPointerEnter}}
+                    @onPointerLeave={{this.onPointerLeave}}
+                    @onFocus={{this.onFocus}}
+                    @onBlur={{this.onBlur}}
+                />
+            </li>
+        {{/each}}
+        <li class="fb-dock-separator" aria-hidden="true"></li>
+        <li class="fb-dock-slot">
+            <button
+                type="button"
+                class="fb-dock-item fb-dock-all-apps"
+                data-dock-item="__all-apps"
+                aria-label="All apps"
+                aria-haspopup="dialog"
+                aria-expanded={{if this.isCustomizerOpen "true" "false"}}
+                tabindex={{if this.tabbableId "-1" "0"}}
+                {{on "click" this.openCustomizer}}
+            >
+                <FaIcon @icon="grip" aria-hidden="true" />
+            </button>
+        </li>
+    </ul>
+    {{#if this.tooltipEntry}}
+        <Layout::Dock::Tooltip @id={{this.tooltipElementId}} @entry={{this.tooltipEntry}} @anchor={{this.tooltipAnchor}} />
+    {{/if}}
+</nav>
+<Layout::Dock::Flyout
+    @entry={{this.flyoutEntry}}
+    @open={{this.isFlyoutOpen}}
+    @pinned={{this.isPinned}}
+    @showsAdapter={{this.showsAdapter}}
+    @onClose={{this.closeFlyout}}
+    @onTogglePin={{this.togglePin}}
+/>
+{{#if this.isCustomizerOpen}}
+    <Layout::DockCustomizer @roles={{@roles}} @onClose={{this.closeCustomizer}} />
+{{/if}}

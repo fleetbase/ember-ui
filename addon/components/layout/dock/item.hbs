@@ -1,0 +1,37 @@
+<button
+    type="button"
+    class="fb-dock-item {{if @active 'is-active'}} {{if @expanded 'is-expanded'}} {{if @entry.color 'has-color'}}"
+    data-dock-item={{@entry.id}}
+    aria-label={{@entry.label}}
+    aria-describedby={{@tooltipId}}
+    aria-current={{if @active "page"}}
+    aria-expanded={{if @expanded "true" "false"}}
+    aria-controls="fb-dock-flyout"
+    aria-keyshortcuts={{@entry.keyShortcuts}}
+    tabindex={{if @tabbable "0" "-1"}}
+    {{set-css-var "--fb-module-color" @entry.color}}
+    {{on "click" (fn (or @onActivate (noop)) @entry)}}
+    {{on "mouseenter" (fn (or @onPointerEnter (noop)) @entry)}}
+    {{on "mouseleave" (or @onPointerLeave (noop))}}
+    {{on "focus" (fn (or @onFocus (noop)) @entry)}}
+    {{on "blur" (fn (or @onBlur (noop)) @entry)}}
+    ...attributes
+>
+    {{#if @active}}
+        <span class="fb-dock-indicator" aria-hidden="true"></span>
+    {{/if}}
+    <span class="fb-dock-icon" aria-hidden="true">
+        {{#if @entry.iconComponent}}
+            {{component (lazy-engine-component @entry.iconComponent) options=@entry.iconComponentOptions}}
+        {{else}}
+            <FaIcon @icon={{@entry.icon}} @prefix={{@entry.iconPrefix}} />
+        {{/if}}
+    </span>
+    {{#if @showBadge}}
+        {{#if @entry.badge}}
+            <span class="fb-dock-badge is-{{if @entry.status @entry.status.tone 'info'}}" aria-hidden="true">{{@entry.badge}}</span>
+        {{else if @entry.status}}
+            <span class="fb-dock-status-dot is-{{@entry.status.tone}}" aria-hidden="true"></span>
+        {{/if}}
+    {{/if}}
+</button>

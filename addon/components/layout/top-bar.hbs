@@ -1,0 +1,78 @@
+<div class="fb-top-bar fb-chrome-surface" ...attributes>
+    <button type="button" class="fb-top-bar-search" aria-label="Search everything, {{this.searchShortcut}}" aria-keyshortcuts="Meta+K Control+K" {{on "click" this.openSearch}}>
+        <FaIcon @icon="magnifying-glass" @size="sm" aria-hidden="true" />
+        <span class="fb-top-bar-search-label">Search</span>
+        <kbd class="fb-top-bar-kbd">{{this.searchShortcut}}</kbd>
+    </button>
+    <div id="view-header-actions" class="fb-top-bar-slot"></div>
+    <div id="view-header-tray-items" class="fb-top-bar-tray">
+        <RegistryYield @registry="header-tray-items" as |RegistryComponent|>
+            <RegistryComponent @header={{this}} />
+        </RegistryYield>
+        <NotificationTray @registerAPI={{@registerNotificationTrayApi}} @onClickNotification={{@onClickNotification}} />
+        <ChatTray />
+    </div>
+    {{#if @environment}}
+        <span class="fb-env-chip is-{{this.environmentTone}}"><span class="fb-env-chip-dot" aria-hidden="true"></span>{{@environment}}</span>
+    {{/if}}
+    <Layout::ChromeMenu
+        class="fb-top-bar-org"
+        @ariaLabel="Organization: {{this.currentUser.companyName}}"
+        @title={{this.currentUser.companyName}}
+        @items={{this.organizationItems}}
+        @align="right"
+        @triggerClass="fb-top-bar-org-trigger"
+    >
+        <:trigger>
+            <span class="fb-org-badge" aria-hidden="true">{{this.companyInitial}}</span>
+            <FaIcon @icon="chevron-down" @size="xs" aria-hidden="true" />
+        </:trigger>
+    </Layout::ChromeMenu>
+    <Layout::ChromeMenu class="fb-top-bar-account" @ariaLabel="Account, language and settings" @align="right" @triggerClass="fb-top-bar-account-trigger">
+        <:trigger>
+            <span class="fb-avatar" aria-hidden="true">{{this.userInitials}}</span>
+        </:trigger>
+        <:panel as |menu|>
+            <div class="fb-account-menu">
+                <div class="fb-account-identity">
+                    <span class="fb-avatar is-large" aria-hidden="true">{{this.userInitials}}</span>
+                    <span class="fb-account-identity-text">
+                        <strong>{{this.currentUser.name}}</strong>
+                        <span>{{this.currentUser.roleName}}</span>
+                    </span>
+                </div>
+                <label class="fb-account-field">
+                    <span class="fb-account-field-label">Language</span>
+                    <select class="fb-account-language" {{on "change" this.changeLanguage}}>
+                        {{#each this.languages as |entry|}}
+                            <option value={{entry.locale}} selected={{eq entry.locale this.currentLocale}}>{{entry.language}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                <label class="fb-account-field">
+                    <span class="fb-account-field-label">Time zone</span>
+                    <select class="fb-account-timezone" {{on "change" this.changeTimezone}}>
+                        {{#each this.timezones as |timezone|}}
+                            <option value={{timezone}} selected={{eq timezone this.currentTimezone}}>{{timezone}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                <div class="fb-account-field">
+                    <span class="fb-account-field-label" aria-hidden="true">Theme</span>
+                    <div class="fb-segmented" role="radiogroup" aria-label="Theme">
+                        {{#each this.themes as |choice|}}
+                            <button type="button" role="radio" data-theme-choice={{choice.value}} aria-checked={{if (eq this.currentTheme choice.value) "true" "false"}} {{on "click" (fn this.changeTheme choice.value)}}>{{choice.label}}</button>
+                        {{/each}}
+                    </div>
+                </div>
+                <ul class="fb-account-links">
+                    <li><button type="button" class="fb-account-link" data-account-link="profile" {{on "click" (fn menu.select (hash route="console.account.index"))}}>Profile &amp; security</button></li>
+                    <li><button type="button" class="fb-account-link" data-account-link="shortcuts" {{on "click" (fn this.menuAction menu "showKeyboardShortcuts")}}>Keyboard shortcuts <kbd>?</kbd></button></li>
+                    <li><button type="button" class="fb-account-link" data-account-link="docs" {{on "click" (fn this.openDocs menu)}}>Help &amp; docs</button></li>
+                    <li><button type="button" class="fb-account-link" data-account-link="changelog" {{on "click" (fn this.menuAction menu "viewChangelog")}}>What’s new</button></li>
+                    <li><button type="button" class="fb-account-link is-danger" data-account-link="sign-out" {{on "click" (fn this.menuAction menu "invalidateSession")}}>Sign out</button></li>
+                </ul>
+            </div>
+        </:panel>
+    </Layout::ChromeMenu>
+</div>

@@ -1,0 +1,69 @@
+{{#if this.isOpen}}
+    <div class="fb-command-palette-backdrop" {{on "click" this.close}}></div>
+    <div class="fb-command-palette fb-chrome-surface" role="dialog" aria-modal="true" aria-label="Search Fleetbase" {{did-insert this.setup}} {{on "keydown" this.onKeydown}} ...attributes>
+        <div class="fb-command-palette-search">
+            <FaIcon @icon="magnifying-glass" aria-hidden="true" />
+            <input
+                type="text"
+                class="fb-command-palette-input"
+                aria-label="Search modules, pages, records and actions"
+                aria-expanded={{if this.results.length "true" "false"}}
+                aria-controls={{this.listboxId}}
+                aria-activedescendant={{this.activeOptionId}}
+                aria-autocomplete="list"
+                autocomplete="off"
+                placeholder="Go to, search or run…"
+                value={{this.query}}
+                {{on "input" this.onInput}}
+            />
+            <span class="fb-command-palette-hint" aria-hidden="true">Tab to scope · Esc to close</span>
+        </div>
+        <div class="fb-command-palette-scopes" role="radiogroup" aria-label="Scope">
+            {{#each this.scopes as |scope|}}
+                <button
+                    type="button"
+                    class="fb-command-palette-scope {{if scope.isSelected 'is-selected'}}"
+                    role="radio"
+                    tabindex="-1"
+                    data-scope={{or scope.id "all"}}
+                    aria-checked={{if scope.isSelected "true" "false"}}
+                    {{on "click" (fn this.selectScope scope.id)}}
+                >{{scope.label}}</button>
+            {{/each}}
+        </div>
+        <div id={{this.listboxId}} class="fb-command-palette-results" role="listbox" aria-label="Results">
+            {{#each this.groups key="name" as |group|}}
+                <div class="fb-command-palette-group-title" role="presentation" data-group={{group.name}}>{{group.name}}</div>
+                    {{#each group.options key="id" as |option|}}
+                        <div
+                            id={{option.id}}
+                            class="fb-command-palette-option {{if option.isActive 'is-active'}}"
+                            role="option"
+                            aria-label="{{option.result.title}}{{if option.result.subtitle (concat ', ' option.result.subtitle)}}"
+                            aria-selected={{if option.isActive "true" "false"}}
+                            {{on "click" (fn this.activate option.result)}}
+                            {{on "mousemove" (fn this.highlight option.index)}}
+                        >
+                            <span class="fb-command-palette-option-text">
+                                <span class="fb-command-palette-option-title">{{option.result.title}}</span>
+                                {{#if option.result.subtitle}}
+                                    <span class="fb-command-palette-option-subtitle">{{option.result.subtitle}}</span>
+                                {{/if}}
+                            </span>
+                            {{#if option.isActive}}
+                                <span class="fb-command-palette-kbd" aria-hidden="true">⏎</span>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+            {{/each}}
+            {{#if this.isEmpty}}
+                <p class="fb-command-palette-empty" role="status">Nothing matches “{{this.query}}”.</p>
+            {{else if this.isSearching}}
+                <p class="fb-command-palette-empty" role="status">Searching…</p>
+            {{/if}}
+        </div>
+        <div class="fb-command-palette-footer" aria-hidden="true">
+            <span>↑↓ move</span><span>⏎ open</span><span>Tab scope</span><span>Esc close</span>
+        </div>
+    </div>
+{{/if}}
