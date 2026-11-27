@@ -1,0 +1,142 @@
+<div class="fb-dock-customizer-backdrop">
+    <section
+        class="fb-dock-customizer fb-chrome-surface"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={{this.titleId}}
+        {{did-insert this.focusFirst}}
+        {{on "keydown" this.onKeydown}}
+        ...attributes
+    >
+        <header class="fb-dock-customizer-header">
+            <h2 id={{this.titleId}} class="fb-dock-customizer-title">Customize dock</h2>
+            <span class="fb-dock-customizer-subtitle">
+                {{#if this.isRoleMode}}Default dock for this role{{else}}Just for you{{/if}}
+            </span>
+            {{#if this.canManageRoles}}
+                <label class="fb-dock-customizer-role">
+                    <span>Editing</span>
+                    <select class="fb-dock-customizer-role-select" aria-label="Whose dock to edit" {{on "change" this.selectMode}}>
+                        <option value="personal" selected={{not this.isRoleMode}}>Just for me</option>
+                        {{#each this.roles as |role|}}
+                            <option value={{role.id}} selected={{eq this.mode role.id}}>Role: {{role.name}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+            {{/if}}
+            <button type="button" class="fb-dock-customizer-close" aria-label="Close" {{on "click" this.close}}>
+                <FaIcon @icon="xmark" aria-hidden="true" />
+            </button>
+        </header>
+        <div class="fb-dock-customizer-body">
+            <div class="fb-dock-customizer-modules">
+                {{#if this.dock}}
+                    <h3 class="fb-dock-customizer-heading">In the dock · drag to reorder</h3>
+                    <ol class="fb-dock-customizer-list" aria-label="In the dock">
+                        {{#each this.inDock as |row|}}
+                            <li
+                                class="fb-dock-customizer-row {{if row.isDragging 'is-dragging'}}"
+                                data-dock-row={{row.id}}
+                                draggable="true"
+                                {{set-css-var "--fb-module-color" row.item.color}}
+                                {{on "dragstart" (fn this.dragStart row.id)}}
+                                {{on "dragover" this.dragOver}}
+                                {{on "drop" (fn this.drop row.id)}}
+                                {{on "dragend" this.dragEnd}}
+                                {{on "keydown" (fn this.onRowKeydown row.id)}}
+                            >
+                                <span class="fb-dock-customizer-grip" aria-hidden="true"><FaIcon @icon="grip-vertical" @size="xs" /></span>
+                                <span class="fb-dock-customizer-icon" aria-hidden="true"><FaIcon @icon={{or row.item.icon "circle-dot"}} @prefix={{row.item.iconPrefix}} @size="sm" /></span>
+                                <span class="fb-dock-customizer-name">
+                                    <strong>{{row.item.title}}</strong>
+                                    {{#if row.item.status}}
+                                        <span class="fb-dock-customizer-note">{{row.item.status.text}}</span>
+                                    {{/if}}
+                                </span>
+                                {{#if row.shortcut}}
+                                    <kbd class="fb-dock-customizer-kbd">{{row.shortcut}}</kbd>
+                                {{/if}}
+                                <button type="button" class="fb-dock-customizer-move" aria-label="Move {{row.item.title}} up" disabled={{row.isFirst}} {{on "click" (fn this.moveUp row.id)}}>
+                                    <FaIcon @icon="arrow-up" @size="xs" aria-hidden="true" />
+                                </button>
+                                <button type="button" class="fb-dock-customizer-move" aria-label="Move {{row.item.title}} down" disabled={{row.isLast}} {{on "click" (fn this.moveDown row.id)}}>
+                                    <FaIcon @icon="arrow-down" @size="xs" aria-hidden="true" />
+                                </button>
+                                {{#if this.isRoleMode}}
+                                    <button
+                                        type="button"
+                                        class="fb-dock-customizer-lock {{if row.isLocked 'is-locked'}}"
+                                        aria-label="Lock {{row.item.title}}"
+                                        aria-pressed={{if row.isLocked "true" "false"}}
+                                        {{on "click" (fn this.toggleLock row.id)}}
+                                    >
+                                        <FaIcon @icon={{if row.isLocked "lock" "lock-open"}} @size="xs" aria-hidden="true" />
+                                    </button>
+                                {{else if row.isLocked}}
+                                    <span class="fb-dock-customizer-locked" title="Locked by your admin">
+                                        <FaIcon @icon="lock" @size="xs" aria-hidden="true" />
+                                        <span class="sr-only">Locked by your admin</span>
+                                    </span>
+                                {{/if}}
+                                <button
+                                    type="button"
+                                    class="fb-dock-customizer-remove"
+                                    aria-label="Remove {{row.item.title}} from the dock"
+                                    disabled={{and row.isLocked (not this.isRoleMode)}}
+                                    {{on "click" (fn this.remove row.id)}}
+                                >
+                                    <FaIcon @icon="minus" @size="xs" aria-hidden="true" />
+                                </button>
+                            </li>
+                        {{/each}}
+                    </ol>
+                    <h3 class="fb-dock-customizer-heading">In “All apps” · {{this.available.length}}</h3>
+                    <ul class="fb-dock-customizer-list" aria-label="In All apps">
+                        {{#each this.available as |item|}}
+                            <li class="fb-dock-customizer-row is-available" data-available-row={{item.id}}>
+                                <span class="fb-dock-customizer-icon" aria-hidden="true"><FaIcon @icon={{or item.icon "circle-dot"}} @prefix={{item.iconPrefix}} @size="sm" /></span>
+                                <span class="fb-dock-customizer-name"><strong>{{item.title}}</strong></span>
+                                <button type="button" class="fb-dock-customizer-add" aria-label="Add {{item.title}} to the dock" {{on "click" (fn this.add item.id)}}>+ Add</button>
+                            </li>
+                        {{/each}}
+                    </ul>
+                {{else}}
+                    <p class="fb-dock-customizer-unavailable">Choosing and ordering modules needs a newer version of Fleetbase. The behaviour settings still apply.</p>
+                {{/if}}
+            </div>
+            <div class="fb-dock-customizer-behaviour" role="group" aria-labelledby="{{this.id}}-behaviour">
+                <h3 id="{{this.id}}-behaviour" class="fb-dock-customizer-heading">Behaviour</h3>
+                <button type="button" class="fb-switch" role="switch" data-preference="showBadges" aria-checked={{if this.dockPreferences.showBadges "true" "false"}} {{on "click" (fn this.togglePreference "showBadges")}}>
+                    <span class="fb-switch-track" aria-hidden="true"></span>Show badges and status dots
+                </button>
+                <button type="button" class="fb-switch" role="switch" data-preference="openOnHover" aria-checked={{if this.dockPreferences.openOnHover "true" "false"}} {{on "click" (fn this.togglePreference "openOnHover")}}>
+                    <span class="fb-switch-track" aria-hidden="true"></span>Open flyout on hover
+                </button>
+                <button type="button" class="fb-switch" role="switch" data-preference="pinRail" aria-checked={{if this.dockPreferences.pinRail "true" "false"}} {{on "click" (fn this.togglePreference "pinRail")}}>
+                    <span class="fb-switch-track" aria-hidden="true"></span>Keep module pages pinned as a rail
+                </button>
+                <div class="fb-segmented" role="radiogroup" aria-label="Position">
+                    <span class="fb-segmented-label" aria-hidden="true">Position</span>
+                    {{#each (array (hash value="left" label="Left") (hash value="right" label="Right") (hash value="auto-hide" label="Auto-hide")) as |choice|}}
+                        <button type="button" role="radio" aria-checked={{if (eq this.dockPreferences.position choice.value) "true" "false"}} {{on "click" (fn this.setPreference "position" choice.value)}}>{{choice.label}}</button>
+                    {{/each}}
+                </div>
+                <div class="fb-segmented" role="radiogroup" aria-label="Size">
+                    <span class="fb-segmented-label" aria-hidden="true">Size</span>
+                    {{#each (array (hash value="compact" label="Compact") (hash value="default" label="Default")) as |choice|}}
+                        <button type="button" role="radio" aria-checked={{if (eq this.dockPreferences.size choice.value) "true" "false"}} {{on "click" (fn this.setPreference "size" choice.value)}}>{{choice.label}}</button>
+                    {{/each}}
+                </div>
+                <p class="fb-dock-customizer-hint">Shortcuts follow dock order: the first module is <kbd>{{this.firstShortcut}}</kbd>. “All apps” is always last and opens with <kbd>{{this.allAppsShortcut}}</kbd>.</p>
+            </div>
+        </div>
+        <footer class="fb-dock-customizer-footer">
+            {{#if this.canReset}}
+                <button type="button" class="fb-dock-customizer-reset" {{on "click" this.reset}}>Reset to company default</button>
+            {{/if}}
+            <span class="fb-dock-customizer-spacer"></span>
+            <button type="button" class="fb-dock-customizer-cancel" {{on "click" this.close}}>Cancel</button>
+            <button type="button" class="fb-dock-customizer-done" {{on "click" this.save}}>Done</button>
+        </footer>
+    </section>
+</div>

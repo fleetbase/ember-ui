@@ -7,6 +7,7 @@ import window from 'ember-window-mock';
 
 export default class LayoutSidebarNavigatorComponent extends Component {
     @service('sidebar-navigator') sidebarNavigator;
+    @service commandPalette;
     @tracked query = '';
     /* istanbul ignore next -- syncInitialViewStackToRoute() runs from the constructor and assigns this on every path before anything reads it */
     @tracked viewStack = [];
@@ -478,6 +479,11 @@ export default class LayoutSidebarNavigatorComponent extends Component {
 
     @action handleDocumentKeydown(event) {
         if (!(event.key?.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey))) {
+            return;
+        }
+
+        // In the canvas layout a mounted <CommandPalette /> owns ⌘K.
+        if (this.commandPalette.hasHost) {
             return;
         }
 

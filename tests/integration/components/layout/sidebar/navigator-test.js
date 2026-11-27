@@ -659,6 +659,18 @@ module('Integration | Component | layout/sidebar/navigator', function (hooks) {
         assert.dom('.next-sidebar-navigator-search-popover').exists();
     });
 
+    test('it leaves the keyboard shortcut to a mounted command palette', async function (assert) {
+        const unregister = this.owner.lookup('service:command-palette').register();
+        try {
+            await render(hbs`<Layout::Sidebar::Navigator @items={{this.items}} />`);
+            await triggerKeyEvent(document, 'keydown', 'K', { metaKey: true });
+
+            assert.dom('.next-sidebar-navigator-search-popover').doesNotExist('the canvas palette owns ⌘K');
+        } finally {
+            unregister();
+        }
+    });
+
     test('it renders provider search results', async function (assert) {
         this.set('searchNavigation', ({ query, limit }) => {
             assert.strictEqual(query, 'tyler');

@@ -1,0 +1,55 @@
+<div class="fb-chrome-menu {{if this.isOpen 'is-open'}} is-align-{{or @align 'left'}}" {{did-insert this.registerElement}} {{on "keydown" this.onKeydown}} ...attributes>
+    <button
+        type="button"
+        class="fb-chrome-menu-trigger {{@triggerClass}}"
+        aria-haspopup={{if (has-block "panel") "dialog" "menu"}}
+        aria-expanded={{if this.isOpen "true" "false"}}
+        aria-controls={{this.menuId}}
+        aria-label={{@ariaLabel}}
+        title={{@title}}
+        {{on "click" this.toggle}}
+    >
+        {{#if (has-block "trigger")}}
+            {{yield to="trigger"}}
+        {{else}}
+            <span class="fb-chrome-menu-label">{{@label}}</span>
+            <FaIcon @icon="chevron-down" @size="xs" class="fb-chrome-menu-caret" aria-hidden="true" />
+        {{/if}}
+    </button>
+    {{#if this.isOpen}}
+        {{#if (has-block "panel")}}
+            <div id={{this.menuId}} class="fb-chrome-menu-panel fb-chrome-popover" role="dialog" aria-label={{or @ariaLabel @label}} {{did-insert this.focusFirst}}>
+                {{yield (hash close=this.close select=this.select) to="panel"}}
+            </div>
+        {{else}}
+            <ul id={{this.menuId}} class="fb-chrome-menu-panel fb-chrome-popover" role="menu" aria-label={{or @ariaLabel @label}} {{did-insert this.focusFirst}}>
+                {{#each this.items as |item|}}
+                    {{#if item.separator}}
+                        <li class="fb-chrome-menu-separator" role="separator"></li>
+                    {{else}}
+                        <li role="none">
+                            <button
+                                type="button"
+                                class="fb-chrome-menu-item"
+                                role={{if (is-bool-value item.checked) "menuitemradio" "menuitem"}}
+                                aria-checked={{if (is-bool-value item.checked) (if item.checked "true" "false")}}
+                                disabled={{item.disabled}}
+                                {{on "click" (fn this.select item)}}
+                            >
+                                <span class="fb-chrome-menu-item-text">
+                                    <span>{{item.label}}</span>
+                                    {{#if item.description}}
+                                        <span class="fb-chrome-menu-item-description">{{item.description}}</span>
+                                    {{/if}}
+                                </span>
+                                {{#if item.checked}}
+                                    <FaIcon @icon="check" @size="xs" aria-hidden="true" />
+                                {{/if}}
+                            </button>
+                        </li>
+                    {{/if}}
+                {{/each}}
+            </ul>
+        {{/if}}
+    {{/if}}
+</div>

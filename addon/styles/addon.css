@@ -13,6 +13,7 @@
 @import 'layout/dark-theme.css';
 @import 'layout/light-theme.css';
 @import 'layout/canvas.css';
+@import 'layout/shell.css';
 
 /** Components */
 @import 'components/modal.css';

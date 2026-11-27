@@ -1,0 +1,64 @@
+<section
+    id="fb-dock-flyout"
+    class="fb-dock-flyout fb-chrome-surface {{if @pinned 'is-pinned'}}"
+    aria-label={{this.label}}
+    hidden={{not @open}}
+    {{set-css-var "--fb-module-color" @entry.color}}
+    {{on "keydown" this.onKeydown}}
+    ...attributes
+>
+    {{#if @entry}}
+        <header class="fb-dock-flyout-header">
+            <strong class="fb-dock-flyout-title">{{@entry.title}}</strong>
+            <button
+                type="button"
+                class="fb-dock-flyout-action fb-dock-flyout-pin"
+                aria-label={{if @pinned "Unpin pages rail" "Pin pages as a rail"}}
+                aria-pressed={{if @pinned "true" "false"}}
+                {{on "click" (or @onTogglePin (noop))}}
+            >
+                <FaIcon @icon="thumbtack" @size="sm" aria-hidden="true" />
+            </button>
+            <button type="button" class="fb-dock-flyout-action fb-dock-flyout-close" aria-label="Close" {{on "click" (or @onClose (noop))}}>
+                <FaIcon @icon="xmark" @size="sm" aria-hidden="true" />
+            </button>
+        </header>
+        <label class="fb-dock-flyout-filter">
+            <FaIcon @icon="magnifying-glass" @size="xs" aria-hidden="true" />
+            <input
+                type="search"
+                class="fb-dock-flyout-filter-input"
+                placeholder="Jump to a {{@entry.title}} page"
+                aria-label="Jump to a {{@entry.title}} page"
+                value={{this.query}}
+                {{on "input" this.updateFilter}}
+            />
+        </label>
+        {{#if this.groups.length}}
+            <div class="fb-dock-flyout-pages">
+                {{#each this.groups as |group|}}
+                    <div class="fb-dock-flyout-group" role="group" aria-label={{or group.title @entry.title}}>
+                        {{#if group.title}}
+                            <h3 class="fb-dock-flyout-group-title">{{group.title}}</h3>
+                        {{/if}}
+                        <ul class="fb-dock-flyout-list">
+                            {{#each group.items as |page|}}
+                                <li>
+                                    <button type="button" class="fb-dock-flyout-page {{if page.isCurrent 'is-current'}}" aria-current={{if page.isCurrent "page"}} {{on "click" (fn this.openPage page)}}>
+                                        {{#if page.icon}}
+                                            <FaIcon @icon={{page.icon}} @size="sm" aria-hidden="true" />
+                                        {{/if}}
+                                        <span>{{page.title}}</span>
+                                    </button>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                {{/each}}
+            </div>
+        {{else if this.query}}
+            <p class="fb-dock-flyout-empty">No {{@entry.title}} page matches “{{this.query}}”.</p>
+        {{/if}}
+    {{/if}}
+    <div id="sidebar-menu-items" class="fb-dock-flyout-adapter" hidden={{not @showsAdapter}}></div>
+</section>
