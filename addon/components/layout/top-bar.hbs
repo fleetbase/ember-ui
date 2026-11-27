@@ -70,6 +70,9 @@
                     <li><button type="button" class="fb-account-link" data-account-link="shortcuts" {{on "click" (fn this.menuAction menu "showKeyboardShortcuts")}}>Keyboard shortcuts <kbd>?</kbd></button></li>
                     <li><button type="button" class="fb-account-link" data-account-link="docs" {{on "click" (fn this.openDocs menu)}}>Help &amp; docs</button></li>
                     <li><button type="button" class="fb-account-link" data-account-link="changelog" {{on "click" (fn this.menuAction menu "viewChangelog")}}>What’s new</button></li>
+                    {{#each @accountLinks as |link|}}
+                        <li><button type="button" class="fb-account-link" data-account-link={{link.id}} {{on "click" (fn this.menuAction menu link.action link.params)}}>{{link.label}}</button></li>
+                    {{/each}}
                     <li><button type="button" class="fb-account-link is-danger" data-account-link="sign-out" {{on "click" (fn this.menuAction menu "invalidateSession")}}>Sign out</button></li>
                 </ul>
             </div>
