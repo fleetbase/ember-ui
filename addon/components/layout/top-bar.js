@@ -29,6 +29,9 @@ export const THEMES = Object.freeze([
  * - `@registerNotificationTrayApi`, `@onClickNotification` — passed to the
  *   notification tray.
  * - `@timezones` — the time zones offered (defaults to the browser's list).
+ * - `@accountLinks` — extra account menu links, listed above Sign out:
+ *   `[{ id, label, action, params? }]`. Choosing one closes the menu and calls
+ *   `@onAction(action, ...params)`.
  */
 export default class LayoutTopBarComponent extends Component {
     @service currentUser;
@@ -138,8 +141,8 @@ export default class LayoutTopBarComponent extends Component {
         this.docsPanel.open('https://www.fleetbase.io/docs', { title: 'Fleetbase Documentation', source: 'account-menu' });
     }
 
-    @action menuAction(menu, name) {
+    @action menuAction(menu, name, params = []) {
         menu.close();
-        this.runAction(name);
+        this.runAction(name, ...params);
     }
 }

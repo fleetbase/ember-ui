@@ -229,6 +229,25 @@ module('Integration | Component | layout/top-bar', function (hooks) {
         });
     });
 
+    test('extra account links sit above Sign out and run through @onAction', async function (assert) {
+        this.links = [
+            { id: 'layout', label: 'Switch to classic layout', action: 'switchLayout', params: ['classic'] },
+            { id: 'plain', label: 'Plain', action: 'plainAction' },
+        ];
+        await render(hbs`<Layout::TopBar @onAction={{this.onAction}} @accountLinks={{this.links}} />`);
+        await click(ACCOUNT);
+
+        const ids = findAll('[data-account-link]').map((el) => el.dataset.accountLink);
+        assert.deepEqual(ids.slice(-3), ['layout', 'plain', 'sign-out']);
+        assert.dom('[data-account-link="layout"]').hasText('Switch to classic layout');
+
+        await click('[data-account-link="layout"]');
+        assert.dom('.fb-account-menu').doesNotExist('closes the menu');
+        await click(ACCOUNT);
+        await click('[data-account-link="plain"]');
+        assert.deepEqual(this.actions, [['switchLayout', 'classic'], ['plainAction']]);
+    });
+
     test('with the stub services that have no language list or active theme', async function (assert) {
         await render(hbs`<Layout::TopBar />`);
         await click(ACCOUNT);
