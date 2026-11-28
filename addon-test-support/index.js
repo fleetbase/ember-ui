@@ -1,4 +1,6 @@
 import { render } from '@ember/test-helpers';
+import { shellState } from '@fleetbase/ember-ui/services/shell';
+import { sheetStack } from '@fleetbase/ember-ui/utils/sheet-stack';
 
 /**
  * Test helpers for the canvas layout (`Layout::Canvas` and the pieces that
@@ -112,4 +114,20 @@ export async function renderShell(template, { theme = 'light' } = {}) {
  */
 export function shellToken(name, element = document.body) {
     return getComputedStyle(element).getPropertyValue(`--fb-${name}`).trim();
+}
+
+/**
+ * The shell layout (`shellState`) and the open-sheet stack are page-wide
+ * module state, shared by the host and its engines. Reset both before each
+ * test so a layout set or a sheet left open in one test cannot leak into the
+ * next: `QUnit.testStart(resetShellState)` in `tests/test-helper.js`, or
+ * `setupShellState(hooks)` per module.
+ */
+export function resetShellState() {
+    shellState.reset();
+    sheetStack.reset();
+}
+
+export function setupShellState(hooks) {
+    hooks.beforeEach(resetShellState);
 }

@@ -50,3 +50,38 @@
     background-image: radial-gradient(var(--fb-canvas-dot) var(--fb-canvas-dot-size), transparent var(--fb-canvas-dot-size));
     background-size: var(--fb-canvas-grid) var(--fb-canvas-grid);
 }
+
+/* Layout::Canvas::BackdropHost. Every mounted backdrop keeps its slot; only the
+   active one is visible. Hidden slots are `inert` and invisible but stay laid
+   out at full size, so a map kept alive does not lose its dimensions. */
+.fb-canvas-backdrop-host {
+    position: absolute;
+    inset: 0;
+}
+
+.fb-canvas-backdrop-slot {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+}
+
+.fb-canvas-backdrop-slot.is-active {
+    visibility: visible;
+}
+
+/* Over a live backdrop, the content layer's empty area passes the pointer to
+   the map; the cards and sheets inside it still take it. A page wrapper that
+   spans the whole content area can opt out with `fb-canvas-passthrough`. */
+.fb-canvas:has(.fb-canvas-backdrop-slot.is-active) > .fb-canvas-content {
+    pointer-events: none;
+}
+
+.fb-canvas:has(.fb-canvas-backdrop-slot.is-active) > .fb-canvas-content > *,
+.fb-canvas-passthrough > * {
+    pointer-events: auto;
+}
+
+.fb-canvas:has(.fb-canvas-backdrop-slot.is-active) > .fb-canvas-content > .fb-canvas-passthrough,
+.fb-canvas-passthrough {
+    pointer-events: none;
+}

@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'dummy/tests/helpers';
-import { render, click } from '@ember/test-helpers';
+import { render, click, settled } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupShellTheme, renderShell, eachShellTheme } from '@fleetbase/ember-ui/test-support';
 
@@ -111,6 +111,18 @@ module('Integration | Component | layout/canvas', function (hooks) {
 
         assert.strictEqual(content.offsetLeft, 0);
         assert.strictEqual(content.offsetTop, 0);
+    });
+
+    test('while mounted it puts the shell in the canvas layout', async function (assert) {
+        const shell = this.owner.lookup('service:shell');
+        this.show = true;
+
+        await render(hbs`{{#if this.show}}<Layout::Canvas />{{/if}}`);
+        assert.strictEqual(shell.layout, 'canvas');
+
+        this.set('show', false);
+        await settled();
+        assert.strictEqual(shell.layout, 'classic');
     });
 
     test('it forwards splattributes and leaves data-theme to the page without @theme', async function (assert) {

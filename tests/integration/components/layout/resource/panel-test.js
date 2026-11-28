@@ -252,4 +252,109 @@ module('Integration | Component | layout/resource/panel', function (hooks) {
             assert.dom('.resource-panel-header button.btn').exists('the save control still renders under a different schema');
         });
     });
+
+    module('in the canvas layout', function () {
+        test('@layout="canvas" renders it as a Sheet with the resource header and body', async function (assert) {
+            this.cancelled = 0;
+            this.onPressCancel = () => this.cancelled++;
+            await render(hbs`
+                <Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @headerTitle="Order 123" @bodyClass="my-body" @onPressCancel={{this.onPressCancel}} data-test-panel as |resource|>
+                    <span class="name">{{resource.name}}</span>
+                </Layout::Resource::Panel>
+            `);
+
+            assert.dom(OVERLAY).doesNotExist('no classic overlay');
+            assert.dom('.fb-sheet.resource-panel-sheet').exists().hasAttribute('data-test-panel').hasAttribute('aria-label', 'Order 123');
+            assert.dom('.fb-sheet-header .resource-panel-header').containsText('Order 123');
+            assert.dom('.fb-sheet-close').doesNotExist('the resource header keeps its own cancel control');
+            assert.dom('.fb-sheet-body .resource-panel-sheet-body.my-body .name').hasText('Order 123');
+            assert.strictEqual(find('.fb-sheet').style.getPropertyValue('--fb-sheet-width'), '440px', 'without a width it uses the md sheet preset');
+            assert.dom('.fb-sheet-resize').exists('resizable by default');
+
+            await click('.next-content-overlay-panel-cancel-button');
+            assert.strictEqual(this.cancelled, 1);
+        });
+
+        test('the shell service picks the canvas layout when no @layout is given', async function (assert) {
+            this.owner.lookup('service:shell').setLayout('canvas');
+            await render(hbs`<Layout::Resource::Panel @resource={{this.resource}} />`);
+
+            assert.dom('.fb-sheet').exists();
+            assert.dom('.fb-sheet').hasAttribute('aria-label', 'Order 123', 'titled from the resource name');
+        });
+
+        test('inside Layout::Canvas it renders as a Sheet; @layout="classic" opts out', async function (assert) {
+            await render(hbs`
+                <Layout::Canvas>
+                    <Layout::Resource::Panel @resource={{this.resource}} class="canvas-panel" />
+                    <Layout::Resource::Panel @layout="classic" @resource={{this.resource}} class="classic-panel" />
+                </Layout::Canvas>
+            `);
+
+            assert.dom('.fb-sheet.canvas-panel').exists();
+            assert.dom(`${PANEL}.classic-panel`).exists();
+        });
+
+        test('sheet width, limits and stacking arguments pass through', async function (assert) {
+            this.activated = 0;
+            this.parked = 0;
+            this.onActivate = () => this.activated++;
+            this.onPark = () => this.parked++;
+            await render(hbs`
+                <Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @sheetWidth="lg" @minResizeWidth="400px" @maxResizeWidth={{700}} @side="left"
+                    @stackIndex={{0}} @stackSize={{2}} @onActivate={{this.onActivate}} @onPark={{this.onPark}} class="back" />
+                <Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @isResizable={{false}} @stackIndex={{1}} @stackSize={{2}} class="front" @onPark={{this.onPark}} />
+            `);
+
+            assert.dom('.back').hasClass('is-left').hasClass('is-spine');
+            assert.strictEqual(find('.back').style.getPropertyValue('--fb-sheet-width'), '640px');
+            await click('.back .fb-sheet-spine');
+            assert.strictEqual(this.activated, 1);
+
+            assert.dom('.front').hasClass('is-top');
+            assert.dom('.front .fb-sheet-resize').doesNotExist();
+            await click('.front .fb-sheet-park');
+            assert.strictEqual(this.parked, 1);
+        });
+
+        test('resize limits reach the sheet handle', async function (assert) {
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @minResizeWidth="400px" @maxResizeWidth={{700}} />`);
+
+            assert.dom('.fb-sheet-resize').hasAttribute('aria-valuemin', '400').hasAttribute('aria-valuemax', '700');
+        });
+
+        test('a width given as a classic @width is used when there is no @sheetWidth', async function (assert) {
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @width="sm" />`);
+            assert.strictEqual(find('.fb-sheet').style.getPropertyValue('--fb-sheet-width'), '360px');
+        });
+
+        test('a custom header component renders in the sheet header', async function (assert) {
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @headerComponent="spinner" @headerClass="my-header" />`);
+
+            assert.dom('.fb-sheet-header .fleetbase-loader-wrapper.my-header.resource-panel-header').exists();
+        });
+
+        test('a displayName-only resource still titles the sheet, and none leaves it untitled', async function (assert) {
+            this.set('resource', { displayName: 'Driver Alex' });
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} />`);
+            assert.dom('.fb-sheet').hasAttribute('aria-label', 'Driver Alex');
+
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" />`);
+            assert.dom('.fb-sheet').doesNotHaveAttribute('aria-label');
+        });
+
+        test('the sheet stands in for the overlay context in onLoad, onOverlayReady and onOpen', async function (assert) {
+            const calls = [];
+            this.onLoad = (context) => calls.push(['onLoad', typeof context.close]);
+            this.options = { onOverlayReady: (context) => calls.push(['onOverlayReady', Boolean(context.element)]) };
+            this.onOpen = ({ resource, panel }) => calls.push(['onOpen', resource.name, typeof panel.park]);
+            await render(hbs`<Layout::Resource::Panel @layout="canvas" @resource={{this.resource}} @onLoad={{this.onLoad}} @options={{this.options}} @onOpen={{this.onOpen}} />`);
+
+            assert.deepEqual(calls, [
+                ['onLoad', 'function'],
+                ['onOverlayReady', true],
+                ['onOpen', 'Order 123', 'function'],
+            ]);
+        });
+    });
 });

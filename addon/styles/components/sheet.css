@@ -1,0 +1,220 @@
+/**
+ * Sheet: the canvas shell's floating record card (B2, B3).
+ *
+ * A sheet is fixed to the content area's insets on its side. Sheets behind the
+ * top one in a stack are pushed in by `--fb-sheet-offset` (one spine width per
+ * level), so their left (or right) strip shows as a clickable spine.
+ * Layering: sheets sit in the content layer, so floating chrome stays above them.
+ */
+
+.fb-sheet {
+    --fb-sheet-width: 440px;
+    --fb-sheet-offset: 0px;
+    --fb-sheet-spine: 28px;
+
+    position: fixed;
+    top: var(--fb-inset-top);
+    bottom: var(--fb-inset-bottom);
+    z-index: 10;
+    display: flex;
+    width: var(--fb-sheet-width);
+    max-width: calc(100% - var(--fb-inset-left) - var(--fb-inset-right));
+    overflow: hidden;
+    border: 1px solid var(--fb-chrome-border);
+    border-radius: 18px;
+    background-color: var(--fb-surface);
+    box-shadow: var(--fb-shadow-sheet);
+    color: var(--fb-text);
+    animation: fb-sheet-in 160ms ease-out;
+}
+
+.fb-sheet.is-right {
+    right: calc(var(--fb-inset-right) + var(--fb-sheet-offset));
+}
+
+.fb-sheet.is-left {
+    left: calc(var(--fb-inset-left) + var(--fb-sheet-offset));
+}
+
+.fb-sheet:focus {
+    outline: none;
+}
+
+.fb-sheet:focus-visible,
+.fb-sheet :focus-visible {
+    outline: 2px solid var(--fb-focus);
+    outline-offset: 2px;
+}
+
+.fb-sheet.is-top {
+    z-index: 14;
+}
+
+.fb-sheet.is-spine[data-depth='1'] {
+    z-index: 13;
+}
+
+.fb-sheet.is-spine[data-depth='2'] {
+    z-index: 12;
+}
+
+.fb-sheet.is-spine[data-depth='3'] {
+    z-index: 11;
+}
+
+.fb-sheet.is-hidden {
+    visibility: hidden;
+}
+
+.fb-sheet-panel {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.fb-sheet.is-spine .fb-sheet-panel {
+    opacity: 0.6;
+}
+
+.fb-sheet-spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    width: var(--fb-sheet-spine);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px 0 0;
+    border: 0;
+    background-color: var(--fb-subtle);
+    color: var(--fb-muted);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.fb-sheet.is-right .fb-sheet-spine {
+    left: 0;
+}
+
+.fb-sheet.is-left .fb-sheet-spine {
+    right: 0;
+}
+
+.fb-sheet-spine:hover {
+    color: var(--fb-text);
+}
+
+.fb-sheet-spine-label {
+    overflow: hidden;
+    max-height: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+}
+
+.fb-sheet-header {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 8px 10px 8px 18px;
+    border-bottom: 1px solid var(--fb-border);
+}
+
+.fb-sheet-header-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.fb-sheet-title {
+    margin: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fb-sheet-controls {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 2px;
+}
+
+.fb-sheet-control {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--fb-radius-control);
+    background: transparent;
+    color: var(--fb-muted);
+    cursor: pointer;
+}
+
+.fb-sheet-control:hover {
+    background-color: var(--fb-subtle);
+    color: var(--fb-text);
+}
+
+.fb-sheet-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.fb-sheet-footer {
+    flex: none;
+    padding: 10px 18px;
+    border-top: 1px solid var(--fb-border);
+}
+
+.fb-sheet-resize {
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 56px;
+    margin-top: -28px;
+    border-radius: 4px;
+    background-color: var(--fb-border);
+    cursor: col-resize;
+    touch-action: none;
+}
+
+.fb-sheet.is-right .fb-sheet-resize {
+    left: 2px;
+}
+
+.fb-sheet.is-left .fb-sheet-resize {
+    right: 2px;
+}
+
+.fb-sheet-resize:hover,
+.fb-sheet-resize:focus-visible {
+    background-color: var(--fb-accent);
+}
+
+@keyframes fb-sheet-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fb-sheet {
+        animation: none;
+    }
+}

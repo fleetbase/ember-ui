@@ -5,10 +5,14 @@ import { setApplication } from '@ember/test-helpers';
 import { setup } from 'qunit-dom';
 import { start } from 'ember-qunit';
 import { forceModulesToBeLoaded, sendCoverage } from 'ember-cli-code-coverage/test-support';
+import { resetShellState } from '@fleetbase/ember-ui/test-support';
 
 setApplication(Application.create(config.APP));
 
 setup(QUnit.assert);
+
+// Page-wide shell layout and sheet stack: start every test from the classic layout and no sheets.
+QUnit.testStart(resetShellState);
 
 // Evaluate every bundled module after the suite finishes so files no test imported still appear
 // in the coverage denominator, then post the collected coverage to the reporting middleware.

@@ -1,0 +1,22 @@
+<div class="fb-canvas-backdrop-host" data-backdrop-active={{if this.hasActive this.active.name}} ...attributes>
+    {{#each this.entries key="name" as |entry|}}
+        <div
+            class="fb-canvas-backdrop-slot {{if entry.isActive 'is-active'}}"
+            data-backdrop={{entry.name}}
+            aria-hidden={{if entry.isActive "false" "true"}}
+            inert={{entry.inert}}
+        >
+            {{#if entry.isEngineComponent}}
+                <LazyEngineComponent
+                    @component={{entry.component}}
+                    @params={{hash registration=entry.registration isActive=entry.isActive state=this.state backdrop=this.backdrop}}
+                />
+            {{else}}
+                {{component entry.component registration=entry.registration isActive=entry.isActive state=this.state backdrop=this.backdrop}}
+            {{/if}}
+        </div>
+    {{/each}}
+    {{#unless this.hasActive}}
+        <Layout::Canvas::Backdrop::DotGrid />
+    {{/unless}}
+</div>
